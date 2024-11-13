@@ -60,7 +60,8 @@ class Robot::Impl : public ActorImpl {
   Impl(const std::string& id, const Transform& origin, const Logger& logger,
        const TopicManager& topic_manager, const std::string& parent_topic_path,
        const ServiceManager& service_manager,
-       const StateManager& state_manager);
+       const StateManager& state_manager,
+       const std::string& working_simulation_path);
 
   void Load(ConfigJson config_json);
 
@@ -131,6 +132,8 @@ class Robot::Impl : public ActorImpl {
 
   const PhysicsType& GetPhysicsType() const;
   void SetPhysicsType(const PhysicsType& phys_type);
+  //used only by JSBSim physics and controller
+  std::shared_ptr<JSBSim::FGFDMExec> GetJSBSimModel() const;
   const std::string& GetPhysicsConnectionSettings() const;
   void SetPhysicsConnectionSettings(const std::string& phys_conn_settings);
   const std::string& GetControlConnectionSettings() const;
@@ -166,6 +169,9 @@ class Robot::Impl : public ActorImpl {
  private:
   friend class Robot::Loader;
 
+  const std::string& GetJSBSimScript() const;
+  void InitializeJSBSimModel();
+
   Robot::Loader loader_;
   std::vector<Link> links_;
   std::vector<Joint> joints_;
@@ -179,6 +185,9 @@ class Robot::Impl : public ActorImpl {
   TimeNano kinematics_updated_timestamp_;
 
   PhysicsType physics_type_;
+  std::string jsbsim_script_;
+  std::string jsbsim_model_;
+  std::shared_ptr<JSBSim::FGFDMExec> model_;
   std::string physics_connection_settings_;
   std::string control_connection_settings_;
   bool start_landed_;
@@ -213,6 +222,8 @@ class Robot::Impl : public ActorImpl {
       indirectrefframe_;  // Current pose reference frame
   TransformTree::StaticRefFrame
       staticrefframe_home_;  // Home pose reference frame
+
+  const std::string working_simulation_path_;
 };
 
 // -----------------------------------------------------------------------------
@@ -224,19 +235,21 @@ Robot::Robot(const std::string& id, const Transform& origin,
              const Logger& logger, const TopicManager& topic_manager,
              const std::string& parent_topic_path,
              const ServiceManager& service_manager,
-             const StateManager& state_manager)
+             const StateManager& state_manager,
+             const std::string& working_simulation_path)
     : Actor(std::shared_ptr<ActorImpl>(
           new Robot::Impl(id, origin, logger, topic_manager, parent_topic_path,
-                          service_manager, state_manager))) {}
+                          service_manager, state_manager, working_simulation_path))) {}
 
 Robot::Robot(const std::string& id, const Transform& origin,
              const Logger& logger, const TopicManager& topic_manager,
              const std::string& parent_topic_path,
              const ServiceManager& service_manager,
-             const StateManager& state_manager, HomeGeoPoint home_geo_point)
+             const StateManager& state_manager, HomeGeoPoint home_geo_point,
+             const std::string& working_simulation_path)
     : Actor(std::shared_ptr<ActorImpl>(
           new Robot::Impl(id, origin, logger, topic_manager, parent_topic_path,
-                          service_manager, state_manager))) {
+                          service_manager, state_manager, working_simulation_path))) {
   static_cast<Robot::Impl*>(pimpl_.get())->SetHomeGeoPoint(home_geo_point);
 }
 
@@ -369,6 +382,10 @@ void Robot::SetPhysicsType(const PhysicsType& phys_type) {
   static_cast<Robot::Impl*>(pimpl_.get())->SetPhysicsType(phys_type);
 }
 
+std::shared_ptr<JSBSim::FGFDMExec> Robot::GetJSBSimModel() const {
+  return static_cast<Robot::Impl*>(pimpl_.get())->GetJSBSimModel();
+}
+
 const std::string& Robot::GetPhysicsConnectionSettings() const {
   return static_cast<Robot::Impl*>(pimpl_.get())
       ->GetPhysicsConnectionSettings();
@@ -478,7 +495,8 @@ Robot::Impl::Impl(const std::string& id, const Transform& origin,
                   const Logger& logger, const TopicManager& topic_manager,
                   const std::string& parent_topic_path,
                   const ServiceManager& service_manager,
-                  const StateManager& state_manager)
+                  const StateManager& state_manager,
+                  const std::string& working_simulation_path)
     : ActorImpl(ActorType::kRobot, id, origin, Constant::Component::robot,
                 logger, topic_manager, parent_topic_path, service_manager,
                 state_manager),
@@ -488,7 +506,8 @@ Robot::Impl::Impl(const std::string& id, const Transform& origin,
       indirectrefframe_(std::string("R ") + id, &kinematics_.pose),
       staticrefframe_home_(std::string("R ") + id + "_home", kinematics_.pose),
       last_actuated_rotation_simtime_(0),
-      start_landed_(false) {
+      start_landed_(false),
+      working_simulation_path_(working_simulation_path) {
   SetTopicPath();
   CreateTopics();
   RegisterServiceMethods();
@@ -512,6 +531,11 @@ void Robot::Impl::Load(ConfigJson config_json) {
 
   //! Initialize Sensors
   InitializeSensors(GetKinematics(), GetEnvironment());
+
+  // check if using jsbsim physics to initialize jsbsim
+  if(physics_type_ == PhysicsType::kJSBSimPhysics) {
+    InitializeJSBSimModel();
+  }
 
   // Create tilt actuator target list
   {
@@ -717,6 +741,23 @@ void Robot::Impl::RegisterServiceMethods() {
   auto get_camera_ray_handler =
       get_camera_ray.CreateMethodHandler(&Robot::Impl::GetCameraRay, *this);
   service_manager_.RegisterMethod(get_camera_ray, get_camera_ray_handler);
+}
+
+void Robot::Impl::InitializeJSBSimModel(){
+  model_ = std::make_shared<JSBSim::FGFDMExec>();
+  std::string jsbsim_root_path =
+        working_simulation_path_ + "/SimLibs/core_sim/jsbsim/models/";
+  model_->SetRootDir(SGPath(jsbsim_root_path));
+  model_->SetAircraftPath(SGPath("aircraft"));
+  model_->SetEnginePath(SGPath("engine"));
+  model_->SetSystemsPath(SGPath("systems"));
+  if(jsbsim_script_!="") {
+    if (!model_->LoadScript(SGPath(jsbsim_script_))) {
+      throw std::runtime_error("Failed to load JSBSim script");
+    }
+  } else if (!model_->LoadModel(jsbsim_model_)) {
+    throw std::runtime_error("Failed to load JSBSim model");
+  }
 }
 
 bool Robot::Impl::SetExternalForce(const std::vector<float>& ext_force) {
@@ -960,6 +1001,10 @@ const PhysicsType& Robot::Impl::GetPhysicsType() const { return physics_type_; }
 void Robot::Impl::SetPhysicsType(const PhysicsType& phys_type) {
   physics_type_ = phys_type;
 }
+
+const std::string& Robot::Impl::GetJSBSimScript() const { return jsbsim_script_; }
+
+std::shared_ptr<JSBSim::FGFDMExec> Robot::Impl::GetJSBSimModel() const { return model_; }
 
 const std::string& Robot::Impl::GetPhysicsConnectionSettings() const {
   return physics_connection_settings_;
@@ -1402,6 +1447,16 @@ void Robot::Loader::LoadPhysicsType(const json& json) {
     impl_.physics_type_ = PhysicsType::kMatlabPhysics;
   } else if (physics_type == Constant::Config::unreal_physics) {
     impl_.physics_type_ = PhysicsType::kUnrealPhysics;
+  } else if (physics_type == Constant::Config::jsbsim_physics) {
+    impl_.physics_type_ = PhysicsType::kJSBSimPhysics;
+    impl_.jsbsim_script_ =
+        JsonUtils::GetString(
+    json, Constant::Config::jsbsim_script);
+    if(impl_.jsbsim_script_ == "") {
+      impl_.jsbsim_model_ =
+        JsonUtils::GetString(
+      json, Constant::Config::jsbsim_model);
+    }
   } else {
     impl_.physics_type_ = PhysicsType::kNonPhysics;
     impl_.logger_.LogWarning(

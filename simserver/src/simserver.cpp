@@ -10,6 +10,7 @@
 #include "core_sim/simulator.hpp"
 #include "manual_controller_api.hpp"
 #include "matlab_controller_api.hpp"
+#include "jsbsim_api.hpp"
 #include "mavlink_api.hpp"
 #include "physics_world.hpp"
 #include "tile_manager.hpp"
@@ -17,8 +18,8 @@
 namespace microsoft {
 namespace projectairsim {
 
-SimServer::SimServer(Simulator::LoggerCallback logger_callback, LogLevel level)
-    : simulator_(std::make_shared<Simulator>(logger_callback, level)),
+SimServer::SimServer(Simulator::LoggerCallback logger_callback, LogLevel level, const std::string& working_simulation_path)
+    : simulator_(std::make_shared<Simulator>(logger_callback, level, working_simulation_path)),
       physics_world_(std::make_shared<PhysicsWorld>()),
       tile_manager_(nullptr),
       load_external_scene_callback_(nullptr),
@@ -290,6 +291,10 @@ void SimServer::LoadControllers(Scene& scene) {
         auto simple_flight_api = new SimpleFlightApi(sim_robot, ptransformtree);
         sim_robot.SetController(
             std::unique_ptr<IController>(simple_flight_api));
+      } else if (controller_type == "jsbsim-api") {
+        auto jsbsim_api = new JSBSimApi(sim_robot, ptransformtree);
+        sim_robot.SetController(
+            std::unique_ptr<IController>(jsbsim_api));
       } else if (controller_type == "px4-api") {
         auto px4_api = new MavLinkApi(sim_robot, ptransformtree);
         sim_robot.SetController(std::unique_ptr<IController>(px4_api));

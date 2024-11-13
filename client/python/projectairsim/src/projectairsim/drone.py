@@ -230,6 +230,39 @@ class Drone(object):
         disarmed = self.client.request(disarm_req)
         return disarmed
 
+    #get_take_off_z
+    def get_take_off_z(self) -> float:
+        """Get take off z
+
+        Returns:
+            float: Take off z
+        """
+        get_take_off_z_req: Dict = {
+            "method": f"{self.parent_topic}/GetTakeOffZ",
+            "params": {},
+            "version": 1.0,
+        }
+        take_off_z = self.client.request(get_take_off_z_req)
+        return take_off_z
+    
+    #set_take_off_z
+    def set_take_off_z(self, take_off_z: float) -> bool:
+        """Set take off z
+
+        Args:
+            take_off_z (float): Take off z
+
+        Returns:
+            bool: True if take off z is set
+        """
+        set_take_off_z_req: Dict = {
+            "method": f"{self.parent_topic}/SetTakeOffZ",
+            "params": {"_take_off_z": take_off_z},
+            "version": 1.0,
+        }
+        take_off_z_set = self.client.request(set_take_off_z_req)
+        return take_off_z_set
+
     def can_arm(self) -> bool:
         """Checks if the vehicle can be armed
 
@@ -1448,6 +1481,64 @@ class Drone(object):
         }
         taskcr = await self.client.request_async(req, callback)
         return taskcr
+
+    #set_brakes
+    def set_brakes(self, brakes_value: float) -> bool:
+        """Set brakes
+
+        Args:
+            brakes_value (float): Brakes value
+
+        Returns:
+            bool: True if brakes are set
+        """
+        set_brakes_req: Dict = {
+            "method": f"{self.parent_topic}/SetBrakes",
+            "params": {"_brakes_value": brakes_value},
+            "version": 1.0,
+        }
+        brakes_set = self.client.request(set_brakes_req)
+        return brakes_set
+
+    # get_jsbsim_property
+    def get_jsbsim_property(self, property_name: str) -> float:
+        """Get JSBSim property
+
+        Args:
+            property_name (str): Property name
+
+        Returns:
+            float: Property value
+        """
+        get_jsbsim_property_req: Dict = {
+            "method": f"{self.parent_topic}/GetJSBSimProperty",
+            "params": {"_property_name": property_name},
+            "version": 1.0,
+        }
+        property_value = self.client.request(get_jsbsim_property_req)
+        return property_value
+
+    # set_jsbsim_property
+    def set_jsbsim_property(self, property_name: str, property_value: float) -> bool:
+        """Set JSBSim property
+
+        Args:
+            property_name (str): Property name
+            property_value (float): Property value
+
+        Returns:
+            bool: True if property is set
+        """
+        set_jsbsim_property_req: Dict = {
+            "method": f"{self.parent_topic}/SetJSBSimProperty",
+            "params": {
+                "_property_name": property_name,
+                "_value": property_value,
+            },
+            "version": 1.0,
+        }
+        property_set = self.client.request(set_jsbsim_property_req)
+        return property_set
 
     def set_control_signals(self, control_signal_map: Dict) -> bool:
         """set_control_signals for Manual Controller type

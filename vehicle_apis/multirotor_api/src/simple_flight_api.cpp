@@ -154,7 +154,7 @@ std::vector<float> SimpleFlightApi::GetControlSignals(const std::string& actuato
   if (actuator_map_itr == actuator_id_to_output_idx_map_.end()) {
     GetLogger().LogWarning(
         GetControllerName(),
-        "SimpleFlightApi::GetControlSignal() called for invalid actuator: %s",
+        "SimpleFlightApi::GetControlSignals() called for invalid actuator: %s",
         actuator_id.c_str());
     return std::vector<float>(1,0.f);
   }
@@ -503,8 +503,13 @@ float SimpleFlightApi::GetCommandPeriod() const {
   return 1.0f / 50;  // 50hz
 }
 
-float SimpleFlightApi::GetTakeoffZ() const {
+float SimpleFlightApi::GetTakeOffZ() {
   return params_->takeoff.takeoff_z;
+}
+
+bool SimpleFlightApi::SetTakeOffZ(float z) {
+  params_->takeoff.takeoff_z = z;
+  return true;
 }
 
 float SimpleFlightApi::GetDistanceAccuracy() const {

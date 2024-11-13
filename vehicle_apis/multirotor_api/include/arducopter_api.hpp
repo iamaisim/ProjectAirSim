@@ -126,8 +126,9 @@ class ArduCopterApi : public VTOLFWApiBase {
    * *********************************/
   float GetCommandPeriod()
       const override;  // time between two command required for drone in seconds
-  float GetTakeoffZ()
-      const override;  // the height above ground for the drone after successful
+  bool SetTakeOffZ(float takeoffZ) override;
+  float GetTakeOffZ()
+      override;  // the height above ground for the drone after successful
                        // takeoff (Z above ground is negative due to NED
                        // coordinate system).
   // noise in difference of two position coordinates. This is not GPS or

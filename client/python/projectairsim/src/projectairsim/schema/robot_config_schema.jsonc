@@ -7,7 +7,7 @@
     "physics-type": {
       "description": "Defines the physics type for the robot",
       "type": "string",
-      "enum": [ "fast-physics", "non-physics", "matlab-physics" ]
+      "enum": [ "fast-physics", "non-physics", "matlab-physics",  "jsbsim-physics"]
     },
     "links": {
       "description": "Define the links for the robot",
@@ -64,11 +64,11 @@
         "id": { "type": "string" },
         "airframe-setup": {
           "type": "string",
-          "enum": [ "quadrotor-x", "hexarotor-x", "vtol-quad-x-tailsitter", "vtol-quad-tiltrotor", "ackermann"]
+          "enum": [ "quadrotor-x", "hexarotor-x", "vtol-quad-x-tailsitter", "vtol-quad-tiltrotor", "ackermann", "fixed-wing"]
         },
         "type": {
           "type": "string",
-          "enum": [ "simple-flight-api", "simple-drive-api","px4-api", "ardupilot-api", "manual-controller-api", "matlab-controller-api"]
+          "enum": [ "simple-flight-api", "simple-drive-api","px4-api", "ardupilot-api", "manual-controller-api", "matlab-controller-api", "jsbsim-api" ]
         },
         "simple-flight-api-settings": {
           "type": "object",
@@ -84,6 +84,11 @@
               "actuator-order": { "$ref": "#/definitions/actuator-order" }
             }
           },
+          // TODO "jsbsim-api-settings": {
+          //   "type": "object",
+          //   "properties": {
+          //   }
+          // },
         "px4-settings": { "$ref": "#/definitions/px4-settings" },
         "manual-controller-api-settings": {
           "type": "object",

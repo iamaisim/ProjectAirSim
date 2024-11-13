@@ -1,7 +1,7 @@
 // Copyright (C) Microsoft Corporation. All rights reserved.
 
-#ifndef MULTIROTOR_API_INCLUDE_SIMPLE_FLIGHT_API_HPP_
-#define MULTIROTOR_API_INCLUDE_SIMPLE_FLIGHT_API_HPP_
+#ifndef MULTIROTOR_API_INCLUDE_JSBSIM_API_HPP_
+#define MULTIROTOR_API_INCLUDE_JSBSIM_API_HPP_
 
 #include <memory>
 #include <string>
@@ -16,22 +16,23 @@
 #include "simple_flight/AirSimSimpleFlightEstimator.hpp"
 #include "simple_flight/AirSimSimpleFlightEstimatorFW.hpp"
 #include "simple_flight/firmware/Firmware.hpp"
-#include "vtolfw_api_base.hpp"
+#include "landing_gear_api_base.hpp"
+
 
 namespace microsoft {
 namespace projectairsim {
 
 // todo "firmware" / "firmware wrapper api" or "api" type (wrt px4 / mavlink)
-enum class MultirotorApiType { kSimpleFlight = 0 };
+//enum class MultirotorApiType { kJSBSim = 0 };
 
-// SimpleFlightApi
+// JSBSimApi
 // TODO: Should we use pimpl or some other pattern to hide the implementation?
-class SimpleFlightApi : public VTOLFWApiBase {
+class JSBSimApi : public LandingGearApiBase   { 
  public:
-  SimpleFlightApi() {}
-  SimpleFlightApi(const Robot& robot, TransformTree* ptransformtree);
+  JSBSimApi() {}
+  JSBSimApi(const Robot& robot, TransformTree* ptransformtree);
 
-  virtual ~SimpleFlightApi() {}
+  virtual ~JSBSimApi() {}
 
   //---------------------------------------------------------------------------
   // IController overrides
@@ -51,12 +52,30 @@ class SimpleFlightApi : public VTOLFWApiBase {
   bool IsApiControlEnabled() override;
   bool Arm(int64_t command_start_time_nanos) override;
   bool Disarm() override;
-  float GetTakeOffZ() override;
-  bool SetTakeOffZ(float takeoffZ) override;
   bool CanArm() const override;
-  ReadyState GetReadyState() const override;
-  Kinematics GetKinematicsEstimated() const override;
-  LandedState GetLandedState() const override;
+
+  float GetTakeOffZ() override; 
+  bool SetTakeOffZ(float takeoffZ) override;
+  bool Takeoff(
+    float timeout_sec, TimeNano _service_method_start_time) override;
+  bool Land(float timeout_sec, int64_t command_start_time_nanos) override;
+  //SetBrakes
+  bool SetBrakes(float value);
+  bool MoveToZ(float z, float velocity, float timeout_sec, bool yaw_is_rate,
+              float yaw, float lookahead, float adaptive_lookahead,
+              int64_t command_start_time_nanos) override;
+  bool MoveToPosition(float x, float y, float z, float velocity,
+                      float timeout_sec, DrivetrainType drivetrain,
+                      bool yaw_is_rate, float yaw, float lookahead,
+                      float adaptive_lookahead,
+                      int64_t command_start_time_nanos) override;
+  bool MoveByHeading(float heading, float speed, 
+                     float vz, float duration,
+                     float heading_margin, float yaw_rate,
+                     float timeout_sec,
+                     int64_t command_start_time_nanos) override;
+  float GetJSBSimProperty(const std::string& property);
+  bool SetJSBSimProperty(const std::string& property, float value);
 
   // Switched to using service method request-response for all control commands,
   // but leaving the below pub-sub version commented out for reference in case
@@ -68,13 +87,10 @@ class SimpleFlightApi : public VTOLFWApiBase {
   //---------------------------------------------------------------------------
   // IVTOLFWApi overrides
 
-  bool SetVTOLMode(VTOLMode vtolmode) override;
-
  protected:
   //---------------------------------------------------------------------------
   // MultirotorApiBase overrides
-  void CreateTopics(void) override;
-  std::string GetControllerName() const override { return "SimpleFlightApi"; }
+  std::string GetControllerName() const override { return "JSBSimApi"; }
 
   //---------------------------------------------------------------------------
   // Low level commands
@@ -98,26 +114,24 @@ class SimpleFlightApi : public VTOLFWApiBase {
                        float yaw) override;
   void CommandVelocityZ(float vx, float vy, float z, bool yaw_is_rate,
                         float yaw) override;
-  void CommandVelocityBody(float vx, float vy, float vz, bool yaw_is_rate,
-                           float yaw) override;
-  void CommandVelocityZBody(float vx, float vy, float z, bool yaw_is_rate,
-                            float yaw) override;
   void CommandPosition(float x, float y, float z, bool yaw_is_rate,
                        float yaw) override;
+  void CommandVelocityBody(float vx, float vy, float vz,
+                           bool yaw_is_rate, float yaw) override;
+  void CommandVelocityZBody(float vx, float vy, float z,
+                            bool yaw_is_rate, float yaw) override;
 
-  bool MoveByVelocityBodyFrame(float vx, float vy, float vz, float duration,
-                               DrivetrainType drivetrain, bool yaw_is_rate,
-                               float yaw, int64_t command_start_time_nanos) override;
-  bool MoveByVelocityBodyFrameZ(float vx, float vy, float z, float duration,
-                                DrivetrainType drivetrain, bool yaw_is_rate,
-                                float yaw, int64_t command_start_time_nanos) override;
   // controller configs
   void SetControllerGains(uint8_t controllerType, const std::vector<float>& kp,
                           const std::vector<float>& ki,
                           const std::vector<float>& kd) override;
+  ReadyState GetReadyState() const override;
+  GeoPoint GetGpsLocationEstimated() const override;
 
   /************************* State APIs *********************************/
-  GeoPoint GetGpsLocationEstimated() const override;
+  Kinematics GetKinematicsEstimated() const override;
+  LandedState GetLandedState() const override;
+  // GeoPoint GetGpsLocation() const override;
   const MultirotorApiParams& GetMultirotorApiParams() const override;
 
   /************************* Basic Config APIs **************************/
@@ -137,7 +151,7 @@ class SimpleFlightApi : public VTOLFWApiBase {
   Quaternion GetOrientation() const override;
 
  protected:
-  void OnTopicRCInput(const Topic& topic, const Message& message);
+  void RegisterServiceMethods(void) override;
 
  private:
   // The kind of target vehicle
@@ -145,31 +159,31 @@ class SimpleFlightApi : public VTOLFWApiBase {
     Multirotor,      // Multirotor helicopter (aka., multicopter)
     VTOLTailsitter,  // VTOL tail-sitting fixed-wing vehicle with multicopter
                      // and fixed-wing modes
-    VTOLTiltrotor,   // VTOL tilt-rotor fixed-wing vehicle with multicopter
+    VTOLTiltrotor,  // VTOL tilt-rotor fixed-wing vehicle with multicopter
                      // and fixed-wing modes
+    FixedWing,      // Fixed-wing aircraft
+    Other,
   };                 // enum class VehicleKind
 
  private:
   void LoadSettings(const Robot& robot);
+  static void Break(std::shared_ptr<JSBSim::FGFDMExec> model);
 
  private:
-  std::unordered_map<std::string, float> params_map_;
   std::unordered_map<std::string, int> actuator_id_to_output_idx_map_;
   std::unique_ptr<AirSimSimpleFlightBoard> board_;
   std::unique_ptr<AirSimSimpleFlightCommLink> comm_link_;
   std::unique_ptr<AirSimSimpleFlightEstimator> estimator_;
   std::unique_ptr<AirSimSimpleFlightEstimatorFW> estimator_fw_;
   std::unique_ptr<simple_flight::IFirmware> firmware_;
-  uint64_t millis_rc_input_last_update_ =
-      0;                // Timestamp of when RC input was last received
-  int num_motors_ = 4;  // Number of propulsion motors on the vehicle
-  std::unique_ptr<simple_flight::Params>
-      params_;  // todo params should become simple_flight_api_settings
+  uint64_t millis_rc_input_last_update_ = 0;  // Timestamp of when RC input was last received
+  std::unique_ptr<simple_flight::Params> params_;  // todo params should become simple_flight_api_settings
   Topic rc_input_topic_;  // RC input topic
   MultirotorApiParams safety_params_;
   std::mutex update_lock_;
-  VehicleKind vehicle_kind_ =
-      VehicleKind::Multirotor;  // The type of vehicle being controlled
+  VehicleKind vehicle_kind_ = VehicleKind::Multirotor;  // The type of vehicle being controlled
+  float takeoff_z_ = 100.0f;  // The z-coordinate of the takeoff position
+  bool is_api_control_enabled_ = false;
 };
 
 }  // namespace projectairsim

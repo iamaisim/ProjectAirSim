@@ -42,6 +42,8 @@ target_link_directories(${TARGET_NAME} PRIVATE ${NNG_LIB_DIR} ${OPENSSL_LIB_DIR}
 target_compile_definitions(${TARGET_NAME} PRIVATE NNG_STATIC_LIB=ON)
 target_link_directories(${TARGET_NAME} PRIVATE ${ONNX_LIB_DIR})
 
+# Set up JSBSim for linking
+target_link_directories(${TARGET_NAME} PRIVATE ${JSBSIM_PHYSICS_DIR}/lib)
 
 target_include_directories(
     ${TARGET_NAME}

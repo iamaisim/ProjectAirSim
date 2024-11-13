@@ -1,0 +1,247 @@
+{
+  "id": "SceneBasicFixedWing",
+  "actors": [
+    {
+      "type": "robot",
+      "name": "x8",
+      "origin": {
+        "xyz": "3 -2 -0.95",
+        "rpy": "0 0 0"
+      },
+      "robot-config": "robot_x8_skywalker_jsbsim.jsonc"
+    },
+    {
+      "type": "robot",
+      "name": "f22",
+      "origin": {
+        "xyz": "-833 200 -5",
+        "rpy": "0 0 0"
+      },
+      "robot-config": "robot_f22_jsbsim.jsonc"
+    },
+    {
+      "type": "robot",
+      "name": "f22_2",
+      "origin": {
+        "xyz": "-833 100 -5",
+        "rpy": "0 0 0"
+      },
+      "robot-config": "robot_f22_jsbsim.jsonc"
+    },
+    {
+      "type": "robot",
+      "name": "f22_3",
+      "origin": {
+        "xyz": "-833 -2 -5",
+        "rpy": "0 0 0"
+      },
+      "robot-config": "robot_f22_jsbsim.jsonc"
+    },
+    {
+      "type": "robot",
+      "name": "f22_4",
+      "origin": {
+        "xyz": "-833 -100 -5",
+        "rpy": "0 0 0"
+      },
+      "robot-config": "robot_f22_jsbsim.jsonc"
+    },
+    {
+      "type": "robot",
+      "name": "f22_5",
+      "origin": {
+        "xyz": "-833 -200 -5",
+        "rpy": "0 0 0"
+      },
+      "robot-config": "robot_f22_jsbsim.jsonc"
+    },
+    {
+      "type": "robot",
+      "name": "f22_6",
+      "origin": {
+        "xyz": "-833 -300 -5",
+        "rpy": "0 0 0"
+      },
+      "robot-config": "robot_f22_jsbsim.jsonc"
+    },
+    {
+      "type": "robot",
+      "name": "Drone",
+      "origin": {
+        "xyz": "1110 -2 -178",
+        "rpy": "0 0 0"
+      },
+      "robot-config": "robot_quadrotor_fastphysics.jsonc"
+    },
+    {
+      "type": "robot",
+      "name": "Drone_1",
+      "origin": {
+        "xyz": "1110 -5 -178",
+        "rpy": "0 0 0"
+      },
+      "robot-config": "robot_quadrotor_fastphysics.jsonc"
+    },
+    {
+      "type": "robot",
+      "name": "Drone_2",
+      "origin": {
+        "xyz": "1105 -2 -178",
+        "rpy": "0 0 0"
+      },
+      "robot-config": "robot_quadrotor_fastphysics.jsonc"
+    },
+    {
+      "type": "robot",
+      "name": "Drone_3",
+      "origin": {
+        "xyz": "1105 -5 -178",
+        "rpy": "0 0 0"
+      },
+      "robot-config": "robot_quadrotor_fastphysics.jsonc"
+    },
+    {
+      "type": "robot",
+      "name": "Drone_4",
+      "origin": {
+        "xyz": "1100 -2 -178",
+        "rpy": "0 0 0"
+      },
+      "robot-config": "robot_quadrotor_fastphysics.jsonc"
+    },
+    {
+      "type": "robot",
+      "name": "Drone_5",
+      "origin": {
+        "xyz": "1100 -5 -178",
+        "rpy": "0 0 0"
+      },
+      "robot-config": "robot_quadrotor_fastphysics.jsonc"
+    },
+    {
+      "type": "robot",
+      "name": "Drone_6",
+      "origin": {
+        "xyz": "1095 -10 -178",
+        "rpy": "0 0 0"
+      },
+      "robot-config": "robot_quadrotor_fastphysics.jsonc"
+    },
+    {
+      "type": "robot",
+      "name": "Drone_7",
+      "origin": {
+        "xyz": "1095 -13 -178",
+        "rpy": "0 0 0"
+      },
+      "robot-config": "robot_quadrotor_fastphysics.jsonc"
+    },
+    {
+      "type": "robot",
+      "name": "Drone_8",
+      "origin": {
+        "xyz": "1090 -10 -178",
+        "rpy": "0 0 0"
+      },
+      "robot-config": "robot_quadrotor_fastphysics.jsonc"
+    },
+    {
+      "type": "robot",
+      "name": "Drone_9",
+      "origin": {
+        "xyz": "1090 -13 -178",
+        "rpy": "0 0 0"
+      },
+      "robot-config": "robot_quadrotor_fastphysics.jsonc"
+    },
+    {
+      "type": "robot",
+      "name": "Drone_10",
+      "origin": {
+        "xyz": "1085 -10 -178",
+        "rpy": "0 0 0"
+      },
+      "robot-config": "robot_quadrotor_fastphysics.jsonc"
+    },
+    {
+      "type": "robot",
+      "name": "Drone_11",
+      "origin": {
+        "xyz": "1085 -13 -178",
+        "rpy": "0 0 0"
+      },
+      "robot-config": "robot_quadrotor_fastphysics.jsonc"
+    },
+    {
+      "type": "robot",
+      "name": "737",
+      "origin": {
+        "xyz": "500 2000 -30",
+        "rpy": "0 0 -90"
+      },
+      "robot-config": "robot_737_jsbsim.jsonc"
+    },
+    {
+      "type": "robot",
+      "name": "737_2",
+      "origin": {
+        "xyz": "2100 -4500 -30",
+        "rpy": "0 0 90"
+      },
+      "robot-config": "robot_737_jsbsim.jsonc"
+    },
+    {
+      "type": "robot",
+      "name": "Helicopter",
+      "origin": {
+        "xyz": "800 -5 -2",
+        "rpy": "0 0 180"
+      },
+      "robot-config": "robot_ah1s_jsbsim.jsonc"
+    },
+    {
+      "type": "robot",
+      "name": "Cessna",
+      "origin": {
+        "xyz": "700 5 -2",
+        "rpy": "0 0 150"
+      },
+      "robot-config": "robot_c1723_jsbsim.jsonc"
+    },
+    {
+      "type": "robot",
+      "name": "Cessna_2",
+      "origin": {
+        "xyz": "700 70 -2",
+        "rpy": "0 0 150"
+      },
+      "robot-config": "robot_c1723_jsbsim.jsonc"
+    },
+    {
+      "type": "robot",
+      "name": "Rocket",
+      "origin": {
+        "xyz": "900 -5 150",
+        "rpy": "89.99 90 90"
+      },
+      "robot-config": "robot_j246_jsbsim.jsonc"
+    }
+  ],
+  "clock": {
+    "type": "steppable",
+    "step-ns": 3000000,
+    "real-time-update-rate": 3000000,
+    "pause-on-start": false
+  },
+  "home-geo-point": {
+    "latitude": 29.4296741,
+    "longitude": -95.16384722,
+    "altitude": 7.5 
+  },
+  "segmentation": {
+    "initialize-ids": true,
+    "ignore-existing": false,
+    "use-owner-name": true
+  },
+  "scene-type": "UnrealNative"
+}

@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "5.1",
+	"EngineAssociation": "5.2",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -35,6 +35,13 @@
 		{
 			"Name": "SunPosition",
 			"Enabled": true
+<<<<<<< HEAD
+=======
+		},
+		{
+			"Name": "Niagara",
+			"Enabled": true
+>>>>>>> 4fb8ebd (squash all jsbsim_integration branch)
 		}
 	],
 	"TargetPlatforms": [

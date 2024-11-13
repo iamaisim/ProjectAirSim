@@ -123,6 +123,10 @@ class MathUtils {
   static constexpr E ToEnum(typename std::underlying_type<E>::type u) {
     return static_cast<E>(u);
   }
+
+  static constexpr float feets_to_meters = 0.3048f;
+  static constexpr float meters_to_feets = 1.0f / feets_to_meters;
+
 };
 
 }  // namespace projectairsim

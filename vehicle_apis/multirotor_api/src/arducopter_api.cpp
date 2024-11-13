@@ -228,7 +228,7 @@ std::vector<float> ArduCopterApi::GetControlSignals(const std::string& actuator_
   if (actuator_map_itr == actuator_id_to_output_idx_map_.end()) {
     GetLogger().LogWarning(
         GetControllerName(),
-        "ArduCopterApi::GetControlSignal() called for invalid actuator: %s",
+        "ArduCopterApi::GetControlSignals() called for invalid actuator: %s",
         actuator_id.c_str());
     return std::vector<float>(1,0.f);
   }
@@ -500,8 +500,8 @@ float ArduCopterApi::GetCommandPeriod() const {
   return 1.0f / 50;  // 50hz
 }
 
-float ArduCopterApi::GetTakeoffZ() const {
-  AddStatusMessage("Not Implemented: GetTakeoffZ");
+float ArduCopterApi::GetTakeOffZ() {
+  AddStatusMessage("Not Implemented: GetTakeOffZ");
   return 0;
 }
 
@@ -578,6 +578,11 @@ void ArduCopterApi::ResetState() {
   // lock_step_active_ = false;
   // lock_step_enabled_ = connection_info_.lock_step;
   CancelLastTask();
+}
+
+bool ArduCopterApi::SetTakeOffZ(float z) {
+  AddStatusMessage("Not Implemented: SetTakeOffZ");
+  return true;
 }
 
 /* put ArduPilot in normal mode (i.e. non-simulation mode)

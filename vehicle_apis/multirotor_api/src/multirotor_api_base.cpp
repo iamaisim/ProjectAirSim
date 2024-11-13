@@ -253,11 +253,31 @@ void MultirotorApiBase::RegisterServiceMethods() {
   method_handler =
       method.CreateMethodHandler(&MultirotorApiBase::SetMissionMode, *this);
   sim_robot_.RegisterServiceMethod(method, method_handler);
+
+  // Register GetTakeoffZ
+  method = ServiceMethod("GetTakeOffZ", {});
+  method_handler =
+      method.CreateMethodHandler(&MultirotorApiBase::GetTakeOffZServiceMethod, *this);
+  sim_robot_.RegisterServiceMethod(method, method_handler);
+
+  // Register SetTakeoffZ 
+  method = ServiceMethod("SetTakeOffZ", {"_take_off_z"});
+  method_handler =
+      method.CreateMethodHandler(&MultirotorApiBase::SetTakeOffZServiceMethod, *this);
+  sim_robot_.RegisterServiceMethod(method, method_handler);
 }
 
 bool MultirotorApiBase::TakeoffServiceMethod(
     float timeout_sec, TimeNano _service_method_start_time) {
   return Takeoff(timeout_sec, _service_method_start_time);
+}
+
+bool MultirotorApiBase::SetTakeOffZServiceMethod(float z){
+  return SetTakeOffZ(z);
+}
+  
+float MultirotorApiBase::GetTakeOffZServiceMethod(){
+  return GetTakeOffZ();
 }
 
 bool MultirotorApiBase::Takeoff(float timeout_sec,
@@ -276,7 +296,7 @@ bool MultirotorApiBase::Takeoff(float timeout_sec,
 
   bool ret =
       MoveToPosition(kinematics.pose.position.x(), kinematics.pose.position.y(),
-                     kinematics.pose.position.z() + GetTakeoffZ(), 0.5f,
+                     kinematics.pose.position.z() + GetTakeOffZ(), 0.5f,
                      timeout_sec, DrivetrainType::MaxDegreeOfFreedom, true, 0.0,
                      -1.0, 1.0, command_start_time_nanos);
 

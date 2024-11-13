@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="http://jsbsim.sf.net/JSBSimScript.xsl"?>
+<runscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="http://jsbsim.sf.net/JSBSimScript.xsd"
+    name="C310-01A Project AirSim takeoff run">
+    
+  <description>For testing autopilot capability</description>
+  <use aircraft="c310" initialize="ellington"/>
+  
+  <run start="0.0" end="3600" dt="0.02">
+  
+    <event name="Start engine">
+      <description>
+        Start engine and set initial heading and waypoints, turn on heading-hold mode.
+      </description>
+      <condition>simulation/sim-time-sec  ge  0.25</condition>
+      <set name="fcs/mixture-cmd-norm[0]" value="1"/>
+      <set name="fcs/mixture-cmd-norm[1]" value="1"/>
+      <set name="fcs/advance-cmd-norm[0]" value="1.0"/>
+      <set name="fcs/advance-cmd-norm[1]" value="1.0"/>
+      <set name="propulsion/magneto_cmd" value="3"/>
+      <set name="fcs/throttle-cmd-norm[0]" value="0.0"/>
+      <set name="fcs/throttle-cmd-norm[1]" value="0.0"/>
+      <set name="propulsion/starter_cmd" value="1"/>
+      <set name="ap/altitude_setpoint" value="1000.0"/>
+      <set name="ap/attitude_hold" value="0"/>
+      <set name="guidance/target_wp_latitude_rad" value="0.517238"/>
+      <set name="guidance/target_wp_longitude_rad" value="-1.662727"/>
+      <set name="ap/heading_setpoint" value="0"/>
+      <set name="ap/heading-setpoint-select" value="0"/>
+      <set name="ap/heading_hold" value="0"/>
+      <set name="ap/active-waypoint" value="0"/>
+      <set name="airsim/takeoff" value="0"/>
+      <set name="airsim/takeoff-ended" value="0"/>
+      <set name="airsim/takeoff-success" value="0"/>
+      <set name="airsim/land" value="0"/>
+      <set name="airsim/land-ended" value="0"/>
+      <set name="airsim/land-success" value="0"/>
+    </event>
+    
+    <event name="Raise landing gear">
+      <condition>position/h-agl-ft  ge  40</condition>
+      <set name="gear/gear-cmd-norm" value="0"/>
+    </event>
+
+    <event name="Start takeoff" persistent="true">
+      <description>
+        Start takeoff event
+      </description>
+      <condition>
+        airsim/takeoff eq 1.0
+        airsim/land eq 0.0
+      </condition>
+      <set name="airsim/takeoff-ended" value="0"/>
+      <set name="airsim/takeoff-success" value="0"/>
+      <set name="fcs/flap-cmd-norm" value="0.33"/>
+      <set name="fcs/throttle-cmd-norm[0]" value="1"/>
+      <set name="fcs/throttle-cmd-norm[1]" value="1"/>
+      <set name="ap/attitude_hold" value="0"/>
+      <set name="ap/heading-setpoint-select" value="0"/>
+      <set name="ap/heading_hold" value="1"/>
+      <set name="ap/altitude_setpoint" value="393.7008"/>
+    </event>
+
+    <event name="Takeoff stabilization through pitch elevation" persistent="true">
+      <condition>
+        airsim/takeoff eq 1.0
+        airsim/land eq 0.0
+        velocities/vg-fps ge 150
+      </condition>
+      <set name="fcs/elevator-cmd-norm" value="-1"/>
+    </event>
+
+    <event name="Takeoff stabilization check" persistent="true">
+      <condition>
+        airsim/takeoff eq 1.0
+        velocities/v-down-fps lt -50
+        position/h-sl-ft gt 36.57
+      </condition>
+      <set name="airsim/takeoff" value="0"/>
+      <set name="ap/attitude_hold" value="1"/>
+      <set name="fcs/elevator-cmd-norm" value="0"/>
+    </event>
+
+    <event name="Takeoff end and success check" persistent="true">
+      <condition>
+        position/h-sl-ft gt 300
+        attitude/theta-deg lt 10
+      </condition>
+      <set name="airsim/takeoff-ended" value="1"/>
+      <set name="airsim/takeoff-success" value="1"/>
+    </event>
+
+    <event name="Start landing" persistent="true">
+      <description>
+        Start landing event
+      </description>
+      <condition>
+        airsim/land eq 1.0
+        airsim/takeoff eq 0.0
+      </condition>
+      <set name="airsim/land-ended" value="0"/>
+      <set name="airsim/land-success" value="0"/>
+      <set name="ap/altitude_setpoint" value="50"/>
+      <set name="fcs/throttle-cmd-norm[0]" value="0"/>
+      <set name="fcs/throttle-cmd-norm[1]" value="0"/>
+      <set name="fcs/flap-cmd-norm" value="0.33"/>
+      <set name="ap/heading-setpoint-select" value="0"/>
+      <set name="ap/heading_hold" value="1"/>
+    </event>
+
+    <event name="Landing end and success check" persistent="true">
+      <condition>
+        airsim/land eq 1.0
+        position/h-sl-ft lt 45.0
+      </condition>
+      <set name="airsim/land" value="0"/>
+      <set name="airsim/land-ended" value="1"/>
+      <set name="airsim/land-success" value="1"/>
+    </event>
+
+  </run>
+</runscript>

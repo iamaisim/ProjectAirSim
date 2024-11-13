@@ -1,0 +1,33 @@
+{
+  "id": "SceneBasicHelicopter",
+  "actors": [
+    {
+      "type": "robot",
+      "name": "Drone1",
+      //currently not used by jsbsim physics:  
+      "origin": {
+        "xyz": "0.0 0.0 -12",
+        //yaw=pi, pitch=0, roll=0
+        "rpy": "0 0 3.1416"
+      },
+      "robot-config": "robot_helicopter.jsonc"
+    }
+  ],
+  "clock": {
+    "type": "steppable",
+    "step-ns": 3000000,
+    "real-time-update-rate": 3000000,
+    "pause-on-start": false
+  },
+  "home-geo-point": {
+    "latitude": 29.4296741,
+    "longitude": 34.95416,
+    "altitude": 686 
+  },
+  "segmentation": {
+    "initialize-ids": true,
+    "ignore-existing": false,
+    "use-owner-name": true
+  },
+  "scene-type": "UnrealNative"
+}

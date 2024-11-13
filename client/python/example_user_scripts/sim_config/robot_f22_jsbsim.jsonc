@@ -1,0 +1,283 @@
+{
+  "physics-type": "jsbsim-physics",
+  "jsbsim-script": "scripts/x8_test.xml",
+  "jsbsim-model": "737",
+  "links": [
+    {
+      "name": "Frame",
+      "inertial": {
+        "mass": 1.0,
+        "inertia": {
+          "type": "geometry",
+          "geometry": {
+            "box": {
+              "size": "0.180 0.110 0.040"
+            }
+          }
+        },
+        "aerodynamics": {
+          "drag-coefficient": 0.325,
+          "type": "geometry",
+          "geometry": {
+            "box": {
+              "size": "0.180 0.110 0.040"
+            }
+          }
+        }
+      },
+      "collision": {
+        "enabled": false,
+        "restitution": 0.1,
+        "friction": 0.5
+      },
+      "visual": {
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Rover/OffroadCar/SM_Offroad_Body"
+        }
+      }
+    },
+    {
+      "name": "Prop_FL",
+      "inertial": {
+        "origin": {
+          "xyz": "0.253 -0.253 -0.01",
+          "rpy": "0 0 0"
+        },
+        "mass": 0.055,
+        "inertia": {
+          "type": "point-mass"
+        },
+        "aerodynamics": {
+          "drag-coefficient": 0.325,
+          "type": "geometry",
+          "geometry": {
+            "cylinder": {
+              "radius": 1,
+              "length": 0.01
+            }
+          }
+        }
+      },
+      "visual": {
+        "origin": {
+          "xyz": "7 0.0 0.0",
+          "rpy": "0 -1.5707963267948966 0"
+        },
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/InternalDevUseContent/Cessna/CessnaProp"
+        }
+      }
+    }
+  ],
+  "joints": [
+    {
+      "id": "Frame_Prop_FL",
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Prop_FL",
+      "axis": "1 0 0"
+    }
+  ],
+  "controller": {
+    "id": "JSBSim_Controller",
+    "airframe-setup": "fixed-wing",
+    "type": "jsbsim-api"
+    //"jsbsim-api-settings": {
+    //}
+  },
+  "actuators": [
+    {
+      "name": "fcs/throttle-cmd-norm",
+      "type": "rotor",
+      "enabled": true,
+      "parent-link": "Frame",
+      "child-link": "Prop_FL",
+      "origin": {
+        "xyz": "0.253 -0.253 -0.01",
+        "rpy": "0 0 0"
+      },
+      "rotor-settings": {
+        "turning-direction": "clock-wise",
+        "normal-vector": "1.0 0.0 0.0",
+        "coeff-of-thrust": 0.109919,
+        "coeff-of-torque": 0.040164,
+        "max-rpm": 6396.667,
+        "propeller-diameter": 0.2286,
+        "smoothing-tc": 0.005
+      }
+    }
+  ],
+  "sensors": [
+    {
+      "id": "Chase",
+      "type": "camera",
+      "enabled": true,
+      "parent-link": "Frame",
+      "capture-interval": 0.03,
+      "capture-settings": [
+        {
+          "image-type": 0,
+          "width": 1280,
+          "height": 720,
+          "fov-degrees": 90,
+          "capture-enabled": false,
+          "streaming-enabled": true,
+          "pixels-as-float": false,
+          "compress": false,
+          "target-gamma": 2.5
+        }
+      ],
+      "gimbal": {
+        "lock-roll": true,
+        "lock-pitch": true,
+        "lock-yaw": false
+      },
+      "origin": {
+        "xyz": "-50.0 0.0 0",
+        "rpy": "0 0 0"
+      }    
+    },
+    {
+      "id": "DownCamera",
+      "type": "camera",
+      "enabled": true,
+      "parent-link": "Frame",
+      "capture-interval": 0.02,
+      "capture-settings": [
+        {
+          "image-type": 0, // scene camera
+          "width": 400,
+          "height": 225,
+          "fov-degrees": 90,
+          "capture-enabled": true,
+          "streaming-enabled": false,
+          "pixels-as-float": false,
+          "compress": false,
+          "target-gamma": 2.5
+        },
+        {
+          "image-type": 1, // depth planar
+          "width": 400,
+          "height": 225,
+          "fov-degrees": 90,
+          "capture-enabled": false,
+          "streaming-enabled": false,
+          "pixels-as-float": true,
+          "compress": false
+        },
+        {
+          "image-type": 2, // depth perspective
+          "width": 400,
+          "height": 225,
+          "fov-degrees": 90,
+          "capture-enabled": true,
+          "streaming-enabled": false,
+          "pixels-as-float": true,
+          "compress": false
+        },
+        {
+          "image-type": 3, // segmentation
+          "width": 400,
+          "height": 225,
+          "fov-degrees": 90,
+          "capture-enabled": false,
+          "streaming-enabled": false,
+          "pixels-as-float": false,
+          "compress": false
+        },
+        {
+          "image-type": 4, // depth vis
+          "width": 400,
+          "height": 225,
+          "fov-degrees": 90,
+          "capture-enabled": false,
+          "streaming-enabled": false,
+          "pixels-as-float": false,
+          "compress": false,
+          "max-depth-meters": 100
+        },
+        {
+          "image-type": 5, // disparity normalized
+          "width": 400,
+          "height": 225,
+          "fov-degrees": 90,
+          "capture-enabled": false,
+          "streaming-enabled": false,
+          "pixels-as-float": false,
+          "compress": false
+        },
+        {
+          "image-type": 6, // surface normals
+          "width": 400,
+          "height": 225,
+          "fov-degrees": 90,
+          "capture-enabled": false,
+          "streaming-enabled": false,
+          "pixels-as-float": false,
+          "compress": false
+        }
+      ],
+      "noise-settings": [
+        {
+          "enabled": false,
+          "image-type": 1,
+          "rand-contrib": 0.2,
+          "rand-speed": 100000.0,
+          "rand-size": 500.0,
+          "rand-density": 2,
+          "horz-wave-contrib": 0.03,
+          "horz-wave-strength": 0.08,
+          "horz-wave-vert-size": 1.0,
+          "horz-wave-screen-size": 1.0,
+          "horz-noise-lines-contrib": 1.0,
+          "horz-noise-lines-density-y": 0.01,
+          "horz-noise-lines-density-xy": 0.5,
+          "horz-distortion-contrib": 1.0,
+          "horz-distortion-strength": 0.002
+        }
+      ],
+      "origin": {
+        "xyz": "0 0.0 0.0",
+        "rpy": "0 -1.5708 0"
+      }
+    },
+    {
+      "id": "IMU1",
+      "type": "imu",
+      "enabled": true,
+      "parent-link": "Frame",
+      "accelerometer": {
+        "velocity-random-walk": 2.353e-3,
+        "tau": 800,
+        "bias-stability": 3.53e-4,
+        "turn-on-bias": "0 0 0"
+      },
+      "gyroscope": {
+        "angle-random-walk": 8.72644e-5,
+        "tau": 500,
+        "bias-stability": 2.23014e-5,
+        "turn-on-bias": "0 0 0"
+      }
+    },
+    {
+      "id": "GPS",
+      "type": "gps",
+      "enabled": false,
+      "parent-link": "Frame"
+    },
+    {
+      "id": "Barometer",
+      "type": "barometer",
+      "enabled": false,
+      "parent-link": "Frame"
+    },
+    {
+      "id": "Magnetometer",
+      "type": "magnetometer",
+      "enabled": false,
+      "parent-link": "Frame"
+    }
+  ]
+}

@@ -16,7 +16,8 @@ enum class PhysicsType {
   kNonPhysics = 0,
   kFastPhysics = 1,
   kUnrealPhysics = 2,
-  kMatlabPhysics = 3
+  kMatlabPhysics = 3,
+  kJSBSimPhysics = 4
 };
 
 struct Pose {

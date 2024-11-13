@@ -23,6 +23,7 @@
 #include "core_sim/service_method.hpp"
 #include "core_sim/transforms/transform.hpp"
 #include "core_sim/transforms/transform_tree.hpp"
+#include "FGFDMExec.h"
 
 namespace microsoft {
 namespace projectairsim {
@@ -59,6 +60,8 @@ class Robot : public Actor {
 
   const PhysicsType& GetPhysicsType() const;
   void SetPhysicsType(const PhysicsType& phys_type);
+  //used only by JSBSim physics and controller
+  std::shared_ptr<JSBSim::FGFDMExec> GetJSBSimModel() const;
   const std::string& GetPhysicsConnectionSettings() const;
   void SetPhysicsConnectionSettings(const std::string& phys_conn_settings);
   const std::string& GetControlConnectionSettings() const;
@@ -143,12 +146,14 @@ class Robot : public Actor {
   Robot(const std::string& id, const Transform& origin, const Logger& logger,
         const TopicManager& topic_manager, const std::string& parent_topic_path,
         const ServiceManager& service_manager,
-        const StateManager& state_manager);
+        const StateManager& state_manager,
+        const std::string& working_simulation_path);
 
   Robot(const std::string& id, const Transform& origin, const Logger& logger,
         const TopicManager& topic_manager, const std::string& parent_topic_path,
         const ServiceManager& service_manager,
-        const StateManager& state_manager, HomeGeoPoint home_geo_point);
+        const StateManager& state_manager, HomeGeoPoint home_geo_point,
+        const std::string& working_simulation_path);
 
   void Load(ConfigJson config_json) override;
 

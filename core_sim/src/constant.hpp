@@ -384,6 +384,9 @@ class Constant {
     static constexpr const char* control_connection = "control-connection";
     static constexpr const char* start_landed = "start-landed";
     static constexpr const char* unreal_physics = "unreal-physics";
+    static constexpr const char* jsbsim_physics = "jsbsim-physics";
+    static constexpr const char* jsbsim_script = "jsbsim-script";
+    static constexpr const char* jsbsim_model = "jsbsim-model";
     static constexpr const char* restitution = "restitution";
     static constexpr const char* friction = "friction";
     static constexpr const char* body_box_xyz = "body-box-xyz";
@@ -429,6 +432,9 @@ class Constant {
     static constexpr const char* simple_flight_api = "simple-flight-api";
     static constexpr const char* simple_flight_api_settings =
         "simple-flight-api-settings";
+    static constexpr const char* jsbsim_api = "jsbsim-api";
+    static constexpr const char* jsbsim_api_settings =
+        "jsbsim-api-settings";
     static constexpr const char* simple_drive_api = "simple-drive-api";
     static constexpr const char* simple_drive_api_settings =
         "simple-drive-api-settings";

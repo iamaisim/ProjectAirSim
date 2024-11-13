@@ -277,10 +277,6 @@ class MultirotorApiBase : public IController,
    * *********************************/
   virtual float GetCommandPeriod()
       const = 0;  // time between two command required for drone in seconds
-  virtual float GetTakeoffZ()
-      const = 0;  // the height above ground for the drone after successful
-                  // takeoff (Z above ground is negative due to NED coordinate
-                  // system).
   // noise in difference of two position coordinates. This is not GPS or
   // position accuracy which can be very low such as 1m. the difference between
   // two position cancels out transitional errors. Typically this would be 0.1m
@@ -501,6 +497,10 @@ class MultirotorApiBase : public IController,
   bool TakeoffServiceMethod(float timeout_sec,
                             TimeNano _service_method_start_time);
 
+  bool SetTakeOffZServiceMethod(float z);
+
+  float GetTakeOffZServiceMethod();
+
   bool LandServiceMethod(float timeout_sec,
                          TimeNano _service_method_start_time);
 
@@ -559,6 +559,7 @@ class MultirotorApiBase : public IController,
   TransformTree*
       psim_transformtree_;     // The transform tree containing the robot
   std::vector<Topic> topics_;  // Topics to advertise or subscribe to
+  float approx_zero_vel_ = 0.05f;
 
  private:  // variables
   // TODO: Do we need pub/sub to publish any controller data?
@@ -575,7 +576,6 @@ class MultirotorApiBase : public IController,
 
   // TODO: make this configurable?
   float landing_vel_ = 0.2f;  // velocity to use for landing
-  float approx_zero_vel_ = 0.05f;
   float approx_zero_angular_vel_ = 0.01f;
 };
 

@@ -8,6 +8,8 @@ public class Blocks : ModuleRules
 {
 	public Blocks(ReadOnlyTargetRules Target) : base(Target)
 	{
+		bEnableUndefinedIdentifierWarnings = false;
+
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		bEnableExceptions = true;
 

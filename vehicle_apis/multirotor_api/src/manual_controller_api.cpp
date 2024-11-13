@@ -36,7 +36,7 @@ std::vector<float> ManualControllerApi::GetControlSignals(const std::string& act
   auto actuator_map_itr = actuator_id_to_output_idx_map_.find(actuator_id);
   if (actuator_map_itr == actuator_id_to_output_idx_map_.end()) {
     GetLogger().LogWarning("ManualControllerApi",
-                           "ManualControllerApi::GetControlSignal() called for "
+                           "ManualControllerApi::GetControlSignals() called for "
                            "invalid actuator: %s",
                            actuator_id.c_str());
     return std::vector<float>(1,0.0f);

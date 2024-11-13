@@ -126,6 +126,11 @@ class IMultirotorApi {
 
   // high level control APIs
   virtual bool Takeoff(float timeout_sec, int64_t command_start_time_nanos) = 0;
+  // the height above ground for the drone after successful
+  // takeoff (Z above ground is negative due to NED coordinate
+  // system).
+  virtual bool SetTakeOffZ(float z) = 0; 
+  virtual float GetTakeOffZ() = 0;
   virtual bool Land(float timeout_sec, int64_t command_start_time_nanos) = 0;
   virtual bool GoHome(float timeout_sec, float velocity,
                       int64_t command_start_time_nanos) = 0;

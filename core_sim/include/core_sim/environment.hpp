@@ -20,7 +20,7 @@ struct Environment {
 
   inline static Vector3 wind_velocity = Vector3::Zero();
   Vector3 position_ned = Vector3::Zero();
-  HomeGeoPoint home_geo_point;
+  HomeGeoPoint home_geo_point;  //These are the world origin coordinates (0,0,0), not the home position of the drone
   EnvInfo env_info;  // Current environmental condition that can vary (e.g., by
                      // current location, time of day, etc.)
 

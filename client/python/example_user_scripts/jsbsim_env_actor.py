@@ -18,7 +18,6 @@ Usage:
 """
 from projectairsim import ProjectAirSimClient, World, EnvActor
 from projectairsim.utils import projectairsim_log
-import asyncio
 
 
 async def env_actor_motion_plan(env_actor: EnvActor, world: World):

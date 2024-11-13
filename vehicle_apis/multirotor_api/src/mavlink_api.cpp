@@ -380,7 +380,7 @@ std::vector<float> MavLinkApi::GetControlSignals(const std::string& actuator_id)
   if (actuator_map_itr == actuator_id_to_output_idx_map_.end()) {
     GetLogger().LogWarning(
         GetControllerName(),
-        "MavLinkApi::GetControlSignal() called for invalid actuator: %s",
+        "MavLinkApi::GetControlSignals() called for invalid actuator: %s",
         actuator_id.c_str());
     return std::vector<float>(1, 0.f);
   }
@@ -569,7 +569,7 @@ bool MavLinkApi::Takeoff(float timeout_sec, int64_t command_start_time_nanos) {
   bool rc = false;
   auto vec = GetPosition();
   auto yaw = current_state_.attitude.yaw;
-  float z = vec.z() + GetTakeoffZ();
+  float z = vec.z() + GetTakeOffZ();
   if (!mav_vehicle_->takeoff(z, 0.0f /* pitch */, yaw)
            .wait(TimeoutToMilliseconds(timeout_sec), &rc)) {
     auto error_msg = "TakeOff command - timeout waiting for response";
@@ -978,10 +978,19 @@ float MavLinkApi::GetCommandPeriod() const {
   return 1.0f / 50;  // 50hz
 }
 
-float MavLinkApi::GetTakeoffZ() const {
+float MavLinkApi::GetTakeOffZ() {
+  return takeoff_z_;
+}
+
+bool  MavLinkApi::SetTakeOffZ(float z) {
   // PX4's minimum take off altitude is 10.0m. Set negative due to NED
   // coordinate system.
   return -10.0f;
+  if (z >= -10.0f) {
+    return false;
+  }
+  takeoff_z_ = z;
+  return true;
 }
 
 float MavLinkApi::GetDistanceAccuracy() const {

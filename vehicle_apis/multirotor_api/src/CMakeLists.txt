@@ -25,7 +25,9 @@ add_library(
     matlab_controller_api.cpp
     multirotor_api_base.cpp
     simple_flight_api.cpp
+    jsbsim_api.cpp
     vtolfw_api_base.cpp
+    landing_gear_api_base.cpp
     arducopter_api.cpp
 )
 

@@ -128,7 +128,8 @@ class Scene {
   Scene(const Logger& logger, const TopicManager& topic_manager,
         const std::string& parent_topic_path,
         const ServiceManager& service_manager,
-        const StateManager& state_manager);
+        const StateManager& state_manager,
+        const std::string& working_simulation_path_);
 
   void LoadWithJSON(ConfigJson config_json);
 

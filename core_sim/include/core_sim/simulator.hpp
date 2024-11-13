@@ -22,7 +22,7 @@ class Simulator {
 
   Simulator();
 
-  Simulator(LoggerCallback logger_callback, LogLevel level = LogLevel::kError);
+  Simulator(LoggerCallback logger_callback, LogLevel level = LogLevel::kError, const std::string& working_simulation_path="");
 
   // Simulator controls
 

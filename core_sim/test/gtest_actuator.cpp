@@ -22,7 +22,7 @@ class Scene {  // : public ::testing::Test {
     Logger logger(logger_callback);
     Transform origin = {{0, 0, 0}, {1, 0, 0, 0}};
     return Robot("TestRobotID", origin, logger, TopicManager(logger), "",
-                 ServiceManager(logger), StateManager(logger));
+                 ServiceManager(logger), StateManager(logger),"");
   }
 
   static void LoadRobot(Robot& robot, ConfigJson config_json) {

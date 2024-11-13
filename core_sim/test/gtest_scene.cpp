@@ -25,7 +25,7 @@ class Simulator {
                        const std::string& message) {};
     Logger logger(callback);
     return Scene(logger, TopicManager(logger), "", ServiceManager(logger),
-                 StateManager(logger));
+                 StateManager(logger),"");
   }
 
   static void LoadScene(Scene& scene, ConfigJson config_json) {

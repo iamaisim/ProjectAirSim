@@ -25,7 +25,7 @@ class TileManager;
 
 class SimServer {
  public:
-  SimServer(Simulator::LoggerCallback logger_callback, LogLevel level);
+  SimServer(Simulator::LoggerCallback logger_callback, LogLevel level, const std::string& working_simulation_path="");
 
   ~SimServer();
 

@@ -1,6 +1,6 @@
 {
-  "$schema":"../../projectairsim/src/projectairsim/schema/robot_config_schema.jsonc",
-  "physics-type": "fast-physics",
+  "physics-type": "jsbsim-physics",
+  "jsbsim-script": "scripts/ah1s_flight_test.xml",
   "links": [
     {
       "name": "Frame",
@@ -31,7 +31,7 @@
       "visual": {
         "geometry": {
           "type": "unreal_mesh",
-          "name": "/Drone/Quadrotor1"
+          "name": "/Drone/helicopter/Helicopter_Corps"
         }
       }
     },
@@ -40,7 +40,7 @@
       "inertial": {
         "origin": {
           "xyz": "0.253 -0.253 -0.01",
-          "rpy-deg": "0 0 0"
+          "rpy": "0 0 0"
         },
         "mass": 0.055,
         "inertia": {
@@ -51,7 +51,7 @@
           "type": "geometry",
           "geometry": {
             "cylinder": {
-              "radius": 0.1143,
+              "radius": 1,
               "length": 0.01
             }
           }
@@ -59,12 +59,12 @@
       },
       "visual": {
         "origin": {
-          "xyz": "0.253 -0.253 -0.01",
-          "rpy-deg": "0 0 0"
+          "xyz": "0.0 0.0 0.0",
+          "rpy": "0 1.5707963267948966 0"
         },
         "geometry": {
           "type": "unreal_mesh",
-          "name": "/Drone/PropellerRed"
+          "name": ""
         }
       }
     },
@@ -73,7 +73,7 @@
       "inertial": {
         "origin": {
           "xyz": "0.253 0.253 -0.01",
-          "rpy-deg": "0 0 0"
+          "rpy": "0 0 0"
         },
         "mass": 0.055,
         "inertia": {
@@ -93,11 +93,11 @@
       "visual": {
         "origin": {
           "xyz": "0.253 0.253 -0.01",
-          "rpy-deg": "0 0 0"
+          "rpy": "0 0 0"
         },
         "geometry": {
           "type": "unreal_mesh",
-          "name": "/Drone/PropellerRed"
+          "name": ""
         }
       }
     },
@@ -106,7 +106,7 @@
       "inertial": {
         "origin": {
           "xyz": "-0.253 -0.253 -0.01",
-          "rpy-deg": "0 0 0"
+          "rpy": "0 0 0"
         },
         "mass": 0.055,
         "inertia": {
@@ -126,11 +126,11 @@
       "visual": {
         "origin": {
           "xyz": "-0.253 -0.253 -0.01",
-          "rpy-deg": "0 0 0"
+          "rpy": "0 0 0"
         },
         "geometry": {
           "type": "unreal_mesh",
-          "name": "/Drone/PropellerWhite"
+          "name": ""
         }
       }
     },
@@ -139,7 +139,7 @@
       "inertial": {
         "origin": {
           "xyz": "-0.253 0.253 -0.01",
-          "rpy-deg": "0 0 0"
+          "rpy": "0 0 0"
         },
         "mass": 0.055,
         "inertia": {
@@ -159,11 +159,11 @@
       "visual": {
         "origin": {
           "xyz": "-0.253 0.253 -0.01",
-          "rpy-deg": "0 0 0"
+          "rpy": "0 0 0"
         },
         "geometry": {
           "type": "unreal_mesh",
-          "name": "/Drone/PropellerWhite"
+          "name": ""
         }
       }
     }
@@ -228,7 +228,7 @@
       "child-link": "Prop_FL",
       "origin": {
         "xyz": "0.253 -0.253 -0.01",
-        "rpy-deg": "0 0 0"
+        "rpy": "0 0 0"
       },
       "rotor-settings": {
         "turning-direction": "clock-wise",
@@ -248,7 +248,7 @@
       "child-link": "Prop_FR",
       "origin": {
         "xyz": "0.253 0.253 -0.01",
-        "rpy-deg": "0 0 0"
+        "rpy": "0 0 0"
       },
       "rotor-settings": {
         "turning-direction": "counter-clock-wise",
@@ -268,7 +268,7 @@
       "child-link": "Prop_RL",
       "origin": {
         "xyz": "-0.253 -0.253 -0.01",
-        "rpy-deg": "0 0 0"
+        "rpy": "0 0 0"
       },
       "rotor-settings": {
         "turning-direction": "counter-clock-wise",
@@ -288,7 +288,7 @@
       "child-link": "Prop_RR",
       "origin": {
         "xyz": "-0.253 0.253 -0.01",
-        "rpy-deg": "0 0 0"
+        "rpy": "0 0 0"
       },
       "rotor-settings": {
         "turning-direction": "clock-wise",
@@ -314,7 +314,7 @@
           "width": 1280,
           "height": 720,
           "fov-degrees": 90,
-          "capture-enabled": true,
+          "capture-enabled": false,
           "streaming-enabled": true,
           "pixels-as-float": false,
           "compress": false,
@@ -328,7 +328,7 @@
       },
       "origin": {
         "xyz": "-10.0 0.0 -1.0",
-        "rpy-deg": "0 -11.46 0"
+        "rpy": "0 -0.2 0"
       }
     },
     {
@@ -354,7 +354,7 @@
           "width": 400,
           "height": 225,
           "fov-degrees": 90,
-          "capture-enabled": true,
+          "capture-enabled": false,
           "streaming-enabled": false,
           "pixels-as-float": true,
           "compress": false
@@ -374,7 +374,7 @@
           "width": 400,
           "height": 225,
           "fov-degrees": 90,
-          "capture-enabled": true,
+          "capture-enabled": false,
           "streaming-enabled": false,
           "pixels-as-float": false,
           "compress": false
@@ -384,18 +384,18 @@
           "width": 400,
           "height": 225,
           "fov-degrees": 90,
-          "capture-enabled": true,
+          "capture-enabled": false,
           "streaming-enabled": false,
           "pixels-as-float": false,
           "compress": false,
-          "max-depth-meters": 300
+          "max-depth-meters": 100
         },
         {
           "image-type": 5,  // disparity normalized
           "width": 400,
           "height": 225,
           "fov-degrees": 90,
-          "capture-enabled": true,
+          "capture-enabled": false,
           "streaming-enabled": false,
           "pixels-as-float": false,
           "compress": false
@@ -405,7 +405,7 @@
           "width": 400,
           "height": 225,
           "fov-degrees": 90,
-          "capture-enabled": true,
+          "capture-enabled": false,
           "streaming-enabled": false,
           "pixels-as-float": false,
           "compress": false
@@ -431,8 +431,8 @@
         }
       ],
       "origin": {
-        "xyz": "0.0 0.0 -1.0",
-        "rpy-deg": "0.0 -11.46 0.0"
+        "xyz": "0 0.0 0.0",
+        "rpy": "0 -1.5708 0"
       }
     },
     {
@@ -441,123 +441,35 @@
       "enabled": true,
       "parent-link": "Frame",
       "accelerometer": {
-        "velocity-random-walk": 2.3e-3,
+        "velocity-random-walk": 2.353e-3,
         "tau": 800,
         "bias-stability": 3.53e-4,
         "turn-on-bias": "0 0 0"
       },
       "gyroscope": {
-        "angle-random-walk": 1.027e-4,
+        "angle-random-walk": 8.72644e-5,
         "tau": 500,
-        "bias-stability": 2.23e-5,
+        "bias-stability": 2.23014e-5,
         "turn-on-bias": "0 0 0"
-      }
-    },
-    {
-      "id": "lidar1",
-      "type": "lidar",
-      "enabled": true,
-      "parent-link": "Frame",
-      "number-of-channels": 16,
-      "range": 100,
-      "points-per-second": 100000,
-      "horizontal-rotation-frequency": 10,
-      "horizontal-fov-start-deg": 0.0,
-      "horizontal-fov-end-deg": 360.0,
-      "vertical-fov-upper-deg": 0.0,
-      "vertical-fov-lower-deg": -90.0,
-      "draw-debug-points": false,
-      "origin": {
-        "xyz": "0 0 0.2",
-        "rpy-deg": "0 0 0"
-      }
-    },
-    {
-      "id": "DistanceSensor",
-      "type": "distance-sensor",
-      "enabled": true,
-      "parent-link": "Frame",
-      "max-distance": 50.0,
-      "min-distance": 0.5,
-      "draw-debug-points": true,
-      "origin": {
-        "xyz": "0 0 0.2",
-        "rpy-deg": "0 -90 0"
       }
     },
     {
       "id": "GPS",
       "type": "gps",
-      "enabled": true,
-      "parent-link": "Frame",
-      "eph-time-constant": 0.9,
-      "epv-time-constant": 0.9,
-      "eph-initial": 100,
-      "epv-initial": 100,
-      "eph-final": 0.1,
-      "epv-final": 0.1,
-      "eph-min_3d": 3.0,
-      "eph-min_2d": 4.0
+      "enabled": false,
+      "parent-link": "Frame"
     },
     {
       "id": "Barometer",
       "type": "barometer",
-      "enabled": true,
-      "parent-link": "Frame",
-      "qnh": 1013.250,
-      "pressure-factor-sigma": 0.001825,
-      "pressure-factor-tau": 3600,
-      "uncorrelated-noise-sigma": 2.7,
-      "update-latency": 0,
-      "update-frequency": 50,
-      "startup-delay": 0
+      "enabled": false,
+      "parent-link": "Frame"
     },
     {
       "id": "Magnetometer",
       "type": "magnetometer",
-      "enabled": true,
-      "parent-link": "Frame",
-      "scale-factor": 1,
-      "noise-sigma": "0.005 0.005 0.005", // 5 mgauss as per LSM303D spec-sheet
-      "noise-bias": "0.0 0.0 0.0" // no offset as per specsheet (zero gauss level)
-    },
-    {
-      "id": "Airspeed",
-      "type": "airspeed",
-      "enabled": true,
-      "parent-link": "Frame",
-      "pressure-factor-sigma": 0.001825,
-      "pressure-factor-tau": 3600,
-      "uncorrelated-noise-sigma": 1.052,
-      "forward-xyz": "1.0 0.0 0.0"
-    },
-    {
-      "id": "Battery",
-      "type": "battery",
-      "enabled": true,
-      "parent-link": "Frame",
-
-      // Total battery capacity.
-      // Typically, on start capacity should be lower than total battery capacity.
-      // Use joules as unit for capacity.
-      // 1 joule = 3600 * Amp hour
-      // 1 joule = 3.6 * milli Amp hour
-      "total-battery-capacity": 36000,
-      "battery-capacity-on-start": 30000,
-
-      // Battery has two simulated mode: Rotor power discharge or simple discharge model
-
-      // Rotor power discharge mode depletes power proportional to torque*angular_velocity
-      //  Simple discharge mode, depletes at rate specified.
-
-      // Config for rotor power discharge mode.
-      // You can configure the constant of proportionality using config option.
-      "battery-mode": "rotor-power-discharge-mode",
-      "rotor-power-coefficient": 1
-
-      // Config for simple discharge model. The drain rate can be adjusted at runtime using client api calls.
-      // "battery-mode":"simple-discharge-mode",
-      // "battery-drain-rate-on-start": 1
+      "enabled": false,
+      "parent-link": "Frame"
     }
   ]
 }

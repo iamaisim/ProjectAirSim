@@ -376,3 +376,24 @@ env/
 # Simulink cache
 **/slprj
 *.slxc
+
+# Jsbsim repository files
+core_sim/jsbsim/
+
+# temporary for Jonathan
+physics/test/CMakeLists.txt
+core_sim/test/CMakeLists.txt
+unreal/Blocks/Plugins/InternalDevUseContent/
+unreal/Blocks/Plugins/ProjectAirSim/SDK/
+unreal/Blocks/Samples/
+
+# Compilation with Visual Studio
+# TODO: Make this cleaner. This is a temporary fix.
+CMakeFiles/
+CMakeCache.txt
+CTestTestfile.cmake
+*.vcxproj
+*.filters
+*.cmake
+DartConfiguration.tcl
+ProjectAirSimLibs.sln

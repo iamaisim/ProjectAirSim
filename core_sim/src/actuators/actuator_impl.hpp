@@ -157,7 +157,7 @@ class ActuatorImpl : public ComponentWithTopicsAndServiceMethods {
                                    const std::string& actor_id) {
     actor_logger.LogVerbose(actor_name, "[%s] Loading 'actuator.name'.",
                             actor_id.c_str());
-    auto id = JsonUtils::GetIdentifier(json, Constant::Config::name);
+    auto id = JsonUtils::GetString(json, Constant::Config::name); //TODO: This allowed an identifier with "/" in it for JSBsim actuators.  Review if necessary or if we should use any property.
     actor_logger.LogVerbose(actor_name, "[%s][%s] 'actuator.name' loaded.",
                             actor_id.c_str(), id.c_str());
 

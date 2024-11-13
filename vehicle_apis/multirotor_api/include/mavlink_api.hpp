@@ -65,6 +65,8 @@ class MavLinkApi : public VTOLFWApiBase {
   LandedState GetLandedState() const override;
 
   bool Takeoff(float timeout_sec, int64_t command_start_time_nanos) override;
+  float GetTakeOffZ() override; 
+  bool SetTakeOffZ(float takeoffZ) override;
   bool Land(float timeout_sec, int64_t command_start_time_nanos) override;
   bool MoveToPosition(float x, float y, float z, float velocity,
                       float timeout_sec, DrivetrainType drivetrain,
@@ -134,10 +136,6 @@ class MavLinkApi : public VTOLFWApiBase {
    * *********************************/
   float GetCommandPeriod()
       const override;  // time between two command required for drone in seconds
-  float GetTakeoffZ()
-      const override;  // the height above ground for the drone after successful
-                       // takeoff (Z above ground is negative due to NED
-                       // coordinate system).
   // noise in difference of two position coordinates. This is not GPS or
   // position accuracy which can be very low such as 1m. the difference between
   // two position cancels out transitional errors. Typically this would be 0.1m
@@ -436,6 +434,8 @@ class MavLinkApi : public VTOLFWApiBase {
   // this is why below two variables are marked as mutable
   mutable int state_version_;
   mutable mavlinkcom::VehicleState current_state_;
+
+  float takeoff_z_ = -10;
 
   // Debug
   int heartbeat_messages_received_count_ = 0;

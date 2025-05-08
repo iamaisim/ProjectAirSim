@@ -1,0 +1,80 @@
+// Copyright (C) Microsoft Corporation.  All rights reserved.
+
+/*=============================================================================
+	LidarIntensityPS.usf: Pixel shader for computing a lidar intensity
+=============================================================================*/
+#pragma once
+
+#include "/Engine/Public/Platform.ush"
+
+#include "/Engine/Generated/GeneratedUniformBuffers.ush" 
+#include "/Engine/Private/Common.ush"
+#include "/Engine/Private/DeferredShadingCommon.ush"
+#include "/Engine/Private/SceneTexturesCommon.ush"
+#include "/Engine/Private/SceneData.ush"
+#include "/Engine/Private/ScreenPass.ush"
+#include "/Engine/Private/SceneTextureParameters.ush"
+
+SCREEN_PASS_TEXTURE_VIEWPORT(PostProcessOutput)
+
+struct FPostProcessMaterialVSToPS
+{
+    float4 Position : SV_POSITION;
+};
+
+float4 MySvPositionToScreenPosition(float4 SvPosition)
+{
+	// assumed SvPosition.w = 1
+
+    float4 Ret;
+
+    Ret.x = ((SvPosition.x - PrimaryView.ViewRectMin.x) * PrimaryView.ViewSizeAndInvSize.z) * 2 - 1;
+    Ret.y = ((SvPosition.y - PrimaryView.ViewRectMin.y) * PrimaryView.ViewSizeAndInvSize.w) * -2 + 1;
+    Ret.z = ConvertFromDeviceZ(SvPosition.z);
+    Ret.w = 1;
+
+    Ret.xy *= Ret.z;
+
+    return Ret;
+}
+
+float CalculateIntensity(FGBufferData GBuffer, float4 SvPosition)
+{
+    float4 ScreenPosition = MySvPositionToScreenPosition(SvPosition);
+    float3 WorldPoint = mul(float4(ScreenPosition.xy * ScreenPosition.z, ScreenPosition.z, 1), LWCHackToFloat(PrimaryView.ScreenToWorld)).xyz;
+    float3 CameraVector = normalize(LWCHackToFloat(PrimaryView.WorldCameraOrigin) - WorldPoint.xyz);
+    
+	//float3 TranslatedWorldPosition = SvPositionToTranslatedWorld(SvPosition);
+	//CameraVector = normalize(-TranslatedWorldPosition.xyz);
+    float RoughnessCoeff = 0.05;
+    float SpecularCoeff = 0.7;
+    float MetallicCoeff = 0.3;
+	
+	float DiffusedSpecularFactor = GBuffer.Specular * GBuffer.Roughness;
+    float4 AngleSimilarity = (dot(-CameraVector, GBuffer.WorldNormal) + 1.0) / 2.0;
+    return RoughnessCoeff * GBuffer.Roughness * AngleSimilarity + (SpecularCoeff * GBuffer.Specular * (1.0 - AngleSimilarity)) + MetallicCoeff * GBuffer.Metallic;
+}
+
+void MainPS(
+	in FPostProcessMaterialVSToPS Input,
+	out float4 OutColor : SV_Target0
+	)
+{
+    float4 SvPosition = Input.Position;
+    float2 ViewportUV = (SvPosition.xy - PostProcessOutput_ViewportMin.xy) * PostProcessOutput_ViewportSizeInverse.xy;
+	
+    FGBufferData GBuffer = GetGBufferData(ViewportUVToBufferUV(ViewportUV), /*bGetNormalizedNormal=*/true);
+    float Intensity = CalculateIntensity(GBuffer, SvPosition);
+	
+    OutColor.rgb = float3(Intensity, 0, 0);
+    OutColor.a = 1.0;
+}
+
+void MainVS(
+	in float4 InPosition : ATTRIBUTE0,
+	out FPostProcessMaterialVSToPS Output
+	)
+{
+	Output = (FPostProcessMaterialVSToPS)0;
+	DrawRectangle(InPosition, Output.Position);
+}

@@ -1,0 +1,37 @@
+{
+  // Parameter ranges and granularities
+  "parameters": {
+    // Time of day is in 24 hour format
+    // Unit of measurement is hours
+    "time-of-day": {
+      "start": 0,
+      "end": 24,
+      "granularity": 1
+    },
+    "weather": {
+      // Weather conditions are in percentages
+      // 0.0 is no intensity, 1.0 is max intensity
+      "rain": {
+        "start": 0,
+        "end": 1.0,
+        "granularity": 0.1
+      },
+      "snow": {
+        "start": 0,
+        "end": 1.0,
+        "granularity": 0.1
+      },
+      "dust": {
+        "start": 0,
+        "end": 1.0,
+        "granularity": 0.1
+      }
+    },
+    "wind-speed": {
+      // Wind speed is in meters per second
+      "start": 0,
+      "end": 10,
+      "granularity": 1
+    }
+  }
+}

@@ -1,0 +1,196 @@
+#
+# Azure pipeline to build ubuntu 22.04 AirSim Unreal environment artifacts
+# 
+parameters:
+- name: docker_unreal_image
+  type: string 
+  default: hameritt.azurecr.io/epicgames/unreal-engine:ubuntu22-dev-5.2.1
+- name: dockerfile
+  type: string 
+  default: binary_projectairsim.Dockerfile
+- name: releasetag
+  type: string 
+  default: v1.25.0
+- name: build_binary_container
+  type: boolean 
+  default: true
+- name: docker_target_image
+  type: string
+  default: projectairsim_str
+- name: ros2_distro
+  type: string 
+  default: humble
+- name: docker_base_image
+  type: string
+  default: project_airsim_pipeline_ros2
+- name: docker_base_image_tag
+  type: string
+  default: 22.04
+- name: docker_source_repo
+  type: string
+  default: hameritt.azurecr.io
+- name: docker_target_repo
+  type: string
+  default: hameritt.azurecr.io
+- name: neighborhood_branch
+  type: string
+  default: neighborhood
+- name: city_branch
+  type: string
+  default: city
+- name: environments_list
+  type: object
+  default:
+    - envName: CityEnviron
+      repository: hameritt-env-city
+      envRepoRoot: hameritt-env-city
+      plugin_copy_type: plugin
+      airsim_plugin_path: ProjectAirSim/packages/projectairsim_ue_plugin
+    - envName: AirSimNH
+      repository: hameritt-env
+      envRepoRoot: hameritt-env
+      plugin_copy_type: plugin
+      airsim_plugin_path: ProjectAirSim/packages/projectairsim_ue_plugin
+
+variables:
+  vmss_pool: 'VMSS Agents Pool'
+  dockerRegistryServiceConnection: 'container_registry_connection'
+  envName: 'notset'
+  
+resources:
+  repositories:
+  - repository: hameritt-env
+    type: github
+    endpoint: johnnovak_connection
+    ref: ${{ parameters.neighborhood_branch }}
+    name: microsoft/hameritt-env
+  - repository: hameritt-env-city
+    type: github
+    endpoint: johnnovak_connection
+    ref: ${{ parameters.city_branch }}
+    name: microsoft/hameritt-env
+  - repository: ProjectAirSim
+    type: github
+    endpoint: johnnovak_connection
+    ref: johnnovak/pipeline_envs
+    name: microsoft/ProjectAirSim
+
+trigger:
+  tags:
+    include:
+      - v*
+  branches:
+    include:
+      - releases/*
+      
+pool:
+  name: $(vmss_pool)
+
+jobs:
+- job: UbuntuBuildProjectAirSimNHReleaseAzure
+  timeoutInMinutes: 240
+  displayName: 'Build Ubuntu AirSimNH Release code'
+  steps:
+  
+  - task: Docker@2
+    displayName: Login to Azure Container Registry
+    inputs:
+      command: login
+      containerRegistry: $(dockerRegistryServiceConnection)
+
+  - template: ./templates/install_docker.yml
+    
+  - checkout: hameritt-env
+    path: hameritt-env
+    lfs: true
+    
+  - checkout: hameritt-env-city
+    path: hameritt-env-city
+    lfs: true
+
+  - checkout: ProjectAirSim
+    path: ProjectAirSim
+    lfs: true
+
+  - template: ./templates/build_projectairsim_unreal_plugin.yml
+    parameters:
+      sourcePath: $(Pipeline.Workspace)/ProjectAirSim
+      
+  # Package UE Plugin
+  - script: |
+      pushd $(Pipeline.Workspace)/ProjectAirSim
+      bash ./build.sh package_plugin
+    displayName: Package UE Plugin
+
+  - task: Docker@2
+    displayName: pull base ros2 image
+    inputs:
+      command: pull
+      containerRegistry: $(dockerRegistryServiceConnection)
+      arguments: ${{ parameters.docker_target_repo}}/${{ parameters.docker_base_image}}_${{ parameters.ros2_distro }}:${{ parameters.docker_base_image_tag }}
+      
+  - task: Docker@2
+    displayName: pull unreal build image
+    inputs:
+      command: pull
+      containerRegistry: $(dockerRegistryServiceConnection)
+      arguments: ${{ parameters.docker_unreal_image}}
+    
+  - script: |
+      sudo docker container ls
+      sudo docker image ls
+    displayName: 'verify pull of Unreal docker containers'
+
+#
+#  Build all environments in environments_list
+#  Both environment zip files and final docker images are created.  The zip files are pushed to a gtithub release,
+#    the docker images are pushed to an Azure container registry
+#
+  - ${{ each envInfo in parameters.environments_list }}:
+    - script: |
+        echo "Building environment ${{ envInfo.envName }}"
+        echo "Build copy type ${{ envInfo.plugin_copy_type }}"
+        echo "Build environment repo root ${{ envInfo.envRepoRoot }}"
+      displayName: 'Environment name'
+
+    - template: ./templates/build_hameritt_environment.yml
+      parameters:
+        releasetag: ${{ parameters.releasetag }}
+        docker_source_repo: ${{ parameters.docker_source_repo }}
+        docker_base_image: ${{ parameters.docker_base_image }}
+        docker_target_image: ${{ parameters.docker_target_image }}
+        docker_base_image_tag: ${{ parameters.docker_base_image_tag }}
+        dockerfile: ${{ parameters.dockerfile }}
+        envName: ${{ envInfo.envName }}
+        build_binary_container: ${{ parameters.build_binary_container }}
+        dockerRegistryServiceConnection: $(dockerRegistryServiceConnection)
+        environmentRepoRoot: ${{ envInfo.envRepoRoot }}
+        plugin_copy_type: ${{ envInfo.plugin_copy_type }}
+        airsim_plugin_path: $(Pipeline.Workspace)/${{ envInfo.airsim_plugin_path }}
+
+    - template: ./templates/build_release_container.yml
+      parameters:
+        releasetag: ${{ parameters.releasetag }}
+        docker_source_repo: ${{ parameters.docker_source_repo }}
+        docker_base_image: ${{ parameters.docker_base_image }}
+        docker_target_image: ${{ parameters.docker_target_image }}
+        docker_base_image_tag: ${{ parameters.docker_base_image_tag }}
+        dockerfile: ${{ parameters.dockerfile }}
+        envName: ${{ envInfo.envName }}
+        build_binary_container: ${{ parameters.build_binary_container }}
+        dockerRegistryServiceConnection: $(dockerRegistryServiceConnection)
+        environmentRepoRoot: ${{ envInfo.envRepoRoot }}
+
+  - task: GitHubRelease@1
+    inputs:
+      gitHubConnection: johnnovak_connection
+      repositoryName: microsoft/ProjectAirSim
+      action: 'edit'
+      assetUploadMode: 'replace'
+      target: $(Build.SourceVersion)
+      tagSource: 'userSpecifiedTag'
+      tag: ${{ parameters.releasetag }}
+      isPreRelease: true
+      addChangeLog: false
+      assets: ${{ parameters.releasetag }}/*
+    displayName: 'Update release contents by uploading environment zip files'

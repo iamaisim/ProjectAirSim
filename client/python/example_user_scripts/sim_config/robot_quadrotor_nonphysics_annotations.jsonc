@@ -1,0 +1,262 @@
+{
+  "physics-type": "non-physics",
+  "links": [
+    {
+      "name": "Frame",
+      "collision": {
+        "enabled": false
+      },
+      "visual": {
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Drone/Quadrotor1"
+        }
+      }
+    },
+    {
+      "name": "Prop_FL",
+      "visual": {
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Drone/Propeller"
+        }
+      }
+    },
+    {
+      "name": "Prop_FR",
+      "visual": {
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Drone/Propeller"
+        }
+      }
+    },
+    {
+      "name": "Prop_RL",
+      "visual": {
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Drone/Propeller"
+        }
+      }
+    },
+    {
+      "name": "Prop_RR",
+      "visual": {
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Drone/Propeller"
+        }
+      }
+    }
+  ],
+  "joints": [
+    {
+      "id": "Frame_Prop_FL",
+      "origin": {
+        "xyz": "0.253 -0.253 -0.01",
+        "rpy-deg": "0 0 0"
+      },
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Prop_FL",
+      "axis": "0 0 1"
+    },
+    {
+      "id": "Frame_Prop_FR",
+      "origin": {
+        "xyz": "0.253 0.253 -0.01",
+        "rpy-deg": "0 0 0"
+      },
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Prop_FR",
+      "axis": "0 0 1"
+    },
+    {
+      "id": "Frame_Prop_RL",
+      "origin": {
+        "xyz": "-0.253 -0.253 -0.01",
+        "rpy-deg": "0 0 0"
+      },
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Prop_RL",
+      "axis": "0 0 1"
+    },
+    {
+      "id": "Frame_Prop_RR",
+      "origin": {
+        "xyz": "-0.253 0.253 -0.01",
+        "rpy-deg": "0 0 0"
+      },
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Prop_RR",
+      "axis": "0 0 1"
+    }
+  ],
+  "sensors": [
+    {
+      "id": "Chase",
+      "type": "camera",
+      "enabled": true,
+      "parent-link": "Frame",
+      "capture-interval": 0.03,
+      "capture-settings": [
+        {
+          "image-type": 0,
+          "width": 1280,
+          "height": 720,
+          "fov-degrees": 90,
+          "capture-enabled": false,
+          "streaming-enabled": true,
+          "pixels-as-float": false,
+          "compress": false,
+          "target-gamma": 2.5
+        }
+      ],
+      "noise-settings": [
+        {
+          "enabled": false,
+          "image-type": 1,
+          "rand-contrib": 0.2,
+          "rand-speed": 100000.0,
+          "rand-size": 500.0,
+          "rand-density": 2,
+          "horz-wave-contrib": 0.03,
+          "horz-wave-strength": 0.08,
+          "horz-wave-vert-size": 1.0,
+          "horz-wave-screen-size": 1.0,
+          "horz-noise-lines-contrib": 1.0,
+          "horz-noise-lines-density-y": 0.01,
+          "horz-noise-lines-density-xy": 0.5,
+          "horz-distortion-contrib": 1.0,
+          "horz-distortion-strength": 0.002
+        }
+      ],
+      "annotation-settings": {
+        "object-ids": [
+          "TakeoffPad1"
+        ],
+        "enabled": true,
+        "bbox2D-settings":
+        {
+          "alignment": "axis" // axis or oriented
+        },
+        "bbox3D-settings":
+        {
+          "alignment": "oriented" // axis or oriented
+        }
+      },
+      "gimbal": {
+        "lock-roll": true,
+        "lock-pitch": true,
+        "lock-yaw": false
+      },
+      "origin": {
+        "xyz": "-10.0 0.0 -1.0",
+        "rpy-deg": "0 -11.46 0"
+      }
+    },
+    {
+      "id": "DownCamera",
+      "type": "camera",
+      "enabled": true,
+      "parent-link": "Frame",
+      "capture-interval": 0.02,
+      "capture-settings": [
+        {
+          "image-type": 0,
+          "width": 400,
+          "height": 225,
+          "fov-degrees": 90,
+          "capture-enabled": true,
+          "streaming-enabled": false,
+          "pixels-as-float": false,
+          "compress": false,
+          "target-gamma": 2.5
+        },
+        {
+          "image-type": 1,
+          "width": 400,
+          "height": 225,
+          "fov-degrees": 90,
+          "capture-enabled": false,
+          "streaming-enabled": false,
+          "pixels-as-float": false,
+          "compress": false
+        },
+        {
+          "image-type": 2,
+          "width": 400,
+          "height": 225,
+          "fov-degrees": 90,
+          "capture-enabled": false,
+          "streaming-enabled": false,
+          "pixels-as-float": false,
+          "compress": false
+        },
+        {
+          "image-type": 3,
+          "width": 400,
+          "height": 225,
+          "fov-degrees": 90,
+          "capture-enabled": true,
+          "streaming-enabled": false,
+          "pixels-as-float": false,
+          "compress": false
+        }
+      ],
+      "noise-settings": [
+        {
+          "enabled": false,
+          "image-type": 1,
+          "rand-contrib": 0.2,
+          "rand-speed": 100000.0,
+          "rand-size": 500.0,
+          "rand-density": 2,
+          "horz-wave-contrib": 0.03,
+          "horz-wave-strength": 0.08,
+          "horz-wave-vert-size": 1.0,
+          "horz-wave-screen-size": 1.0,
+          "horz-noise-lines-contrib": 1.0,
+          "horz-noise-lines-density-y": 0.01,
+          "horz-noise-lines-density-xy": 0.5,
+          "horz-distortion-contrib": 1.0,
+          "horz-distortion-strength": 0.002
+        }
+      ],
+      "annotation-settings": {
+        "object-ids": [
+          "TakeoffPad1",
+          "TakeoffPad_Test",
+          "TakeoffPad1_Speedway",
+          "TakeoffPad2_Marriot",
+          "TakeoffPad3_Chipotle"
+        ],
+        "enabled": true,
+        "bbox2D-settings":
+        {
+          "alignment": "axis" // axis or oriented
+        },
+        "bbox3D-settings":
+        {
+          "alignment": "axis" // axis or oriented
+        },
+        "distance-filter-enabled": false,
+        "distance-filter-range": 40.0
+      },
+      "origin": {
+        "xyz": "0 0.0 0.0",
+        "rpy-deg": "0 -90 0"
+      }
+    },
+    {
+      "id": "GPS",
+      "type": "gps",
+      "enabled": false,
+      "parent-link": "Frame"
+    }
+  ]
+}

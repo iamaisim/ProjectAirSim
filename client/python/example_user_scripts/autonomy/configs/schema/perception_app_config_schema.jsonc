@@ -1,0 +1,98 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Perception App Config",
+    "description": "Config file for the Takeoff-Landing App demo",
+    "type": "object",
+    "properties": {
+        "scene": {
+            "description": "The scene config to define the scene",
+            "type": "string"
+        },
+        "landing-pad": {
+            "description": "Location and segmentation ID's for landing pads",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "x",
+                    "y",
+                    "z",
+                    "seg_ID"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "x": {
+                        "type": "number"
+                    },
+                    "y": {
+                        "type": "number"
+                    },
+                    "z": {
+                        "type": "number"
+                    },
+                    "seg_ID": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "moves": {
+            "description": "Defines the moves the drone will perform through the script",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "num-loops",
+                    "task-duration",
+                    "v-north",
+                    "v-east",
+                    "v-down"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "num-loops": {
+                        "description": "Number of times the move will be repeated",
+                        "type": "integer"
+                    },
+                    "task-duration": {
+                        "description": "The time in seconds that the loop will be run for",
+                        "type": "number"
+                    },
+                    "v-north": {
+                        "description": "Velocity in north direction",
+                        "type": "number"
+                    },
+                    "v-east": {
+                        "description": "Velocity in east direction",
+                        "type": "number"
+                    },
+                    "v-down": {
+                        "description": "Velocity in down direction",
+                        "type": "number"
+                    }
+                }
+            }
+        },
+        "perception-arch": {
+            "type": "string",
+            "enum": [
+                "compass"
+            ] //Add other supported model arch
+        },
+        "perception-pretrained-model": {
+            "type": "string"
+        },
+        "perception-gpu": {
+            "type": "integer"
+        },
+        "bb-normalized": {
+            "type": "boolean"
+        }
+    }
+}

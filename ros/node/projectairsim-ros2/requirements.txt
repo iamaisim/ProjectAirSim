@@ -1,0 +1,7 @@
+# Install packages for setting up a development environment
+wheel
+pytest
+pytest-cov
+
+# Install project-airsim-ros2 package in editable development mode
+-e .

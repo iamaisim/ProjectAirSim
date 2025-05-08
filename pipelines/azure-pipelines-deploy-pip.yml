@@ -1,0 +1,139 @@
+# Pipeline for Project AirSim to deploy client pip package to the projectairsim Azure Artifact internal feed
+
+trigger:
+  branches:
+    # Don't trigger on branch pushes, only run manually when client pip package version is bumped
+    exclude:
+      - '*'
+
+variables:
+  container_linux: projectairsimacr.azurecr.io/ue5p1p1/ubuntu20:libjpegxr
+  ue_root_linux: /home/projectairsimuser/ue-5.1.1-linux-debugeditor
+
+resources:
+  repositories:
+  - repository: projectairsim_tagged_package
+    type: git
+    name: projectairsim
+    ref: refs/tags/$(pipeline_var_release_tag)
+
+stages:
+  - stage: Deploy_Pip_Package
+    jobs:
+      - job: Ubuntu_20_GPU
+        timeoutInMinutes: 60
+        pool:
+          name: 'RoboSim'  # Self-hosted
+          demands:
+            - Spec -equals Ubuntu_20.04
+        container:
+          image: $(container_linux)
+          endpoint: projectairsim_acr_service_principal
+        variables:
+          ue_root: $(ue_root_linux)
+        workspace:
+          clean: all
+        steps:
+          # ADO pipeline runs as a non-root user so need to take ownership of
+          # UE engine's dotnet folder (UE 5.1 runs
+          # a `chmod u+x "$UE_DOTNET_DIR/dotnet"` command in SetupDotnet.sh)
+          - script: |
+              cur_user=$(whoami)
+              echo "sudo chown -R ${cur_user} $(ue_root_linux)/Engine/Binaries/ThirdParty/DotNet"
+              sudo chown -R ${cur_user} $(ue_root_linux)/Engine/Binaries/ThirdParty/DotNet
+            displayName: Take ownership of UE's dotnet folder
+
+          # Clone the repo
+          - checkout: projectairsim_tagged_package
+
+          # Build Python client package
+          - script: |
+              sudo apt-get update
+              sudo apt-get -y install python3.8 python3.8-dev python3.8-venv
+              python3.8 -m venv airsimenv
+              source ./airsimenv/bin/activate
+              python -m pip install --upgrade pip setuptools wheel twine
+              cd client/python/projectairsim && python setup.py bdist_wheel
+            displayName: Build Python client package
+            condition: succeededOrFailed()
+
+          # Publish Artifact for Project AirSim Client as binary wheel
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: 'client/python/projectairsim/dist'
+              artifactName: 'ProjectAirSim_Client_Binary_Wheel'
+            displayName: Artifact for Project AirSim client binary wheel
+            condition: succeededOrFailed()
+
+          # Prepare to build Project AirSim ROS packages
+          - script: |
+              mkdir $(System.DefaultWorkingDirectory)/ros_bridge_dist
+              sudo apt -y upgrade
+              sudo apt -y install curl
+            displayName: Prepare to build Project AirSim ROS packages
+            condition: succeededOrFailed()
+
+          # Build and install Project AirSim ROS Bridge package
+          - script: |
+              source ./airsimenv/bin/activate
+              cd ros/node/projectairsim-rosbridge && python setup.py bdist_wheel
+              python -m pip install --find-links=./dist projectairsim_rosbridge
+              cp ./dist/* $(System.DefaultWorkingDirectory)/ros_bridge_dist
+            displayName: Build and install Project AirSim ROS Bridge package
+            condition: succeededOrFailed()
+
+          # Build and install Project AirSim ROS1 package
+          - script: |
+              source ./airsimenv/bin/activate
+              sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+              curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
+              sudo apt update
+              sudo apt -y install ros-noetic-ros-base
+              source /opt/ros/noetic/setup.bash
+              cd ros/node/projectairsim-ros1 && python setup.py bdist_wheel
+              python -m pip install --find-links=./dist projectairsim_ros1
+              cp ./dist/* $(System.DefaultWorkingDirectory)/ros_bridge_dist
+            displayName: Build and install Project AirSim ROS1 package
+            condition: succeededOrFailed()
+
+          # Build and install Project AirSim ROS2 package
+          - script: |
+              source ./airsimenv/bin/activate
+              sudo apt -y install locales
+              sudo locale-gen en_US en_US.UTF-8
+              sudo update-locale LC_ALL=en_US.UTF-8 LANG-en_US.UTF-8
+              export LANG=en_US.UTF-8
+              locale
+              apt-cache policy | grep universe
+              sudo apt -y install gnupg lsb-release
+              curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o $(System.DefaultWorkingDirectory)/ros-archive-keyring.gpg
+              echo "deb [arch=$(dpkg --print-architecture) signed-by=$(System.DefaultWorkingDirectory)/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(source /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+              sudo apt update
+              sudo apt -y install ros-galactic-ros-base
+              source /opt/ros/galactic/setup.bash
+              cd ros/node/projectairsim-ros2 && python setup.py bdist_wheel
+              python -m pip install --find-links=./dist projectairsim_ros2
+              cp ./dist/* $(System.DefaultWorkingDirectory)/ros_bridge_dist
+            displayName: Build and install Project AirSim ROS2 package
+            condition: succeededOrFailed()
+
+          # Publish Artifact for Project AirSim ROS binary wheels
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: $(System.DefaultWorkingDirectory)/ros_bridge_dist
+              artifactName: 'ProjectAirSim_ROS_Binary_Wheels'
+            displayName: Artifact for Project AirSim ROS Binary Wheels
+            condition: succeededOrFailed()
+
+          # Set twine authentication credentials as PYPIRC_PATH environment variable
+          - task: TwineAuthenticate@1
+            inputs:
+              artifactFeed: 'Project AirSim/projectairsim'
+            displayName: Twine authentication
+
+          # Deploy Python client and ROS packages to projectairsim Azure Artifact feed
+          - script: |
+              source ./airsimenv/bin/activate
+              python -m twine upload -r projectairsim --config-file $(PYPIRC_PATH) client/python/projectairsim/dist/*.whl
+              python -m twine upload -r projectairsim --config-file $(PYPIRC_PATH) $(System.DefaultWorkingDirectory)/ros_bridge_dist/*.whl
+            displayName: Deploy client pip package to Azure Artifact feed

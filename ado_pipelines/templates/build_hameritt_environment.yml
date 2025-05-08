@@ -1,0 +1,146 @@
+  parameters:
+  - name: docker_unreal_image
+    type: string 
+    default: hameritt.azurecr.io/epicgames/unreal-engine:ubuntu22-dev-5.2.1
+  - name: dockerfile
+    type: string 
+    default: binary_airsim.Dockerfile
+  - name: releasetag
+    type: string 
+    default: v1.13.0
+  - name: build_binary_container
+    type: boolean 
+    default: true
+  - name: docker_target_image
+    type: string
+    default: projectairsim-str
+  - name: docker_base_image
+    type: string
+    default: airsim_pipeline_ros2_humble
+  - name: docker_base_image_tag
+    type: string
+    default: 22.04
+  - name: docker_source_repo
+    type: string
+    default: hameritt.azurecr.io
+  - name: docker_target_repo
+    type: string
+    default: hameritt.azurecr.io
+  - name: envName
+    type: string
+    default: notset
+  - name: projectName
+    type: string
+    default: notset
+  - name: dockerRegistryServiceConnection
+    type: string
+    default: notset
+  - name: plugin_copy_type
+    type: string
+    default: plugin
+  - name: airsim_plugin_path
+    type: string
+    default: notset
+  - name: environmentRepoRoot
+    type: string
+    default: notset
+  - name: use_cesium
+    type: boolean
+    default: false
+  - name: cesium_release
+    type: string
+    default: notset
+  - name: cesium_plugin_name
+    type: string
+    default: notset
+    
+  steps:
+  - script: |
+      echo "Unreal project file location"
+      ls -la $(Pipeline.Workspace)/${{ parameters.environmentRepoRoot }}
+      sudo chmod -R 777 $(Pipeline.Workspace)/${{ parameters.environmentRepoRoot }}
+      
+      #
+      # Copy projectairsim plugins to Unreal project Plugins directory
+      #
+      if [[ ${{ parameters.plugin_copy_type }} == "plugin" ]]; then
+        mkdir -p $(Pipeline.Workspace)/${{ parameters.environmentRepoRoot }}/Plugins
+        sudo chmod -R 777 $(Pipeline.Workspace)/${{ parameters.environmentRepoRoot }}/Plugins
+        rsync -a --delete ${{ parameters.airsim_plugin_path }} $(Pipeline.Workspace)/${{ parameters.environmentRepoRoot }}
+        sudo chmod -R 777 $(Pipeline.Workspace)/${{ parameters.environmentRepoRoot }}/Plugins
+      fi
+    displayName: 'Install ProjectAirSim plugin'
+    condition: succeededOrFailed()
+    target: host
+
+  - script: |
+      echo "Path to extracted Cesium Plugin"
+      ls -la $(Pipeline.Workspace)/${{ parameters.cesium_plugin_name }}
+      cp -r $(Pipeline.Workspace)/${{ parameters.cesium_plugin_name }} $(Pipeline.Workspace)/${{ parameters.environmentRepoRoot }}/Plugins
+      sudo chmod -R 777 $(Pipeline.Workspace)/${{ parameters.environmentRepoRoot }}/Plugins
+      ls -la $(Pipeline.Workspace)/${{ parameters.environmentRepoRoot }}/Plugins
+    displayName: 'Install Cesium plugin'
+    condition: ${{ parameters.use_cesium }}
+    target: host
+    
+  - script: |
+      mkdir ${{ parameters.releasetag }}
+      echo "calling unreal build script Project file selected is ${{ parameters.envName }}"
+
+      docker run --rm -v \
+       	$(Pipeline.Workspace)/${{ parameters.environmentRepoRoot }}:/project \
+       	${{ parameters.docker_unreal_image}} \
+        /home/ue4/UnrealEngine/Engine/Build/BatchFiles/RunUAT.sh \
+        BuildCookRun \
+        -utf8output \
+        -platform=Linux \
+        -targetplatform=Linux \
+        -clientConfig=Development -serverConfig=Development \
+        -project=/project/${{ parameters.projectName }}.uproject \
+        -noP4 \
+        -clean \
+        -installed \
+        -map= \
+        -unversionedcookedcontent \
+        -basedonreleaseversion=1.0 \
+        -cook \
+        -build \
+        -SkipCookingEditorContent \
+        -compresssed \
+        -stage \
+        -package \
+        -stagingdirectory=/project/release/${{ parameters.releasetag }}
+     
+      echo "Examine release directories"
+      sudo chmod -R 777 $(Pipeline.Workspace)/${{ parameters.environmentRepoRoot }}
+      mkdir -p $(Pipeline.Workspace)/${{ parameters.environmentRepoRoot }}/release/${{ parameters.releasetag }}/Linux/Engine/Shaders
+      mkdir -p $(Pipeline.Workspace)/${{ parameters.environmentRepoRoot }}/release/${{ parameters.releasetag }}/Linux/Engine/Binaries/Linux
+      sudo chmod -R 777 $(Pipeline.Workspace)/${{ parameters.environmentRepoRoot }}
+      
+      echo "Copy engine shader files to build directory"
+      docker run -d --name unreal-${{ parameters.envName }} ${{ parameters.docker_unreal_image }} /bin/bash -c "echo 'unreal running'; sleep infinity"
+      docker cp unreal-${{ parameters.envName }}:/home/ue4/UnrealEngine/Engine/Shaders $(Pipeline.Workspace)/${{ parameters.environmentRepoRoot }}/release/${{ parameters.releasetag }}/Linux/Engine
+      
+      docker cp unreal-${{ parameters.envName }}:/home/ue4/UnrealEngine/Engine/Binaries/Linux/CrashReportClient $(Pipeline.Workspace)/${{ parameters.environmentRepoRoot }}/release/${{ parameters.releasetag }}/Linux/Engine/Binaries/Linux
+      docker cp unreal-${{ parameters.envName }}:/home/ue4/UnrealEngine/Engine/Binaries/Linux/CrashReportClient.debug $(Pipeline.Workspace)/${{ parameters.environmentRepoRoot }}/release/${{ parameters.releasetag }}/Linux/Engine/Binaries/Linux
+      docker cp unreal-${{ parameters.envName }}:/home/ue4/UnrealEngine/Engine/Binaries/Linux/CrashReportClient.sym $(Pipeline.Workspace)/${{ parameters.environmentRepoRoot }}/release/${{ parameters.releasetag }}/Linux/Engine/Binaries/Linux
+      
+      docker cp unreal-${{ parameters.envName }}:/home/ue4/UnrealEngine/Engine/Binaries/Linux/libUnrealEditor-InternationalizationSettings.so $(Pipeline.Workspace)/${{ parameters.environmentRepoRoot }}/release/${{ parameters.releasetag }}/Linux/Engine/Binaries/Linux
+      docker cp unreal-${{ parameters.envName }}:/home/ue4/UnrealEngine/Engine/Binaries/Linux/libUnrealEditor-InternationalizationSettings.debug $(Pipeline.Workspace)/${{ parameters.environmentRepoRoot }}/release/${{ parameters.releasetag }}/Linux/Engine/Binaries/Linux
+      docker cp unreal-${{ parameters.envName }}:/home/ue4/UnrealEngine/Engine/Binaries/Linux/libUnrealEditor-InternationalizationSettings.sym $(Pipeline.Workspace)/${{ parameters.environmentRepoRoot }}/release/${{ parameters.releasetag }}/Linux/Engine/Binaries/Linux
+      sudo docker container rm unreal-${{ parameters.envName }}
+
+      echo "Reset cwd to properly set zip file pathing"
+      pushd $(Pipeline.Workspace)/${{ parameters.environmentRepoRoot }}/release/${{ parameters.releasetag }}
+      ls -la .
+      zip -q -r --split-size 2040m ${{ parameters.envName }}.zip Linux
+      popd
+
+      echo "Move artifacts zip file to release subdirectory"
+      mv $(Pipeline.Workspace)/${{ parameters.environmentRepoRoot }}/release/${{ parameters.releasetag }}/${{ parameters.envName }}.z*  ${{ parameters.releasetag }}
+
+      ls -la ${{ parameters.releasetag }}
+    displayName: 'build and compress AirSim ${{ parameters.envName }} Unreal project artifacts'
+    condition: succeededOrFailed()
+    target: host
+ 

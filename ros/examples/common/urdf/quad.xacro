@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<robot name="quad">
+    <!-- Frame of the robot -->
+    <link name="base_link">
+        <visual>
+            <geometry>
+                <mesh filename="package://projectairsim_ros_examples/common/urdf/quad_frame.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0.034981"/>
+            <geometry>
+                <box size="1 1 0.075"/>
+            </geometry>
+        </collision>
+        <collision>
+            <origin rpy="0 0 0" xyz="0.05 0 0.1"/>
+            <geometry>
+                <box size="0.6 0.2 0.1"/>
+            </geometry>
+        </collision>
+    </link>
+</robot>

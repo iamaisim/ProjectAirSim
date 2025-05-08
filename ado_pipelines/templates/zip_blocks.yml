@@ -1,0 +1,27 @@
+  parameters:
+  - name: releasetag
+    type: string 
+    default: v1.25.0
+  - name: envName
+    type: string
+    default: notset
+  - name: envBuildType
+    type: string
+    default: DebugGame
+  - name: environmentRepoRoot
+    type: string
+    default: notset
+
+  steps:
+  - script: |
+      echo "Reset cwd to properly set zip file pathing"
+      pushd $(Pipeline.Workspace)/${{ parameters.environmentRepoRoot }}/packages/${{ parameters.envName }}/${{ parameters.envBuildType }}
+      zip -q -r --split-size 2040m ${{ parameters.envName }}.zip Linux
+      popd
+
+      echo "Move artifacts zip file to release subdirectory"
+      mkdir ${{ parameters.releasetag }}
+      mv $(Pipeline.Workspace)/${{ parameters.environmentRepoRoot }}/packages/${{ parameters.envName }}/${{ parameters.envBuildType }}/${{ parameters.envName }}.z*  ${{ parameters.releasetag }}
+    displayName: Compress Blocks for github release
+    target: host
+    condition: succeededOrFailed()

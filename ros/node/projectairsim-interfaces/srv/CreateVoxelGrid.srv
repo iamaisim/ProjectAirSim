@@ -1,0 +1,12 @@
+float64 position_x
+float64 position_y
+float64 position_z
+int64 ncells_x
+int64 ncells_y
+int64 ncells_z
+float64 resolution
+int64 n_z_resolution
+string output_file
+---
+bool success
+

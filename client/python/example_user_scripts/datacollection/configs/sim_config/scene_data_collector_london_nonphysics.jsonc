@@ -1,0 +1,41 @@
+{
+  "id": "SceneDataCollectorSeattleNP",
+  "actors": [
+    {
+      "type": "robot",
+      "name": "Drone1",
+      "origin": {
+        "xyz": "11.0 123.0 -18.9",
+        "rpy": "0 0 -30.6"
+      },
+      "robot-config": "robot_quadrotor_nonphysics_annotations.jsonc"
+    }
+  ],
+  "environment-actors": [
+    {
+      "type": "env_actor",
+      "name": "london_one",
+      "origin": {
+        "xyz": "5.0 0.0 -7.0",
+        "rpy": "0 0 0"
+      },
+      "env_actor_config": "airtaxi_env_actor_london.jsonc"
+    }
+  ],
+  "clock": {
+    "type": "real-time",
+    "real-time-update-rate": 3000000
+  },
+  "home-geo-point": {
+    "latitude": 51.51148364849203,
+    "longitude": -0.09904388673320062,
+    "altitude": -12
+  },
+  "segmentation": {
+    "initialize-ids": true,
+    "ignore-existing": false,
+    "use-owner-name": true
+  },
+  "scene-type": "UnrealNative",
+  "enable-sim-topic-callback": true
+}

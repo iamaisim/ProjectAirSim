@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<testsuites disabled="0" errors="0" failures="2" tests="2" time="0.0">
+	<testsuite disabled="0" errors="0" failures="2" name="mission_validation_module.py" skipped="0" tests="2" time="0">
+		<testcase name="Reach within 50m of Destination" classname="test.py">
+			<failure type="failure" message="Task: Reach within 50m of Destination because 0 occurences out of 6542 evals were observed with strictness ATLEAST_ONCE specified."/>
+		</testcase>
+		<testcase name="Get within 5m of LandingPad object" classname="test.py">
+			<failure type="failure" message="Task: Get within 5m of LandingPad object because 0 occurences out of 6542 evals were observed with strictness ATLEAST_ONCE specified."/>
+		</testcase>
+	</testsuite>
+</testsuites>

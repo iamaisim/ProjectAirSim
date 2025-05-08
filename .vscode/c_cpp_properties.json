@@ -1,0 +1,27 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "configurationProvider": "ms-vscode.cmake-tools",
+            "defines": [],
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "intelliSenseMode": "clang-x64",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        },
+        {
+            "name": "Win",
+            "configurationProvider": "ms-vscode.cmake-tools",
+            "defines": [],
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "intelliSenseMode": "msvc-x64",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}

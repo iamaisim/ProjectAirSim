@@ -1,0 +1,16 @@
+{
+    "links": [
+      {
+        "name": "Frame",
+        "collision": {
+          "enabled": false
+        },
+        "visual": {
+          "geometry": {
+            "type": "skeletal_mesh",
+            "name": "/ProjectAirSim/Scanned3DPeoplePack/RP_Character/rp_eric_rigged_001_ue4/rp_eric_rigged_001_ue4"
+          }
+        }
+      }
+    ]
+  }

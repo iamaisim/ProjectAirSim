@@ -1,0 +1,1382 @@
+# Daily pipeline for Project AirSim
+
+trigger:
+  branches:
+    # Don't trigger on branch pushes, only on schedule below
+    exclude:
+      - '*'
+
+schedules:
+  # https://docs.microsoft.com/en-us/azure/devops/pipelines/process/scheduled-triggers?view=azure-devops&tabs=yaml#supported-cron-syntax
+  - cron: '0 7 * * *'
+    displayName: Daily build midnight PDT (07:00 UTC)
+    branches:
+      include:
+        - main
+    always: false
+
+variables:
+  container_linux: projectairsimacr.azurecr.io/ue5p1p1/ubuntu20:libjpegxr
+  ue_root_linux: /home/projectairsimuser/ue-5.1.1-linux-debugeditor
+  ue_root_win: C:\Program Files\Epic Games\UE_5.1
+  vs_cmd_prompt: C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat
+  CodeQL.Enabled: true
+  LGTM.UploadSnapshot: true
+
+resources:
+  repositories:
+  - repository: UnrealEnv_GeoSpecificEnv
+    type: git
+    name: UnrealEnv_GeoSpecificEnv
+    ref: refs/tags/ue-5.1-v1
+  - repository: UnrealEnv_SyntheticEnv
+    type: git
+    name: UnrealEnv_SyntheticEnv
+    ref: refs/tags/ue-5.1-v1
+  - repository: UnityEnv_GeoSpecificEnv
+    type: git
+    name: UnityEnv_GeoSpecificEnv
+    ref: refs/tags/unity-v1
+  - repository: UnityEnv_SyntheticEnv
+    type: git
+    name: UnityEnv_SyntheticEnv
+    ref: refs/tags/unity-v1
+
+
+stages:
+  - stage: Daily_Build_and_Package
+    jobs:
+      - job: Ubuntu_20_GPU
+        timeoutInMinutes: 240
+        pool:
+          name: 'RoboSim'  # Self-hosted
+          demands:
+            - Spec -equals Ubuntu_20.04
+            - HasGPU -equals True
+        container:
+          image: $(container_linux)
+          endpoint: projectairsim_acr_service_principal
+          options: --gpus all
+        variables:
+          ue_root: $(ue_root_linux)
+        workspace:
+          clean: all
+        steps:
+          # ADO pipeline runs as a non-root user so need to take ownership of
+          # UE engine's dotnet folder (UE 5.1 runs
+          # a `chmod u+x "$UE_DOTNET_DIR/dotnet"` command in SetupDotnet.sh)
+          - script: |
+              cur_user=$(whoami)
+              echo "sudo chown -R ${cur_user} $(ue_root_linux)/Engine/Binaries/ThirdParty/DotNet"
+              sudo chown -R ${cur_user} $(ue_root_linux)/Engine/Binaries/ThirdParty/DotNet
+            displayName: Take ownership of UE's dotnet folder
+
+          # Clone the repo
+          - checkout: self
+
+          # Add NVIDIA's new key after their rotation on 4/27/2022
+          - script: |
+              sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
+            displayName: Add NVIDIA's new key to keyring
+
+          # Setup
+          - script: |
+              ./setup_linux_dev_tools.sh
+            displayName: Install system dependencies
+
+          # Build and test sim libs for Debug
+          - script: |
+              ./build.sh simlibs_debug
+            displayName: Build sim libs for Linux64-Debug
+          - script: |
+              ./build.sh test_simlibs_debug
+            displayName: Run tests for Linux64-Debug
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: 'CTest'
+              testResultsFiles: '**/Debug/**/Test.xml'
+              testRunTitle: 'Sim Libs Linux64-Debug Unit Tests'
+            displayName: Publish tests for Sim Linux64-Debug
+            condition: succeededOrFailed()
+
+          # Build and test sim libs for Release
+          - script: |
+              ./build.sh simlibs_release
+            displayName: Build sim libs for Linux64-Release
+            condition: succeededOrFailed()
+          - script: |
+              ./build.sh test_simlibs_release
+            displayName: Run tests for Linux64-Release
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: 'CTest'
+              testResultsFiles: '**/Release/**/Test.xml'
+              testRunTitle: 'Sim Libs Linux64-Release Unit Tests'
+            displayName: Publish tests for Sim Linux64-Release
+            condition: succeededOrFailed()
+
+          # Package sim libs for Linux64
+          - script: |
+              ./build.sh package_simlibs
+            displayName: Package sim libs for Linux64
+            condition: succeededOrFailed()
+
+          # Publish Artifact for Sim Libs Linux64
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: 'packages/projectairsim_simlibs'
+              artifactName: 'ProjectAirSim_SimLibs_Linux64'
+            displayName: Artifact for Sim Libs Linux64
+            condition: succeededOrFailed()
+
+          # Package UE Plugin
+          - script: |
+              ./build.sh package_plugin
+            displayName: Package UE Plugin
+            condition: succeededOrFailed()
+
+          # Publish Artifact for UE Plugin Linux64
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: 'packages/projectairsim_ue_plugin'
+              artifactName: 'ProjectAirSim_UE_Plugin_Linux64'
+            displayName: Artifact for UE Plugin Linux64
+            condition: succeededOrFailed()
+
+          # Package UE game as DebugGame config
+          - script: |
+              ./build.sh package_blocks_debuggame
+            displayName: Package Blocks for DebugGame (Debug)
+            condition: succeededOrFailed()
+
+          # Package UE game as Development config
+          - script: |
+              ./build.sh package_blocks_development
+            displayName: Package Blocks for Development (Release)
+            condition: succeededOrFailed()
+
+          # Package UE game as Shipping config
+          - script: |
+              ./build.sh package_blocks_shipping
+            displayName: Package Blocks for Shipping (Release)
+            condition: succeededOrFailed()
+
+          # Add linux prereq setup script to binary package
+          - script: |
+              cp setup_linux_unreal_prereqs.sh ./packages/Blocks
+            displayName: Add linux prereq setup script to binary package
+            condition: succeededOrFailed()
+
+          # Publish Artifact for Blocks Linux64
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: 'packages/Blocks'
+              artifactName: 'Blocks_Linux64'
+            displayName: Artifact for Blocks Linux64
+            condition: succeededOrFailed()
+
+          # Publish Artifact for Project AirSim Client as source
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: 'client/python/projectairsim'
+              artifactName: 'ProjectAirSim_Client_Source'
+            displayName: Artifact for Project AirSim Client
+            condition: succeededOrFailed()
+
+          # Build and install Python client package
+          - script: |
+              sudo apt-get -y install python3.8 python3.8-dev python3.8-venv
+              python3.8 -m venv airsimenv
+              source ./airsimenv/bin/activate
+              python -m pip install --upgrade pip setuptools wheel
+              cd client/python/projectairsim && python setup.py bdist_wheel
+              python -m pip install --find-links=./dist projectairsim[datacollection]
+            displayName: Build and install Python client package
+            condition: succeededOrFailed()
+
+          # Publish Artifact for Project AirSim Client as binary wheel
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: 'client/python/projectairsim/dist'
+              artifactName: 'ProjectAirSim_Client_Binary_Wheel'
+            displayName: Artifact for Project AirSim Client Binary Wheel
+            condition: succeededOrFailed()
+
+          # Publish Artifacts for Project AirSim Client user scripts
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: 'client/python/example_user_scripts'
+              artifactName: 'ProjectAirSim_Example_User_Scripts'
+            displayName: Artifact for Project AirSim Example User Scripts
+            condition: succeededOrFailed()
+
+          # Publish Artifact for Project AirSim ROS support
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: 'ros'
+              artifactName: 'ProjectAirSim_ROS'
+            displayName: Artifact for Project AirSim ROS wrapper
+            condition: succeededOrFailed()
+
+          # Prepare to build Project AirSim ROS packages
+          - script: |
+              mkdir $(System.DefaultWorkingDirectory)/ros_bridge_dist
+              sudo apt -y upgrade
+              sudo apt -y install curl
+            displayName: Prepare to build Project AirSim ROS packages
+            condition: succeededOrFailed()
+
+          # Build and install Project AirSim ROS Bridge package
+          - script: |
+              source ./airsimenv/bin/activate
+              cd ros/node/projectairsim-rosbridge && python setup.py bdist_wheel
+              python -m pip install --find-links=./dist projectairsim_rosbridge
+              cp ./dist/* $(System.DefaultWorkingDirectory)/ros_bridge_dist
+            displayName: Build and install Project AirSim ROS Bridge package
+            condition: succeededOrFailed()
+
+          # Build and install Project AirSim ROS1 package
+          - script: |
+              source ./airsimenv/bin/activate
+              sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+              curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
+              sudo apt update
+              sudo apt -y install ros-noetic-ros-base
+              source /opt/ros/noetic/setup.bash
+              cd ros/node/projectairsim-ros1 && python setup.py bdist_wheel
+              python -m pip install --find-links=./dist projectairsim_ros1
+              cp ./dist/* $(System.DefaultWorkingDirectory)/ros_bridge_dist
+            displayName: Build and install Project AirSim ROS1 package
+            condition: succeededOrFailed()
+
+          # Build and install Project AirSim ROS2 package
+          - script: |
+              source ./airsimenv/bin/activate
+              sudo apt -y install locales
+              sudo locale-gen en_US en_US.UTF-8
+              sudo update-locale LC_ALL=en_US.UTF-8 LANG-en_US.UTF-8
+              export LANG=en_US.UTF-8
+              locale
+              apt-cache policy | grep universe
+              sudo apt -y install gnupg lsb-release
+              curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o $(System.DefaultWorkingDirectory)/ros-archive-keyring.gpg
+              echo "deb [arch=$(dpkg --print-architecture) signed-by=$(System.DefaultWorkingDirectory)/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(source /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+              sudo apt update
+              sudo apt -y install ros-galactic-ros-base
+              source /opt/ros/galactic/setup.bash
+              cd ros/node/projectairsim-ros2 && python setup.py bdist_wheel
+              python -m pip install --find-links=./dist projectairsim_ros2
+              cp ./dist/* $(System.DefaultWorkingDirectory)/ros_bridge_dist
+            displayName: Build and install Project AirSim ROS2 package
+            condition: succeededOrFailed()
+
+          # Publish Artifact for Project AirSim ROS binary wheels
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: $(System.DefaultWorkingDirectory)/ros_bridge_dist
+              artifactName: 'ProjectAirSim_ROS_Binary_Wheels'
+            displayName: Artifact for Project AirSim ROS Binary Wheels
+            condition: succeededOrFailed()
+
+          # Run end-end tests
+          - script: |
+              ./packages/Blocks/Shipping/Linux/Blocks.sh -RenderOffScreen &
+            displayName: Launch UE game in background
+          - script: |
+              source ./airsimenv/bin/activate
+              python -m pip install pytest pytest-cov
+              sleep 30
+              cd client/python/projectairsim/tests && pytest -v --junitxml=pytest-results.xml
+            displayName: Run pytest for python client end-end tests
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFiles: '**/pytest-*.xml'
+              testRunTitle: 'End-end Python Client Tests'
+            displayName: Publish end-end test results
+            condition: succeededOrFailed()
+
+          # Publish sim logs as a build artifact
+          - task: CopyFiles@2
+            inputs:
+              contents: |
+                client/python/**/*.log
+                packages/Blocks/**/*.log
+              targetFolder: $(Build.ArtifactStagingDirectory)
+            displayName: Stage sim log files as build artifact
+            condition: succeededOrFailed()
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: $(Build.ArtifactStagingDirectory)
+              artifactName: SimLogs_Linux64
+            displayName: Publish build artifacts
+            condition: succeededOrFailed()
+
+      - job: WindowsServer_2022_GPU
+        timeoutInMinutes: 120
+        pool:
+          name: 'projectairsim-ci'  # 1ES
+        variables:
+          ue_root: $(ue_root_win)
+        workspace:
+          clean: all
+        steps:
+          # Setup
+          - checkout: self
+
+          # CredScan task
+          - task: CredScan@3
+            inputs:
+              toolMajorVersion: 'V3'
+
+          # Build and test sim libs for Debug
+          - script: |
+              call "$(vs_cmd_prompt)"
+              call .\build.cmd simlibs_debug
+            displayName: Build sim libs for Win64-Debug
+          - script: |
+              call "$(vs_cmd_prompt)"
+              call .\build.cmd test_simlibs_debug
+            displayName: Run tests for Win64-Debug
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: 'CTest'
+              testResultsFiles: '**/Debug/**/Test.xml'
+              testRunTitle: 'Sim Win64-Debug Unit Tests'
+            displayName: Publish tests for Sim Win64-Debug
+            condition: succeededOrFailed()
+
+          # Build and test sim libs for Release
+          - script: |
+              call "$(vs_cmd_prompt)"
+              call .\build.cmd simlibs_release
+            displayName: Build sim libs for Win64-Release
+            condition: succeededOrFailed()
+          - script: |
+              call "$(vs_cmd_prompt)"
+              call .\build.cmd test_simlibs_release
+            displayName: Run tests for Win64-Release
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: 'CTest'
+              testResultsFiles: '**/Release/**/Test.xml'
+              testRunTitle: 'Sim Win64-Release Unit Tests'
+            displayName: Publish tests for Sim Win64-Release
+            condition: succeededOrFailed()
+
+          # Package sim libs for Win64
+          - script: |
+              call "$(vs_cmd_prompt)"
+              call .\build.cmd package_simlibs
+            displayName: Package sim libs for Win64
+            condition: succeededOrFailed()
+
+          # Publish Artifact for Sim Libs Win64
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: 'packages/projectairsim_simlibs'
+              artifactName: 'ProjectAirSim_SimLibs_Win64'
+            displayName: Artifact for Sim Libs Win64
+            condition: succeededOrFailed()
+
+          # Package UE Plugin
+          - script: |
+              call "$(vs_cmd_prompt)"
+              call .\build.cmd package_plugin
+            displayName: Package UE Plugin
+            condition: succeededOrFailed()
+
+          # Publish Artifact for UE Plugin Win64
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: 'packages/projectairsim_ue_plugin'
+              artifactName: 'ProjectAirSim_UE_Plugin_Win64'
+            displayName: Artifact for UE Plugin Win64
+            condition: succeededOrFailed()
+
+          # Package UE game as DebugGame config
+          - script: |
+              call "$(vs_cmd_prompt)"
+              call .\build.cmd package_blocks_debuggame
+            displayName: Package Blocks for DebugGame (Debug)
+            condition: succeededOrFailed()
+
+          # Package UE game as Development config
+          - script: |
+              call "$(vs_cmd_prompt)"
+              call .\build.cmd package_blocks_development
+            displayName: Package Blocks for Development (Release)
+            condition: succeededOrFailed()
+
+          # Package UE game as Shipping config
+          - script: |
+              call "$(vs_cmd_prompt)"
+              call .\build.cmd package_blocks_shipping
+            displayName: Package Blocks for Shipping (Release)
+            condition: succeededOrFailed()
+
+          # Publish Artifact for Blocks Win64
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: 'packages/Blocks'
+              artifactName: 'Blocks_Win64'
+            displayName: Artifact for Blocks Win64
+            condition: succeededOrFailed()
+
+          # Package Unity Plugin
+          - task: CopyFiles@2
+            displayName: Copy and isolate Unity plugin files
+            inputs:
+              Contents: |
+                unity/BlocksUnity/Assets/ProjectAirSimAssets/**
+                unity/BlocksUnity/Assets/DroneAssets/**
+                unity/BlocksUnity/Assets/Plugins/**
+                unity/BlocksUnity/Assets/Resources/**
+              TargetFolder: 'packages/projectairsim_unity_plugin'
+          - script: |
+              move packages\projectairsim_unity_plugin\unity\BlocksUnity\Assets packages\projectairsim_unity_plugin
+              rmdir packages\projectairsim_unity_plugin\unity\BlocksUnity packages\projectairsim_unity_plugin\unity
+            displayName: Flatten Unity plugin dir
+            condition: succeededOrFailed()
+
+          # Publish Artifact for Unity Plugin Win64
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: 'packages/projectairsim_unity_plugin'
+              artifactName: 'ProjectAirSim_Unity_Plugin_Win64'
+            displayName: Artifact for Unity Plugin Win64
+            condition: succeededOrFailed()
+
+          # Build and install Python client package
+          - script: |
+              call "$(vs_cmd_prompt)"
+              python -m venv airsimenv
+              call .\airsimenv\Scripts\activate.bat
+              python -m pip install --upgrade pip setuptools wheel
+              cd client\python\projectairsim && python setup.py bdist_wheel
+              python -m pip install --find-links=.\dist projectairsim[datacollection]
+            displayName: Build and install Python client package
+            condition: succeededOrFailed()
+
+          # Install sphinx and build autodocs
+          - script: |
+              python -m venv airsimenv
+              call .\airsimenv\Scripts\activate.bat
+              cd client\python\projectairsim\docs
+              python -m pip install -r requirements.txt
+              call .\make.bat singlehtml
+              rename .\_build\singlehtml api_reference
+            displayName: Install sphinx and build autodocs
+
+          # Publish Artifact for API Autodocs
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: 'client\python\projectairsim\docs\_build\api_reference'
+              artifactName: 'ProjectAirSim_API_Reference'
+            displayName: Artifact for API Autodocs
+            condition: succeededOrFailed()
+
+          # Run end-end tests
+          - script: |
+              start /b .\packages\Blocks\Shipping\Windows\Blocks.exe -RenderOffScreen
+            displayName: Launch UE game in background
+          - script: |
+              call .\airsimenv\Scripts\activate.bat
+              python -m pip install pytest pytest-cov
+              waitfor signal /t 30 2>NUL
+              cd client\python\projectairsim\tests && pytest -v --junitxml=pytest-results.xml
+            displayName: Run pytest for python client end-end tests
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFiles: '**/pytest-*.xml'
+              testRunTitle: 'End-end Python Client Tests'
+            displayName: Publish end-end test results
+            condition: succeededOrFailed()
+
+          # Publish sim logs as a build artifact
+          - task: CopyFiles@2
+            inputs:
+              contents: |
+                client\python\**\*.log
+                packages\Blocks\**\*.log
+              targetFolder: $(Build.ArtifactStagingDirectory)
+            displayName: Stage sim log files as build artifact
+            condition: succeededOrFailed()
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: $(Build.ArtifactStagingDirectory)
+              artifactName: SimLogs_Win64
+            displayName: Publish build artifacts
+            condition: succeededOrFailed()
+
+  # ----------------------------------------------------------------------------
+
+  - stage: Package_GeoSpecificEnv
+    dependsOn: Daily_Build_and_Package
+    condition: succeeded()
+    variables:
+      unrealenv_name: GeoSpecificEnv
+      unrealenv_repo: UnrealEnv_$(unrealenv_name)
+      # Also have to manually set 'checkout' url below for both Linux and
+      # Windows jobs because checkout doesn't expand variables
+    jobs:
+      - job: Ubuntu_20
+        timeoutInMinutes: 240
+        pool:
+          name: 'RoboSim'  # Self-hosted
+          demands:
+            - Spec -equals Ubuntu_20.04
+        container:
+          image: $(container_linux)
+          endpoint: projectairsim_acr_service_principal
+        variables:
+          ue_root: $(ue_root_linux)
+        workspace:
+          clean: all
+        steps:
+          # ADO pipeline runs as a non-root user so need to take ownership of
+          # UE engine's dotnet folder (UE 5.1 runs
+          # a `chmod u+x "$UE_DOTNET_DIR/dotnet"` command in SetupDotnet.sh)
+          - script: |
+              cur_user=$(whoami)
+              echo "sudo chown -R ${cur_user} $(ue_root_linux)/Engine/Binaries/ThirdParty/DotNet"
+              sudo chown -R ${cur_user} $(ue_root_linux)/Engine/Binaries/ThirdParty/DotNet
+            displayName: Take ownership of UE's dotnet folder
+
+          # Setup UE project files
+          - checkout: UnrealEnv_GeoSpecificEnv
+            lfs: true
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              artifact: 'ProjectAirSim_UE_Plugin_Win64'
+              path: $(unrealenv_repo)
+            displayName: Download Artifact UE Plugin Win64
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              artifact: 'ProjectAirSim_UE_Plugin_Linux64'
+              path: $(unrealenv_repo)
+            displayName: Download Artifact UE Plugin Linux64
+
+          # Publish artifact for environment UE project
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: '$(unrealenv_repo)'
+              artifactName: '$(unrealenv_name)_UEProject'
+            displayName: Artifact for $(unrealenv_name) UE Project
+            condition: succeededOrFailed()
+
+          - checkout: self
+
+          # Add NVIDIA's new key after their rotation on 4/27/2022
+          - script: |
+              sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
+            displayName: Add NVIDIA's new key to keyring
+
+          # Setup system dependencies to package environment binary
+          - script: |
+              ./projectairsim/setup_linux_dev_tools.sh
+            displayName: Install system dependencies
+
+          # Package environment as Development
+          - script: |
+              cd $(unrealenv_repo) && ./package.sh Development
+            displayName: Package environment as Development
+
+          # Add linux prereq setup script to binary package
+          - script: |
+              cp ./projectairsim/setup_linux_unreal_prereqs.sh $(unrealenv_repo)/Packages
+            displayName: Add linux prereq setup script to binary package
+            condition: succeededOrFailed()
+
+          # Publish artifact for environment binary Linux64
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: '$(unrealenv_repo)/Packages'
+              artifactName: '$(unrealenv_name)_Binary_Linux64'
+            displayName: Artifact for $(unrealenv_name) binary Linux64
+            condition: succeededOrFailed()
+
+      - job: WindowsServer_2022
+        timeoutInMinutes: 240
+        pool:
+          name: 'projectairsim-ci-basicsku'  # 1ES Non GPU
+        variables:
+          ue_root: $(ue_root_win)
+        workspace:
+          clean: all
+        steps:
+          # Setup
+          - checkout: UnrealEnv_GeoSpecificEnv
+            lfs: true
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              artifact: 'ProjectAirSim_UE_Plugin_Win64'
+              path: $(unrealenv_repo)
+            displayName: Download Artifact UE Plugin
+
+          # Package environment as Development
+          - checkout: self
+          - script: |
+              call "$(vs_cmd_prompt)"
+              cd $(unrealenv_repo) && call .\package.bat Development
+            displayName: Package environment as Development
+
+          # Publish artifact for environment binary Win64
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: '$(unrealenv_repo)\Packages'
+              artifactName: '$(unrealenv_name)_Binary_Win64'
+            displayName: Artifact for $(unrealenv_name) binary Win64
+            condition: succeededOrFailed()
+
+  # ----------------------------------------------------------------------------
+
+  - stage: Package_SyntheticEnv
+    dependsOn: Daily_Build_and_Package
+    condition: succeeded()
+    variables:
+      unrealenv_name: SyntheticEnv
+      unrealenv_repo: UnrealEnv_$(unrealenv_name)
+      # Also have to manually set 'checkout' url below for both Linux and
+      # Windows jobs because checkout doesn't expand variables
+    jobs:
+      - job: Ubuntu_20
+        timeoutInMinutes: 240
+        pool:
+          name: 'RoboSim'  # Self-hosted
+          demands:
+            - Spec -equals Ubuntu_20.04
+        container:
+          image: $(container_linux)
+          endpoint: projectairsim_acr_service_principal
+        variables:
+          ue_root: $(ue_root_linux)
+        workspace:
+          clean: all
+        steps:
+          # ADO pipeline runs as a non-root user so need to take ownership of
+          # UE engine's dotnet folder (UE 5.1 runs
+          # a `chmod u+x "$UE_DOTNET_DIR/dotnet"` command in SetupDotnet.sh)
+          - script: |
+              cur_user=$(whoami)
+              echo "sudo chown -R ${cur_user} $(ue_root_linux)/Engine/Binaries/ThirdParty/DotNet"
+              sudo chown -R ${cur_user} $(ue_root_linux)/Engine/Binaries/ThirdParty/DotNet
+            displayName: Take ownership of UE's dotnet folder
+
+          # Setup UE project files
+          - checkout: UnrealEnv_SyntheticEnv
+            lfs: true
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              artifact: 'ProjectAirSim_UE_Plugin_Win64'
+              path: $(unrealenv_repo)
+            displayName: Download Artifact UE Plugin Win64
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              artifact: 'ProjectAirSim_UE_Plugin_Linux64'
+              path: $(unrealenv_repo)
+            displayName: Download Artifact UE Plugin Linux64
+
+          # Publish artifact for environment UE project
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: '$(unrealenv_repo)'
+              artifactName: '$(unrealenv_name)_UEProject'
+            displayName: Artifact for $(unrealenv_name) UE Project
+            condition: succeededOrFailed()
+
+          - checkout: self
+
+          # Add NVIDIA's new key after their rotation on 4/27/2022
+          - script: |
+              sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
+            displayName: Add NVIDIA's new key to keyring
+
+          # Setup system dependencies to package environment binary
+          - script: |
+              ./projectairsim/setup_linux_dev_tools.sh
+            displayName: Install system dependencies
+
+          # Package environment as Development
+          - script: |
+              cd $(unrealenv_repo) && ./package.sh Development
+            displayName: Package environment as Development
+
+          # Add linux prereq setup script to binary package
+          - script: |
+              cp ./projectairsim/setup_linux_unreal_prereqs.sh $(unrealenv_repo)/Packages
+            displayName: Add linux prereq setup script to binary package
+            condition: succeededOrFailed()
+
+          # Publish artifact for environment binary Linux64
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: '$(unrealenv_repo)/Packages'
+              artifactName: '$(unrealenv_name)_Binary_Linux64'
+            displayName: Artifact for $(unrealenv_name) binary Linux64
+            condition: succeededOrFailed()
+
+      - job: WindowsServer_2022
+        timeoutInMinutes: 120
+        pool:
+          name: 'projectairsim-ci-basicsku'  # # 1ES Non GPU
+        variables:
+          ue_root: $(ue_root_win)
+        workspace:
+          clean: all
+        steps:
+          # Setup
+          - checkout: UnrealEnv_SyntheticEnv
+            lfs: true
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              artifact: 'ProjectAirSim_UE_Plugin_Win64'
+              path: $(unrealenv_repo)
+            displayName: Download Artifact UE Plugin
+
+          # Package environment as Development
+          - checkout: self
+          - script: |
+              call "$(vs_cmd_prompt)"
+              cd $(unrealenv_repo) && call .\package.bat Development
+            displayName: Package environment as Development
+
+          # Publish artifact for environment binary Win64
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: '$(unrealenv_repo)\Packages'
+              artifactName: '$(unrealenv_name)_Binary_Win64'
+            displayName: Artifact for $(unrealenv_name) binary Win64
+            condition: succeededOrFailed()
+
+  # ========================= START: Unity proj packages =======================
+
+  - stage: Package_Unity_GeoSpecificEnv
+    dependsOn: Daily_Build_and_Package
+    condition: succeeded()
+    variables:
+      unityenv_name: GeoSpecificEnv
+      unityenv_repo: UnityEnv_$(unityenv_name)
+      # Also have to manually set 'checkout' url below for both Linux and
+      # Windows jobs because checkout doesn't expand variables
+    jobs:
+      - job: WindowsServer_2022
+        timeoutInMinutes: 120
+        pool:
+          name: 'projectairsim-ci-basicsku'  # # 1ES Non GPU
+        workspace:
+          clean: all
+        steps:
+          # Setup Unity project files
+          - checkout: UnityEnv_GeoSpecificEnv
+            lfs: true
+            path: '$(unityenv_repo)'
+          - task: DeleteFiles@1
+            displayName: 'Remove git files'
+            inputs:
+              contents: |
+                **/.git*
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              artifact: 'ProjectAirSim_Unity_Plugin_Win64'
+              path: '$(Pipeline.Workspace)/$(unityenv_repo)'
+            displayName: Download Artifact Unity Plugin Win64
+
+          # Publish artifact for environment Unity project
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: '$(Pipeline.Workspace)/$(unityenv_repo)'
+              artifactName: '$(unityenv_name)_UnityProject'
+            displayName: Artifact for $(unityenv_name) Unity Project
+            condition: succeededOrFailed()
+
+# ----------------------------------------------------------------------------
+
+  - stage: Package_Unity_SyntheticEnv
+    dependsOn: Daily_Build_and_Package
+    condition: succeeded()
+    variables:
+      unityenv_name: SyntheticEnv
+      unityenv_repo: UnityEnv_$(unityenv_name)
+      # Also have to manually set 'checkout' url below for both Linux and
+      # Windows jobs because checkout doesn't expand variables
+    jobs:
+      - job: WindowsServer_2022
+        timeoutInMinutes: 120
+        pool:
+          name: 'projectairsim-ci-basicsku'  # # 1ES Non GPU
+        workspace:
+          clean: all
+        steps:
+          # Setup Unity project files
+          - checkout: UnityEnv_SyntheticEnv
+            lfs: true
+            path: '$(unityenv_repo)'
+          - task: DeleteFiles@1
+            displayName: 'Remove git files'
+            inputs:
+              contents: |
+                **/.git*
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              artifact: 'ProjectAirSim_Unity_Plugin_Win64'
+              path: '$(Pipeline.Workspace)/$(unityenv_repo)'
+            displayName: Download Artifact Unity Plugin Win64
+
+          # Publish artifact for environment Unity project
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: '$(Pipeline.Workspace)/$(unityenv_repo)'
+              artifactName: '$(unityenv_name)_UnityProject'
+            displayName: Artifact for $(unityenv_name) Unity Project
+            condition: succeededOrFailed()
+
+  # ========================= END: Unity proj packages =========================
+
+  - stage: Deploy_ProjectAirSim_To_Azure
+    dependsOn: Daily_Build_and_Package
+    condition: succeeded()
+    jobs:
+      - deployment: Deploy_ProjectAirSim_To_Azure
+        pool:
+          name: 'projectairsim-ci-basicsku'  # # 1ES Non GPU
+        environment: 'projectairsim-dev'  # Environment for tracking deployment results
+        workspace:
+          clean: all
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # Download build artifacts
+                - download: current
+                  artifact: 'ProjectAirSim_SimLibs_Linux64'
+                - download: current
+                  artifact: 'ProjectAirSim_SimLibs_Win64'
+                - download: current
+                  artifact: 'ProjectAirSim_Client_Source'
+                - download: current
+                  artifact: 'ProjectAirSim_Client_Binary_Wheel'
+                - download: current
+                  artifact: 'ProjectAirSim_API_Reference'
+                - download: current
+                  artifact: 'ProjectAirSim_Example_User_Scripts'
+                - download: current
+                  artifact: 'ProjectAirSim_ROS'
+                - download: current
+                  artifact: 'ProjectAirSim_ROS_Binary_Wheels'
+                - download: current
+                  artifact: 'ProjectAirSim_UE_Plugin_Linux64'
+                - download: current
+                  artifact: 'ProjectAirSim_UE_Plugin_Win64'
+                - download: current
+                  artifact: 'ProjectAirSim_Unity_Plugin_Win64'
+
+                # Zip and deploy Sim Libs Linux64
+                - task: ArchiveFiles@2
+                  displayName: Archive Sim Libs Linux64
+                  inputs:
+                    rootFolderOrFile: '$(Pipeline.Workspace)/ProjectAirSim_SimLibs_Linux64'
+                    includeRootFolder: true
+                    archiveType: 'zip'
+                    archiveFile: '$(Pipeline.Workspace)/ProjectAirSim_SimLibs_Linux64.zip'
+                    replaceExistingArchive: true
+                - task: AzureFileCopy@4
+                  displayName: Deploy Sim Libs Linux64
+                  inputs:
+                    SourcePath: '$(Pipeline.Workspace)/ProjectAirSim_SimLibs_Linux64.zip'
+                    azureSubscription: 'projectairsim_arm_service_principal'
+                    Destination: AzureBlob
+                    storage: projectairsimstorage
+                    ContainerName: 'projectairsim-daily-builds'
+                    BlobPrefix: 'developer/ProjectAirSim_Libs_Linux64.zip'
+
+                # Zip and deploy Sim Libs Win64
+                - task: ArchiveFiles@2
+                  displayName: Archive Sim Libs Win64
+                  inputs:
+                    rootFolderOrFile: '$(Pipeline.Workspace)/ProjectAirSim_SimLibs_Win64'
+                    includeRootFolder: true
+                    archiveType: 'zip'
+                    archiveFile: '$(Pipeline.Workspace)/ProjectAirSim_SimLibs_Win64.zip'
+                    replaceExistingArchive: true
+                - task: AzureFileCopy@4
+                  displayName: Deploy Sim Libs Win64
+                  inputs:
+                    SourcePath: '$(Pipeline.Workspace)/ProjectAirSim_SimLibs_Win64.zip'
+                    azureSubscription: 'projectairsim_arm_service_principal'
+                    Destination: AzureBlob
+                    storage: projectairsimstorage
+                    ContainerName: 'projectairsim-daily-builds'
+                    BlobPrefix: 'developer/ProjectAirSim_Libs_Win64.zip'
+
+                # Zip and deploy ProjectAirSim_Client_Source
+                - task: ArchiveFiles@2
+                  displayName: Archive ProjectAirSim_Client_Source
+                  inputs:
+                    rootFolderOrFile: '$(Pipeline.Workspace)/ProjectAirSim_Client_Source'
+                    includeRootFolder: true
+                    archiveType: 'zip'
+                    archiveFile: '$(Pipeline.Workspace)/ProjectAirSim_Client_Source.zip'
+                    replaceExistingArchive: true
+                - task: AzureFileCopy@4
+                  displayName: Deploy ProjectAirSim Client
+                  inputs:
+                    SourcePath: '$(Pipeline.Workspace)/ProjectAirSim_Client_Source.zip'
+                    azureSubscription: 'projectairsim_arm_service_principal'
+                    Destination: AzureBlob
+                    storage: projectairsimstorage
+                    ContainerName: 'projectairsim-daily-builds'
+                    BlobPrefix: 'developer/ProjectAirSim_Client_Source.zip'
+
+                # Zip and deploy ProjectAirSim_Client_Binary_Wheel
+                - task: ArchiveFiles@2
+                  displayName: Archive ProjectAirSim_Client_Binary_Wheel
+                  inputs:
+                    rootFolderOrFile: '$(Pipeline.Workspace)/ProjectAirSim_Client_Binary_Wheel'
+                    includeRootFolder: true
+                    archiveType: 'zip'
+                    archiveFile: '$(Pipeline.Workspace)/ProjectAirSim_Client_Binary_Wheel.zip'
+                    replaceExistingArchive: true
+                - task: AzureFileCopy@4
+                  displayName: Deploy ProjectAirSim Client Binary Wheel
+                  inputs:
+                    SourcePath: '$(Pipeline.Workspace)/ProjectAirSim_Client_Binary_Wheel.zip'
+                    azureSubscription: 'projectairsim_arm_service_principal'
+                    Destination: AzureBlob
+                    storage: projectairsimstorage
+                    ContainerName: 'projectairsim-daily-builds'
+                    BlobPrefix: 'client/ProjectAirSim_Client_Binary_Wheel.zip'
+
+                # Zip and deploy API Autodocs
+                - task: ArchiveFiles@2
+                  displayName: Archive API Autodocs
+                  inputs:
+                    rootFolderOrFile: '$(Pipeline.Workspace)/ProjectAirSim_API_Reference'
+                    includeRootFolder: true
+                    archiveType: 'zip'
+                    archiveFile: '$(Pipeline.Workspace)/ProjectAirSim_API_Reference.zip'
+                    replaceExistingArchive: true
+                - task: AzureFileCopy@4
+                  displayName: Deploy API Autodocs
+                  inputs:
+                    SourcePath: '$(Pipeline.Workspace)/ProjectAirSim_API_Reference.zip'
+                    azureSubscription: 'projectairsim_arm_service_principal'
+                    Destination: AzureBlob
+                    storage: projectairsimstorage
+                    ContainerName: 'projectairsim-daily-builds'
+                    BlobPrefix: 'developer/ProjectAirSim_API_Reference.zip'
+
+                # Zip and deploy ProjectAirSim_Example_User_Scripts
+                - task: ArchiveFiles@2
+                  displayName: Archive ProjectAirSim_Example_User_Scripts
+                  inputs:
+                    rootFolderOrFile: '$(Pipeline.Workspace)/ProjectAirSim_Example_User_Scripts'
+                    includeRootFolder: true
+                    archiveType: 'zip'
+                    archiveFile: '$(Pipeline.Workspace)/ProjectAirSim_Example_User_Scripts.zip'
+                    replaceExistingArchive: true
+                - task: AzureFileCopy@4
+                  displayName: Deploy ProjectAirSim_Example_User_Scripts
+                  inputs:
+                    SourcePath: '$(Pipeline.Workspace)/ProjectAirSim_Example_User_Scripts.zip'
+                    azureSubscription: 'projectairsim_arm_service_principal'
+                    Destination: AzureBlob
+                    storage: projectairsimstorage
+                    ContainerName: 'projectairsim-daily-builds'
+                    BlobPrefix: 'client/ProjectAirSim_Example_User_Scripts.zip'
+
+                # Zip and deploy ProjectAirSim_ROS
+                - task: ArchiveFiles@2
+                  displayName: Archive ProjectAirSim_ROS
+                  inputs:
+                    rootFolderOrFile: '$(Pipeline.Workspace)/ProjectAirSim_ROS'
+                    includeRootFolder: true
+                    archiveType: 'zip'
+                    archiveFile: '$(Pipeline.Workspace)/ProjectAirSim_ROS.zip'
+                    replaceExistingArchive: true
+                - task: AzureFileCopy@4
+                  displayName: Deploy ProjectAirSim_ROS
+                  inputs:
+                    SourcePath: '$(Pipeline.Workspace)/ProjectAirSim_ROS.zip'
+                    azureSubscription: 'projectairsim_arm_service_principal'
+                    Destination: AzureBlob
+                    storage: projectairsimstorage
+                    ContainerName: 'projectairsim-daily-builds'
+                    BlobPrefix: 'client/ProjectAirSim_ROS.zip'
+
+                # Zip and deploy ProjectAirSim_ROS_Binary_Wheels
+                - task: ArchiveFiles@2
+                  displayName: Archive ProjectAirSim_ROS_Binary_Wheels
+                  inputs:
+                    rootFolderOrFile: '$(Pipeline.Workspace)/ProjectAirSim_ROS_Binary_Wheels'
+                    includeRootFolder: true
+                    archiveType: 'zip'
+                    archiveFile: '$(Pipeline.Workspace)/ProjectAirSim_ROS_Binary_Wheels.zip'
+                    replaceExistingArchive: true
+                - task: AzureFileCopy@4
+                  displayName: Deploy ProjectAirSim ROS Binary Wheels
+                  inputs:
+                    SourcePath: '$(Pipeline.Workspace)/ProjectAirSim_ROS_Binary_Wheels.zip'
+                    azureSubscription: 'projectairsim_arm_service_principal'
+                    Destination: AzureBlob
+                    storage: projectairsimstorage
+                    ContainerName: 'projectairsim-daily-builds'
+                    BlobPrefix: 'client/ProjectAirSim_ROS_Binary_Wheels.zip'
+
+                # Zip and deploy UE Plugin Linux64
+                - task: ArchiveFiles@2
+                  displayName: Archive UE Plugin Linux64
+                  inputs:
+                    rootFolderOrFile: '$(Pipeline.Workspace)/ProjectAirSim_UE_Plugin_Linux64'
+                    includeRootFolder: true
+                    archiveType: 'zip'
+                    archiveFile: '$(Pipeline.Workspace)/ProjectAirSim_UE_Plugin_Linux64.zip'
+                    replaceExistingArchive: true
+                - task: AzureFileCopy@4
+                  displayName: Deploy UE Plugin Linux64
+                  inputs:
+                    SourcePath: '$(Pipeline.Workspace)/ProjectAirSim_UE_Plugin_Linux64.zip'
+                    azureSubscription: 'projectairsim_arm_service_principal'
+                    Destination: AzureBlob
+                    storage: projectairsimstorage
+                    ContainerName: 'projectairsim-daily-builds'
+                    BlobPrefix: 'server/ue_plugin_only/ProjectAirSim_UE_Plugin_Linux64.zip'
+
+                # Zip and deploy UE Plugin Win64
+                - task: ArchiveFiles@2
+                  displayName: Archive UE Plugin Win64
+                  inputs:
+                    rootFolderOrFile: '$(Pipeline.Workspace)/ProjectAirSim_UE_Plugin_Win64'
+                    includeRootFolder: true
+                    archiveType: 'zip'
+                    archiveFile: '$(Pipeline.Workspace)/ProjectAirSim_UE_Plugin_Win64.zip'
+                    replaceExistingArchive: true
+                - task: AzureFileCopy@4
+                  displayName: Deploy UE Plugin Win64
+                  inputs:
+                    SourcePath: '$(Pipeline.Workspace)/ProjectAirSim_UE_Plugin_Win64.zip'
+                    azureSubscription: 'projectairsim_arm_service_principal'
+                    Destination: AzureBlob
+                    storage: projectairsimstorage
+                    ContainerName: 'projectairsim-daily-builds'
+                    BlobPrefix: 'server/ue_plugin_only/ProjectAirSim_UE_Plugin_Win64.zip'
+
+                # Zip and deploy Unity Plugin Win64
+                - task: ArchiveFiles@2
+                  displayName: Archive Unity Assets Win64
+                  inputs:
+                    rootFolderOrFile: '$(Pipeline.Workspace)/ProjectAirSim_Unity_Plugin_Win64'
+                    includeRootFolder: true
+                    archiveType: 'zip'
+                    archiveFile: '$(Pipeline.Workspace)/ProjectAirSim_Unity_Plugin_Win64.zip'
+                    replaceExistingArchive: true
+                - task: AzureFileCopy@4
+                  displayName: Deploy Unity Plugin Win64
+                  inputs:
+                    SourcePath: '$(Pipeline.Workspace)/ProjectAirSim_Unity_Plugin_Win64.zip'
+                    azureSubscription: 'projectairsim_arm_service_principal'
+                    Destination: AzureBlob
+                    storage: projectairsimstorage
+                    ContainerName: 'projectairsim-daily-builds'
+                    BlobPrefix: 'server/unity_plugin_only/ProjectAirSim_Unity_Plugin_Win64.zip'
+
+  # ----------------------------------------------------------------------------
+
+  - stage: Deploy_Blocks_To_Azure
+    dependsOn: Daily_Build_and_Package
+    condition: succeeded()
+    jobs:
+      - deployment: Deploy_Blocks_To_Azure
+        pool:
+          name: 'projectairsim-ci-basicsku'  # # 1ES Non GPU
+        environment: 'projectairsim-dev'  # Environment for tracking deployment results
+        workspace:
+          clean: all
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # Download Blocks build artifacts
+                - download: current
+                  artifact: 'Blocks_Linux64'
+                - download: current
+                  artifact: 'Blocks_Win64'
+
+                # Zip and deploy Blocks Linux64
+                - task: ArchiveFiles@2
+                  displayName: Archive Blocks Linux64
+                  inputs:
+                    rootFolderOrFile: '$(Pipeline.Workspace)/Blocks_Linux64'
+                    includeRootFolder: true
+                    archiveType: 'zip'
+                    archiveFile: '$(Pipeline.Workspace)/Blocks_Linux64.zip'
+                    replaceExistingArchive: true
+                - task: AzureFileCopy@4
+                  displayName: Deploy Blocks Linux64
+                  inputs:
+                    SourcePath: '$(Pipeline.Workspace)/Blocks_Linux64.zip'
+                    azureSubscription: 'projectairsim_arm_service_principal'
+                    Destination: AzureBlob
+                    storage: projectairsimstorage
+                    ContainerName: 'projectairsim-daily-builds'
+                    BlobPrefix: 'developer/Blocks_Linux64.zip'
+
+                # Zip and deploy Blocks Win64
+                - task: ArchiveFiles@2
+                  displayName: Archive Blocks Win64
+                  inputs:
+                    rootFolderOrFile: '$(Pipeline.Workspace)/Blocks_Win64'
+                    includeRootFolder: true
+                    archiveType: 'zip'
+                    archiveFile: '$(Pipeline.Workspace)/Blocks_Win64.zip'
+                    replaceExistingArchive: true
+                - task: AzureFileCopy@4
+                  displayName: Deploy Blocks Win64
+                  inputs:
+                    SourcePath: '$(Pipeline.Workspace)/Blocks_Win64.zip'
+                    azureSubscription: 'projectairsim_arm_service_principal'
+                    Destination: AzureBlob
+                    storage: projectairsimstorage
+                    ContainerName: 'projectairsim-daily-builds'
+                    BlobPrefix: 'developer/Blocks_Win64.zip'
+
+  # ----------------------------------------------------------------------------
+
+  - stage: Deploy_GeoSpecificEnv_To_Azure
+    dependsOn: Package_GeoSpecificEnv
+    condition: succeeded()
+    jobs:
+      - deployment: Deploy_GeoSpecificEnv_To_Azure
+        pool:
+          name: 'projectairsim-ci-basicsku'  # # 1ES Non GPU
+        environment: 'projectairsim-dev'  # Environment for tracking deployment results
+        workspace:
+          clean: all
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # Download build artifacts
+                - download: current
+                  artifact: 'GeoSpecificEnv_UEProject'
+                - download: current
+                  artifact: 'GeoSpecificEnv_Binary_Linux64'
+                - download: current
+                  artifact: 'GeoSpecificEnv_Binary_Win64'
+
+                # Zip and deploy GeoSpecificEnv UE Project
+                - task: ArchiveFiles@2
+                  displayName: Archive GeoSpecificEnv UE Project
+                  inputs:
+                    rootFolderOrFile: '$(Pipeline.Workspace)/GeoSpecificEnv_UEProject'
+                    includeRootFolder: true
+                    archiveType: 'zip'
+                    archiveFile: '$(Pipeline.Workspace)/GeoSpecificEnv_UEProject.zip'
+                    replaceExistingArchive: true
+                - task: AzureFileCopy@4
+                  displayName: Deploy GeoSpecificEnv UE Project
+                  inputs:
+                    SourcePath: '$(Pipeline.Workspace)/GeoSpecificEnv_UEProject.zip'
+                    azureSubscription: 'projectairsim_arm_service_principal'
+                    Destination: AzureBlob
+                    storage: projectairsimstorage
+                    ContainerName: 'projectairsim-daily-builds'
+                    BlobPrefix: 'server/ue_environments/GeoSpecificEnv_UEProject.zip'
+
+                # Zip and deploy GeoSpecificEnv Binary Linux64
+                - task: ArchiveFiles@2
+                  displayName: Archive GeoSpecificEnv Binary Linux64
+                  inputs:
+                    rootFolderOrFile: '$(Pipeline.Workspace)/GeoSpecificEnv_Binary_Linux64'
+                    includeRootFolder: true
+                    archiveType: 'zip'
+                    archiveFile: '$(Pipeline.Workspace)/GeoSpecificEnv_Binary_Linux64.zip'
+                    replaceExistingArchive: true
+                - task: AzureFileCopy@4
+                  displayName: Deploy GeoSpecificEnv Binary Linux64
+                  inputs:
+                    SourcePath: '$(Pipeline.Workspace)/GeoSpecificEnv_Binary_Linux64.zip'
+                    azureSubscription: 'projectairsim_arm_service_principal'
+                    Destination: AzureBlob
+                    storage: projectairsimstorage
+                    ContainerName: 'projectairsim-daily-builds'
+                    BlobPrefix: 'server/ue_environments/GeoSpecificEnv_Binary_Linux64.zip'
+
+                # Zip and deploy GeoSpecificEnv Binary Win64
+                - task: ArchiveFiles@2
+                  displayName: Archive GeoSpecificEnv Binary Win64
+                  inputs:
+                    rootFolderOrFile: '$(Pipeline.Workspace)/GeoSpecificEnv_Binary_Win64'
+                    includeRootFolder: true
+                    archiveType: 'zip'
+                    archiveFile: '$(Pipeline.Workspace)/GeoSpecificEnv_Binary_Win64.zip'
+                    replaceExistingArchive: true
+                - task: AzureFileCopy@4
+                  displayName: Deploy GeoSpecificEnv Binary Win64
+                  inputs:
+                    SourcePath: '$(Pipeline.Workspace)/GeoSpecificEnv_Binary_Win64.zip'
+                    azureSubscription: 'projectairsim_arm_service_principal'
+                    Destination: AzureBlob
+                    storage: projectairsimstorage
+                    ContainerName: 'projectairsim-daily-builds'
+                    BlobPrefix: 'server/ue_environments/GeoSpecificEnv_Binary_Win64.zip'
+
+  # ----------------------------------------------------------------------------
+
+  - stage: Deploy_SyntheticEnv_To_Azure
+    dependsOn: Package_SyntheticEnv
+    condition: succeeded()
+    jobs:
+      - deployment: Deploy_SyntheticEnv_To_Azure
+        pool:
+          name: 'projectairsim-ci-basicsku'  # # 1ES Non GPU
+        environment: 'projectairsim-dev'  # Environment for tracking deployment results
+        workspace:
+          clean: all
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # Download build artifacts
+                - download: current
+                  artifact: 'SyntheticEnv_UEProject'
+                - download: current
+                  artifact: 'SyntheticEnv_Binary_Linux64'
+                - download: current
+                  artifact: 'SyntheticEnv_Binary_Win64'
+
+                # Zip and deploy SyntheticEnv UE Project
+                - task: ArchiveFiles@2
+                  displayName: Archive SyntheticEnv UE Project
+                  inputs:
+                    rootFolderOrFile: '$(Pipeline.Workspace)/SyntheticEnv_UEProject'
+                    includeRootFolder: true
+                    archiveType: 'zip'
+                    archiveFile: '$(Pipeline.Workspace)/SyntheticEnv_UEProject.zip'
+                    replaceExistingArchive: true
+                - task: AzureFileCopy@4
+                  displayName: Deploy SyntheticEnv UE Project
+                  inputs:
+                    SourcePath: '$(Pipeline.Workspace)/SyntheticEnv_UEProject.zip'
+                    azureSubscription: 'projectairsim_arm_service_principal'
+                    Destination: AzureBlob
+                    storage: projectairsimstorage
+                    ContainerName: 'projectairsim-daily-builds'
+                    BlobPrefix: 'server/ue_environments/SyntheticEnv_UEProject.zip'
+
+                # Zip and deploy SyntheticEnv Binary Linux64
+                - task: ArchiveFiles@2
+                  displayName: Archive SyntheticEnv Binary Linux64
+                  inputs:
+                    rootFolderOrFile: '$(Pipeline.Workspace)/SyntheticEnv_Binary_Linux64'
+                    includeRootFolder: true
+                    archiveType: 'zip'
+                    archiveFile: '$(Pipeline.Workspace)/SyntheticEnv_Binary_Linux64.zip'
+                    replaceExistingArchive: true
+                - task: AzureFileCopy@4
+                  displayName: Deploy SyntheticEnv Binary Linux64
+                  inputs:
+                    SourcePath: '$(Pipeline.Workspace)/SyntheticEnv_Binary_Linux64.zip'
+                    azureSubscription: 'projectairsim_arm_service_principal'
+                    Destination: AzureBlob
+                    storage: projectairsimstorage
+                    ContainerName: 'projectairsim-daily-builds'
+                    BlobPrefix: 'server/ue_environments/SyntheticEnv_Binary_Linux64.zip'
+
+                # Zip and deploy SyntheticEnv Binary Win64
+                - task: ArchiveFiles@2
+                  displayName: Archive SyntheticEnv Binary Win64
+                  inputs:
+                    rootFolderOrFile: '$(Pipeline.Workspace)/SyntheticEnv_Binary_Win64'
+                    includeRootFolder: true
+                    archiveType: 'zip'
+                    archiveFile: '$(Pipeline.Workspace)/SyntheticEnv_Binary_Win64.zip'
+                    replaceExistingArchive: true
+                - task: AzureFileCopy@4
+                  displayName: Deploy SyntheticEnv Binary Win64
+                  inputs:
+                    SourcePath: '$(Pipeline.Workspace)/SyntheticEnv_Binary_Win64.zip'
+                    azureSubscription: 'projectairsim_arm_service_principal'
+                    Destination: AzureBlob
+                    storage: projectairsimstorage
+                    ContainerName: 'projectairsim-daily-builds'
+                    BlobPrefix: 'server/ue_environments/SyntheticEnv_Binary_Win64.zip'
+
+  # ====================== START: Deploy Unity projects =========================
+
+  - stage: Deploy_Unity_GeoSpecificEnv_To_Azure
+    dependsOn: Package_Unity_GeoSpecificEnv
+    condition: succeeded()
+    jobs:
+      - deployment: Deploy_Unity_GeoSpecificEnv_To_Azure
+        pool:
+          name: 'projectairsim-ci-basicsku'  # # 1ES Non GPU
+        environment: 'projectairsim-dev'  # Environment for tracking deployment results
+        workspace:
+          clean: all
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # Download build artifact
+                - download: current
+                  artifact: 'GeoSpecificEnv_UnityProject'
+
+                # Zip and deploy GeoSpecificEnv Unity Project
+                - task: ArchiveFiles@2
+                  displayName: Archive GeoSpecificEnv Unity Project
+                  inputs:
+                    rootFolderOrFile: '$(Pipeline.Workspace)/GeoSpecificEnv_UnityProject'
+                    includeRootFolder: true
+                    archiveType: 'zip'
+                    archiveFile: '$(Pipeline.Workspace)/GeoSpecificEnv_UnityProject.zip'
+                    replaceExistingArchive: true
+                - task: AzureFileCopy@4
+                  displayName: Deploy GeoSpecificEnv Unity Project
+                  inputs:
+                    SourcePath: '$(Pipeline.Workspace)/GeoSpecificEnv_UnityProject.zip'
+                    azureSubscription: 'projectairsim_arm_service_principal'
+                    Destination: AzureBlob
+                    storage: projectairsimstorage
+                    ContainerName: 'projectairsim-daily-builds'
+                    BlobPrefix: 'server/unity_environments/GeoSpecificEnv_UnityProject.zip'
+
+  # ----------------------------------------------------------------------------
+
+  - stage: Deploy_Unity_SyntheticEnv_To_Azure
+    dependsOn: Package_Unity_SyntheticEnv
+    condition: succeeded()
+    jobs:
+      - deployment: Deploy_Unity_SyntheticEnv_To_Azure
+        pool:
+          name: 'projectairsim-ci-basicsku'  # # 1ES Non GPU
+        environment: 'projectairsim-dev'  # Environment for tracking deployment results
+        workspace:
+          clean: all
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # Download build artifact
+                - download: current
+                  artifact: 'SyntheticEnv_UnityProject'
+
+                # Zip and deploy SyntheticEnv Unity Project
+                - task: ArchiveFiles@2
+                  displayName: Archive SyntheticEnv Unity Project
+                  inputs:
+                    rootFolderOrFile: '$(Pipeline.Workspace)/SyntheticEnv_UnityProject'
+                    includeRootFolder: true
+                    archiveType: 'zip'
+                    archiveFile: '$(Pipeline.Workspace)/SyntheticEnv_UnityProject.zip'
+                    replaceExistingArchive: true
+                - task: AzureFileCopy@4
+                  displayName: Deploy SyntheticEnv Unity Project
+                  inputs:
+                    SourcePath: '$(Pipeline.Workspace)/SyntheticEnv_UnityProject.zip'
+                    azureSubscription: 'projectairsim_arm_service_principal'
+                    Destination: AzureBlob
+                    storage: projectairsimstorage
+                    ContainerName: 'projectairsim-daily-builds'
+                    BlobPrefix: 'server/unity_environments/SyntheticEnv_UnityProject.zip'
+
+  # ======================== END: Deploy Unity projects  ========================

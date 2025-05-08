@@ -1,0 +1,513 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Scene_Config",
+    "description": "Config file that defines the sim scene",
+    "type": "object",
+    "properties": {
+        "id": {
+            "description": "The unique identifier for the scene",
+            "type": "string"
+        },
+        "actors": {
+            "description": "List of actors in scene",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "type",
+                    "name",
+                    "origin",
+                    "robot-config"
+                ],
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "description": "Name of robot",
+                        "enum": [
+                            "robot"
+                        ]
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Name of robot"
+                    },
+                    "origin": {
+                        "type": "object",
+                        "properties": {
+                            "xyz": {
+                                "type": "string",
+                                "description": "XYZ coordinates of the drone"
+                            },
+                            "geo-point": {
+                                "type": "string",
+                                "description": "Lat/Lon/Alt coordinates of the drone"
+                            },
+                            "rpy": {
+                                "type": "string",
+                                "description": "Roll Pitch Yaw of the drone in radians"
+                            },
+                            "rpy-deg": {
+                                "type": "string",
+                                "description": "Roll Pitch Yaw of the drone in degrees"
+                            }
+                        },
+                        "allOf": [
+                            {
+                                "oneOf": [
+                                    {
+                                        "required": [
+                                            "xyz"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "geo-point"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "oneOf": [
+                                    {
+                                        "required": [
+                                            "rpy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "rpy-deg"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "robot-config": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "description": "Config to define robot actor"
+                            },
+                            {
+                                "type": "array",
+                                "description": "List of config files to define robot actor"
+                            }
+                        ]
+                    },
+                    "physics-connection": {
+                        "ip": {
+                            "description": "IP address for Matlab physics connection",
+                            "type": "string"
+                        },
+                        "port": {
+                            "description": "TCP port for Matlab physics connection",
+                            "type": "integer"
+                        }
+                    },
+                    "start-landed": {
+                        "type": "boolean",
+                        "description": "Start from a landed state without relying on collisions"
+                    }
+                }
+            }
+        },
+        "environment-actors":
+        {
+            "description": "List of environment actors in scene",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "type",
+                    "name",
+                    "origin",
+                    "env-actor-config"
+                ],
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "description": "Type of environment actor",
+                        "enum": [
+                            "env_actor",
+                            "env_car",
+                            "env_human",
+                        ]
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Name of environment actor"
+                    },
+                    "origin": {
+                        "type": "object",
+                        "properties": {
+                            "xyz": {
+                                "type": "string",
+                                "description": "XYZ coordinates of the environment actor"
+                            },
+                            "geo-point": {
+                                "type": "string",
+                                "description": "Lat/Lon/Alt coordinates of the environment actor"
+                            },
+                            "rpy": {
+                                "type": "string",
+                                "description": "Roll Pitch Yaw of the environment actor in radians"
+                            },
+                            "rpy-deg": {
+                                "type": "string",
+                                "description": "Roll Pitch Yaw of the environment actor in degrees"
+                            }
+                        }
+                    },
+                    "env-actor-config": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "description": "Config to define environment actor"
+                            },
+                            {
+                                "type": "array",
+                                "description": "List of config files to define environment actor"
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        "environment-objects":
+        {
+            "description": "List of environment objects in scene",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "type",
+                    "name",
+                    "origin",
+                    "env-object-config"
+                ],
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "description": "Type of environment object",
+                        "enum": [
+                            "env_particle_effect",
+                        ]
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Name of environment object"
+                    },
+                    "origin": {
+                        "type": "object",
+                        "properties": {
+                            "xyz": {
+                                "type": "string",
+                                "description": "XYZ coordinates of the environment actor"
+                            },
+                            "geo-point": {
+                                "type": "string",
+                                "description": "Lat/Lon/Alt coordinates of the environment actor"
+                            },
+                            "rpy": {
+                                "type": "string",
+                                "description": "Roll Pitch Yaw of the environment actor in radians"
+                            },
+                            "rpy-deg": {
+                                "type": "string",
+                                "description": "Roll Pitch Yaw of the environment actor in degrees"
+                            }
+                        }
+                    },
+                    "env-object-config": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "description": "Config to define environment actor"
+                            },
+                            {
+                                "type": "array",
+                                "description": "List of config files to define environment actor"
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        "spawn-objects": {
+            "description": "List of objects in scene",
+            "type": "object",
+            "properties": {
+                "sim-packaged": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "name",
+                            "asset-path",
+                            "scale",
+                            "physics-enabled",
+                            "origin"
+                        ],
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "Name of object"
+                            },
+                            "asset-path": {
+                                "type": "string",
+                                "description": "Path to asset"
+                            },
+                            "scale": {
+                                "type": "string",
+                                "description": "How much to scale the object in X, Y, and Z"
+                            },
+                            "physics-enabled": {
+                                "type": "boolean"
+                            },
+                            "origin": {
+                                "type": "object",
+                                "properties": {
+                                    "xyz": {
+                                        "type": "string",
+                                        "description": "XYZ coordinates of the object"
+                                    },
+                                    "geo-point": {
+                                        "type": "string",
+                                        "description": "Lat/Lon/Alt coordinates of the object"
+                                    },
+                                    "rpy": {
+                                        "type": "string",
+                                        "description": "Roll Pitch Yaw of the object in radians"
+                                    },
+                                    "rpy-deg": {
+                                        "type": "string",
+                                        "description": "Roll Pitch Yaw of the object in degrees"
+                                    }
+                                },
+                                "allOf": [
+                                    {
+                                        "oneOf": [
+                                            {
+                                                "required": [
+                                                    "xyz"
+                                                ]
+                                            },
+                                            {
+                                                "required": [
+                                                    "geo-point"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "oneOf": [
+                                            {
+                                                "required": [
+                                                    "rpy"
+                                                ]
+                                            },
+                                            {
+                                                "required": [
+                                                    "rpy-deg"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "from-file": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "name",
+                            "asset-path",
+                            "file-format",
+                            "is-binary",
+                            "scale",
+                            "physics-enabled",
+                            "origin"
+                        ],
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "Name of object"
+                            },
+                            "asset-path": {
+                                "type": "string",
+                                "description": "Path to asset"
+                            },
+                            "file-format": {
+                                "type": "string",
+                                "description": "uasset (for pre-packaged uasset) or gltf (for client-side binary)",
+                                "enum": [
+                                    "sim-packaged",
+                                    "gltf"
+                                ]
+                            },
+                            "is-binary": {
+                                "type": "boolean"
+                            },
+                            "scale": {
+                                "type": "string",
+                                "description": "How much to scale the object in X, Y, and Z"
+                            },
+                            "physics-enabled": {
+                                "type": "boolean"
+                            },
+                            "origin": {
+                                "type": "object",
+                                "properties": {
+                                    "xyz": {
+                                        "type": "string",
+                                        "description": "XYZ coordinates of the object"
+                                    },
+                                    "geo-point": {
+                                        "type": "string",
+                                        "description": "Lat/Lon/Alt coordinates of the object"
+                                    },
+                                    "rpy": {
+                                        "type": "string",
+                                        "description": "Roll Pitch Yaw of the object in radians"
+                                    },
+                                    "rpy-deg": {
+                                        "type": "string",
+                                        "description": "Roll Pitch Yaw of the object in degrees"
+                                    }
+                                },
+                                "allOf": [
+                                    {
+                                        "oneOf": [
+                                            {
+                                                "required": [
+                                                    "xyz"
+                                                ]
+                                            },
+                                            {
+                                                "required": [
+                                                    "geo-point"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "oneOf": [
+                                            {
+                                                "required": [
+                                                    "rpy"
+                                                ]
+                                            },
+                                            {
+                                                "required": [
+                                                    "rpy-deg"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "clock": {
+            "type": "object",
+            "required": [
+                "type"
+            ],
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "description": "Type of sim clock",
+                    "enum": [
+                        "steppable",
+                        "real-time"
+                    ]
+                },
+                "step-ns": {
+                    "type": "integer",
+                    "description": "Step Size"
+                },
+                "real-time-update-rate": {
+                    "type": "integer"
+                },
+                "pause-on-start": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "home-geo-point": {
+            "type": "object",
+            "description": "Origin in scene space",
+            "required": [
+                "latitude",
+                "longitude",
+                "altitude"
+            ],
+            "properties": {
+                "latitude": {
+                    "type": "number",
+                    "minimum": -90,
+                    "maximum": 90
+                },
+                "longitude": {
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180
+                },
+                "altitude": {
+                    "type": "number"
+                }
+            }
+        },
+        "segmentation": {
+            "type": "object",
+            "required": [
+                "initialize-ids",
+                "ignore-existing",
+                "use-owner-name"
+            ],
+            "properties": {
+                "initialize-ids": {
+                    "type": "boolean"
+                },
+                "ignore-existing": {
+                    "type": "boolean"
+                },
+                "use-owner-name": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "scene-type": {
+            "type": "string",
+            "enum": [
+                "UnrealNative",
+                "CustomGIS",
+                "BlackShark"
+            ]
+        },
+        "tiles-dir": {
+            "type": "string"
+        },
+        "tiles-altitude-offset": {
+            "type": "number"
+        },
+        "tiles-lod-max": {
+            "type": "integer"
+        },
+        "tiles-lod-min": {
+            "type": "integer"
+        },
+        "tiles-dir-is-client-relative": {
+            "type": "boolean"
+        }
+    },
+    "required": [
+        "id"
+    ]
+}

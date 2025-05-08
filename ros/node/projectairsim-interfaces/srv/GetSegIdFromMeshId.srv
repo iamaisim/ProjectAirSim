@@ -1,0 +1,4 @@
+string object_id
+---
+int64 segmentation_id
+bool success

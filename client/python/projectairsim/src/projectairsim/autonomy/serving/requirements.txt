@@ -1,0 +1,5 @@
+onnxruntime-gpu
+pydantic
+python-multipart
+fastapi
+uvicorn

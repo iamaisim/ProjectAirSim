@@ -1,0 +1,80 @@
+#
+# Azure pipeline to build ubuntu 22.04 docker artifacts
+# 
+variables:
+  vmss_pool: 'VMSS Agents Pool'
+  airsimnh_release: latest
+  docker_base_image_tag: 'hameritt.azurecr.io/airsim_pipeline_ros2_humble:22.04'
+  docker_target_image_tag: 'hameritt.azurecr.io/airsim_pipeline_composite_build:22.04'
+  dockerRegistryServiceConnection: 'container_registry_connection'
+  imageRepository: 'airsim_pipeline_composite_build'
+  alternatetag: '22.04'
+
+resources:
+  repositories:
+  - repository: AirSimExtensions
+    type: github
+    endpoint: johnnovak_connection
+    name: microsoft/AirSimExtensions
+    ref: ado-pipelines
+    trigger:
+      - main
+      - ado-pipelines
+
+pool:
+  name: $(vmss_pool)
+
+jobs:
+- job: UbuntuBuildAirSimAzure
+  displayName: 'Build Ubuntu docker container with AirSim code'
+  steps:
+  
+  - task: Docker@2
+    displayName: Login to Azure Container Registry
+    inputs:
+      command: login
+      containerRegistry: $(dockerRegistryServiceConnection)
+
+  - checkout: AirSimExtensions
+    path: AirSimExtensions
+  # Downloads a GitHub Release from a repository.
+  - task: DownloadGitHubRelease@0
+    inputs:
+      connection: johnnovak_connection 
+      userRepository: microsoft/AirSimExtensions 
+      defaultVersionType: 'specificTag' # 'latest' | 'specificVersion' | 'specificTag'. Required. Default version. Default: latest.
+      version: '$(airsimnh_release)'
+      downloadPath: '$(System.ArtifactsDirectory)' # string. Required. Destination directory. Default: $(System.ArtifactsDirectory).
+
+  - template: ./templates/install_docker.yml
+
+  - script: |
+      cp '$(System.ArtifactsDirectory)'/AirSimNH.zip ..
+      unzip -q ../AirSimNH.zip -d ..
+      mv ../Linux ../AirSimNH
+      rm ../AirSimNH.zip
+    displayName: 'Install AirSimNH release'
+      
+  - task: Docker@2
+    displayName: pull base image
+    inputs:
+      command: pull
+      containerRegistry: $(dockerRegistryServiceConnection)
+      arguments: $(docker_base_image_tag)
+
+  - script: |
+      #sudo docker run hello-world
+      #echo "Pulling $(docker_base_image_tag)"
+      #sudo docker pull $(docker_base_image_tag)
+      sudo docker container ls
+      sudo python3 ./docker/build_airsim_image.py --is_azure --base_image=$(docker_base_image_tag) --target_image=$(docker_target_image_tag)
+    displayName: 'build docker container'
+
+  - task: Docker@2
+    displayName: Build and publish image to Azure Container Registry
+    inputs:
+      command: Push
+      containerRegistry: $(dockerRegistryServiceConnection)
+      repository: $(imageRepository)
+      tags: |
+        $(alternatetag)

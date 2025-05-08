@@ -1,0 +1,15 @@
+{
+  "cmake.buildDirectory": "${workspaceFolder}/build/${variant:platform}/${variant:buildType}",
+  "cmake.generator": "Ninja",
+  "python.formatting.provider": "black",
+  "python.analysis.extraPaths": [
+    "client/python"
+  ],
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/*/**": true,
+    "**/.venv/**": true,
+    ".venv": true,
+  }
+}

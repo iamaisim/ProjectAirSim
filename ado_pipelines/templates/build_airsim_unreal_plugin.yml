@@ -1,0 +1,16 @@
+#
+#  Build AirSim Unreal Plugin
+#
+  parameters:
+  - name: sourcePath
+    type: string
+    default: '.'
+
+  steps:
+  - script: |
+      pushd ${{ parameters.sourcePath }}
+      ./setup.sh
+      ./build.sh
+      rm -rf build_release
+      popd
+    displayName: 'Build AirSim Unreal Plugin'

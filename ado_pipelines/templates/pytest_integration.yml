@@ -1,0 +1,36 @@
+#
+#  Run pytest integration tests
+#
+  parameters:
+  - name: sourcePath
+    type: string
+    default: '.'
+  - name: dockerimage
+    type: string
+    default: 'airsim_pipeline_composite_build:22.04'
+
+  steps:
+  - script: |
+      sudo docker network create ros_network
+      sudo docker run --privileged -d --network ros_network -p 41451:41451 --gpus=all -v "/tmp/.X11-unix:/tmp/.X11-unix:rw" ${{ parameters.dockerimage }} ./airsim_ros_entry.sh -RenderOffscreen
+    displayName: 'Prepare Integration Suite Environment'
+
+  - script: |
+      sudo apt install python3-pip portaudio19-dev python3-pyaudio -y
+      pip install pytest pytest-azurepipelines
+      pip install pytest-cov
+      pip install opencv-python numpy pynng
+      ls -la ${{ parameters.sourcePath }}
+      ls -la ${{ parameters.sourcePath }}/PythonClient
+
+      pip install -r ${{ parameters.sourcePath }}/PythonClient/requirements.txt
+      pip install -e ${{ parameters.sourcePath }}/PythonClient
+      python3 -m pytest ${{ parameters.sourcePath }}/PythonClient/tests/integration --cov-append --doctest-modules --junitxml=junit/test-results.xml --cov=. --cov-report=xml --cov-report=html
+    displayName: 'PyTest Integration Suite'
+    condition: succeeded()
+
+  - script: |
+      ls -la '$(System.DefaultWorkingDirectory)'
+      sudo docker kill $(docker ps -q)
+    displayName: 'Kill running container'
+

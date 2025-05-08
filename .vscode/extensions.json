@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "ms-vscode.cmake-tools",
+    "ms-vscode.cpptools",
+    "vadimcn.vscode-lldb",
+    "ms-dotnettools.csharp",
+    "ms-vscode.mono-debug",
+    "matepek.vscode-catch2-test-adapter",
+    "ms-python.python",
+    "ms-python.vscode-pylance"
+  ]
+}

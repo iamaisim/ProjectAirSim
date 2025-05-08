@@ -1,0 +1,361 @@
+# Pipeline for building Project AirSim binaries for each release
+
+trigger:
+  branches:
+    # Don't trigger on branch pushes, only run manually when there is a new release
+    exclude:
+      - '*'
+
+variables:
+  container_linux: projectairsimacr.azurecr.io/ue5p1p1/ubuntu20:libjpegxr
+  ue_root_linux: /home/projectairsimuser/ue-5.1.1-linux-debugeditor
+  ue_root_win: C:\Program Files\Epic Games\UE_5.1
+
+resources:
+  repositories:
+  - repository: UnrealEnv_GeoSpecificEnv
+    type: git
+    name: UnrealEnv_GeoSpecificEnv
+    ref: refs/tags/ue-5.1-v1
+
+  - repository: UnrealEnv_SyntheticEnv
+    type: git
+    name: UnrealEnv_SyntheticEnv
+    ref: refs/tags/ue-5.1-v1
+
+  - repository: BlackShark_Demo
+    type: git
+    name: BlackShark_Demo
+    ref: refs/tags/ue-5.1-v8
+
+  - repository: UnrealEnv_Delivery
+    type: git
+    name: UnrealEnv_Delivery
+    ref: refs/tags/ue-5.0-v2
+
+  - repository: UnrealEnv_Inspection
+    type: git
+    name: UnrealEnv_Inspection
+    ref: refs/tags/ue-5.0-v2
+
+  - repository: UnrealEnv_Africa
+    type: git
+    name: UnrealEnv_Africa
+    ref: refs/tags/ue-5.0-v1
+
+  - repository: UnrealEnv_Building99
+    type: git
+    name: UnrealEnv_Building99
+    ref: refs/tags/ue-5.0-v1
+
+  - repository: UnrealEnv_Coastline
+    type: git
+    name: UnrealEnv_Coastline
+    ref: refs/tags/ue-5.0-v1
+
+  - repository: UnrealEnv_LandscapeMountains
+    type: git
+    name: UnrealEnv_LandscapeMountains
+    ref: refs/tags/ue-5.1-v1
+
+  - repository: UnrealEnv_Neighborhood
+    type: git
+    name: UnrealEnv_Neighborhood
+    ref: refs/tags/ue-5.0-v1
+
+  - repository: UnrealEnv_MSCampus
+    type: git
+    name: UnrealEnv_MSCampus
+    ref: refs/tags/ue-5.0-v1
+
+  - repository: UnrealEnv_TrapCamera
+    type: git
+    name: UnrealEnv_TrapCamera
+    ref: refs/tags/ue-5.0-v1
+
+  - repository: UnrealEnv_ZhangJiajie
+    type: git
+    name: UnrealEnv_ZhangJiajie
+    ref: refs/tags/ue-5.0-v1
+
+  - repository: UnrealEnv_HongKong
+    type: git
+    name: UnrealEnv_HongKong
+    ref: refs/tags/ue-5.0-v1
+
+  - repository: UnrealEnv_Rome
+    type: git
+    name: UnrealEnv_Rome
+    ref: refs/tags/ue-5.0-v2
+
+  - repository: UnrealEnv_SoulCity
+    type: git
+    name: UnrealEnv_SoulCity
+    ref: refs/tags/ue-5.0-v1
+
+  - repository: UnrealEnv_PoplarForest
+    type: git
+    name: UnrealEnv_PoplarForest
+    ref: refs/tags/ue-5.0-v1
+
+  - repository: UnrealEnv_ModernCityDowntown
+    type: git
+    name: UnrealEnv_ModernCityDowntown
+    ref: refs/tags/ue-5.0-v1
+
+  - repository: UnrealEnv_WesternDesertTown
+    type: git
+    name: UnrealEnv_WesternDesertTown
+    ref: refs/tags/ue-5.0-v1
+
+  - repository: UnrealEnv_JapaneseCity
+    type: git
+    name: UnrealEnv_JapaneseCity
+    ref: refs/tags/ue-5.0-v1
+
+  - repository: UnrealEnv_ConstructionSite
+    type: git
+    name: UnrealEnv_ConstructionSite
+    ref: refs/tags/ue-5.0-v1
+
+  - repository: UnrealEnv_NordicHarbor
+    type: git
+    name: UnrealEnv_NordicHarbor
+    ref: refs/tags/ue-5.0-v2
+
+  - repository: UnrealEnv_ForestEnv
+    type: git
+    name: UnrealEnv_ForestEnv
+    ref: refs/tags/ue-5.0-v1
+
+stages:
+    # ----------------------------------------------------------------------------
+
+  - stage: Package_UnrealEnv_GeoSpecificEnv
+    dependsOn: []  # run in parallel
+    jobs:
+      - template: package-unreal-env-template.yml
+        parameters:
+          unrealenv_name: AirSim_GeoSpecificEnv
+          unrealenv_repo: UnrealEnv_GeoSpecificEnv
+  # ----------------------------------------------------------------------------
+
+  - stage: Package_UnrealEnv_SyntheticEnv
+    dependsOn: []  # run in parallel
+    jobs:
+      - template: package-unreal-env-template.yml
+        parameters:
+          unrealenv_name: AirSim_SyntheticEnv
+          unrealenv_repo: UnrealEnv_SyntheticEnv
+
+  # ----------------------------------------------------------------------------
+
+  - stage: Package_UnrealEnv_Delivery
+    dependsOn: []  # run in parallel
+    jobs:
+      - template: package-unreal-env-template.yml
+        parameters:
+          unrealenv_name: AirSim_Delivery
+          unrealenv_repo: UnrealEnv_Delivery
+
+  # ----------------------------------------------------------------------------
+
+  - stage: Package_UnrealEnv_Inspection
+    dependsOn: []  # run in parallel
+    jobs:
+      - template: package-unreal-env-template.yml
+        parameters:
+          unrealenv_name: AirSim_Inspection
+          unrealenv_repo: UnrealEnv_Inspection
+
+  # ----------------------------------------------------------------------------
+
+  - stage: Package_UnrealEnv_Africa
+    dependsOn: []  # run in parallel
+    jobs:
+      - template: package-unreal-env-template.yml
+        parameters:
+          unrealenv_name: AirSim_Africa
+          unrealenv_repo: UnrealEnv_Africa
+
+  # ----------------------------------------------------------------------------
+
+  - stage: Package_UnrealEnv_Building99
+    dependsOn: []  # run in parallel
+    jobs:
+      - template: package-unreal-env-template.yml
+        parameters:
+          unrealenv_name: AirSim_Building99
+          unrealenv_repo: UnrealEnv_Building99
+
+    # ----------------------------------------------------------------------------
+
+  - stage: Package_BlackShark_Demo
+    dependsOn: []  # run in parallel
+    jobs:
+      - template: package-unreal-env-template.yml
+        parameters:
+          unrealenv_name: BlacksharkGlobeDemo
+          unrealenv_repo: BlackShark_Demo
+
+  # ----------------------------------------------------------------------------
+
+  # - stage: Package_UnrealEnv_Coastline
+  #   dependsOn: []  # run in parallel
+  #   jobs:
+  #     - template: package-unreal-env-template.yml
+  #       parameters:
+  #         unrealenv_name: AirSim_Coastline
+  #         unrealenv_repo: UnrealEnv_Coastline
+
+  # ----------------------------------------------------------------------------
+
+  - stage: Package_UnrealEnv_LandscapeMountains
+    dependsOn: []  # run in parallel
+    jobs:
+      - template: package-unreal-env-template.yml
+        parameters:
+          unrealenv_name: AirSim_LandscapeMountains
+          unrealenv_repo: UnrealEnv_LandscapeMountains
+
+  # ----------------------------------------------------------------------------
+
+  - stage: Package_UnrealEnv_Neighborhood
+    dependsOn: []  # run in parallel
+    jobs:
+      - template: package-unreal-env-template.yml
+        parameters:
+          unrealenv_name: AirSim_Neighborhood
+          unrealenv_repo: UnrealEnv_Neighborhood
+
+  # ----------------------------------------------------------------------------
+
+  - stage: Package_UnrealEnv_MSCampus
+    dependsOn: []  # run in parallel
+    jobs:
+      - template: package-unreal-env-template.yml
+        parameters:
+          unrealenv_name: AirSim_MSCampus
+          unrealenv_repo: UnrealEnv_MSCampus
+
+  # ----------------------------------------------------------------------------
+
+  - stage: Package_UnrealEnv_TrapCamera
+    dependsOn: []  # run in parallel
+    jobs:
+      - template: package-unreal-env-template.yml
+        parameters:
+          unrealenv_name: AirSim_TrapCamera
+          unrealenv_repo: UnrealEnv_TrapCamera
+
+  # ----------------------------------------------------------------------------
+
+  - stage: Package_UnrealEnv_ZhangJiajie
+    dependsOn: []  # run in parallel
+    jobs:
+      - template: package-unreal-env-template.yml
+        parameters:
+          unrealenv_name: AirSim_ZhangJiajie
+          unrealenv_repo: UnrealEnv_ZhangJiajie
+
+  # ----------------------------------------------------------------------------
+
+  - stage: Package_UnrealEnv_HongKong
+    dependsOn: []  # run in parallel
+    jobs:
+      - template: package-unreal-env-template.yml
+        parameters:
+          unrealenv_name: AirSim_HongKong
+          unrealenv_repo: UnrealEnv_HongKong
+
+  # ----------------------------------------------------------------------------
+
+  - stage: Package_UnrealEnv_Rome
+    dependsOn: []  # run in parallel
+    jobs:
+      - template: package-unreal-env-template.yml
+        parameters:
+          unrealenv_name: AirSim_Rome
+          unrealenv_repo: UnrealEnv_Rome
+
+  # ----------------------------------------------------------------------------
+
+  - stage: Package_UnrealEnv_SoulCity
+    dependsOn: []  # run in parallel
+    jobs:
+      - template: package-unreal-env-template.yml
+        parameters:
+          unrealenv_name: AirSim_SoulCity
+          unrealenv_repo: UnrealEnv_SoulCity
+
+  # ----------------------------------------------------------------------------
+
+  - stage: Package_UnrealEnv_PoplarForest
+    dependsOn: []  # run in parallel
+    jobs:
+      - template: package-unreal-env-template.yml
+        parameters:
+          unrealenv_name: AirSim_PoplarForest
+          unrealenv_repo: UnrealEnv_PoplarForest
+
+  # ----------------------------------------------------------------------------
+
+  - stage: Package_UnrealEnv_ModernCityDowntown
+    dependsOn: []  # run in parallel
+    jobs:
+      - template: package-unreal-env-template.yml
+        parameters:
+          unrealenv_name: AirSim_ModernCityDowntown
+          unrealenv_repo: UnrealEnv_ModernCityDowntown
+
+  # ----------------------------------------------------------------------------
+
+  - stage: Package_UnrealEnv_WesternDesertTown
+    dependsOn: []  # run in parallel
+    jobs:
+      - template: package-unreal-env-template.yml
+        parameters:
+          unrealenv_name: AirSim_WesternDesertTown
+          unrealenv_repo: UnrealEnv_WesternDesertTown
+
+  # ----------------------------------------------------------------------------
+
+  - stage: Package_UnrealEnv_JapaneseCity
+    dependsOn: []  # run in parallel
+    jobs:
+      - template: package-unreal-env-template.yml
+        parameters:
+          unrealenv_name: AirSim_JapaneseCity
+          unrealenv_repo: UnrealEnv_JapaneseCity
+
+  # ----------------------------------------------------------------------------
+
+  - stage: Package_UnrealEnv_ConstructionSite
+    dependsOn: []  # run in parallel
+    jobs:
+      - template: package-unreal-env-template.yml
+        parameters:
+          unrealenv_name: AirSim_ConstructionSite
+          unrealenv_repo: UnrealEnv_ConstructionSite
+
+  # ----------------------------------------------------------------------------
+
+  - stage: Package_UnrealEnv_NordicHarbor
+    dependsOn: []  # run in parallel
+    jobs:
+      - template: package-unreal-env-template.yml
+        parameters:
+          unrealenv_name: AirSim_NordicHarbor
+          unrealenv_repo: UnrealEnv_NordicHarbor
+
+  # ----------------------------------------------------------------------------
+
+  - stage: Package_UnrealEnv_ForestEnv
+    dependsOn: []  # run in parallel
+    jobs:
+      - template: package-unreal-env-template.yml
+        parameters:
+          unrealenv_name: AirSim_ForestEnv
+          unrealenv_repo: UnrealEnv_ForestEnv
+
+  # ----------------------------------------------------------------------------

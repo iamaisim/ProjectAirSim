@@ -1,0 +1,156 @@
+# Pipeline template for building a Project AirSim sim binary from an Unreal
+# environment repo using the latest daily main branch UE sim plugin artifact
+
+parameters:
+- name: unrealenv_name
+  type: string
+- name: unrealenv_repo
+  type: string
+
+jobs:
+  # ----------------------------------------------------------------------------
+
+  - job: ${{ parameters.unrealenv_repo }}_Linux_Binary
+    timeoutInMinutes: 240
+    pool:
+      name: 'RoboSim'  # Self-hosted
+      demands:
+        - Spec -equals Ubuntu_20.04
+        - HasGPU -equals False
+    container:
+      image: $(container_linux)
+      endpoint: projectairsim_acr_service_principal
+    variables:
+      ue_root: $(ue_root_linux)
+    workspace:
+      clean: all
+    steps:
+      # ADO pipeline runs as a non-root user so need to take ownership of
+      # UE engine's dotnet folder (UE 5.1 runs
+      # a `chmod u+x "$UE_DOTNET_DIR/dotnet"` command in SetupDotnet.sh)
+      - script: |
+          cur_user=$(whoami)
+          echo "sudo chown -R ${cur_user} $(ue_root_linux)/Engine/Binaries/ThirdParty/DotNet"
+          sudo chown -R ${cur_user} $(ue_root_linux)/Engine/Binaries/ThirdParty/DotNet
+        displayName: Take ownership of UE's dotnet folder
+
+      # Pull working files
+      - checkout: self
+
+      - checkout: ${{ parameters.unrealenv_repo }}
+        lfs: true
+
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          source: 'specific'
+          project: 'Project AirSim'
+          pipeline: 768  # projectairsim-daily URL's definitionId
+          runVersion: 'latestFromBranch'
+          runBranch: 'refs/heads/main'
+          artifact: 'ProjectAirSim_UE_Plugin_Linux64'
+          path: ${{ parameters.unrealenv_repo }}
+        displayName: Download Artifact UE Plugin Linux64
+
+      # Setup system dependencies and install Azure CLI
+      - script: |
+          ./projectairsim/setup_linux_dev_tools.sh
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+        displayName: Install system dependencies and install Azure CLI
+
+      # Package environment as Development
+      - script: |
+          cd ${{ parameters.unrealenv_repo }} && ./package.sh Development
+          mv ./Packages ./${{ parameters.unrealenv_name}}_Binary_Linux64
+        displayName: Package environment as Development
+
+      # Add linux prereq setup script to binary package
+      - script: |
+          cp ./projectairsim/setup_linux_unreal_prereqs.sh ${{ parameters.unrealenv_repo }}/${{ parameters.unrealenv_name}}_Binary_Linux64
+        displayName: Add linux prereq setup script to binary package
+        condition: succeededOrFailed()
+
+      # Zip environment binary
+      - task: ArchiveFiles@2
+        inputs:
+          rootFolderOrFile: '${{ parameters.unrealenv_repo }}/${{ parameters.unrealenv_name}}_Binary_Linux64'
+          includeRootFolder: true
+          archiveType: 'zip'
+          archiveFile: '$(Pipeline.Workspace)/${{ parameters.unrealenv_name}}_Binary_Linux64.zip'
+          replaceExistingArchive: true
+        displayName: Archive Binary
+
+      # Deploy environment binary to blob container
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: 'projectairsim_azure_service_principal'
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: |
+            az storage blob upload -c 'projectairsim-resources' --account-name 'projectairsimazure' -f '$(Pipeline.Workspace)/${{ parameters.unrealenv_name}}_Binary_Linux64.zip' -n 'sim_packages_linux/${{ parameters.unrealenv_name}}_Binary_Linux64.zip' --overwrite
+        displayName: Deploy Binary
+
+  # ----------------------------------------------------------------------------
+
+  - job: ${{ parameters.unrealenv_repo }}_Windows_Binary
+    timeoutInMinutes: 240
+    pool:
+      name: 'projectairsim-ci-basicsku'  # 1ES Non GPU
+    variables:
+      ue_root: $(ue_root_win)
+      vs_cmd_prompt: C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat
+    workspace:
+      clean: all
+    steps:
+      # Pull working files
+      - checkout: self
+
+      - checkout: ${{ parameters.unrealenv_repo }}
+        lfs: true
+
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          source: 'specific'
+          project: 'Project AirSim'
+          pipeline: 768  # projectairsim-daily URL's definitionId
+          runVersion: 'latestFromBranch'
+          runBranch: 'refs/heads/main'
+          artifact: 'ProjectAirSim_UE_Plugin_Win64'
+          path: ${{ parameters.unrealenv_repo }}
+        displayName: Download Artifact UE Plugin
+
+      # Install Azure CLI
+      - task: PowerShell@2
+        inputs:
+          targetType: 'inline'
+          script: |
+            $ProgressPreference = 'SilentlyContinue'; Invoke-WebRequest -Uri https://aka.ms/installazurecliwindows -OutFile .\AzureCLI.msi; Start-Process msiexec.exe -Wait -ArgumentList '/I AzureCLI.msi /quiet'; rm .\AzureCLI.msi
+        displayName: Install Azure CLI
+
+      # Package environment as Development
+      - script: |
+          call "$(vs_cmd_prompt)"
+          cd ${{ parameters.unrealenv_repo }} && call .\package.bat Development
+          ren .\Packages ${{ parameters.unrealenv_name}}_Binary_Win64
+        displayName: Package environment as Development
+
+      # Zip environment binary
+      - task: ArchiveFiles@2
+        inputs:
+          rootFolderOrFile: '${{ parameters.unrealenv_repo }}\${{ parameters.unrealenv_name}}_Binary_Win64'
+          includeRootFolder: true
+          archiveType: 'zip'
+          archiveFile: '$(Pipeline.Workspace)\${{ parameters.unrealenv_name}}_Binary_Win64.zip'
+          replaceExistingArchive: true
+        displayName: Archive Binary
+
+      # Deploy environment binary to blob container
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: 'projectairsim_azure_service_principal'
+          scriptType: ps
+          scriptLocation: inlineScript
+          inlineScript: |
+            az storage blob upload -c 'projectairsim-resources' --account-name 'projectairsimazure' -f '$(Pipeline.Workspace)/${{ parameters.unrealenv_name}}_Binary_Win64.zip' -n 'sim_packages_windows/${{ parameters.unrealenv_name}}_Binary_Win64.zip' --overwrite
+        displayName: Deploy Binary
+
+  # ----------------------------------------------------------------------------

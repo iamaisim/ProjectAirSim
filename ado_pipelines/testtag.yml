@@ -1,0 +1,111 @@
+#
+# Azure pipeline to build and test ubuntu 22.04 docker artifacts
+# 
+parameters:
+- name: docker_unreal_image
+  type: string 
+  default: hameritt.azurecr.io/epicgames/unreal-engine:ubuntu22-dev-5.2.1
+- name: dockerfile
+  type: string 
+  default: binary_projectairsim.Dockerfile
+- name: releasetag
+  type: string 
+  default: v1.25.0
+- name: build_binary_container
+  type: boolean 
+  default: true
+- name: docker_target_image
+  type: string
+  default: project_airsim_str
+- name: ros2_distro
+  type: string 
+  default: humble
+- name: docker_base_image
+  type: string
+  default: project_airsim_pipeline_ros2
+- name: docker_base_image_tag
+  type: string
+  default: 22.04
+- name: docker_source_repo
+  type: string
+  default: hameritt.azurecr.io
+- name: docker_target_repo
+  type: string
+  default: hameritt.azurecr.io
+- name: envName
+  type: string
+  default: Blocks
+- name: envRelease
+  type: string
+  default: DebugGame
+- name: environmentRepoRoot
+  type: string
+  default: Blocks/DebugGame/Linux
+- name: neighborhood_branch
+  type: string
+  default: neighborhood
+- name: city_branch
+  type: string
+  default: city
+- name: environments_list
+  type: object
+  default:
+    - envName: CityEnviron
+      repository: hameritt-env-city
+      envRepoRoot: hameritt-env-city
+      plugin_copy_type: plugin
+      airsim_plugin_path: ProjectAirSim/packages/projectairsim_ue_plugin/Plugins
+    - envName: AirSimNH
+      repository: hameritt-env
+      envRepoRoot: hameritt-env
+      plugin_copy_type: plugin
+      airsim_plugin_path: ProjectAirSim/packages/projectairsim_ue_plugin/Plugins
+
+
+variables:
+  vmss_pool: 'VMSS Agents Pool'
+  dockerRegistryServiceConnection: 'hameritt_acr_service_connection'
+  UE_ROOT: /home/ue4/UnrealEngine
+  HOME: /__w/_temp
+  RunTests: True
+
+trigger:
+  branches:
+    include:
+      - refs/tags/*
+      - releases/*
+      - johnnovak/*
+  tags:
+    include:
+      - '*'
+    
+jobs:  
+- job: TestTag
+  pool:
+    name: $(vmss_pool)
+  timeoutInMinutes: 10
+  displayName: 'Test setting release tag from trigger tag'
+  steps:
+
+  - checkout: self
+    path: ProjectAirSim
+    lfs: true
+    target: host
+
+  # Dotnet core sdk task 7.0.x
+  - task: UseDotNet@2
+    displayName: 'Use .NET Core sdk 7.0.x'
+    inputs:
+      version: 7.0.x
+
+  - script: |
+      echo $(Build.SourceBranchName)
+
+  - template: ./templates/install_container_toolkit.yml
+  
+  - script: |
+      nvidia-smi
+      
+  - script: |
+      docker run -d --gpus all nvidia/cuda:12.5.1-base-ubuntu22.04 nvidia-smi /bin/bash
+    displayName: Test docker GPU access

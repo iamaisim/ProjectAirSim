@@ -1,0 +1,33 @@
+{
+  "id": "SceneBasicDrone",
+  "actors": [
+    {
+      "type": "robot",
+      "name": "Drone1",
+      "origin": {
+        // "xyz": "-2046.02 -400.67 -73.69", // DFW_Marriott
+        "xyz": "-575.15863 11.198 -85", // SpeedwayClub
+        "rpy-deg": "0 0 0"
+      },
+      "robot-config": "perception_quadrotor_fastphysics.jsonc"
+    }
+  ],
+  "clock": {
+    "type": "steppable",
+    "step-ns": 3000000,
+    "real-time-update-rate": 3000000,
+    "pause-on-start": true
+  },
+  "home-geo-point": {
+    "latitude": 33.037290,
+    "longitude": -97.284282,
+    "altitude": 193.54
+  },
+  "segmentation": {
+    "initialize-ids": false,
+    "ignore-existing": false,
+    "use-owner-name": true
+  },
+  "scene-type": "CustomGIS",
+  "tiles-dir": "C:/glTF_tiles/dfw_gltf" // Path to dir containg gltf tiles
+}

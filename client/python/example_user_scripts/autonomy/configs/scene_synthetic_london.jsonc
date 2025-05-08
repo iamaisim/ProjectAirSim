@@ -1,0 +1,32 @@
+{
+    "id": "SceneBasicDrone",
+    "actors": [
+        {
+            "type": "robot",
+            "name": "Drone1",
+            "origin": {
+                "xyz": "5.0 123.0 -21.0", // LZ-1
+                "rpy-deg": "0 0 0"
+            },
+            "robot-config": "robot_quadtiltrotor_fastphysics_uam.jsonc"
+        }
+    ],
+    "clock": {
+        "type": "steppable",
+        "step-ns": 3000000,
+        "real-time-update-rate": 3000000,
+        "pause-on-start": true
+    },
+    "home-geo-point": {
+        "latitude": 51.512554,
+        "longitude": -0.099109,
+        "altitude": 12.44
+    },
+    "segmentation": {
+        "initialize-ids": true,
+        "ignore-existing": true,
+        "use-owner-name": true
+    },
+    "scene-type": "UnrealNative",
+    "enable-sim-topic-callback": true
+}

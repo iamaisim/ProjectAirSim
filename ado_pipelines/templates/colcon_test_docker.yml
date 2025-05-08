@@ -1,0 +1,49 @@
+#
+#  Run a docker container with the built ROS packages and exeute unit tests
+#  Test output artifacts are saved in ~/test_output
+#
+  parameters:
+  - name: dockerimage
+    type: string
+    default: 'projectairsim_pipeline_composite_build:22.04'
+
+  steps:
+  - script: |
+      nvidia-smi
+      docker image ls
+    target: host
+    condition: succeededOrFailed()
+
+  - script: |
+      mkdir $(System.DefaultWorkingDirectory)/test_output
+      chmod 777 $(System.DefaultWorkingDirectory)/test_output
+
+      mkdir -p $(Pipeline.Workspace)/ProjectAirSim/ros/node/build/projectairsim_ros/Testing/
+      chmod 777 $(Pipeline.Workspace)/ProjectAirSim/ros/node/build/projectairsim_ros/Testing/
+      
+      docker network create ros_network
+      sudo docker run --name ros2-integration-test --privileged -d --network ros_network -p 41451:41451 --gpus=all -v "/tmp/.X11-unix:/tmp/.X11-unix:rw" -v "$(System.DefaultWorkingDirectory)/test_output:/home/airsim_user/test_output:rw" -v "/agent/_work/1":"/__w/1" -v "/agent/_work/_temp":"/__w/_temp" -v "/agent/_work/_tasks":"/__w/_tasks" -v "/agent/_work/_tool":"/__t" -v "/agent/externals":"/__a/externals":ro -v "/agent/_work/.taskkey":"/__w/.taskkey" ${{ parameters.dockerimage }} ./projectairsim_ros_entry.sh --runmode=run_tests --unrealoptions="-RenderOffscreen"
+    displayName: 'Run ROS2 colcon tests with docker'
+    target: host
+    condition: succeededOrFailed()
+
+  - script: |
+      sleep 480
+    displayName: 'wait for detached containers to finish tests'
+    target: host
+    condition: succeededOrFailed()
+
+  - script: |
+      echo "Docker logs"
+      sudo docker logs ros2-integration-test
+    displayName: Test Diagnostic Output
+    target: host
+    condition: succeededOrFailed()
+    
+  - script: |
+      echo "test_output"
+      ls -la $(System.DefaultWorkingDirectory)/test_output
+      ls -la $(System.DefaultWorkingDirectory)/test_output/pytest_fixture
+    displayName: 'Post process and store test results to Azure DevOps'
+    target: host
+    condition: succeededOrFailed()

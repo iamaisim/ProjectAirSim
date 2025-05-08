@@ -1,0 +1,16 @@
+{
+  "links": [
+    {
+      "name": "Frame",
+      "collision": {
+        "enabled": false
+      },
+      "visual": {
+        "geometry": {
+          "type": "skeletal_mesh",
+          "name": "/ProjectAirSim/Scanned3DPeoplePack/RP_Character/rp_manuel_rigged_001_ue4/rp_manuel_rigged_001_ue4"
+        }
+      }
+    }
+  ]
+}

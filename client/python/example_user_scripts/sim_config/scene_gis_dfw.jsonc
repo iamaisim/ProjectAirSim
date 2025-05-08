@@ -1,0 +1,47 @@
+{
+  "id": "SceneBasicDroneDFW",
+  "actors": [
+    {
+      "type": "robot",
+      "name": "Drone1",
+      "origin": {
+        "geo-point": "33.047329 -97.292618 172.0",
+        "rpy-deg": "0 0 0"
+      },
+      "robot-config": "robot_quadrotor_fastphysics.jsonc"
+    }
+  ],
+  "spawn-objects": {
+    "sim-packaged": [
+      {
+        "name": "TakeoffPad",
+        "asset-path": "BasicLandingPad",
+        "scale": "3 3 3",
+        "physics-enabled": false,
+        "origin": {
+          "geo-point": "33.047329 -97.292618 168",
+          "rpy-deg": "0 0 0"
+        }
+      }
+    ]
+  },
+  "clock": {
+    "type": "steppable",
+    "step-ns": 3000000,
+    "real-time-update-rate": 3000000,
+    "pause-on-start": false
+  },
+  "home-geo-point": {
+    "latitude": 33.037290,
+    "longitude": -97.284282,
+    "altitude": 164.5
+  },
+  "segmentation": {
+    "initialize-ids": true,
+    "ignore-existing": false,
+    "use-owner-name": true
+  },
+  "scene-type": "CustomGIS",
+  "tiles-dir": "C:/glTF_tiles/dfw-tiles",
+  "tiles-dir-is-client-relative": false
+}

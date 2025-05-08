@@ -1,0 +1,156 @@
+{
+    "links": [
+      {
+        "name": "Frame",
+        "collision": {
+          "enabled": false
+        },
+        "visual": {
+          "geometry": {
+            "type": "unreal_mesh",
+            "name": "/ProjectAirSim/CitySampleVehicles/vehicle02_Car/Mesh/SM_vehCar_vehicle02_No_Wheel"
+          }
+        }
+      },
+      {
+        "name": "FL_Normal",
+        "collision": {
+          "enabled": false
+        },
+        "visual": {
+          "origin": {
+            "xyz": "1.4 -0.8 0.0",
+            "rpy-deg": "0 0 0"
+          },
+          "geometry": {
+            "type": "unreal_mesh",
+            "name": "no_frame_file"
+          }
+        }
+      },
+      {
+        "name": "FR_Normal",
+        "collision": {
+          "enabled": false
+        },
+        "visual": {
+          "origin": {
+            "xyz": "1.4 0.8 0.0",
+            "rpy-deg": "0 0 0"
+          },
+          "geometry": {
+            "type": "unreal_mesh",
+            "name": "no_frame_file"
+          }
+        }
+      },
+      {
+        "name": "FL_Wheel",
+        "collision": {
+          "enabled": false
+        },
+        "visual": {
+          "origin": {
+            "xyz": "0 0 0",
+            "rpy-deg": "0 0 180"
+          },
+          "geometry": {
+            "type": "unreal_mesh",
+            "name": "/ProjectAirSim/CitySampleVehicles/vehicle02_Car/Mesh/SM_Wheel_Front_R_vehCar_vehicle02"
+          }
+        }
+      },
+      {
+        "name": "FR_Wheel",
+        "collision": {
+          "enabled": false
+        },
+        "visual": {
+          "origin": {
+            "xyz": "0 0 0",
+            "rpy-deg": "0 0 0"
+          },
+          "geometry": {
+            "type": "unreal_mesh",
+            "name": "/ProjectAirSim/CitySampleVehicles/vehicle02_Car/Mesh/SM_Wheel_Front_R_vehCar_vehicle02"
+          }
+        }
+      },
+      {
+        "name": "RL_Wheel",
+        "collision": {
+          "enabled": false
+        },
+        "visual": {
+          "origin": {
+            "xyz": "-1.45 -0.8 0.0",
+            "rpy-deg": "0 0 180"
+          },
+          "geometry": {
+            "type": "unreal_mesh",
+            "name": "/ProjectAirSim/CitySampleVehicles/vehicle02_Car/Mesh/SM_Wheel_Front_R_vehCar_vehicle02"
+          }
+        }
+      },
+      {
+        "name": "RR_Wheel",
+        "collision": {
+          "enabled": false
+        },
+        "visual": {
+          "origin": {
+            "xyz": "-1.45 0.8 0.0",
+            "rpy-deg": "0 0 0"
+          },
+          "geometry": {
+            "type": "unreal_mesh",
+            "name": "/ProjectAirSim/CitySampleVehicles/vehicle02_Car/Mesh/SM_Wheel_Front_R_vehCar_vehicle02"
+          }
+        }
+      }
+    ],
+    "joints": [
+      {
+        "id": "Frame_FL_Normal",
+        "type": "fixed",
+        "parent-link": "Frame",
+        "child-link": "FL_Normal",
+        "axis": "0 0 1"
+      },
+      {
+        "id": "Frame_FR_Normal",
+        "type": "fixed",
+        "parent-link": "Frame",
+        "child-link": "FR_Normal",
+        "axis": "0 0 1"
+      },
+      {
+        "id": "FL_Normal_FL_Wheel",
+        "type": "fixed",
+        "parent-link": "FL_Normal",
+        "child-link": "FL_Wheel",
+        "axis": "0 0 1"
+      },
+      {
+        "id": "FR_Normal_FR_Wheel",
+        "type": "fixed",
+        "parent-link": "FR_Normal",
+        "child-link": "FR_Wheel",
+        "axis": "0 0 1"
+      },
+      {
+        "id": "Frame_RL_Wheel",
+        "type": "fixed",
+        "parent-link": "Frame",
+        "child-link": "RL_Wheel",
+        "axis": "0 0 1"
+      },
+      {
+        "id": "Frame_RR_Wheel",
+        "type": "fixed",
+        "parent-link": "Frame",
+        "child-link": "RR_Wheel",
+        "axis": "0 0 1"
+      }
+    ]
+  }

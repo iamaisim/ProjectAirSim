@@ -1,0 +1,6 @@
+sensors: 
+  - sensor_plugin: occupancy_map_monitor/PointCloudOctomapUpdater
+    point_cloud_topic: /airsim_node/Drone1/lidar1/lidar
+    max_range: 100.0
+    frame_subsample: 1
+    point_subsample: 1

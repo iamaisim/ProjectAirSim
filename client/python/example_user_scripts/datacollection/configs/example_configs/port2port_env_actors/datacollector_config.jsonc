@@ -1,0 +1,102 @@
+{
+    "$schema": "./schemas/datacollector_config_schema.jsonc",
+    "env-spec": {
+        "assets": {},
+        "weather": [ // Dict(WeatherParameter, WeatherIntensityRange(0.0-1.0)Array [start, end, step])
+            {
+                "type": "SNOW",
+                "intensity": [
+                    0.1,
+                    0.8,
+                    0.6
+                ]
+            }
+        ], //See projectairsim.types.WeatherParameter class for weather types
+        "time-of-day": [
+            "2022-06-20",
+            "7:15 AM",
+            "12:15 PM",
+            "4:00:00"
+        ],
+        "scene-configs": {
+            "Blocks": "scene_basic_drone.jsonc"
+        }
+    },
+    "collection-spec": {
+        "trajectory-spec": { // Define presets for trajectories
+            "A2B-trajectory": {
+                "port2port": {
+                    "trajectory-type": "random", //[random, optimal]
+                    "num-trajectories": 10, //if random, num of random trajectories
+                    "trajectory-len": 10, //length of each trajectory
+                    "start-geo": [ //lat,lon,alt
+                        33.04662955,
+                        -97.29241008,
+                        229.2
+                    ],
+                    "end-geo": [ //lat,lon,alt
+                        33.0475494,
+                        -97.2930402377,
+                        246.4
+                    ] //TODO: Allow Random?
+                }
+            },
+            "EnvActor-trajectory": {
+                "port2port": {
+                    "trajectory-type": "optimal", //[random, optimal]
+                    "trajectory-len": 10, //length of each trajectory
+                    "start-geo": [ //lat,lon,alt
+                        33.0476787817,
+                        -97.291908524,
+                        246.4
+                    ],
+                    "end-geo": [ //lat,lon,alt
+                        33.0483088,
+                        -97.294278,
+                        255.4
+                    ] //TODO: Allow Random?
+                }
+            }
+        },
+        "geo-locations": { // Location Coordinates
+            "Blocks-port2port": {
+                "trajectory": "A2B-trajectory", //select from one of the preset-trajectories
+                "scene-name": "Block",
+                "scene-config": "Blocks",
+                "asset": "AirTaxi", // Asset already in the scene
+                "object-id": "TestEnvActor",
+                "env-actor-name": "TestEnvActor", // as configured in above scene config
+                "env-actor-trajectory": {
+                    "name": "EnvActor-trajectory", //preset-trajectory or "pre-defined"
+                    "loop": true,
+                    "time-offset": 0, //seconds
+                    "duration": 10 //duration of each loop
+                }
+            }
+        },
+        "data-spec": // Add all sensor data/annotations to be collected
+        {
+            "modalities": { // Sensor modalities to be collected. Currently supported - RGB
+                "RGB": true
+            },
+            "annotations": { // Annotations to be collected/saved. Currently supported - 2DBBox, 3DBBox, segmentation
+                "2DBBox": true, // Collects 2D bbox
+                "3DBBox": true, // Collects 3D bbox
+                "segmentation": false // Collects Segmentation data and saves to COCO JSON
+            }
+        }
+    },
+    "output-spec": {
+        "description": "Small sample dataset that demonstrates the random/planned trajectory generation",
+        "operational-description": "An env actor flys a planned path in the view of a agent flying a random path",
+        "data-description": "2D/3D bbox that surrounds the AirTaxi env actor",
+        "data-source": "All data pieces are generated using Project Airsim. The DFW environment is provided by Bing Maps",
+        "error-sources": "None. Data is generated through the Project Airsim sim and is 100% synthetic",
+        "dataset-name": "TrajectoryRandomizationTest",
+        "image-spec": {
+            "image-width": 400,
+            "image-height": 225,
+            "image-format": ".png"
+        }
+    }
+}

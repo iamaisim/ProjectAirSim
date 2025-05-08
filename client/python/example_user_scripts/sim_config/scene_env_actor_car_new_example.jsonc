@@ -1,0 +1,267 @@
+{
+    "id": "SceneBasicDrone",
+    "actors": [
+      {
+        "type": "robot",
+        "name": "Drone1",
+        "origin": {
+          "xyz": "-20.0 0.0 -2.0",
+          "rpy-deg": "0 0 0"
+        },
+        "robot-config": "robot_quadrotor_fastphysics.jsonc"
+      }
+    ],
+    "environment-actors": [
+      {
+        "type": "env_car",
+        "name": "car1",
+        "origin": {
+          "xyz": "3.0 0.0 -5.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-actor-config": ["env_actor_car_vehicle01_van.jsonc", "env_actor_car_color_blue.jsonc"]
+      },
+      {
+        "type": "env_car",
+        "name": "car2",
+        "origin": {
+          "xyz": "3.0 5.0 -5.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-actor-config": ["env_actor_car_vehicle03_car.jsonc", "env_actor_car_color_dark_black.jsonc"]
+      },
+      {
+        "type": "env_car",
+        "name": "car3",
+        "origin": {
+          "xyz": "3.0 15.0 -5.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-actor-config": ["env_actor_car_vehicle04_truck.jsonc", "env_actor_car_color_dark_blue.jsonc"]
+      },
+      {
+        "type": "env_car",
+        "name": "car4",
+        "origin": {
+          "xyz": "3.0 -10.0 -5.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-actor-config": ["env_actor_car_suv2.jsonc", "env_actor_car_color_dark_green.jsonc"]
+      },
+      {
+        "type": "env_car",
+        "name": "car5",
+        "origin": {
+          "xyz": "3.0 -20.0 -5.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-actor-config": ["env_actor_car_vehicle07_car.jsonc", "env_actor_car_color_green.jsonc"]
+      },
+      {
+        "type": "env_car",
+        "name": "car6",
+        "origin": {
+          "xyz": "-9.0 0.0 -5.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-actor-config": ["env_actor_car_vehicle08_truck.jsonc", "env_actor_car_color_orange.jsonc"]
+      },
+      {
+        "type": "env_car",
+        "name": "car7",
+        "origin": {
+          "xyz": "-9.0 10.0 -5.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-actor-config": ["env_actor_car_vehicle09_van.jsonc", "env_actor_car_color_purple.jsonc"]
+      },
+      {
+        "type": "env_car",
+        "name": "car8",
+        "origin": {
+          "xyz": "-9.0 20.0 -5.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-actor-config": ["env_actor_car_vehicle10_bus.jsonc", "env_actor_car_color_red.jsonc"]
+      },
+      {
+        "type": "env_car",
+        "name": "car9",
+        "origin": {
+          "xyz": "-9.0 -5.0 -5.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-actor-config": ["env_actor_car_vehicle11_truck.jsonc", "env_actor_car_color_silver.jsonc"]
+      },
+      {
+        "type": "env_car",
+        "name": "car10",
+        "origin": {
+          "xyz": "-9.0 -15.0 -5.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-actor-config": ["env_actor_car_vehicle12_taxi.jsonc", "env_actor_car_color_violet.jsonc"]
+      },
+      {
+        "type": "env_car",
+        "name": "car23",
+        "origin": {
+          "xyz": "-20.0 -15.0 -5.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-actor-config": ["env_actor_car_coupe.jsonc", "env_actor_car_color_red.jsonc"]
+      },
+      {
+        "type": "env_car",
+        "name": "car11",
+        "origin": {
+          "xyz": "-9.0 -25.0 -5.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-actor-config": ["env_actor_car_vehicle13_police.jsonc", "env_actor_car_color_red.jsonc"]
+      },
+      {
+        "type": "env_car",
+        "name": "car25",
+        "origin": {
+          "xyz": "-20.0 -5.0 -5.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-actor-config": ["env_actor_car_minivan.jsonc", "env_actor_car_color_blue.jsonc"]
+      },
+      {
+        "type": "env_car",
+        "name": "car12",
+        "origin": {
+          "xyz": "3.0 -5.0 -5.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-actor-config": "env_actor_car_vehicle01_van.jsonc"
+      },
+      {
+        "type": "env_car",
+        "name": "car13",
+        "origin": {
+          "xyz": "3.0 10.0 -5.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-actor-config": "env_actor_car_vehicle03_car.jsonc"
+      },
+      {
+        "type": "env_car",
+        "name": "car14",
+        "origin": {
+          "xyz": "3.0 20.0 -5.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-actor-config": "env_actor_car_vehicle04_truck.jsonc"
+      },
+      {
+        "type": "env_car",
+        "name": "car15",
+        "origin": {
+          "xyz": "3.0 -15.0 -5.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-actor-config": "env_actor_car_suv2.jsonc"
+      },
+      {
+        "type": "env_car",
+        "name": "car16",
+        "origin": {
+          "xyz": "3.0 -25.0 -5.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-actor-config": "env_actor_car_vehicle07_car.jsonc"
+      },
+      {
+        "type": "env_car",
+        "name": "car17",
+        "origin": {
+          "xyz": "-9.0 5.0 -5.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-actor-config": "env_actor_car_vehicle08_truck.jsonc"
+      },
+      {
+        "type": "env_car",
+        "name": "car18",
+        "origin": {
+          "xyz": "-9.0 15.0 -5.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-actor-config": "env_actor_car_vehicle09_van.jsonc"
+      },
+      {
+        "type": "env_car",
+        "name": "car19",
+        "origin": {
+          "xyz": "-9.0 25.0 -5.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-actor-config": "env_actor_car_vehicle10_bus.jsonc"
+      },
+      {
+        "type": "env_car",
+        "name": "car20",
+        "origin": {
+          "xyz": "-9.0 -10.0 -5.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-actor-config": "env_actor_car_vehicle11_truck.jsonc"
+      },
+      {
+        "type": "env_car",
+        "name": "car21",
+        "origin": {
+          "xyz": "-9.0 -20.0 -5.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-actor-config": "env_actor_car_vehicle12_taxi.jsonc"
+      },
+      {
+        "type": "env_car",
+        "name": "car22",
+        "origin": {
+          "xyz": "-9.0 -30.0 -5.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-actor-config": "env_actor_car_vehicle13_police.jsonc"
+      },
+      {
+        "type": "env_car",
+        "name": "car24",
+        "origin": {
+          "xyz": "-20.0 -20.0 -5.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-actor-config": "env_actor_car_coupe.jsonc"
+      },
+      {
+        "type": "env_car",
+        "name": "car26",
+        "origin": {
+          "xyz": "-20.0 -10.0 -5.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-actor-config": "env_actor_car_minivan.jsonc"
+      }
+    ],
+    "clock": {
+      "type": "steppable",
+      "step-ns": 3000000,
+      "real-time-update-rate": 3000000,
+      "pause-on-start": false
+    },
+    "home-geo-point": {
+      "latitude": 47.641468,
+      "longitude": -122.140165,
+      "altitude": 122.0
+    },
+    "segmentation": {
+      "initialize-ids": true,
+      "ignore-existing": false,
+      "use-owner-name": true
+    },
+    "scene-type": "UnrealNative"
+  }

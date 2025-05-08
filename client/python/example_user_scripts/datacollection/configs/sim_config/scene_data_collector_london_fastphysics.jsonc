@@ -1,0 +1,30 @@
+{
+  "id": "SceneDataCollectorLondonFP",
+  "actors": [
+    {
+      "type": "robot",
+      "name": "Drone1",
+      "origin": {
+        "xyz": "293.0 353.0 -140.9",
+        "rpy": "0 0 -30.6"
+      },
+      "robot-config": "robot_quadrotor_fastphysics_annotations.jsonc"
+    }
+  ],
+  "clock": {
+    "type": "real-time",
+    "real-time-update-rate": 3000000
+  },
+  "home-geo-point": {
+    "latitude": 51.51148364849203,
+    "longitude": -0.09904388673320062,
+    "altitude": -12
+  },
+  "segmentation": {
+    "initialize-ids": true,
+    "ignore-existing": false,
+    "use-owner-name": true
+  },
+  "scene-type": "UnrealNative",
+  "enable-sim-topic-callback": true
+}

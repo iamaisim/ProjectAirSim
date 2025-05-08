@@ -1,0 +1,79 @@
+site_name: Project AirSim
+site_dir: build_docs_external
+docs_dir: build_docs_external_src
+site_description: 'Simulator for autonomous vehicles from Microsoft'
+site_url: ''
+use_directory_urls: false
+
+markdown_extensions:
+  - toc:
+      permalink: "#"
+  - projectairsimpp:
+      include_paths: ".;docs_includes/common;docs_includes/external"
+
+theme:
+  name: 'readthedocs'
+extra:
+  highlightjs: true
+  version: 1.0.0
+  feature:
+      tabs: true
+
+nav:
+  - "Overview":
+    - "Project AirSim Intro": 'README.md'
+    - "Changelog": 'changelog.md'
+    - "System Specs": 'system_specs.md'
+  - "Getting Started":
+    - "Project AirSim EAP Quickstart": 'eap_quickstart.md'
+    - "Using Project AirSim Plugin": 'use_plugin.md'
+    - "Transitioning from AirSim": 'transition_from_airsim.md'
+  - "Project AirSim Client Setup":
+    - "Client Setup": 'client_setup.md'
+  - "Configuration Settings":
+    - "Config Overview": 'config.md'
+    - "Scene Settings": 'config_scene.md'
+    - "Robot Settings": 'config_robot.md'
+  - "Project AirSim API":
+    - "API Overview": 'api.md'
+  - "ROS Integration":
+    - "ROS Bridge": 'ros/ros.md'
+    - "ROS Bridge Examples": 'ros/ros_examples.md'
+    - "build_map Example": 'ros/example_build_map.md'
+    - "navigate_map Example": 'ros/example_navigate_map.md'
+  - "Autonomy Blocks":
+    - "Autonomy Blocks Setup": 'autonomy/setup.md'
+    - "Autonomy Building-Blocks": autonomy/autonomy.md
+    - "Autonomy Gym": 'autonomy/gym/gym_envs.md'
+  - "Controllers":
+    - "Flight Controllers": 'controllers/controllers.md'
+    - "Simple Flight Controller": 'controllers/simple_flight.md'
+    - "PX4 Flight Controller": 'controllers/px4/px4.md'
+    - "Using PX4 as SITL": 'controllers/px4/px4_sitl.md'
+    - "Using PX4 as SITL in WSL 2": 'controllers/px4/px4_sitl_wsl2.md'
+    - "Using PX4 as HITL": 'controllers/px4/px4_hitl.md'
+    - "Building PX4": 'controllers/px4/px4_build.md'
+    - "PX4 Lockstep Mode": 'controllers/px4/px4_lockstep.md'
+    - "PX4 with Multiple Robots": 'controllers/px4/px4_multi_vehicle.md'
+  - "Sensors":
+    - "Camera": 'sensors/camera_capture_settings.md'
+    - "Camera Streaming": 'sensors/camera_streaming.md'
+    - "Lidar": 'sensors/lidar.md'
+    - "Radar": 'sensors/radar.md'
+    - "Segmentation": 'sensors/segmentation.md'
+  - "Scene":
+    - "Simulation Clock": 'scene/sim_clock.md'
+    - "Weather Visual Effects": 'scene/weather_visual_effects.md'
+  - "Physics":
+    - "Fast Physics": 'physics/fast_physics.md'
+  - "Multiple Robots":
+    - "Multiple Robots": 'multiple_robots.md'
+  - "Customizing Robots":
+    - "Physical": 'modify_drone_physical.md'
+    - "Visual": 'modify_drone_visual.md'
+  - "Runtime Options":
+    - "Command Line Switches": 'command_line_switches.md'
+  - "Support":
+    - "Obtaining Support": 'support.md'
+    - "FAQ": 'faq.md'
+    - "License": 'license.md'

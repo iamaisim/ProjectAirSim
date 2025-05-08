@@ -1,0 +1,60 @@
+#
+#  Run PX4 build steps
+#
+  parameters:
+  - name: run_target
+    type: string
+    default: 'host'
+  - name: working_directory
+    type: string
+    default: 'notset'
+  - name: repo_directory
+    type: string
+    default: ProjectAirSim/ros
+  - name: ros2_distro
+    type: string
+    default: 'humble'
+  - name: docker_source_repo
+    type: string
+    default: 'hameritt.azurecr.io'
+  steps:
+  #
+  #  Enable if not in base ROS2 container
+  #
+  - script: |
+      git clone https://github.com/eProsima/Micro-XRCE-DDS-Agent.git ${{ parameters.working_directory }}/Micro-XRCE-DDS-Agent
+      cd ${{ parameters.working_directory }}/Micro-XRCE-DDS-Agent
+      mkdir build
+      cd build
+      cmake ..
+      make
+      #sudo make install  --  how to retarget this to a local directory?
+      #sudo ldconfig /usr/local/lib/
+    displayName: 'PX4 DDS Agent Source Build'
+    target: ${{ parameters.run_target }}
+    condition: false
+    
+  #
+  #  PX4 SITL build
+  #  Enable if not in base ROS2 container
+  #
+  - script: |
+      git clone https://github.com/PX4/PX4-Autopilot.git --recursive ${{ parameters.working_directory }}/PX4-Autopilot
+      cd ${{ parameters.working_directory }}/PX4-Autopilot
+      maek px4_sitl_default-clang
+    displayName: 'PX4 Source Build'
+    target: ${{ parameters.run_target }}
+    condition: false
+
+  #
+  #  This directory location will have these package built with colcon in main pipeline
+  #
+  - script: |
+      cd ${{ parameters.working_directory }}/${{ parameters.repo_directory }}
+      git clone https://github.com/PX4/px4_msgs.git
+      git clone https://github.com/PX4/px4_ros_com.git
+      git clone --recursive https://github.com/Auterion/px4-ros2-interface-lib
+    displayName: 'Fetch PX4 ROS2 components'
+    target: ${{ parameters.run_target }}
+    condition: succeededOrFailed()
+ 

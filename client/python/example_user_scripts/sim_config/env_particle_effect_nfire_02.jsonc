@@ -1,0 +1,9 @@
+{
+  "visual": {
+    "geometry": {
+      "type": "unreal_mesh",
+      "name": "/ProjectAirSim/FireSmokeAnims/M5VFXVOL2/Niagara/Fire/NFire_02", 
+      "scale": "3.0 3.0 3.0"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+std_msgs/Header header
+geometry_msgs/Point normal
+geometry_msgs/Point impact_point
+geometry_msgs/Point object_position
+float64 penetration_depth
+builtin_interfaces/Time timestamp
+string object_name
+int32 segmentation_id

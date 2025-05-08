@@ -1,0 +1,70 @@
+#
+#  Build AirSim Unreal Plugin
+#
+parameters:
+- name: sourcePath
+  type: string
+  default: '.'
+
+steps:
+  - script: |
+      pushd ${{ parameters.sourcePath }}
+      ls -la ${{ parameters.sourcePath }}
+      ls -la 
+    displayName: 'Build Directory Setup'
+
+  # Setup
+  - script: |
+      pushd ${{ parameters.sourcePath }}
+      ls -la $(Pipeline.Workspace)
+      ls -la .
+      ls -la  setup_linux_dev_tools.sh
+      sudo chmod +x setup_linux_dev_tools.sh
+      sudo bash setup_linux_dev_tools.sh
+    displayName: Install system dependencies
+
+  # Build and test sim libs for Debug
+  - script: |
+      pushd ${{ parameters.sourcePath }}
+      bash ./build.sh simlibs_debug
+    displayName: Build sim libs for Linux64-Debug
+
+  - script: |
+      pushd ${{ parameters.sourcePath }}
+      bash ./build.sh test_simlibs_debug
+    displayName: Run tests for Linux64-Debug
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'CTest'
+      testResultsFiles: '${{ parameters.sourcePath }}/**/Debug/**/Test.xml'
+      testRunTitle: 'Sim Linux64-Debug Unit Tests'
+    displayName: Publish tests for Sim Linux64-Debug
+    condition: succeededOrFailed()
+
+  # Build and test sim libs for Release
+  - script: |
+      pushd ${{ parameters.sourcePath }}
+      bash ./build.sh simlibs_release
+    displayName: Build sim libs for Linux64-Release
+    condition: succeededOrFailed()
+    
+  - script: |
+      pushd ${{ parameters.sourcePath }}
+      bash ./build.sh test_simlibs_release
+    displayName: Run tests for Linux64-Release
+    
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'CTest'
+      testResultsFiles: '${{ parameters.sourcePath }}/**/Release/**/Test.xml'
+      testRunTitle: 'Sim Linux64-Release Unit Tests'
+    displayName: Publish tests for Sim Linux64-Release
+    condition: succeededOrFailed()
+
+  # Package sim libs for Linux64
+  - script: |
+      pushd ${{ parameters.sourcePath }}
+      bash ./build.sh package_simlibs
+    displayName: Package sim libs for Linux64
+    condition: succeededOrFailed()

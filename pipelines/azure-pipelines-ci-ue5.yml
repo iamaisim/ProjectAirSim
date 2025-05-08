@@ -1,0 +1,358 @@
+# Basic CI build pipeline for Project AirSim
+
+trigger:
+  - main
+
+variables:
+  container_linux: projectairsimacr.azurecr.io/ue5p1p1/ubuntu20:libjpegxr
+  ue_root_linux: /home/projectairsimuser/ue-5.1.1-linux-debugeditor
+  ue_root_win: C:\Program Files\Epic Games\UE_5.1
+  vs_cmd_prompt: C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat
+
+stages:
+  # ----------------------------------------------------------------------------
+  # Stage 1
+  # ----------------------------------------------------------------------------
+
+  - stage: Sim_and_UE_Build
+    jobs:
+      - job: Ubuntu_20
+        timeoutInMinutes: 240
+        pool:
+          name: 'RoboSim'  # Self-hosted
+          demands:
+            - Spec -equals Ubuntu_20.04
+            - HasGPU -equals False
+        container:
+          image: $(container_linux)
+          endpoint: projectairsim_acr_service_principal
+        variables:
+          ue_root: $(ue_root_linux)
+        workspace:
+          clean: all
+        steps:
+          # ADO pipeline runs as a non-root user so need to take ownership of
+          # UE engine's dotnet folder (UE 5.1 runs
+          # a `chmod u+x "$UE_DOTNET_DIR/dotnet"` command in SetupDotnet.sh)
+          - script: |
+              cur_user=$(whoami)
+              echo "sudo chown -R ${cur_user} $(ue_root_linux)/Engine/Binaries/ThirdParty/DotNet"
+              sudo chown -R ${cur_user} $(ue_root_linux)/Engine/Binaries/ThirdParty/DotNet
+            displayName: Take ownership of UE's dotnet folder
+
+          # Clone the repo
+          - checkout: self
+
+          # Add NVIDIA's new key after their rotation on 4/27/2022
+          - script: |
+              sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
+            displayName: Add NVIDIA's new key to keyring
+
+          # Setup
+          - script: |
+              ./setup_linux_dev_tools.sh
+            displayName: Install system dependencies
+
+          # Build and test sim libs for Debug
+          - script: |
+              ./build.sh simlibs_debug
+            displayName: Build sim libs for Linux64-Debug
+          - script: |
+              ./build.sh test_simlibs_debug
+            displayName: Run tests for Linux64-Debug
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: 'CTest'
+              testResultsFiles: '**/Debug/**/Test.xml'
+              testRunTitle: 'Sim Linux64-Debug Unit Tests'
+            displayName: Publish tests for Sim Linux64-Debug
+            condition: succeededOrFailed()
+
+          # Build and test sim libs for Release
+          - script: |
+              ./build.sh simlibs_release
+            displayName: Build sim libs for Linux64-Release
+            condition: succeededOrFailed()
+          - script: |
+              ./build.sh test_simlibs_release
+            displayName: Run tests for Linux64-Release
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: 'CTest'
+              testResultsFiles: '**/Release/**/Test.xml'
+              testRunTitle: 'Sim Linux64-Release Unit Tests'
+            displayName: Publish tests for Sim Linux64-Release
+            condition: succeededOrFailed()
+
+          # Use pipeline cache for Unreal Engine user DDC cache
+          - task: Cache@2
+            inputs:
+              key: '"Blocks" | "$(Agent.OS)" | **/unreal/Blocks/Content/**/*.uasset | **/unreal/Blocks/Plugins/**/*.uasset'
+              path: UserDDC
+            displayName: Cache Unreal Engine user DDC
+
+          # Copy Unreal Engine user DDC pipeline cache into container's user folder
+          - script: |
+              mkdir -p ~/.config/Epic/
+              ls -la UserDDC/UnrealEngine
+              cp -r UserDDC/UnrealEngine ~/.config/Epic/ || :
+            displayName: Copy DDC from working folder to container
+
+          # Build and package UE Blocks project (DebugGame)
+          - script: |
+              ./build.sh package_blocks_debuggame
+            displayName: Build Blocks for DebugGame (Debug)
+
+          # Build and package UE Blocks project (Development)
+          - script: |
+              ./build.sh package_blocks_development
+            displayName: Build Blocks for Development (Release)
+
+          # Copy Unreal Engine user DDC into working folder to save pipeline cache
+          - script: |
+              mkdir -p UserDDC
+              ls -la ~/.config/Epic/UnrealEngine
+              cp -r ~/.config/Epic/UnrealEngine UserDDC/ || :
+            displayName: Copy DDC from container to working folder
+
+          # Publish pipeline artifact for packaged UE Blocks sim
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: 'packages/Blocks'
+              artifactName: 'Blocks_Linux64'
+            displayName: Artifact for Blocks Linux64
+
+      # ------------------------------------------------------------------------
+
+      - job: WindowsServer_2022
+        timeoutInMinutes: 240
+        pool:
+          name: 'projectairsim-ci-basicsku'  # 1ES Non GPU
+        variables:
+          ue_root: $(ue_root_win)
+        workspace:
+          clean: all
+        steps:
+          # Setup
+          - checkout: self
+
+          # Build and test sim libs for Debug
+          - script: |
+              call "$(vs_cmd_prompt)"
+              call .\build.cmd simlibs_debug
+            displayName: Build sim libs for Win64-Debug
+          - script: |
+              call "$(vs_cmd_prompt)"
+              call .\build.cmd test_simlibs_debug
+            displayName: Run tests for Win64-Debug
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: 'CTest'
+              testResultsFiles: '**/Debug/**/Test.xml'
+              testRunTitle: 'Sim Win64-Debug Unit Tests'
+            displayName: Publish tests for Sim Win64-Debug
+            condition: succeededOrFailed()
+
+          # Build and test sim libs for Release
+          - script: |
+              call "$(vs_cmd_prompt)"
+              call .\build.cmd simlibs_release
+            displayName: Build sim libs for Win64-Release
+            condition: succeededOrFailed()
+          - script: |
+              call "$(vs_cmd_prompt)"
+              call .\build.cmd test_simlibs_release
+            displayName: Run tests for Win64-Release
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: 'CTest'
+              testResultsFiles: '**/Release/**/Test.xml'
+              testRunTitle: 'Sim Win64-Release Unit Tests'
+            displayName: Publish tests for Sim Win64-Release
+            condition: succeededOrFailed()
+
+          # Use pipeline cache for Unreal Engine user DDC cache
+          - task: Cache@2
+            inputs:
+              key: '"Blocks" | "$(Agent.OS)" | **/unreal/Blocks/Content/**/*.uasset | **/unreal/Blocks/Plugins/**/*.uasset'
+              path: UserDDC
+            displayName: Cache Unreal Engine user DDC
+
+          # Copy Unreal Engine user DDC pipeline cache into container's user folder
+          - script: |
+              dir "UserDDC\UnrealEngine"
+              xcopy /I /Y /S "UserDDC\UnrealEngine" "%userprofile%\AppData\Local\UnrealEngine" || cmd /c "exit 0"
+            displayName: Copy DDC from working folder to container
+
+          # Build and package UE Blocks project (DebugGame)
+          - script: |
+              call "$(vs_cmd_prompt)"
+              call .\build.cmd package_blocks_debuggame
+            displayName: Build Blocks for DebugGame (Debug)
+
+          # Build and package UE Blocks project (Development)
+          - script: |
+              call "$(vs_cmd_prompt)"
+              call .\build.cmd package_blocks_development
+            displayName: Build Blocks for Development (Release)
+
+          # Copy Unreal Engine user DDC into working folder to save pipeline cache
+          - script: |
+              dir "%userprofile%\AppData\Local\UnrealEngine"
+              xcopy /I /Y /S "%userprofile%\AppData\Local\UnrealEngine" "UserDDC\UnrealEngine" || cmd /c "exit 0"
+            displayName: Copy DDC from container to working folder
+
+          # Publish pipeline artifact for packaged UE Blocks sim
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: 'packages/Blocks'
+              artifactName: 'Blocks_Win64'
+            displayName: Artifact for Blocks Win64
+
+  # ----------------------------------------------------------------------------
+  # Stage 2
+  # ----------------------------------------------------------------------------
+
+  - stage: UE_Test
+    jobs:
+      - job: Ubuntu_20_GPU
+        timeoutInMinutes: 120
+        pool:
+          name: 'Robosim'  # Self-hosted
+          demands:
+            - Spec -equals Ubuntu_20.04
+            - HasGPU -equals True
+        container:
+          image: $(container_linux)
+          endpoint: projectairsim_acr_service_principal
+          options: --gpus all
+        variables:
+          ue_root: $(ue_root_linux)
+        workspace:
+          clean: all
+        steps:
+          # ADO pipeline runs as a non-root user so need to take ownership of
+          # UE engine's dotnet folder (UE 5.1 runs
+          # a `chmod u+x "$UE_DOTNET_DIR/dotnet"` command in SetupDotnet.sh)
+          - script: |
+              cur_user=$(whoami)
+              echo "sudo chown -R ${cur_user} $(ue_root_linux)/Engine/Binaries/ThirdParty/DotNet"
+              sudo chown -R ${cur_user} $(ue_root_linux)/Engine/Binaries/ThirdParty/DotNet
+            displayName: Take ownership of UE's dotnet folder
+
+          # Clone the repo
+          - checkout: self
+
+          # Download Blocks build artifacts
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              artifact: 'Blocks_Linux64'
+              path: '$(Build.SourcesDirectory)/Blocks_Linux64'
+
+          # Build and install Python client package
+          - script: |
+              sudo apt-get update
+              sudo apt-get -y install python3.8 python3.8-dev python3.8-venv
+              python3.8 -m venv airsimenv
+              source ./airsimenv/bin/activate
+              python -m pip install --upgrade pip setuptools wheel
+              cd client/python/projectairsim && python setup.py bdist_wheel
+              python -m pip install --find-links=./dist projectairsim[datacollection]
+            displayName: Build and install Python client package
+
+          # Run end-end tests
+          - script: |
+              chmod +x ./Blocks_Linux64/Development/Linux/Blocks.sh
+              ./Blocks_Linux64/Development/Linux/Blocks.sh -RenderOffScreen &
+            displayName: Launch UE game in background
+          - script: |
+              source ./airsimenv/bin/activate
+              python -m pip install pytest pytest-cov
+              sleep 30
+              cd client/python/projectairsim/tests && pytest -v --junitxml=pytest-results.xml
+            displayName: Run pytest for python client end-end tests
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFiles: '**/pytest-*.xml'
+              testRunTitle: 'End-end Python Client Tests'
+            displayName: Publish end-end test results
+            condition: succeededOrFailed()
+
+          # Publish sim logs as a build artifact
+          - task: CopyFiles@2
+            inputs:
+              contents: |
+                client/python/**/*.log
+                Blocks_Linux64/**/*.log
+              targetFolder: $(Build.ArtifactStagingDirectory)
+            displayName: Stage sim log files as build artifact
+            condition: succeededOrFailed()
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: $(Build.ArtifactStagingDirectory)
+              artifactName: SimLogs_Linux64
+            displayName: Publish build artifacts
+            condition: succeededOrFailed()
+
+      # ------------------------------------------------------------------------
+
+      - job: WindowsServer_2022_GPU
+        timeoutInMinutes: 120
+        pool:
+          name: 'projectairsim-ci'  # 1ES
+        variables:
+          ue_root: $(ue_root_win)
+        workspace:
+          clean: all
+        steps:
+          # Setup
+          - checkout: self
+
+          # Download Blocks build artifacts
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              artifact: 'Blocks_Win64'
+              path: '$(Build.SourcesDirectory)/Blocks_Win64'
+
+          # Build and install Python client package
+          - script: |
+              call "$(vs_cmd_prompt)"
+              python -m venv airsimenv
+              call .\airsimenv\Scripts\activate.bat
+              python -m pip install --upgrade pip setuptools wheel
+              cd client\python\projectairsim && python setup.py bdist_wheel
+              python -m pip install --find-links=.\dist projectairsim[datacollection]
+            displayName: Build and install Python client package
+
+          # Run end-end tests
+          - script: |
+              start /b .\Blocks_Win64\Development\Windows\Blocks.exe -RenderOffScreen
+            displayName: Launch UE game in background
+          - script: |
+              call .\airsimenv\Scripts\activate.bat
+              python -m pip install pytest pytest-cov
+              waitfor signal /t 30 2>NUL
+              cd client\python\projectairsim\tests && pytest -v --junitxml=pytest-results.xml
+            displayName: Run pytest for python client end-end tests
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFiles: '**/pytest-*.xml'
+              testRunTitle: 'End-end Python Client Tests'
+            displayName: Publish end-end test results
+            condition: succeededOrFailed()
+
+          # Publish sim logs as a build artifact
+          - task: CopyFiles@2
+            inputs:
+              contents: |
+                client\python\**\*.log
+                Blocks_Win64\**\*.log
+              targetFolder: $(Build.ArtifactStagingDirectory)
+            displayName: Stage sim log files as build artifact
+            condition: succeededOrFailed()
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: $(Build.ArtifactStagingDirectory)
+              artifactName: SimLogs_Win64
+            displayName: Publish build artifacts
+            condition: succeededOrFailed()

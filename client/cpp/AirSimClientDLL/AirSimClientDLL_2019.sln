@@ -1,0 +1,65 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33213.308
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AirSimClient", "AirSimClientDLL_2019.vcxproj", "{25C9B907-266E-45D2-937A-2146F964FD46}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AirSimMessage", "..\AirSimMessageLib\AirSimMessage_2019.vcxproj", "{954F33C4-81F0-4EB6-8380-7D7406CB9606}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NNGI", "..\NNGI\NNGI_2019.vcxproj", "{7634B5D1-7E21-4177-ADBD-6496CF1C123F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release w Symbols|x64 = Release w Symbols|x64
+		Release w Symbols|x86 = Release w Symbols|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{25C9B907-266E-45D2-937A-2146F964FD46}.Debug|x64.ActiveCfg = Debug|x64
+		{25C9B907-266E-45D2-937A-2146F964FD46}.Debug|x64.Build.0 = Debug|x64
+		{25C9B907-266E-45D2-937A-2146F964FD46}.Debug|x86.ActiveCfg = Debug|Win32
+		{25C9B907-266E-45D2-937A-2146F964FD46}.Debug|x86.Build.0 = Debug|Win32
+		{25C9B907-266E-45D2-937A-2146F964FD46}.Release w Symbols|x64.ActiveCfg = Release w Symbols|x64
+		{25C9B907-266E-45D2-937A-2146F964FD46}.Release w Symbols|x64.Build.0 = Release w Symbols|x64
+		{25C9B907-266E-45D2-937A-2146F964FD46}.Release w Symbols|x86.ActiveCfg = Release w Symbols|Win32
+		{25C9B907-266E-45D2-937A-2146F964FD46}.Release w Symbols|x86.Build.0 = Release w Symbols|Win32
+		{25C9B907-266E-45D2-937A-2146F964FD46}.Release|x64.ActiveCfg = Release|x64
+		{25C9B907-266E-45D2-937A-2146F964FD46}.Release|x64.Build.0 = Release|x64
+		{25C9B907-266E-45D2-937A-2146F964FD46}.Release|x86.ActiveCfg = Release|Win32
+		{25C9B907-266E-45D2-937A-2146F964FD46}.Release|x86.Build.0 = Release|Win32
+		{954F33C4-81F0-4EB6-8380-7D7406CB9606}.Debug|x64.ActiveCfg = Debug|x64
+		{954F33C4-81F0-4EB6-8380-7D7406CB9606}.Debug|x64.Build.0 = Debug|x64
+		{954F33C4-81F0-4EB6-8380-7D7406CB9606}.Debug|x86.ActiveCfg = Debug|Win32
+		{954F33C4-81F0-4EB6-8380-7D7406CB9606}.Debug|x86.Build.0 = Debug|Win32
+		{954F33C4-81F0-4EB6-8380-7D7406CB9606}.Release w Symbols|x64.ActiveCfg = Release w Symbols|x64
+		{954F33C4-81F0-4EB6-8380-7D7406CB9606}.Release w Symbols|x64.Build.0 = Release w Symbols|x64
+		{954F33C4-81F0-4EB6-8380-7D7406CB9606}.Release w Symbols|x86.ActiveCfg = Release w Symbols|Win32
+		{954F33C4-81F0-4EB6-8380-7D7406CB9606}.Release w Symbols|x86.Build.0 = Release w Symbols|Win32
+		{954F33C4-81F0-4EB6-8380-7D7406CB9606}.Release|x64.ActiveCfg = Release|x64
+		{954F33C4-81F0-4EB6-8380-7D7406CB9606}.Release|x64.Build.0 = Release|x64
+		{954F33C4-81F0-4EB6-8380-7D7406CB9606}.Release|x86.ActiveCfg = Release|Win32
+		{954F33C4-81F0-4EB6-8380-7D7406CB9606}.Release|x86.Build.0 = Release|Win32
+		{7634B5D1-7E21-4177-ADBD-6496CF1C123F}.Debug|x64.ActiveCfg = Debug|x64
+		{7634B5D1-7E21-4177-ADBD-6496CF1C123F}.Debug|x64.Build.0 = Debug|x64
+		{7634B5D1-7E21-4177-ADBD-6496CF1C123F}.Debug|x86.ActiveCfg = Debug|Win32
+		{7634B5D1-7E21-4177-ADBD-6496CF1C123F}.Debug|x86.Build.0 = Debug|Win32
+		{7634B5D1-7E21-4177-ADBD-6496CF1C123F}.Release w Symbols|x64.ActiveCfg = Release w Symbols|x64
+		{7634B5D1-7E21-4177-ADBD-6496CF1C123F}.Release w Symbols|x64.Build.0 = Release w Symbols|x64
+		{7634B5D1-7E21-4177-ADBD-6496CF1C123F}.Release w Symbols|x86.ActiveCfg = Release w Symbols|Win32
+		{7634B5D1-7E21-4177-ADBD-6496CF1C123F}.Release w Symbols|x86.Build.0 = Release w Symbols|Win32
+		{7634B5D1-7E21-4177-ADBD-6496CF1C123F}.Release|x64.ActiveCfg = Release|x64
+		{7634B5D1-7E21-4177-ADBD-6496CF1C123F}.Release|x64.Build.0 = Release|x64
+		{7634B5D1-7E21-4177-ADBD-6496CF1C123F}.Release|x86.ActiveCfg = Release|Win32
+		{7634B5D1-7E21-4177-ADBD-6496CF1C123F}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {75BBF75C-BF60-4715-8D31-E488A3356B7C}
+	EndGlobalSection
+EndGlobal

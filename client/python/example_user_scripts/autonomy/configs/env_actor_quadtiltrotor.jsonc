@@ -1,0 +1,249 @@
+{
+  "script": {
+    "loop": false,
+    "auto_start": true,
+    "trajectory": {
+      "name": "right_and_descend_config",
+      "time_sec": [
+        90,
+        180
+      ],
+      "pose_x": [
+        88,
+        780
+      ],
+      "pose_y": [
+        180,
+        -622
+      ],
+      "pose_z": [
+        -205,
+        -205
+      ],
+      "pose_roll": [
+        0,
+        0
+      ],
+      "pose_pitch": [
+        0,
+        0
+      ],
+      "pose_yaw": [
+        4.71239,
+        4.71239
+      ],
+      "velocity_linear_x": [
+        1,
+        1
+      ],
+      "velocity_linear_y": [
+        1,
+        1
+      ],
+      "velocity_linear_z": [
+        0,
+        0
+      ]
+    }
+  },
+  "links": [
+    {
+      "name": "Frame",
+      "collision": {
+        "enabled": false
+      },
+      "visual": {
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Drone/AirTaxi/AirTaxi_Fuselage"
+        }
+      }
+    },
+    {
+      "name": "Shroud_FL",
+      "initial-angle": 90,
+      "axis": "0 -1 0",
+      "parent-link": "Frame",
+      "visual": {
+        "origin": {
+          "xyz": "2.00 -2.59 -0.6543",
+          "rpy-deg": "0 0 -30"
+        },
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Drone/AirTaxi/AirTaxi_Shroud"
+        }
+      }
+    },
+    {
+      "name": "Prop_FL",
+      "revolutions-per-sec": 2,
+      "axis": "0 0 1",
+      "parent-link": "Shroud_FL",
+      "visual": {
+        "origin": {
+          "xyz": "2.00 -2.59 -0.6543",
+          "rpy-deg": "0 0 0"
+        },
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Drone/AirTaxi/AirTaxi_Rotor"
+        }
+      }
+    },
+    {
+      "name": "Shroud_FR",
+      "initial-angle": 90,
+      "axis": "0 -1 0",
+      "parent-link": "Frame",
+      "visual": {
+        "origin": {
+          "xyz": "2.00 2.59 -0.6543",
+          "rpy-deg": "0 0 30"
+        },
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Drone/AirTaxi/AirTaxi_Shroud"
+        }
+      }
+    },
+    {
+      "name": "Prop_FR",
+      "revolutions-per-sec": 2,
+      "axis": "0 0 1",
+      "parent-link": "Shroud_FR",
+      "visual": {
+        "origin": {
+          "xyz": "2.00 2.59 -0.6543",
+          "rpy-deg": "0 0 0"
+        },
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Drone/AirTaxi/AirTaxi_Rotor"
+        }
+      }
+    },
+    {
+      "name": "Shroud_RL",
+      "initial-angle": 90,
+      "axis": "0 -1 0",
+      "parent-link": "Frame",
+      "visual": {
+        "origin": {
+          "xyz": "-1.5 -2.6225 -2.395",
+          "rpy-deg": "0 0 -30"
+        },
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Drone/AirTaxi/AirTaxi_Shroud"
+        }
+      }
+    },
+    {
+      "name": "Prop_RL",
+      "revolutions-per-sec": 2,
+      "axis": "0 0 1",
+      "parent-link": "Shroud_RL",
+      "visual": {
+        "origin": {
+          "xyz": "-1.5 -2.6225 -2.395",
+          "rpy-deg": "0 0 0"
+        },
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Drone/AirTaxi/AirTaxi_Rotor"
+        }
+      }
+    },
+    {
+      "name": "Shroud_RR",
+      "initial-angle": 90,
+      "axis": "0 -1 0",
+      "parent-link": "Frame",
+      "visual": {
+        "origin": {
+          "xyz": "-1.5 2.6225 -2.395",
+          "rpy-deg": "0 0 30"
+        },
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Drone/AirTaxi/AirTaxi_Shroud"
+        }
+      }
+    },
+    {
+      "name": "Prop_RR",
+      "revolutions-per-sec": 2,
+      "axis": "0 0 1",
+      "parent-link": "Shroud_RR",
+      "visual": {
+        "origin": {
+          "xyz": "-1.5 2.6225 -2.395",
+          "rpy-deg": "0 0 0"
+        },
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Drone/AirTaxi/AirTaxi_Rotor"
+        }
+      }
+    }
+  ],
+  "joints": [
+    {
+      "id": "Frame_Shroud_FL",
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Shroud_FL",
+      "axis": "0 0 1"
+    },
+    {
+      "id": "Frame_Prop_FL",
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Prop_FL",
+      "axis": "0 0 1"
+    },
+    {
+      "id": "Frame_Shroud_FR",
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Shroud_FR",
+      "axis": "0 0 1"
+    },
+    {
+      "id": "Frame_Prop_FR",
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Prop_FR",
+      "axis": "0 0 1"
+    },
+    {
+      "id": "Frame_Shroud_RL",
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Shroud_RL",
+      "axis": "0 0 1"
+    },
+    {
+      "id": "Frame_Prop_RL",
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Prop_RL",
+      "axis": "0 0 1"
+    },
+    {
+      "id": "Frame_Shroud_RR",
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Shroud_RR",
+      "axis": "0 0 1"
+    },
+    {
+      "id": "Frame_Prop_RR",
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Prop_RR",
+      "axis": "0 0 1"
+    }
+  ]
+}

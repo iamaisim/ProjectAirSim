@@ -1,0 +1,32 @@
+{
+  "id": "SceneBasicDroneSD",
+  "actors": [
+    {
+      "type": "robot",
+      "name": "Drone1",
+      "origin": {
+        "xyz": "-179.80 189.10 -4.0",
+        "rpy-deg": "0 0 80.2"
+      },
+      "robot-config": "robot_quadrotor_fastphysics.jsonc"
+    }
+  ],
+  "clock": {
+    "type": "steppable",
+    "step-ns": 3000000,
+    "real-time-update-rate": 3000000,
+    "pause-on-start": true
+  },
+  "home-geo-point": {
+    "latitude": 32.874640,
+    "longitude": -117.139991,
+    "altitude": 105.9
+  },
+  "segmentation": {
+    "initialize-ids": true,
+    "ignore-existing": false,
+    "use-owner-name": true
+  },
+  "scene-type": "CustomGIS",
+  "tiles-dir": "C:/glTF_tiles/san-diego-tiles"
+}

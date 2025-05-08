@@ -1,0 +1,4 @@
+int64 segmentation_id
+---
+string[] object_ids
+bool success

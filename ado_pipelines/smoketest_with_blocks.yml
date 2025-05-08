@@ -1,0 +1,327 @@
+#
+# Azure pipeline to build and test commits using blocks env
+# 
+parameters:
+- name: docker_unreal_image
+  type: string 
+  default: hameritt.azurecr.io/epicgames/unreal-engine:ubuntu22-dev-5.2.1
+- name: dockerfile
+  type: string 
+  default: binary_projectairsim.Dockerfile
+- name: releasetag
+  type: string 
+  default: v1.25.0
+- name: build_binary_container
+  type: boolean 
+  default: true
+- name: docker_target_image
+  type: string
+  default: project_airsim_str
+- name: ros2_distro
+  type: string 
+  default: humble
+- name: docker_base_image
+  type: string
+  default: project_airsim_pipeline_ros2
+- name: docker_base_image_tag
+  type: string
+  default: 22.04
+- name: docker_source_repo
+  type: string
+  default: hameritt.azurecr.io
+- name: docker_target_repo
+  type: string
+  default: hameritt.azurecr.io
+- name: envName
+  type: string
+  default: Blocks
+- name: envRelease
+  type: string
+  default: DebugGame
+- name: environmentRepoRoot
+  type: string
+  default: Blocks/DebugGame/Linux
+
+trigger:
+  branches:
+    include:
+    - '*'
+    exclude:
+    - releases/*
+  tags:
+    exclude:
+    - '*'
+
+variables:
+  vmss_pool: 'VMSS Agents Pool'
+  dockerRegistryServiceConnection: 'hameritt_acr_service_connection'
+  UE_ROOT: /home/ue4/UnrealEngine
+  HOME: /__w/_temp
+  RunTests: True
+  system.debug: false
+  
+resources:
+  repositories:
+  - repository: ProjectAirSim
+    type: github
+    endpoint: johnnovak_connection
+    name: microsoft/ProjectAirSim
+
+  containers:
+  - container: unreal5
+    image: ${{ parameters.docker_unreal_image }}
+    endpoint: 'hameritt_acr_service_connection'
+    options: --user 0:0
+  - container: ros2_build
+    image: ${{ parameters.docker_base_image }}_${{ parameters.ros2_distro }}:${{ parameters.docker_base_image_tag }}
+    endpoint: 'hameritt_acr_service_connection'
+    options: --user 0:0
+    ports:
+    - 9989:8989
+    - 9990:8990
+
+jobs:  
+- job: UbuntuBuildProjectAirSimBlocks
+  pool:
+    name: $(vmss_pool)
+  container: unreal5
+  timeoutInMinutes: 240
+  displayName: 'Build blocks and test ProjectAirSim code'
+  steps:
+
+  - checkout: self
+    path: ProjectAirSim
+    lfs: true
+    target: host
+
+  # Dotnet core sdk task 7.0.x
+  - task: UseDotNet@2
+    displayName: 'Use .NET Core sdk 7.0.x'
+    inputs:
+      version: 7.0.x
+
+  - task: Docker@2
+    displayName: Login to Azure Container Registry
+    inputs:
+      command: login
+      containerRegistry: $(dockerRegistryServiceConnection)
+    
+  - script: |
+      mkdir -p  $(Pipeline.Workspace)/tmp
+      sudo chmod -R 777 $(Pipeline.Workspace)/tmp
+    displayName: create tmp folder for builds
+    target: host
+    
+  # ADO pipeline runs as a non-root user so need to take ownership of
+  # UE engine's dotnet folder (UE 5.1 runs
+  # a `chmod u+x "$UE_DOTNET_DIR/dotnet"` command in SetupDotnet.sh)
+  - script: |
+      cur_user=$(whoami)
+      echo "sudo chown -R ${cur_user} $(UE_ROOT)"
+      sudo chown -R ${cur_user} $(UE_ROOT)/Engine/Binaries/ThirdParty/DotNet/
+      sudo chmod -R 777 $(UE_ROOT)/Engine/Binaries/ThirdParty/DotNet/
+      sudo chown -R ${cur_user} $(UE_ROOT)/Epic
+      sudo chmod -R 777 $(UE_ROOT)/Epic
+    displayName: Take ownership of UE's folders
+    target: unreal5
+    
+  - template: ./templates/build_projectairsim_unreal_plugin.yml
+    parameters:
+      sourcePath: $(Pipeline.Workspace)/ProjectAirSim
+
+  # Package UE Plugin
+  - script: |
+      pushd $(Pipeline.Workspace)/ProjectAirSim
+      bash ./build.sh package_plugin
+    displayName: Package UE Plugin
+    condition: succeededOrFailed()
+    
+  # Build and package UE Blocks project (DebugGame)
+  - script: |
+      pushd $(Pipeline.Workspace)/ProjectAirSim
+      bash ./build.sh package_blocks_debuggame
+    displayName: Build Blocks for DebugGame (Debug)
+
+  # Add linux prereq setup script to binary package
+  - script: |
+      pushd $(Pipeline.Workspace)/ProjectAirSim
+      cp setup_linux_unreal_prereqs.sh $(Pipeline.Workspace)/ProjectAirSim/packages/Blocks
+    displayName: Add linux prereq setup script to binary package
+
+  # Build and install Python client package
+  - script: |
+      pushd $(Pipeline.Workspace)/ProjectAirSim
+      sudo apt-get -y install python3.10 python3.10-dev python3.10-venv
+      python3 -m venv airsimenv
+      source ./airsimenv/bin/activate
+      python3 -m pip install --upgrade pip setuptools wheel
+      cd client/python/projectairsim && python setup.py bdist_wheel
+      python3 -m pip install --find-links=./dist projectairsim[datacollection]
+    displayName: Build and install Python client package
+    condition: succeededOrFailed()
+    target: ros2_build
+
+  # Build and install Python client package
+  - script: |
+      pushd $(Pipeline.Workspace)/ProjectAirSim
+      sudo apt-get -y install python3.10 python3.10-dev python3.10-venv
+      python3 -m venv airsimenv
+      source ./airsimenv/bin/activate
+      python3 -m pip install --upgrade pip setuptools wheel
+      cd client/python/projectairsim && python setup.py bdist_wheel
+      python3 -m pip install --find-links=./dist projectairsim[datacollection]
+    displayName: Build and install Python client package
+    condition: succeededOrFailed()
+    target: host
+
+  # Fetch PX4 source repos
+  - template: ./templates/build_px4.yml
+    parameters:
+      working_directory: $(Pipeline.Workspace)
+      repo_directory: ProjectAirSim/ros
+      ros2_distro: ${{ parameters.ros2_distro }}
+      
+  # Build Project AirSim ROS2 package
+  - script: |
+      source /opt/ros/${{ parameters.ros2_distro }}/setup.bash
+      cd $(Pipeline.Workspace)/ProjectAirSim/ros
+      colcon build
+    displayName: 'Build ros2 node(s)'
+    condition: succeededOrFailed()
+    target: ros2_build
+
+  # Install Project AirSim ROS2 package
+  - script: |
+      source $(Pipeline.Workspace)/ProjectAirSim/ros/install/setup.bash
+      pip3 install -e $(Pipeline.Workspace)/ProjectAirSim/ros/node/projectairsim-rosbridge
+      pip3 install -e $(Pipeline.Workspace)/ProjectAirSim/ros/node/projectairsim-ros2
+    displayName: Build and install Project AirSim ROS2 package
+    condition: succeededOrFailed()
+    target: ros2_build
+
+  - script: |
+      pushd $(Pipeline.Workspace)/ProjectAirSim
+      sudo apt-get install python3-pip -y
+      source ./airsimenv/bin/activate
+      python3 -m pip install --upgrade pip
+      python3 -m pip install pytest pytest-cov pytest-asyncio pytest-timeout
+      sudo apt install net-tools
+    displayName: Install and upgrade pip on host
+    target: host
+
+  # Run end-end tests on host
+  - script: |
+      echo "running blocks on host" 
+      bash $(Pipeline.Workspace)/ProjectAirSim/packages/Blocks/DebugGame/Linux/Blocks.sh -RenderOffScreen &
+      sleep 20
+    displayName: Launch UE game in background
+    target: host
+
+  - script: |
+      cat ./packages/Blocks/DebugGame/Linux/Blocks/Saved/Logs/Blocks.log
+    displayName: cat log file
+    target: host
+    
+  - script: |
+      pushd $(Pipeline.Workspace)/ProjectAirSim
+      source ./airsimenv/bin/activate
+      cd client/python/projectairsim/tests && python3 -m pytest -v --junitxml=pytest-results.xml
+    displayName: Run pytest for python client end-end tests
+    condition: eq(variables['RunTests'], 'True')
+    timeoutInMinutes: 15
+    target: host
+
+  - script: |
+      ps -Afwww
+    displayName: 'Look for Block process'
+    condition: succeededOrFailed()
+    target: host
+    
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFiles: '$(Pipeline.Workspace)/ProjectAirSim/**/pytest-*.xml'
+      testRunTitle: 'End-end Python Client Tests'
+    displayName: Publish end-end test results
+    condition: eq(variables['RunTests'], 'True')
+    target: host
+
+  # Publish sim logs as a build artifact
+  - task: CopyFiles@2
+    inputs:
+      contents: |
+        client/python/**/*.log
+        packages/Blocks/**/*.log
+      targetFolder: $(Build.ArtifactStagingDirectory)
+    displayName: Stage sim log files as build artifact
+    condition: eq(variables['RunTests'], 'True')
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathToPublish: $(Build.ArtifactStagingDirectory)
+      artifactName: SimLogs_Linux64
+    displayName: Publish build artifacts
+    condition: eq(variables['RunTests'], 'True')
+    target: host
+    
+  #    
+  # Build composite container with ros2 nodes and binaries installed
+  #
+  #  Might need to add release type for environment parameter
+  #
+  - script: |
+      cd $(Pipeline.Workspace)
+      
+      sudo docker build --network=host \
+          -t ${{ parameters.docker_source_repo }}/${{ parameters.docker_target_image }}:${{ parameters.releasetag }}-${{ parameters.envName }} \
+          -f $(Pipeline.Workspace)/ProjectAirSim/docker/${{ parameters.dockerfile }} \
+          --build-arg BASE_IMAGE=${{ parameters.docker_source_repo }}/${{ parameters.docker_base_image }}_${{ parameters.ros2_distro }}:${{ parameters.docker_base_image_tag }} \
+          --build-arg AIRSIMENV_DIR=${{ parameters.environmentRepoRoot }} \
+          --build-arg AIRSIM_ENV_SCRIPT=${{ parameters.envName }} \
+          --build-arg ROS2_DISTRO=${{ parameters.ros2_distro }} \
+          .
+    displayName: 'Build composite container with ros2 nodes'
+    condition: succeededOrFailed()
+    target: host
+
+  - task: Docker@2
+    displayName: Publish verification image to Azure Container Registry (temp step)
+    condition: succeededOrFailed()
+    target: host
+    inputs:
+      command: Push
+      containerRegistry: $(dockerRegistryServiceConnection)
+      repository: ${{ parameters.docker_target_image }}
+      tags: |
+        ${{ parameters.releasetag }}-${{ parameters.envName }}
+
+  #
+  #  Add ros tests once available
+  #
+  - template: ./templates/colcon_test_docker.yml
+    parameters:
+      dockerimage: ${{ parameters.docker_source_repo }}/${{ parameters.docker_target_image }}:${{ parameters.releasetag }}-${{ parameters.envName }}
+
+  - task: PublishTestResults@2
+    displayName: 'Publish Test Results'
+    inputs:
+      searchFolder: '$(Pipeline.Workspace)/ProjectAirSim'
+      testResultsFormat: 'JUnit'
+      testResultsFiles: |
+        test-results.xml
+        test-*.xml
+        **/test-results.xml
+        **/test-*.xml
+        test_output/*.xunit.xml
+        **/*.xunit.xml
+      mergeTestResults: true
+      testRunTitle: 'AirSim Blocks Unit and Integration Tests'
+    condition: succeededOrFailed()
+    target: host
+    
+  - task: PublishCodeCoverageResults@1
+    displayName: 'Publish Cobertura Coverage Report'
+    inputs:
+      codeCoverageTool: Cobertura
+      summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/*coverage.xml'
+      reportDirectory: '$(System.DefaultWorkingDirectory)/**/htmlcov'
+    condition: succeededOrFailed()
+    target: host

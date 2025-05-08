@@ -1,0 +1,4 @@
+controller_list:
+  - name: fake_Quad_base_controller
+    joints:
+      - virtual_joint

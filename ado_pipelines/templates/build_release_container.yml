@@ -1,0 +1,101 @@
+  parameters:
+  - name: docker_unreal_image
+    type: string 
+    default: hameritt.azurecr.io/epicgames/unreal-engine:ubuntu22-dev-5.2.1
+  - name: dockerfile
+    type: string 
+    default: binary_airsim.Dockerfile
+  - name: releasetag
+    type: string 
+    default: v1.13.0
+  - name: build_binary_container
+    type: boolean 
+    default: true
+  - name: push_binary_container
+    type: boolean 
+    default: true
+  - name: delete_binary_container
+    type: boolean 
+    default: true
+  - name: docker_staging_image
+    type: string
+    default: projectairsim-staging
+  - name: docker_target_image
+    type: string
+    default: projectairsim-str
+  - name: ros2_distro
+    type: string
+    default: humble
+  - name: docker_base_image
+    type: string
+    default: airsim_pipeline_ros2_humble
+  - name: docker_base_image_tag
+    type: string
+    default: 22.04
+  - name: docker_source_repo
+    type: string
+    default: hameritt.azurecr.io
+  - name: docker_target_repo
+    type: string
+    default: hameritt.azurecr.io
+  - name: envName
+    type: string
+    default: notset
+  - name: projectName
+    type: string
+    default: notset
+  - name: dockerRegistryServiceConnection
+    type: string
+    default: notset
+  - name: environmentRepoRoot
+    type: string
+    default: notset
+
+  steps:
+  - script: |
+      cd $(Pipeline.Workspace)
+      ls -la ${{ parameters.environmentRepoRoot }}/release/${{ parameters.releasetag }}/Linux
+      echo ${{parameters.envName }}
+
+      sudo docker image ls
+      echo "Try docker pull"
+      docker pull ${{ parameters.docker_source_repo }}/${{ parameters.docker_base_image }}_${{ parameters.ros2_distro }}:${{ parameters.docker_base_image_tag }}
+
+      sudo docker build --network=host \
+          -t ${{ parameters.docker_source_repo }}/${{ parameters.docker_staging_image }}:${{ parameters.releasetag }}-${{ parameters.envName }} \
+          -t ${{ parameters.docker_source_repo }}/${{ parameters.docker_target_image }}:${{ parameters.releasetag }}-${{ parameters.envName }} \
+          -f $(Pipeline.Workspace)/ProjectAirSim/docker/${{ parameters.dockerfile }} \
+          --build-arg BASE_IMAGE=${{ parameters.docker_source_repo }}/${{ parameters.docker_base_image }}_${{ parameters.ros2_distro }}:${{ parameters.docker_base_image_tag }} \
+          --build-arg AIRSIMENV_DIR=${{ parameters.environmentRepoRoot }}/release/${{ parameters.releasetag }}/Linux \
+          --build-arg AIRSIM_ENV_SCRIPT=${{ parameters.projectName }} \
+          --build-arg ROS2_DISTRO=${{ parameters.ros2_distro }} \
+          --build-arg AIRSIM_ENV_ROOT=${{ parameters.environmentRepoRoot }}/release/${{ parameters.releasetag }}/Linux \
+          .
+    condition: eq( ${{ parameters.build_binary_container }}, true)
+    displayName: 'build final binary full docker container'
+    target: host
+    
+  - task: Docker@2
+    displayName: Publish image to Azure Container Registry
+    condition: and( eq( ${{ parameters.build_binary_container }}, true), eq( ${{ parameters.push_binary_container }}, true ) )
+    target: host
+    inputs:
+      command: Push
+      containerRegistry: ${{ parameters.dockerRegistryServiceConnection }}
+      repository: ${{ parameters.docker_staging_image }}
+      tags: |
+        ${{ parameters.releasetag }}-${{ parameters.envName }}
+
+  - script: |
+      sudo docker container ls
+      sudo docker image ls
+
+      sudo docker rmi ${{ parameters.docker_source_repo }}/${{ parameters.docker_staging_image }}:${{ parameters.releasetag }}-${{ parameters.envName }}
+      sudo docker rmi ${{ parameters.docker_source_repo }}/${{ parameters.docker_target_image }}:${{ parameters.releasetag }}-${{ parameters.envName }}
+
+      sudo docker container ls
+      sudo docker image ls
+    displayName: 'Remove docker image'
+    condition: and( eq( ${{ parameters.build_binary_container }}, true), eq( ${{ parameters.delete_binary_container }}, true) )
+    target: host
+

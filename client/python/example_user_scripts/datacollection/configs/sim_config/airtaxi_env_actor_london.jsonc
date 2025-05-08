@@ -1,0 +1,284 @@
+{
+    "script": {
+        "loop": true,
+        "auto_start": true,
+        "trajectory": {
+            "time_sec": [
+                0.1,
+                3,
+                6,
+                9,
+                12,
+                15,
+                18,
+                21
+            ],
+            "pose_x": [
+                109,
+                106,
+                101,
+                95,
+                93,
+                95,
+                101,
+                106
+            ],
+            "pose_y": [
+                207,
+                212,
+                215,
+                212,
+                207,
+                201,
+                199,
+                201
+            ],
+            "pose_z": [
+                -87,
+                -87,
+                -87,
+                -87,
+                -87,
+                -87,
+                -87,
+                -87
+            ],
+            "pose_roll": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "pose_pitch": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "pose_yaw": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "velocity_linear_x": [
+                3,
+                3,
+                3,
+                3,
+                3,
+                3,
+                3,
+                3
+            ],
+            "velocity_linear_y": [
+                3,
+                3,
+                3,
+                3,
+                3,
+                3,
+                3,
+                3
+            ],
+            "velocity_linear_z": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "links": [
+        {
+            "name": "Frame",
+            "collision": {
+                "enabled": false
+            },
+            "visual": {
+                "geometry": {
+                    "type": "unreal_mesh",
+                    "name": "/Game/Props/AirTaxi/AirTaxi_Fuselage"
+                }
+            }
+        },
+        {
+            "name": "Shroud_FL",
+            "visual": {
+                "geometry": {
+                    "type": "unreal_mesh",
+                    "name": "/Game/Props/AirTaxi/AirTaxi_Shroud"
+                }
+            }
+        },
+        {
+            "name": "Prop_FL",
+            "visual": {
+                "geometry": {
+                    "type": "unreal_mesh",
+                    "name": "/Game/Props/AirTaxi/AirTaxi_Rotor"
+                }
+            }
+        },
+        {
+            "name": "Shroud_FR",
+            "visual": {
+                "geometry": {
+                    "type": "unreal_mesh",
+                    "name": "/Game/Props/AirTaxi/AirTaxi_Shroud"
+                }
+            }
+        },
+        {
+            "name": "Prop_FR",
+            "visual": {
+                "geometry": {
+                    "type": "unreal_mesh",
+                    "name": "/Game/Props/AirTaxi/AirTaxi_Rotor"
+                }
+            }
+        },
+        {
+            "name": "Shroud_RL",
+            "visual": {
+                "geometry": {
+                    "type": "unreal_mesh",
+                    "name": "/Game/Props/AirTaxi/AirTaxi_Shroud"
+                }
+            }
+        },
+        {
+            "name": "Prop_RL",
+            "visual": {
+                "geometry": {
+                    "type": "unreal_mesh",
+                    "name": "/Game/Props/AirTaxi/AirTaxi_Rotor"
+                }
+            }
+        },
+        {
+            "name": "Shroud_RR",
+            "visual": {
+                "geometry": {
+                    "type": "unreal_mesh",
+                    "name": "/Game/Props/AirTaxi/AirTaxi_Shroud"
+                }
+            }
+        },
+        {
+            "name": "Prop_RR",
+            "visual": {
+                "geometry": {
+                    "type": "unreal_mesh",
+                    "name": "/Game/Props/AirTaxi/AirTaxi_Rotor"
+                }
+            }
+        }
+    ],
+    "joints": [
+        {
+            "id": "Frame_Shroud_FL",
+            "origin": {
+                "xyz": "2.00 -2.59 -0.6543",
+                "rpy": "0 0 0.5236"
+            },
+            "type": "fixed",
+            "parent-link": "Frame",
+            "child-link": "Shroud_FL",
+            "axis": "0 0 1"
+        },
+        {
+            "id": "Frame_Prop_FL",
+            "origin": {
+                "xyz": "2.00 -2.59 -0.6543",
+                "rpy": "0 0 0"
+            },
+            "type": "fixed",
+            "parent-link": "Frame",
+            "child-link": "Prop_FL",
+            "axis": "0 0 1"
+        },
+        {
+            "id": "Frame_Shroud_FR",
+            "origin": {
+                "xyz": "2.00 2.59 -0.6543",
+                "rpy": "0 0 -0.5236"
+            },
+            "type": "fixed",
+            "parent-link": "Frame",
+            "child-link": "Shroud_FR",
+            "axis": "0 0 1"
+        },
+        {
+            "id": "Frame_Prop_FR",
+            "origin": {
+                "xyz": "2.00 2.59 -0.6543",
+                "rpy": "0 0 0"
+            },
+            "type": "fixed",
+            "parent-link": "Frame",
+            "child-link": "Prop_FR",
+            "axis": "0 0 1"
+        },
+        {
+            "id": "Frame_Shroud_RL",
+            "origin": {
+                "xyz": "-1.5 -2.6225 -2.395",
+                "rpy": "0 0 0.5236"
+            },
+            "type": "fixed",
+            "parent-link": "Frame",
+            "child-link": "Shroud_RL",
+            "axis": "0 0 1"
+        },
+        {
+            "id": "Frame_Prop_RL",
+            "origin": {
+                "xyz": "-1.5 -2.6225 -2.395",
+                "rpy": "0 0 0"
+            },
+            "type": "fixed",
+            "parent-link": "Frame",
+            "child-link": "Prop_RL",
+            "axis": "0 0 1"
+        },
+        {
+            "id": "Frame_Shroud_RR",
+            "origin": {
+                "xyz": "-1.5 2.6225 -2.395",
+                "rpy": "0 0 -0.5236"
+            },
+            "type": "fixed",
+            "parent-link": "Frame",
+            "child-link": "Shroud_RR",
+            "axis": "0 0 1"
+        },
+        {
+            "id": "Frame_Prop_RR",
+            "origin": {
+                "xyz": "-1.5 2.6225 -2.395",
+                "rpy": "0 0 0"
+            },
+            "type": "fixed",
+            "parent-link": "Frame",
+            "child-link": "Prop_RR",
+            "axis": "0 0 1"
+        },
+    ]
+}

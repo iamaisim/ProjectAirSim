@@ -1,0 +1,12 @@
+# The goal message
+geometry_msgs/PoseStamped[] path
+float64 velocity
+float32 lookahead
+float32 adaptive_lookahead
+int32 drive_train_type
+---
+# The result message
+bool success
+---
+#feedback message
+string current_point_on_path

@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<testsuites disabled="0" errors="0" failures="1" tests="6" time="0.0">
+	<testsuite disabled="0" errors="0" failures="1" name="validation_module_example.py" skipped="0" tests="6" time="0">
+		<testcase name="z_val limits" classname="battery_simple_with_validation.py"/>
+		<testcase name="Altitude limits" classname="battery_simple_with_validation.py"/>
+		<testcase name="Battery min 30" classname="battery_simple_with_validation.py"/>
+		<testcase name="Never farther than 100m" classname="battery_simple_with_validation.py"/>
+		<testcase name="Get within 10m" classname="battery_simple_with_validation.py"/>
+		<testcase name="Never closer than 1m" classname="battery_simple_with_validation.py">
+			<failure type="failure" message="Task: Never closer than 1m because 4911 out of 9097 were observed with strictness NEVER specified."/>
+		</testcase>
+	</testsuite>
+</testsuites>

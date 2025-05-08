@@ -1,0 +1,12 @@
+# Position should be in global NED
+float64 position_x
+float64 position_y
+float64 position_z
+int64 ncells_x
+int64 ncells_y
+float64 resolution
+int64 n_z_resolution
+string output_file
+---
+nav_msgs/OccupancyGrid map
+bool success

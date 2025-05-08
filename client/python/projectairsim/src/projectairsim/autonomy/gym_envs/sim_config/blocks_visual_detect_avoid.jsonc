@@ -1,0 +1,25 @@
+{
+  "id": "BlocksBonsaiDetectAvoid",
+  "actors": [
+    {
+      "type": "robot",
+      "name": "RLDrone",
+      "origin": {
+        "xyz": "60.0 400.0 -4.0",
+        "rpy-deg": "0 0 0"
+      },
+      "robot-config": "basic_drone_visual_detect_avoid.jsonc"
+    }
+  ],
+  "clock": {
+    "type": "steppable",
+    "step-ns": 5000000,
+    "real-time-update-rate": 3000000,
+    "pause-on-start": true
+  },
+  "home-geo-point": {
+    "latitude": 47.641468,
+    "longitude": -122.140165,
+    "altitude": 122.0
+  }
+}

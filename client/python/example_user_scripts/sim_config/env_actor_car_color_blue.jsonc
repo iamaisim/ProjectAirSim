@@ -1,0 +1,12 @@
+{
+    "links": [
+    {
+        "name": "Frame",
+        "visual": {
+        "material": {
+            "colored-texture": "/ProjectAirSim/SUV/AutomotiveMaterials/Materials/CarPaint/M_Carpaint_blue"
+        }
+    }
+    }
+    ]
+}

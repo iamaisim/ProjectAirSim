@@ -1,0 +1,10 @@
+v1.10.4 release trigger 
+
+To start a release build on Azure:
+
+1. Edit this file, setting vx.y.z to your desired release tag
+2. Commit on a new branch names releases/vx.y.z
+3. If all goes well, release artifacts will be completed in about 3 hours.  
+
+Note:  The ACR images are pushed incrementally as the pipeline runs, starting with Blocks. The zip files on guthub are pushed at the 
+end of the pipeline in one update.

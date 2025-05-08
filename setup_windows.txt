@@ -1,0 +1,1 @@
+See "docs/dev_setup_win.md" for the steps to set up the Windows development environment.

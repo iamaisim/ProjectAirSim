@@ -1,0 +1,425 @@
+{
+  "physics-type": "fast-physics",
+  "links": [
+    {
+      "name": "Frame",
+      "inertial": {
+        "mass": 1.0,
+        "inertia": {
+          "type": "geometry",
+          "geometry": {
+            "box": {
+              "size": "0.180 0.110 0.040"
+            }
+          }
+        }
+      },
+      "visual": {
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Rover/OffroadCar/SM_Offroad_Body"
+        }
+      }
+    },
+    {
+      "name": "Front_Left",
+      "inertial": {
+        "origin": {
+          "xyz": "1.3 -0.6 -0.45",
+          "rpy-deg": "0 0 0"
+        },
+        "mass": 0.055,
+        "inertia": {
+          "type": "geometry"
+        }
+      },
+      "visual": {
+        "origin": {
+          "xyz": "1.3 -0.6 -0.45",
+          "rpy-deg": "0 0 0"
+        },
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Rover/OffroadCar/SM_Offroad_Tire"
+        }
+      }
+    },
+    {
+      "name": "Front_Right",
+      "inertial": {
+        "origin": {
+          "xyz": "1.3 .7 -0.45",
+          "rpy-deg": "0 0 0"
+        },
+        "mass": 0.055,
+        "inertia": {
+          "type": "geometry"
+        }
+      },
+      "visual": {
+        "origin": {
+          "xyz": "1.3 .7 -0.45",
+          "rpy-deg": "0 0 0"
+        },
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Rover/OffroadCar/SM_Offroad_Tire"
+        }
+      }
+    },
+    {
+      "name": "Rear_Left",
+      "inertial": {
+        "origin": {
+          "xyz": "-1.15 -1 -.45",
+          "rpy-deg": "0 0 0"
+        },
+        "mass": 0.055,
+        "inertia": {
+          "type": "geometry"
+        }
+      },
+      "visual": {
+        "origin": {
+          "xyz": "-1.15 -1 -.45",
+          "rpy-deg": "0 0 0"
+        },
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Rover/OffroadCar/SM_Offroad_Tire"
+        }
+      }
+    },
+    {
+      "name": "Rear_Right",
+      "inertial": {
+        "origin": {
+          "xyz": "-1.15 1 -.45",
+          "rpy-deg": "0 0 0"
+        },
+        "mass": 0.055,
+        "inertia": {
+          "type": "geometry"
+        }
+      },
+      "visual": {
+        "origin": {
+          "xyz": "-1.15 1 -.45",
+          "rpy-deg": "0 0 0"
+        },
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Rover/OffroadCar/SM_Offroad_Tire"
+        }
+      }
+    }
+  ],
+  "joints": [
+    {
+      "id": "Frame_Wheel_FL",
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Front_Left",
+      "axis": "0 0 1"
+    },
+    {
+      "id": "Frame_Wheel_FR",
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Front_Right",
+      "axis": "0 0 1"
+    },
+    {
+      "id": "Frame_Wheel_RL",
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Rear_Left",
+      "axis": "0 0 1"
+    },
+    {
+      "id": "Frame_Wheel_RR",
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Rear_Right",
+      "axis": "0 0 1"
+    }
+  ],
+  "controller": {
+    "id": "Simple_Drive_Controller",
+    "vehicle-setup": "ackermann",
+    "type": "simple-drive-api",
+    "simple-drive-api-settings": {
+      "actuator-order": [
+        {
+          "id": "Wheel_FR_actuator"
+        },
+        {
+          "id": "Wheel_RL_actuator"
+        },
+        {
+          "id": "Wheel_FL_actuator"
+        },
+        {
+          "id": "Wheel_RR_actuator"
+        }
+      ]
+    }
+  },
+  "actuators": [
+    {
+      "name": "Wheel_FL_actuator",
+      "type": "wheel",
+      "enabled": true,
+      "parent-link": "Frame",
+      "child-link": "Front_Left",
+      "origin": {
+        "xyz": "1.3 -0.6 -0.45",
+        "rpy-deg": "0 0 0"
+      },
+      "wheel-settings": {
+        "normal-vector": "0.0 -1.0 0.0",
+        "wheel-type": 1.0,
+        "coeff-of-friction": 1.0,
+        "coeff-of-wheel-torque": 0.040164,
+        "engine": true,
+        "steering": true,
+        "brake": true,
+        "smoothing-tc": 0.0
+      }
+    },
+    {
+      "name": "Wheel_FR_actuator",
+      "type": "wheel",
+      "enabled": true,
+      "parent-link": "Frame",
+      "child-link": "Front_Right",
+      "origin": {
+        "xyz": "1.3 .7 -0.45",
+        "rpy-deg": "0 0 0"
+      },
+      "wheel-settings": {
+        "normal-vector": "0.0 -1.0 0.0",
+        "wheel-type": 1.0,
+        "coeff-of-friction": 1.0,
+        "coeff-of-wheel-torque": 0.040164,
+        "engine": true,
+        "steering": true,
+        "brake": true,
+        "smoothing-tc": 0.0
+      }
+    },
+    {
+      "name": "Wheel_RL_actuator",
+      "type": "wheel",
+      "enabled": true,
+      "parent-link": "Frame",
+      "child-link": "Rear_Left",
+      "origin": {
+        "xyz": "-1.15 -1 -.45",
+        "rpy-deg": "0 0 0"
+      },
+      "wheel-settings": {
+        "normal-vector": "0.0 -1.0 0.0",
+        "wheel-type": 0.0,
+        "coeff-of-friction": 0.0,
+        "coeff-of-wheel-torque": 0.040164,
+        "engine": true,
+        "steering": false,
+        "brake": true,
+        "smoothing-tc": 0.0
+      }
+    },
+    {
+      "name": "Wheel_RR_actuator",
+      "type": "wheel",
+      "enabled": true,
+      "parent-link": "Frame",
+      "child-link": "Rear_Right",
+      "origin": {
+        "xyz": "-1.15 1 -.45",
+        "rpy-deg": "0 0 0"
+      },
+      "wheel-settings": {
+        "normal-vector": "0.0 -1.0 0.0",
+        "wheel-type": 0.0,
+        "coeff-of-friction": 0.0,
+        "coeff-of-wheel-torque": 0.040164,
+        "engine": true,
+        "steering": false,
+        "brake": true,
+        "smoothing-tc": 0.0
+      }
+    }
+  ],
+  "sensors": [
+    {
+      "id": "Chase",
+      "type": "camera",
+      "enabled": true,
+      "parent-link": "Frame",
+      "capture-interval": 0.03,
+      "capture-settings": [
+        {
+          "image-type": 0,
+          "width": 1280,
+          "height": 720,
+          "fov-degrees": 90,
+          "capture-enabled": false,
+          "streaming-enabled": true,
+          "pixels-as-float": false,
+          "compress": false,
+          "target-gamma": 2.5
+        }
+      ],
+      "gimbal": {
+        "lock-roll": true,
+        "lock-pitch": true,
+        "lock-yaw": false
+      },
+      "origin": {
+        "xyz": "-10.0 0.0 -1.0",
+        "rpy-deg": "0 -4 0"
+      }
+    },
+    {
+      "id": "DownCamera",
+      "type": "camera",
+      "enabled": true,
+      "parent-link": "Frame",
+      "capture-interval": 0.02,
+      "capture-settings": [
+        {
+          "image-type": 0,  
+          "width": 400,
+          "height": 225,
+          "fov-degrees": 90,
+          "capture-enabled": true,
+          "streaming-enabled": false,
+          "pixels-as-float": false,
+          "compress": false,
+          "target-gamma": 2.5
+        },
+        {
+          "image-type": 1,  
+          "width": 400,
+          "height": 225,
+          "fov-degrees": 90,
+          "capture-enabled": false,
+          "streaming-enabled": false,
+          "pixels-as-float": true,
+          "compress": false
+        },
+        {
+          "image-type": 2,  
+          "width": 400,
+          "height": 225,
+          "fov-degrees": 90,
+          "capture-enabled": true,
+          "streaming-enabled": false,
+          "pixels-as-float": true,
+          "compress": false
+        },
+        {
+          "image-type": 3,  
+          "width": 400,
+          "height": 225,
+          "fov-degrees": 90,
+          "capture-enabled": false,
+          "streaming-enabled": false,
+          "pixels-as-float": false,
+          "compress": false
+        },
+        {
+          "image-type": 4,  
+          "width": 400,
+          "height": 225,
+          "fov-degrees": 90,
+          "capture-enabled": false,
+          "streaming-enabled": false,
+          "pixels-as-float": false,
+          "compress": false,
+          "max-depth-meters": 100
+        },
+        {
+          "image-type": 5, 
+          "width": 400,
+          "height": 225,
+          "fov-degrees": 90,
+          "capture-enabled": false,
+          "streaming-enabled": false,
+          "pixels-as-float": false,
+          "compress": false
+        },
+        {
+          "image-type": 6,  
+          "width": 400,
+          "height": 225,
+          "fov-degrees": 90,
+          "capture-enabled": false,
+          "streaming-enabled": false,
+          "pixels-as-float": false,
+          "compress": false
+        }
+      ],
+      "noise-settings": [
+        {
+          "enabled": false,
+          "image-type": 1,
+          "rand-contrib": 0.2,
+          "rand-speed": 100000.0,
+          "rand-size": 500.0,
+          "rand-density": 2,
+          "horz-wave-contrib": 0.03,
+          "horz-wave-strength": 0.08,
+          "horz-wave-vert-size": 1.0,
+          "horz-wave-screen-size": 1.0,
+          "horz-noise-lines-contrib": 1.0,
+          "horz-noise-lines-density-y": 0.01,
+          "horz-noise-lines-density-xy": 0.5,
+          "horz-distortion-contrib": 1.0,
+          "horz-distortion-strength": 0.002
+        }
+      ],
+      "origin": {
+        "xyz": "0 0.0 0.0",
+        "rpy-deg": "0 -90 0"
+      }
+    },
+    {
+      "id": "IMU1",
+      "type": "imu",
+      "enabled": true,
+      "parent-link": "Frame",
+      "accelerometer": {
+        "velocity-random-walk": 2.353e-3,
+        "tau": 800,
+        "bias-stability": 3.53e-4,
+        "turn-on-bias": "0 0 0"
+      },
+      "gyroscope": {
+        "angle-random-walk": 8.72644e-5,
+        "tau": 500,
+        "bias-stability": 2.23014e-5,
+        "turn-on-bias": "0 0 0"
+      }
+    },
+    {
+      "id": "GPS",
+      "type": "gps",
+      "enabled": false,
+      "parent-link": "Frame"
+    },
+    {
+      "id": "Barometer",
+      "type": "barometer",
+      "enabled": false,
+      "parent-link": "Frame"
+    },
+    {
+      "id": "Magnetometer",
+      "type": "magnetometer",
+      "enabled": false,
+      "parent-link": "Frame"
+    }
+  ]
+}

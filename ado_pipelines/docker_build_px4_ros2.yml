@@ -1,0 +1,111 @@
+#
+# Azure pipeline to build and test commits using blocks env
+# 
+parameters:
+- name: docker_unreal_image
+  type: string 
+  default: hameritt.azurecr.io/epicgames/unreal-engine:ubuntu22-dev-5.2.1
+- name: dockerfile
+  type: string 
+  default: binary_projectairsim.Dockerfile
+- name: releasetag
+  type: string 
+  default: v1.25.0
+- name: build_binary_container
+  type: boolean 
+  default: true
+- name: docker_target_image
+  type: string
+  default: project_airsim_str
+- name: ros2_distro
+  type: string 
+  default: humble
+- name: docker_base_image
+  type: string
+  default: project_airsim_pipeline_ros2
+- name: docker_base_image_tag
+  type: string
+  default: 22.04
+- name: docker_source_repo
+  type: string
+  default: hameritt.azurecr.io
+- name: docker_target_repo
+  type: string
+  default: hameritt.azurecr.io
+- name: envName
+  type: string
+  default: Blocks
+- name: envRelease
+  type: string
+  default: DebugGame
+- name: environmentRepoRoot
+  type: string
+  default: Blocks/DebugGame/Linux
+
+trigger:
+  branches:
+    include:
+    - '*'
+    exclude:
+    - releases/*
+  tags:
+    exclude:
+    - '*'
+
+variables:
+  vmss_pool: 'VMSS Agents Pool'
+  dockerRegistryServiceConnection: 'hameritt_acr_service_connection'
+  UE_ROOT: /home/ue4/UnrealEngine
+  HOME: /__w/_temp
+  RunTests: True
+  system.debug: false
+  
+resources:
+  repositories:
+  - repository: ProjectAirSim
+    type: github
+    endpoint: johnnovak_connection
+    name: microsoft/ProjectAirSim
+
+  containers:
+  - container: ros2_build
+    image: ${{ parameters.docker_base_image }}_${{ parameters.ros2_distro }}:${{ parameters.docker_base_image_tag }}
+    endpoint: 'hameritt_acr_service_connection'
+    options: --user 0:0
+
+jobs:  
+- job: UbuntuBuildPX4ROS2
+  pool:
+    name: $(vmss_pool)
+  container: ros2_build
+  timeoutInMinutes: 240
+  displayName: 'Build and package PX4 code for ROS2'
+  steps:
+
+  - checkout: self
+    path: ProjectAirSim
+    lfs: true
+    target: host
+
+  # Dotnet core sdk task 7.0.x
+  - task: UseDotNet@2
+    displayName: 'Use .NET Core sdk 7.0.x'
+    inputs:
+      version: 7.0.x
+
+  - task: Docker@2
+    displayName: Login to Azure Container Registry
+    inputs:
+      command: login
+      containerRegistry: $(dockerRegistryServiceConnection)
+    
+  - script: |
+      mkdir -p  $(Pipeline.Workspace)/tmp
+      sudo chmod -R 777 $(Pipeline.Workspace)/tmp
+    displayName: create tmp folder for builds
+    target: host
+    
+  - template: ./templates/build_px4.yml
+    parameters:
+      run_target: ros2_build
+      working_directory: $(Pipeline.Workspace)

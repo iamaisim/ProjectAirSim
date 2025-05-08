@@ -1,0 +1,8 @@
+﻿---
+BasedOnStyle: Google
+Standard: Cpp11
+SortUsingDeclarations: true
+SortIncludes: true
+DerivePointerAlignment: false
+PointerAlignment: Left
+...

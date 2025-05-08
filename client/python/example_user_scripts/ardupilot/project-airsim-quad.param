@@ -1,0 +1,39 @@
+# This file is used to optimally fly the Ardupilot quadrotor with the Project AirSim script (ardupilot_quadrotor.py).
+# Use it running the following command: python sim_vehicle.py -v ArduCopter -f airsim-copter --add-param-file=<path_to_this_file>
+# For more information go to Project AirSim Documentation --> Guides --> Configure AirSim Controller 
+
+# For more information about the following parameters see https://ardupilot.org/copter/docs/parameters-Copter-stable-V4.3.4.html
+# Roll axis rate controller PID gain
+ATC_RAT_RLL_P   0.733
+ATC_RAT_RLL_I   0.733
+ATC_RAT_RLL_D   0.0056
+
+# Roll axis angle controller P gain
+ATC_ANG_RLL_P   36.000
+
+# Acceleration Max for Roll
+ATC_ACCEL_R_MAX 374870
+
+
+# Pitch axis rate controller PID gain
+ATC_RAT_PIT_P   0.768
+ATC_RAT_PIT_I   0.768
+ATC_RAT_PIT_D   0.0050
+
+# Pitch axis angle controller P gain
+ATC_ANG_PIT_P   36.00
+
+# Acceleration Max for Pitch
+ATC_ACCEL_P_MAX 348730
+
+
+# Yaw axis rate controller PID gain.
+ATC_RAT_YAW_P   2.000
+ATC_RAT_YAW_I   0.200
+ATC_RAT_YAW_D   0.0000
+
+# Yaw axis angle controller P gain
+ATC_ANG_YAW_P   3.429
+
+# Acceleration Max for Yaw
+ATC_ACCEL_Y_MAX 2893

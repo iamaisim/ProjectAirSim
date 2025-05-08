@@ -1,0 +1,30 @@
+{
+  "id": "SceneBasicDroneRedmond",
+  "actors": [
+    {
+      "type": "robot",
+      "name": "Drone1",
+      "origin": {
+        "xyz": " -265.88531494140625  -133.5520  105.16",
+        "rpy": "0 0 0"
+      },
+      "robot-config": "robot_quadrotor_nonphysics_annotations.jsonc"
+    }
+  ],
+  "clock": {
+    "type": "real-time",
+    "real-time-update-rate": 3000000
+  },
+  "home-geo-point": {
+    "latitude": 47.676679,
+    "longitude": -122.123423,
+    "altitude": 120.54
+  },
+  "segmentation": {
+    "initialize-ids": true,
+    "ignore-existing": false,
+    "use-owner-name": true
+  },
+  "scene-type": "CustomGIS",
+  "tiles-dir": "/mnt/datastore/gltf_data" // Default location for tiles inside the AKS solution
+}

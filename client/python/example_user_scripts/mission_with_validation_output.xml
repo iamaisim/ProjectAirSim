@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<testsuites disabled="0" errors="0" failures="1" tests="3" time="0.0">
+	<testsuite disabled="0" errors="0" failures="1" name="mission_validation_module.py" skipped="0" tests="3" time="0">
+		<testcase name="Altitude limits" classname="mission_with_validation.py"/>
+		<testcase name="Never be closer than 10m of Wind Turbine object" classname="mission_with_validation.py">
+			<failure type="failure" message="Task Failed: Never be closer than 10m of Wind Turbine object Failed because 2286 occurences out of 28499 evals were observed with strictness NEVER specified."/>
+		</testcase>
+		<testcase name="Get within 50m of Wind Turbine object" classname="mission_with_validation.py"/>
+	</testsuite>
+</testsuites>

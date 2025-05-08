@@ -1,0 +1,7 @@
+# Install packages for setting up a development environment
+wheel
+pytest
+pytest-cov
+
+# Install projectairsim package in editable development mode
+-e .

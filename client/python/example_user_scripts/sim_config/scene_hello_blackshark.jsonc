@@ -1,0 +1,47 @@
+{
+  "id": "SceneHelloBlackShark",
+  "actors": [
+    {
+      "type": "robot",
+      "name": "Drone1",
+      "origin": {
+        "xyz": "0 0 0",
+        "rpy-deg": "0 0 0"
+      },
+      "robot-config": "robot_quadrotor_fastphysics_chase.jsonc"
+    }
+  ],
+  "clock": {
+    "type": "steppable",
+    "step-ns": 3000000,
+    "real-time-update-rate": 3000000,
+    "pause-on-start": false
+  },
+  // "home-geo-point": { // Microsoft Campus
+  //   "latitude": 47.641468,
+  //   "longitude": -122.140165,
+  //   "altitude": 122.0
+  // },
+  "home-geo-point": { // San Diego
+    "latitude": 32.874640,
+    "longitude": -117.139991,
+    "altitude": 137.2
+  },
+  // "home-geo-point": { // DFW
+  //   "latitude": 33.037290,
+  //   "longitude": -97.284282,
+  //   "altitude": 200.5
+  // },
+  // "home-geo-point": { // Seattle
+  //   "latitude": 47.59943,
+  //   "longitude": -122.33467,
+  //   "altitude": 100
+  // },
+  "segmentation": {
+    "initialize-ids": true,
+    "ignore-existing": false,
+    "use-owner-name": true
+  },
+  "scene-type": "BlackShark",
+  "tiles-dir": ""
+}

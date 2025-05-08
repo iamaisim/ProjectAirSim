@@ -1,0 +1,17 @@
+# The joint trajectory to follow
+trajectory_msgs/MultiDOFJointTrajectory trajectory
+---
+int32 error_code
+int32 SUCCESSFUL = 0
+int32 INVALID_GOAL = -1
+int32 INVALID_JOINTS = -2
+int32 OLD_HEADER_TIMESTAMP = -3
+int32 PATH_TOLERANCE_VIOLATED = -4
+int32 GOAL_TOLERANCE_VIOLATED = -5
+
+---
+Header header
+string[] joint_names
+trajectory_msgs/MultiDOFJointTrajectoryPoint desired
+trajectory_msgs/MultiDOFJointTrajectoryPoint actual
+trajectory_msgs/MultiDOFJointTrajectoryPoint error

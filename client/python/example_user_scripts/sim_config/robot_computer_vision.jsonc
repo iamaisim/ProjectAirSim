@@ -1,0 +1,37 @@
+{
+  "physics-type": "non-physics",
+  "links": [
+    {
+      "name": "Frame",
+      "collision": {
+        "enabled": false
+      }
+    }
+  ],
+  "sensors": [
+    {
+      "id": "Camera",
+      "type": "camera",
+      "enabled": true,
+      "parent-link": "Frame",
+      "capture-interval": 0.03,
+      "capture-settings": [
+        {
+          "image-type": 0,
+          "width": 1280,
+          "height": 720,
+          "fov-degrees": 90,
+          "capture-enabled": true,  // used by client scripts to move drone with keyboard inputs
+          "streaming-enabled": true,
+          "pixels-as-float": false,
+          "compress": false,
+          "target-gamma": 2.5
+        }
+      ],
+      "origin": {
+        "xyz": "0.0 0.0 0.0",
+        "rpy-deg": "0.0 0.0 0.0"
+      }
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "id": "SceneDataCollectorSeattleNP",
+  "actors": [
+    {
+      "type": "robot",
+      "name": "Drone1",
+      "origin": {
+        "xyz": "30 0 -120",
+        "rpy": "0 0 3.1415"
+      },
+      "robot-config": "robot_quadrotor_nonphysics_annotations_downwards.jsonc"
+    }
+  ],
+  "clock": {
+    "type": "real-time",
+    "real-time-update-rate": 3000000
+  },
+  "home-geo-point": {
+    "latitude": 47.614155,
+    "longitude": -122.347793,
+    "altitude": 33
+  },
+  "segmentation": {
+    "initialize-ids": true,
+    "ignore-existing": false,
+    "use-owner-name": true
+  },
+  "scene-type": "CustomGIS",
+  "tiles-dir": "/mnt/datastore/gltf_data",
+  "tiles-altitude-offset": 100
+}

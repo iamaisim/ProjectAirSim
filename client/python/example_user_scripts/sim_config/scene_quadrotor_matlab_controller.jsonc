@@ -1,0 +1,31 @@
+{
+  "id": "SceneMatlabControllerDrone",
+  "actors": [
+    {
+      "type": "robot",
+      "name": "Drone1",
+      "origin": {
+        "xyz": "0.0 0.0 -4.0",
+        "rpy-deg": "0 0 0"
+      },
+      "robot-config": "robot_quadrotor_matlab_controller.jsonc"
+    }
+  ],
+  "clock": {
+    "type": "steppable",
+    "step-ns": 3000000,
+    "real-time-update-rate": 3000000,
+    "pause-on-start": false
+  },
+  "home-geo-point": {
+    "latitude": 33.04735,
+    "longitude": -97.292663,
+    "altitude": 222.0
+  },
+  "segmentation": {
+    "initialize-ids": true,
+    "ignore-existing": false,
+    "use-owner-name": true
+  },
+  "scene-type": "UnrealNative"
+}

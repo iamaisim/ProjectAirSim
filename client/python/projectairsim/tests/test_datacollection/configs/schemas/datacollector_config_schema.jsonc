@@ -1,0 +1,695 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "env-spec": {
+            "type": "object",
+            "properties": {
+                "assets": {
+                    "type": "object",
+                    "patternProperties": {
+                        "^[A-Za-z][A-Za-z0-9]*$": {
+                            "type": "object",
+                            "properties": {
+                                "source": {
+                                    "type": "string",
+                                    "enum": [
+                                        "GLTF",
+                                        "UnrealProject",
+                                        "Azure"
+                                    ]
+                                },
+                                "file-name": {
+                                    "type": "string"
+                                },
+                                "scale": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "number"
+                                    },
+                                    "minItems": 3,
+                                    "maxItems": 3
+                                },
+                                "rotation": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "number"
+                                    },
+                                    "minItems": 4,
+                                    "maxItems": 4
+                                },
+                                "seg-id": {
+                                    "type": "integer"
+                                },
+                                "type": {
+                                    "type": "string",
+                                    "description": "The type of asset."
+                                },
+                                "origin_xyz": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "number"
+                                    },
+                                    "description": "The xyz coordinates of the asset's origin."
+                                },
+                                "randomizations": {
+                                    "type": "object",
+                                    "properties": {
+                                        "texture": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "scale": {
+                                            "type": "object",
+                                            "properties": {
+                                                "amount": {
+                                                    "type": "integer"
+                                                },
+                                                "upper_bound": {
+                                                    "type": "number"
+                                                },
+                                                "lower_bound": {
+                                                    "type": "number"
+                                                }
+                                            },
+                                            "required": [
+                                                "amount",
+                                                "upper_bound",
+                                                "lower_bound"
+                                            ]
+                                        },
+                                        "rotation": {
+                                            "type": "object",
+                                            "properties": {
+                                                "amount": {
+                                                    "type": "integer"
+                                                },
+                                                "upper_bound": {
+                                                    "type": "number"
+                                                },
+                                                "lower_bound": {
+                                                    "type": "number"
+                                                },
+                                                "axis": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "amount",
+                                                "upper_bound",
+                                                "lower_bound",
+                                                "axis"
+                                            ]
+                                        },
+                                        "translation": {
+                                            "type": "object",
+                                            "properties": {
+                                                "amount": {
+                                                    "type": "integer"
+                                                },
+                                                "upper_bound": {
+                                                    "type": "number"
+                                                },
+                                                "lower_bound": {
+                                                    "type": "number"
+                                                },
+                                                "axis": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "amount",
+                                                "upper_bound",
+                                                "lower_bound",
+                                                "axis"
+                                            ]
+                                        },
+                                        "flip": {
+                                            "type": "object",
+                                            "properties": {
+                                                "axis": {
+                                                    "type": "string"
+                                                },
+                                                "initial_rpy": {
+                                                    "type": "array",
+                                                    "minItems": 3,
+                                                    "maxItems": 3,
+                                                    "items": {
+                                                        "type": "number"
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "axis",
+                                                "initial_rpy"
+                                            ]
+                                        }
+                                    }
+                                }
+                            },
+                            "required": [
+                                "source",
+                                "file-name",
+                                "scale",
+                                "rotation",
+                                "seg-id",
+                                "origin_xyz",
+                                "randomizations"
+                            ]
+                        }
+                    }
+                },
+                "weather": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "type": "string"
+                            },
+                            "intensity": {
+                                "type": "array",
+                                "items": {
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "maximum": 1
+                                }
+                            }
+                        },
+                        "required": [
+                            "type",
+                            "intensity"
+                        ]
+                    }
+                },
+                "time-of-day": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "scene-configs": {
+                    "type": "object",
+                    "patternProperties": {
+                        "^[A-Za-z][A-Za-z0-9]*$": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "required": [
+                "assets",
+                "weather",
+                "time-of-day",
+                "scene-configs"
+            ]
+        },
+        "collection-spec": {
+            "type": "object",
+            "properties": {
+                "trajectory-spec": {
+                    "type": "object",
+                    "patternProperties": {
+                        ".*": {
+                            "type": "object",
+                            "patternProperties": {
+                                ".*": {
+                                    "type": "object",
+                                    "properties": {
+                                        "trajectory-len": {
+                                            "type": "integer"
+                                        },
+                                        "altitude-change": {
+                                            "type": "number"
+                                        },
+                                        "outer-radius": {
+                                            "type": "number"
+                                        },
+                                        "inner-radius": {
+                                            "type": "number"
+                                        },
+                                        "angular-variation": {
+                                            "type": "number"
+                                        },
+                                        "radius": {
+                                            "type": "number"
+                                        },
+                                        "FOV": {
+                                            "type": "number"
+                                        },
+                                        "trajectory-type": {
+                                            "type": "string",
+                                            "enum": [
+                                                "random",
+                                                "optimal"
+                                            ]
+                                        },
+                                        "num-trajectories": {
+                                            "type": "integer"
+                                        },
+                                        "start-geo": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "number"
+                                            }
+                                        },
+                                        "end-geo": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "number"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "geo-locations": {
+                    "type": "object",
+                    "patternProperties": {
+                        ".*": {
+                            "type": "object",
+                            "properties": {
+                                "latitude": {
+                                    "type": "number"
+                                },
+                                "longitude": {
+                                    "type": "number"
+                                },
+                                "altitude": {
+                                    "type": "number"
+                                },
+                                "trajectory": {
+                                    "type": "string"
+                                },
+                                "scene-name": {
+                                    "type": "string"
+                                },
+                                "scene-config": {
+                                    "type": "string"
+                                },
+                                "asset": {
+                                    "type": "string"
+                                },
+                                "object-id": {
+                                    "type": "string"
+                                },
+                                "env-actor-name": {
+                                    "type": "string"
+                                },
+                                "env-actor-trajectory": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "loop": {
+                                            "type": "boolean"
+                                        },
+                                        "time-offset": {
+                                            "type": "integer"
+                                        },
+                                        "duration": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "data-spec": {
+                    "type": "object",
+                    "properties": {
+                        "modalities": {
+                            "type": "object",
+                            "properties": {
+                                "RGB": {
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "annotations": {
+                            "type": "object",
+                            "properties": {
+                                "2DBBox": {
+                                    "type": "boolean"
+                                },
+                                "3DBBox": {
+                                    "type": "boolean"
+                                },
+                                "segmentation": {
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "augmentation-spec": {
+            "type": "object",
+            "properties": {
+                "2DBBox": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "enabled"
+                    ]
+                },
+                "augmentations": {
+                    "type": "object",
+                    "properties": {
+                        "horizontal-flip": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "p": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "enabled",
+                                "p"
+                            ]
+                        },
+                        "vertical-flip": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "p": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "enabled",
+                                "p"
+                            ]
+                        },
+                        "crop": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "crop-height": {
+                                    "type": "integer"
+                                },
+                                "crop-width": {
+                                    "type": "integer"
+                                },
+                                "p": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "enabled",
+                                "crop-height",
+                                "crop-width",
+                                "p"
+                            ]
+                        },
+                        "rotate": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "angular-limit": {
+                                    "type": "integer"
+                                },
+                                "p": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "enabled",
+                                "angular-limit",
+                                "p"
+                            ]
+                        },
+                        "affine-transform": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "translate-percent": {
+                                    "type": "number"
+                                },
+                                "scale": {
+                                    "type": "number"
+                                },
+                                "shear": {
+                                    "type": "integer"
+                                },
+                                "p": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "enabled",
+                                "translate-percent",
+                                "scale",
+                                "shear",
+                                "p"
+                            ]
+                        },
+                        "brightness-contrast": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "brightness-limit": {
+                                    "type": "number"
+                                },
+                                "contrast-limit": {
+                                    "type": "number"
+                                },
+                                "p": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "enabled",
+                                "brightness-limit",
+                                "contrast-limit",
+                                "p"
+                            ]
+                        },
+                        "hue-saturation-value": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "hue-shift-limit": {
+                                    "type": "integer"
+                                },
+                                "saturation-shift-limit": {
+                                    "type": "integer"
+                                },
+                                "value-shift-limit": {
+                                    "type": "integer"
+                                },
+                                "p": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "enabled",
+                                "hue-shift-limit",
+                                "saturation-shift-limit",
+                                "value-shift-limit",
+                                "p"
+                            ]
+                        },
+                        "motion-blur": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "blur-limit": {
+                                    "type": "integer"
+                                },
+                                "p": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "enabled",
+                                "blur-limit",
+                                "p"
+                            ]
+                        },
+                        "gaussian-noise": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "variance-limit": {
+                                    "type": "integer"
+                                },
+                                "p": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "enabled",
+                                "variance-limit",
+                                "p"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "horizontal-flip",
+                        "vertical-flip",
+                        "crop",
+                        "rotate",
+                        "affine-transform",
+                        "brightness-contrast",
+                        "hue-saturation-value",
+                        "motion-blur",
+                        "gaussian-noise"
+                    ]
+                }
+            }
+        },
+        "output-spec": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "operational-description": {
+                    "type": "string"
+                },
+                "data-description": {
+                    "type": "string"
+                },
+                "data-source": {
+                    "type": "string"
+                },
+                "error-sources": {
+                    "type": "string"
+                },
+                "dataset-name": {
+                    "type": "string"
+                },
+                "image-spec": {
+                    "type": "object",
+                    "properties": {
+                        "image-width": {
+                            "type": "integer"
+                        },
+                        "image-height": {
+                            "type": "integer"
+                        },
+                        "image-format": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "image-width",
+                        "image-height",
+                        "image-format"
+                    ]
+                },
+                "azure-spec": {
+                    "type": "object",
+                    "properties": {
+                        "account-name": {
+                            "type": "string"
+                        },
+                        "account-url": {
+                            "type": "string"
+                        },
+                        "container-name": {
+                            "type": "string"
+                        },
+                        "ingestion-log-container": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "account-name",
+                        "account-url",
+                        "container-name",
+                        "ingestion-log-container"
+                    ]
+                },
+                "azureml-spec": {
+                    "type": "object",
+                    "properties": {
+                        "datastore": {
+                            "type": "string"
+                        },
+                        "subscription-id": {
+                            "type": "string"
+                        },
+                        "resource-group": {
+                            "type": "string"
+                        },
+                        "workspace": {
+                            "type": "string"
+                        },
+                        "compute-cluster": {
+                            "type": "string"
+                        },
+                        "vm-type": {
+                            "type": "string"
+                        },
+                        "exp-name": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "datastore",
+                        "subscription-id",
+                        "resource-group",
+                        "workspace",
+                        "compute-cluster",
+                        "vm-type",
+                        "exp-name"
+                    ]
+                },
+                "managed-app-spec": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "subscription-id": {
+                            "type": "string"
+                        },
+                        "resource-group": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "name",
+                        "subscription-id",
+                        "resource-group"
+                    ]
+                }
+            },
+            "required": [
+                "description"
+            ]
+        }
+    }
+}

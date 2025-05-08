@@ -1,0 +1,12 @@
+# don't check-in generated files
+*_BuiltData.uasset
+/.kdev/
+/*.kdev4
+/*.pro
+/*.workspace
+/*CodeCompletionFolders.txt
+/*CodeLitePreProcessor.txt
+/*.pri
+/CMakeLists.txt
+/Makefile
+.ignore

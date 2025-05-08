@@ -1,0 +1,29 @@
+{
+  "id": "SceneManualControllerDrone",
+  "actors": [
+    {
+      "type": "robot",
+      "name": "Drone1",
+      "origin": {
+        "xyz": "0.0 0.0 -40.0",
+        "rpy-deg": "0 0 0"
+      },
+      "robot-config": "robot_quadrotor_manual_controller.jsonc"
+    }
+  ],
+  "clock": {
+    "type": "real-time",
+    "real-time-update-rate": 3000000
+  },
+  "home-geo-point": {
+    "latitude": 33.04735,
+    "longitude": -97.292663,
+    "altitude": 222.0
+  },
+  "segmentation": {
+    "initialize-ids": true,
+    "ignore-existing": false,
+    "use-owner-name": true
+  },
+  "scene-type": "UnrealNative"
+}

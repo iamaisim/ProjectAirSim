@@ -1,0 +1,111 @@
+{
+  "links": [
+    {
+      "name": "Frame",
+      "collision": {
+        "enabled": false
+      },
+      "visual": {
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Drone/Quadrotor1"
+        }
+      }
+    },
+    {
+      "name": "Prop_FL",
+      
+      "revolutions-per-sec": 3,
+      "axis": "0 0 1",
+      "parent-link": "Frame",
+      "visual": {
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Drone/PropellerRed"
+        }
+      }
+    },
+    {
+      "name": "Prop_FR",
+      "revolutions-per-sec": 3,
+      "axis": "0 0 1",
+      "parent-link": "Frame",
+      "visual": {
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Drone/PropellerRed"
+        }
+      }
+    },
+    {
+      "name": "Prop_RL",
+      "revolutions-per-sec": 3,
+      "axis": "0 0 1",
+      "parent-link": "Frame",
+      "visual": {
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Drone/PropellerWhite"
+        }
+      }
+    },
+    {
+      "name": "Prop_RR",
+      "revolutions-per-sec": 3,
+      "axis": "0 0 1",
+      "parent-link": "Frame",
+      "visual": {
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Drone/PropellerWhite"
+        }
+      }
+    }
+  ],
+  "joints": [
+    {
+      "id": "Frame_Prop_FL",
+      "origin": {
+        "xyz": "0.253 -0.253 -0.01",
+        "rpy-deg": "0 0 0"
+      },
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Prop_FL",
+      "axis": "0 0 1"
+    },
+    {
+      "id": "Frame_Prop_FR",
+      "origin": {
+        "xyz": "0.253 0.253 -0.01",
+        "rpy-deg": "0 0 0"
+      },
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Prop_FR",
+      "axis": "0 0 1"
+    },
+    {
+      "id": "Frame_Prop_RL",
+      "origin": {
+        "xyz": "-0.253 -0.253 -0.01",
+        "rpy-deg": "0 0 0"
+      },
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Prop_RL",
+      "axis": "0 0 1"
+    },
+    {
+      "id": "Frame_Prop_RR",
+      "origin": {
+        "xyz": "-0.253 0.253 -0.01",
+        "rpy-deg": "0 0 0"
+      },
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Prop_RR",
+      "axis": "0 0 1"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+int32 r
+int32 g
+int32 b
+---
+int64 segmentation_id
+bool success

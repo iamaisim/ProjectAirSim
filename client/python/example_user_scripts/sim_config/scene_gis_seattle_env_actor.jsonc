@@ -1,0 +1,43 @@
+{
+  "id": "SceneBasicDrone",
+  "actors": [
+    {
+      "type": "robot",
+      "name": "Drone1",
+      "origin": {
+        "xyz": "921.7 -211.7 -200.0",
+        "rpy-deg": "0 0 148.4"
+      },
+      "robot-config": "robot_quadrotor_nonphysics.jsonc"
+    }
+  ],
+  "environment-actors": [
+    {
+      "type": "env_actor",
+      "name": "Actor1",
+      "origin": {
+        "xyz": "921.7 -211.7 -200", // obtained manually
+        "rpy-deg": "0 0 0"
+      },
+      "env-actor-config": "env_actor_quadrotor_no_traj.jsonc"
+    }
+  ],
+  "clock": {
+    "type": "steppable",
+    "step-ns": 3000000,
+    "real-time-update-rate": 3000000,
+    "pause-on-start": false
+  },
+  "home-geo-point": {
+    "latitude": 47.59943,
+    "longitude": -122.33467,
+    "altitude": 0
+  },
+  "segmentation": {
+    "initialize-ids": true,
+    "ignore-existing": false,
+    "use-owner-name": true
+  },
+  "scene-type": "CustomGIS",
+  "tiles-dir": "C:/glTF_tiles/seattle-tiles"
+}

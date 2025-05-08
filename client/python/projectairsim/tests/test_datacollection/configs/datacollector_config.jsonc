@@ -1,0 +1,315 @@
+{
+    "$schema": "../src/aiblocks/datacollection/configs/schemas/datacollector_config_schema.jsonc",
+    "env-spec": {
+        "assets": { // Configure assets that can be spawned in the sim
+            "AirTaxi": {
+                "source": "GLTF", //Choose between GLTF/UnrealProject/Azure
+                "file-name": "scripts/aiblocks/src/aiblocks/datacollection/assets/AirTaxi.glb", // Path to gltf file
+                "scale": [
+                    90,
+                    90,
+                    90
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "seg-id": 125, // See docs for seg-id - colour map
+                "type": "AirTaxi",
+                "origin_xyz": [
+                    33.032079,
+                    -97.284227,
+                    350.0
+                ],
+                "randomizations": {
+                    "texture": [ // Texture randomization.
+                        "default" // List of different textures to choose from.
+                    ],
+                    "scale": {
+                        "amount": 3, // Number of variations to produce.
+                        "upper_bound": 100, // Upper bound of the scale factor.
+                        "lower_bound": 50 // Lower bound of the scale factor.
+                    },
+                    "rotation": {
+                        "amount": 2, // Number of variations to produce.
+                        "upper_bound": 90.0, // Upper bound of rotation, in degrees.
+                        "lower_bound": -90.0, // Lower bound of rotation, in degrees.
+                        "axis": "roll" // Axis for rotation.
+                    },
+                    "translation": {
+                        "amount": 3, // Number of variations to produce.
+                        "upper_bound": 15.0, // Upper bound of translation, in latitude.
+                        "lower_bound": 0.0, // Lower bound of translation, in longitude.
+                        "axis": "z" // Axis for translation.
+                    },
+                    "flip": {
+                        "axis": "roll", // Axis for flipping.
+                        "initial_rpy": [
+                            20,
+                            0,
+                            0
+                        ] // Starting roll, pitch, yaw of the object.
+                    }
+                }
+            },
+            "BasicLandingPad": {
+                "source": "UnrealProject", //Choose between GLTF/UnrealProject/Azure
+                "file-name": "basicLandingPad", // Name of baked in asset
+                "scale": [
+                    3,
+                    3,
+                    3
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "seg-id": 127, // See docs for seg-id - colour map
+                "type": "BasicLandingPad",
+                "origin_xyz": [
+                    33.032079,
+                    -97.284227,
+                    350.0
+                ],
+                "randomizations": {}
+            }
+        },
+        "weather": [ // Dict(WeatherParameter, WeatherIntensityRange(0.0-1.0)Array [start, end, step])
+            {
+                "type": "RAIN",
+                "intensity": [
+                    0.1,
+                    0.8,
+                    0.6
+                ]
+            },
+            {
+                "type": "SNOW",
+                "intensity": [
+                    0.1,
+                    0.8,
+                    0.6
+                ]
+            },
+            {
+                "type": "FOG",
+                "intensity": [
+                    0.2,
+                    1.0,
+                    0.7
+                ]
+            }
+        ], //See projectairsim.types.WeatherParameter class for weather types
+        "time-of-day": [
+            "2022-06-20",
+            "7:15 AM",
+            "3:15 PM",
+            "4:00:00"
+        ],
+        "scene-configs": {
+            "Seattle": "scene_data_collector_seattle_nonphysics.jsonc",
+            "DFW_Forward": "scene_data_collector_dfw_forward.jsonc",
+            "DFW_Downward": "scene_data_collector_dfw_downward.jsonc",
+            "Blocks": "scene_basic_drone.jsonc"
+        }
+    },
+    "collection-spec": {
+        "trajectory-spec": { // Define presets for trajectories
+            "forward-facing-cam": {
+                "cylindrical": { //Define params for given trajectory type
+                    "trajectory-len": 450, //num points in trajectory
+                    "altitude-change": 4, //m
+                    "outer-radius": 25, //m
+                    "inner-radius": 15, //m
+                    "angular-variation": 2
+                }
+            },
+            "downward-facing-cam": {
+                "takeoff-landing": { //Define params for given trajectory type
+                    "trajectory-len": 500, //num points in trajectory TODO - fix 
+                    "altitude-change": 20, //m
+                    "radius": 7 // radius of landing pad (area you want to sweep) in m
+                },
+                "conic": { //Define params for given trajectory type
+                    "trajectory-len": 300, //num points in trajectory
+                    "altitude-change": 15, //m
+                    "FOV": 45 //deg
+                }
+            },
+            "A2B-random": {
+                "port2port": {
+                    "trajectory-type": "random", //[random, optimized]
+                    "num-trajectories": 1, //if random, num of random trajectories
+                    "trajectory-len": 30, //length of each trajectory
+                    "start-geo": [ //lat,lon,alt
+                        33.04735,
+                        -97.292663,
+                        230.0
+                    ],
+                    "end-geo": [ //lat,lon,alt
+                        33.0483088,
+                        -97.294278,
+                        233.5999
+                    ] //TODO: Allow Random?
+                }
+            },
+            "A2B-planned": {
+                "port2port": {
+                    "trajectory-type": "optimal", //[random, optimal]
+                    "trajectory-len": 10, //length of each trajectory
+                    "start-geo": [ //lat,lon,alt
+                        33.0476787817,
+                        -97.291908524,
+                        264.4
+                    ],
+                    "end-geo": [ //lat,lon,alt
+                        33.0483088,
+                        -97.294278,
+                        255.4
+                    ] //TODO: Allow Random?
+                }
+            },
+            "EnvActor-trajectory": {
+                "port2port": {
+                    "trajectory-type": "optimal", //[random, optimal]
+                    "trajectory-len": 10, //length of each trajectory
+                    "start-geo": [ //lat,lon,alt
+                        33.0476787817,
+                        -97.291908524,
+                        264.4
+                    ],
+                    "end-geo": [ //lat,lon,alt
+                        33.0483088,
+                        -97.294278,
+                        255.4
+                    ] //TODO: Allow Random?
+                }
+            }
+        },
+        "geo-locations": { // Location Coordinates
+            "Blocks-planned": {
+                "trajectory": "A2B-planned", //select from one of the preset-trajectories
+                "scene-name": "Block",
+                "scene-config": "Blocks",
+                "object-id": "Cone_5"
+            },
+            "Blocks-random": {
+                "trajectory": "A2B-random", //select from one of the preset-trajectories
+                "scene-name": "Block",
+                "scene-config": "Blocks",
+                "object-id": "Cone_5",
+                "env-actor-name": "TestEnvActor", // as configured in above scene config
+                "env-actor-trajectory": {
+                    "name": "EnvActor-trajectory", //preset-trajectory or "pre-defined"
+                    "loop": true,
+                    "time-offset": 0, //seconds
+                    "duration": 10 //duration of each loop
+                }
+            },
+            "DFW-forward": {
+                "latitude": 33.032079,
+                "longitude": -97.284227,
+                "altitude": 350,
+                "trajectory": "forward-facing-cam", //select from one of the preset-trajectories
+                "scene-name": "DFW",
+                "scene-config": "DFW_Forward",
+                "asset": "AirTaxi", // Choose from one of the above configured assets
+                "object-id": "airtaxi" // Unique id for spawned object
+            },
+            "DFW-downward": {
+                "latitude": 33.032948,
+                "longitude": -97.274183,
+                "altitude": 275,
+                "trajectory": "downward-facing-cam", //select from one of the preset-trajectories
+                "scene-name": "DFW",
+                "scene-config": "DFW_Downward",
+                "asset": "BasicLandingPad", // Choose from one of the above configured assets
+                "object-id": "landing_pad" // Unique id for spawned object
+            }
+        },
+        "data-spec": // Add all sensor data/annotations to be collected
+        {
+            "modalities": { // Sensor modalities to be collected. Currently supported - RGB
+                "RGB": true
+            },
+            "annotations": { // Annotations to be collected/saved. Currently supported - 2DBBox, 3DBBox, segmentation
+                "2DBBox": true, // Collects 2D bbox
+                "3DBBox": true, // Collects 3D bbox
+                "segmentation": true // Collects Segmentation data and saves to COCO JSON
+            }
+        }
+    },
+    "augmentation-spec": {
+        "2DBBox": {
+            "enabled": true
+        },
+        "augmentations": {
+            "horizontal-flip": { //Flip horizontally around the y-axis.
+                "enabled": true,
+                "p": 1 //probability of applying the transform. Default: 1.
+            },
+            "vertical-flip": { //Flip horizontally around the x-axis.
+                "enabled": true,
+                "p": 1
+            },
+            "crop": { //Crop a random part of the input
+                "enabled": true,
+                "crop-height": 224, //Height of cropped image
+                "crop-width": 224, //Width of cropped image
+                "p": 1
+            },
+            "rotate": { //Rotate the input by an angle selected randomly from the uniform distribution
+                "enabled": true,
+                "angular-limit": 180, //Rotation angle selected from range(-limit, limit)
+                "p": 1
+            },
+            "affine-transform": { //Apply affine transformations to image
+                "enabled": true,
+                "translate-percent": 20, //Translation as a fraction of the image height/width
+                "scale": 0.5, //Scaling factor. range(0,1)
+                "shear": 30, //Shear image along x-axis with angle in range(-angle, angle)
+                "p": 1
+            },
+            "brightness-contrast": { //Randomly change brightness and contrast of the input image
+                "enabled": true,
+                "brightness-limit": 0.5, //factor range for changing brightness. Select value from (0,1)
+                "contrast-limit": 0.2, //factor range for changing contrast. Select value from (0,1)
+                "p": 1
+            },
+            "hue-saturation-value": { //Randomly change hue, saturation and value of the input image
+                "enabled": true,
+                "hue-shift-limit": 20, //hue shift randomly selected from range(-limit, limit)
+                "saturation-shift-limit": 50, //sat shift randomly selected from range(-limit, limit)
+                "value-shift-limit": 30, //value shift randomly selected from range(-limit, limit)
+                "p": 1
+            },
+            "motion-blur": { //Apply motion blur to the input image using a random-sized kernel
+                "enabled": true,
+                "blur-limit": 20, //maximum kernel size for blurring the input image
+                "p": 1
+            },
+            "gaussian-noise": { //Apply gaussian noise to the input image
+                "enabled": true,
+                "variance-limit": 200, //variance range for noise 
+                "p": 1
+            }
+        }
+    },
+    "output-spec": {
+        "description": "Config for testing purposes",
+        "operational-description": "Misc.",
+        "data-description": "2d/3d/segmentation",
+        "data-source": "All data pieces are generated using Project Airsim. The DFW environment is provided by Bing Maps",
+        "error-sources": "None. Data is generated through the Project Airsim sim and is 100% synthetic",
+        "dataset-name": "PipelineTest",
+        "image-spec": {
+            "image-width": 400,
+            "image-height": 225,
+            "image-format": ".png"
+        }
+    }
+}

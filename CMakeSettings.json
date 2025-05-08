@@ -1,0 +1,80 @@
+﻿{
+    "configurations": [
+        {
+            "name": "Debug",
+            "generator": "Ninja",
+            "configurationType": "Debug",
+            "inheritEnvironments": [ "msvc_x64_x64" ],
+            "buildRoot": "${projectDir}\\build\\win64\\Debug",
+            "installRoot": "${projectDir}\\install\\win64\\Debug",
+            "cmakeCommandArgs": "",
+            "buildCommandArgs": "",
+            "ctestCommandArgs": "",
+            "variables": []
+        },
+        {
+            "name": "Release",
+            "generator": "Ninja",
+            "configurationType": "Release",
+            "inheritEnvironments": [ "msvc_x64_x64" ],
+            "buildRoot": "${projectDir}\\build\\win64\\Release",
+            "installRoot": "${projectDir}\\install\\win64\\Release",
+            "cmakeCommandArgs": "",
+            "buildCommandArgs": "",
+            "ctestCommandArgs": "",
+            "variables": []
+        },
+        {
+            "name": "WSL-Debug",
+            "generator": "Ninja",
+            "configurationType": "Debug",
+            "buildRoot": "${projectDir}/build/linux64/Debug",
+            "installRoot": "${projectDir}/install/linux64/Debug",
+            "cmakeExecutable": "/usr/bin/cmake",
+            "cmakeCommandArgs": "",
+            "buildCommandArgs": "",
+            "ctestCommandArgs": "",
+            "inheritEnvironments": [ "linux_clang_x64" ],
+            "wslPath": "${defaultWSLPath}",
+            "addressSanitizerRuntimeFlags": "detect_leaks=0",
+            "variables": [
+                {
+                    "name": "CMAKE_C_COMPILER",
+                    "value": "/usr/bin/clang-10",
+                    "type": "FILEPATH"
+                },
+                {
+                    "name": "CMAKE_CXX_COMPILER",
+                    "value": "/usr/bin/clang++-10",
+                    "type": "FILEPATH"
+                }
+            ]
+        },
+        {
+            "name": "WSL-Release",
+            "generator": "Ninja",
+            "configurationType": "Release",
+            "buildRoot": "${projectDir}/build/linux64/Release",
+            "installRoot": "${projectDir}/install/linux64/Release",
+            "cmakeExecutable": "/usr/bin/cmake",
+            "cmakeCommandArgs": "",
+            "buildCommandArgs": "",
+            "ctestCommandArgs": "",
+            "inheritEnvironments": [ "linux_clang_x64" ],
+            "wslPath": "${defaultWSLPath}",
+            "addressSanitizerRuntimeFlags": "detect_leaks=0",
+            "variables": [
+                {
+                    "name": "CMAKE_C_COMPILER",
+                    "value": "/usr/bin/clang-10",
+                    "type": "FILEPATH"
+                },
+                {
+                    "name": "CMAKE_CXX_COMPILER",
+                    "value": "/usr/bin/clang++-10",
+                    "type": "FILEPATH"
+                }
+            ]
+        }
+    ]
+}

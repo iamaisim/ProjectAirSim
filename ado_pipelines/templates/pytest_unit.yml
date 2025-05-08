@@ -1,0 +1,21 @@
+#
+#  Run pytest unit tests
+#
+  parameters:
+  - name: sourcePath
+    type: string
+    default: '.'
+
+  steps:
+  - script: |
+      sudo apt install python3-pip portaudio19-dev python3-pyaudio -y
+      pip install pytest pytest-azurepipelines
+      pip install pytest-cov
+      pip install -r ${{ parameters.sourcePath }}/PythonClient/requirements.txt
+      pip install -e ${{ parameters.sourcePath }}/PythonClient
+    displayName: 'PyTest prep'
+
+  - script: |
+      python3 -m pytest ${{ parameters.sourcePath }}/PythonClient/tests/unit --doctest-modules --junitxml=junit/test-results.xml --cov=. --cov-report=xml --cov-report=html
+    displayName: 'PyTest run unit tests'
+ 

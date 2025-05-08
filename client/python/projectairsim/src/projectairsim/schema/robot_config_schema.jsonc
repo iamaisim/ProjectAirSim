@@ -1,0 +1,933 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Robot_Config",
+  "description": "Config file that defines the robots in the scene",
+  "type": "object",
+  "properties": {
+    "physics-type": {
+      "description": "Defines the physics type for the robot",
+      "type": "string",
+      "enum": [ "fast-physics", "non-physics", "matlab-physics" ]
+    },
+    "links": {
+      "description": "Define the links for the robot",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [ "name" ], //Collision, inertial required when fast-physics?
+        "properties": {
+          "name": { "type": "string" },
+          "inertial": { "$ref": "#/definitions/inertial" },
+          "collision": { "$ref": "#/definitions/collision" },
+          "visual": { "$ref": "#/definitions/visual" },
+          "revolutions-per-sec": { "type": "number"},
+          "initial-angle": { "type": "number"},
+          "axis": { "type": "string" },
+          "parent-link": { "type": "string" }
+        },
+        "anyOf":
+        [{
+          "dependentRequired": {
+            "axis": { "required": ["revolutions-per-sec"] },
+            "parent-link": { "required": ["revolutions-per-sec"] }
+          }},
+          {
+            "dependentRequired": {
+              "axis": { "required": ["initial-angle"] },
+              "parent-link": { "required": ["initial-angle"] }
+            }}
+        ]
+      }
+    },
+    "joints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [ "id", "type", "parent-link", "child-link", "axis" ],
+        "properties": {
+          "id": { "type": "string" },
+          "type": {
+            "type": "string",
+            "enum": [ "fixed" ] //Check for other types
+          },
+          "parent-link": { "type": "string" },
+          "child-link": { "type": "string" },
+          "axis": { "type": "string" }, //Look into regular expression matching for floats
+          "origin": { "$ref": "#/definitions/origin" }
+        }
+      }
+    },
+    "controller": {
+      "type": "object",
+      "required": [ "id", "type" ],
+      "properties": {
+        "id": { "type": "string" },
+        "airframe-setup": {
+          "type": "string",
+          "enum": [ "quadrotor-x", "hexarotor-x", "vtol-quad-x-tailsitter", "vtol-quad-tiltrotor", "ackermann"]
+        },
+        "type": {
+          "type": "string",
+          "enum": [ "simple-flight-api", "simple-drive-api","px4-api", "ardupilot-api", "manual-controller-api", "matlab-controller-api"]
+        },
+        "simple-flight-api-settings": {
+          "type": "object",
+          "required": [ "actuator-order" ],
+          "properties": {
+            "actuator-order": { "$ref": "#/definitions/actuator-order" }
+          }
+        },
+        "simple-drive-api-settings": {
+            "type": "object",
+            "required": [ "actuator-order" ],
+            "properties": {
+              "actuator-order": { "$ref": "#/definitions/actuator-order" }
+            }
+          },
+        "px4-settings": { "$ref": "#/definitions/px4-settings" },
+        "manual-controller-api-settings": {
+          "type": "object",
+          "required": [ "actuator-order" ],
+          "properties": {
+            "actuator-order": { "$ref": "#/definitions/actuator-order" }
+          }
+        },
+        "matlab-controller-api-settings": {
+          "type": "object",
+          "required": [ "actuator-order" ],
+          "properties": {
+            "actuator-order": { "$ref": "#/definitions/actuator-order" }
+          }
+        },
+        "ardupilot-settings": { "$ref": "#/definitions/ardupilot-settings" }
+      },
+      "allOf": [
+        { "$ref": "#/definitions/simple-flight-required" }, //make simple-flight-settings required for simple-flight
+        { "$ref": "#/definitions/simple-drive-required" }, //make simple-drive-settings required for simple-drive
+        { "$ref": "#/definitions/simple-drive-required" }, //make simple-drive-settings required for simple-drive
+        { "$ref": "#/definitions/px4-required" }, //make px4-settings required for px4
+        { "$ref": "#/definitions/ardupilot-required" } //make ardupilot-settings required for ardupilot
+      ]
+    },
+    "actuators": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [ "name", "type", "enabled", "parent-link", "child-link" ],
+        "properties": {
+          "name": { "type": "string" },
+          "type": {
+            "type": "string",
+            "enum": [ "rotor", "lift-drag-control-surface", "tilt", "gimbal", "wheel" ]
+          },
+          "enabled": { "type": "boolean" },
+          "parent-link": { "type": "string" },
+          "child-link": { "type": "string" },
+          "origin": { "$ref": "#/definitions/origin" },
+          "rotor-settings": { "$ref": "#/definitions/rotor-settings" },
+          "wheel-settings": { "$ref": "#/definitions/wheel-settings" },
+          "tilt-settings": { "$ref": "#/definitions/tilt-settings" }
+        }
+      }
+    },
+    "sensors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [ "id", "type", "enabled", "parent-link" ],
+        "properties": {
+          "id": { "type": "string" },
+          "type": {
+            "type": "string",
+            "enum": [ "camera", "imu", "lidar", "distance-sensor", "gps", "barometer", "magnetometer", "radar", "airspeed", "battery" ]
+          },
+          //Common Params
+          "enabled": { "type": "boolean" },
+          "parent-link": { "type": "string" },
+          //Camera Params
+          "capture-interval": { "type": "number" },
+          "capture-settings": { "$ref": "#/definitions/capture-settings" },
+          "noise-settings": { "$ref": "#/definitions/noise-settings" },
+          "gimbal": { "$ref": "#/definitions/gimbal" },
+          "origin": { "$ref": "#/definitions/origin" },
+          //IMU Params
+          "accelerometer": { "$ref": "#/definitions/accelerometer" },
+          "gyroscope": { "$ref": "#/definitions/gyroscope" },
+          //Lidar Params
+          "lidar-type": { "enum": [ "generic_cylindrical", "generic_rosette", "livox_mid70", "livox_avia", "gpu_cylindrical" ] },
+          "number-of-channels": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "range": { "type": "number" },
+          "points-per-second": { "type": "integer" },
+          "report-frequency": {
+            "type": "number",
+            "minimum": 0.0
+          },
+          "horizontal-rotation-frequency": { "type": "number" },
+          "horizontal-fov-start-deg": {
+            "type": "number",
+            "minimum": -360.0,
+            "maximum": 360.0
+          },
+          "horizontal-fov-end-deg": {
+            "type": "number",
+            "minimum": -360.0,
+            "maximum": 360.0
+          },
+          "vertical-rotation-frequency": { "type": "number" },
+          "vertical-fov-upper-deg": {
+            "type": "number",
+            "minimum": -90.0,
+            "maximum": 90.0
+          },
+          "vertical-fov-lower-deg": {
+            "type": "number",
+            "minimum": -90.0,
+            "maximum": 90.0
+          },
+          "disable-self-hits": { "type": "boolean" },
+          "report-no-return-points": { "type": "boolean" },
+          "no-return-point-value": { "type": "string" },
+          "draw-debug-points": { "type": "boolean" },
+          //Distance Params
+          "min-distance": { "type": "number" },
+          "max-distance": { "type": "number" },
+          //Radar Params
+          "fov": { "$ref": "#/definitions/fov" },
+          "masks": { "$ref": "#/definitions/masks" },
+          "range-max": { "type": "number" },
+          "range-resolution": { "type": "number" },
+          "velocity-max": { "type": "number" },
+          "velocity-resolution": { "type": "number" },
+          "detection-interval": { "type": "number" },
+          "track-interval": { "type": "number" },
+          "rcs-adjust-factor": { "type": "number" },
+          //GPS Params
+          "eph-time-constant": {
+            "type": "number",
+            "description": "Time constant for GPS horizontal dilution of position first-order filter"
+          },
+          "eph-initial": {
+            "type": "number",
+            "description": "Initial fully diluted horizontal precision"
+          },
+          "epv-initial": {
+            "type": "number",
+            "description": "Initial fully diluted vertical precision"
+          },
+          "eph-final": {
+            "type": "number",
+            "description": "The final value for fully diluted horizontal precision"
+          },
+          "epv-final": {
+            "type": "number",
+            "description": "The final value for fully diluted vertical precision"
+          },
+          "eph-min-3d": {
+            "type": "number",
+            "description": "Minimum value for 3d EPH data"
+          },
+          "eph-min-2d": {
+            "type": "number",
+            "description": "Minimum value for 2d EPH data"
+          },
+          //Barometer Params
+          "qnh": {
+            "type": "number",
+            "description": "Atmospheric pressure at zero-altitude/sea-level in mbar"
+          },
+          "pressure-factor-sigma": { "$ref": "#/definitions/pressure-factor-sigma" },
+          "pressure-factor-tau": {
+            "type": "integer",
+            "description": "Time constant for Gaussian-Markov noise model in seconds"
+          },
+          "uncorrelated-noise-sigma": { "$ref": "#/definitions/uncorrelated-noise-sigma" },
+          "update-latency": { "$ref": "#/definitions/update-latency" },
+          "update-frequency": {
+            "type": "integer",
+            "description": "Frequecy for updates in Hz"
+          },
+          "startup-delay": {
+            "type": "integer",
+            "description": "Delay in sensor start in seconds"
+          },
+          //Magnetometer Params
+          "scale-factor": {
+            "type": "number",
+            "description": "Value to scale magnetic field body by"
+          },
+          "noise-sigma": {
+            "type": "string",
+            "description": "Standard Deviation for gaussian noise model"
+          },
+          "noise-bias": {
+            "type": "string",
+            "description": "Constant offset for gaussian noise"
+          },
+          //Airspeed Params
+          "forward-xyz": { "type": "string" },
+          //Battery Params
+          "battery-mode": {
+            "type": "string",
+            "enum": [ "simple-discharge-mode", "rotor-power-discharge-mode" ]
+          },
+          "total-battery-capacity": {
+            "type": "number",
+            "description": "Total capacity of the battery aka Max charge it can hold. For rotor power discharge, the units need to be in joules.",
+            "minimum": 0
+          },
+          "battery-capacity-on-start": {
+            "type": "number",
+            "description": "Capacity/charge of the battery at the beginning of flight/simulation.Needs to the same unit as total capacity.",
+            "minimum": 0
+          },
+          "battery-drain-rate-on-start": {
+            "type": "number",
+            "description": "Required for simple-discharge-mode. The rate at which the battery depletes per second at the beginning of flight. Units needs to match with capacity.  Modifiable during runtime.",
+            "minimum": 0
+          },
+          "rotor-power-coefficient": {
+            "type": "number",
+            "description": "Required for rotor-power-discharge-mode. Used to scale the rotor-power estimates by a constant, default is one."
+          }
+          // "mode": {"type":"number", "description": "Int that specifies the mode of battery simuator should use"}
+
+        },
+        "allOf": [
+          { "$ref": "#/definitions/camera-required" }, //make camera settings required for camera
+          { "$ref": "#/definitions/imu-required" }, //make imusettings required for imu
+          { "$ref": "#/definitions/lidar-required" }, //make lidar settings required for lidar
+          { "$ref": "#/definitions/radar-required" }, //make radar settings required for radar
+          { "$ref": "#/definitions/battery-required" }, // make battery settings required for battery type
+          { "$ref": "#/definitions/simple-discharge-required" } // make drain rate required for simple discharge mode
+        ]
+      }
+    },
+    "script": {
+      "loop": {
+        "type": "boolean",
+        "description": "Whether the movement of the actor should loop"
+      },
+      "auto-start": {
+        "type": "boolean",
+        "description": "Whether the movement of the actor should begin automatically"
+      },
+      "trajectory": {
+        "type": "object",
+        "required": "name, time_sec, pose_x, pose_y, pose_z, pose_roll, pose_pitch, pose_yaw, velocity_linear_x, velocity_linear_y, velocity_linear_z",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the trajectory to follow"
+          },
+          "time_sec": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "The times of each point on the trajectory"
+          },
+          "pose_x": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "The x pose at each point on the trajectory"
+          },
+          "pose_y": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "The y pose at each point on the trajectory"
+          },
+          "pose_z": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "The z pose at each point on the trajectory"
+          },
+          "pose_roll": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "The roll at each point on the trajectory"
+          },
+          "pose_pitch": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "The pitch at each point on the trajectory"
+          },
+          "pose_yaw": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "The yaw at each point on the trajectory"
+          },
+          "velocity_linear_x": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "The times at each point on the trajectory"
+          },
+          "velocity_linear_y": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "The y velocities at each point on the trajectory"
+          },
+          "velocity_linear_z": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "The z velocities at each point on the trajectory"
+          }
+        }
+      }
+    }
+  },
+  "required": [ "physics-type", "links" ],
+
+  //Standard Definitions used in the Schema
+  "definitions": {
+    "origin": { //Look into regular expression matching for floats
+      "type": "object",
+      "required": [ "xyz"],
+      "properties": {
+        "xyz": { "type": "string" },
+        "rpy": { "type": "string" },
+        "rpy-deg": { "type": "string" }
+      },
+      "oneOf": [
+        {"required": ["rpy"]},
+        {"required": ["rpy-deg"]}
+      ]
+    },
+    "inertia": {
+      "type": "object",
+      "required": [ "type" ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [ "geometry", "point-mass", "matrix" ]
+        },
+        "geometry": { "$ref": "#/definitions/geometry" }
+      }
+    },
+    "input-map": {
+      "type": "object",
+      "properties": {
+        "clamp-input": { "type": "boolean" },
+        "clamp-output": { "type": "boolean" },
+        "input-max": { "type": "number" },
+        "input-min": { "type": "number" },
+        "scale": { "type": "number" },
+        "output-max": { "type": "number" },
+        "output-min": { "type": "number" }
+      }
+    },
+    "geometry": {
+      "type": "object",
+      "properties": {
+        "box": {
+          "type": "object",
+          "required": [ "size" ],
+          "properties": {
+            "size": {
+              "type": "string"
+            }
+          }
+        },
+        "cylinder": {
+          "type": "object",
+          "required": [ "radius", "length" ],
+          "properties": {
+            "radius": { "type": "number" },
+            "length": { "type": "number" }
+          }
+        }
+      }
+    },
+    "aerodynamics": {
+      "type": "object",
+      "properties": {
+        "drag-coefficient": { "type": "number" },
+        "type": {
+          "type": "string"
+        },
+        "geometry": { "$ref": "#/definitions/geometry" }
+      }
+    },
+    "inertial": {
+      "type": "object",
+      "required": [ "mass", "inertia" ],
+      "properties": {
+        "origin": { "$ref": "#/definitions/origin" },
+        "mass": { "type": "number" },
+        "inertia": { "$ref": "#/definitions/inertia" },
+        "aerodynamics": { "$ref": "#/definitions/aerodynamics" }
+      }
+    },
+    "collision": { //non-physics has a different definition of collision
+      "type": "object",
+      "properties": {
+        "restitution": { "type": "number" },
+        "friction": { "type": "number" },
+        "enabled": { "type": "boolean" }
+      }
+    },
+    "geometry-visual": {
+      "type": "object",
+      "required": [ "type", "name" ],
+      "properties": {
+        "type": { "type": "string" },
+        "name": { "type": "string" }
+      }
+    },
+    "visual": {
+      "type": "object",
+      "required": [ "geometry" ],
+      "properties": {
+        "origin": { "$ref": "#/definitions/origin" },
+        "geometry": { "$ref": "#/definitions/geometry-visual" }
+      }
+    },
+    "actuator-order": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [ "id" ],
+        "properties": {
+          "id": { "type": "string" },
+          "initial-value": { "type": "number" }
+        }
+      }
+    },
+    "px4-settings": {
+      "type": "object",
+      "properties": {
+        "use-serial": { "type": "boolean" },
+        "use-tcp": { "type": "boolean" },
+        "lock-step": { "type": "boolean" },
+        "serial-port": { "type": "string" },
+        "tcp-port": { "type": "integer" },
+        "qgc-port": { "type": "integer" },
+        "qgc-host-ip": { "type": "string" },
+        "control-ip-address": { "type": "string" },
+        "control-port": { "type": "integer" },
+        "timeout-lock-step-update-ms": { "type": "integer" },
+        "timeout-lock-step-actuator-ms": { "type": "integer" },
+        "timeout-lock-step-hil-actuator-control-ms": { "type": "integer" },
+        "actuator-order": { "$ref": "#/definitions/actuator-order" },
+        "parameters": { "$ref": "#/definitions/px4-params" }
+      },
+      "allOf": [
+        { "$ref": "#/definitions/tcp-required" },
+        { "$ref": "#/definitions/serial-required" }
+      ]
+    },
+    "ardupilot-settings": {
+      "type": "object",
+      "properties": {
+        "local-host-ip": { "type": "string" },
+        "ardupilot-ip": { "type": "string" },
+        "ardupilot-udp-port": { "type": "integer" },
+        "local-host-udp-port": { "type": "integer" },
+        //"use-lidar": { "type": "boolean" },
+        "use-distance-sensor": { "type": "boolean" },
+        "actuator-order": { "$ref": "#/definitions/actuator-order" }
+      }
+    },
+    "px4-params": {
+      "type": "object",
+      "required": [ "NAV_RCL_ACT", "NAV_DLL_ACT", "COM_OBL_ACT", "LPE_LAT", "LPE_LON" ],
+      "properties": {
+        "NAV_RCL_ACT": { "type": "number" },
+        "NAV_DLL_ACT": { "type": "number" },
+        "COM_OBL_ACT": { "type": "number" },
+        "LPE_LAT": { "type": "number" },
+        "LPE_LON": { "type": "number" }
+      }
+    },
+    "rotor-settings": {
+      "type": "object",
+      "required": [ "turning-direction", "normal-vector", "coeff-of-thrust", "coeff-of-torque", "max-rpm", "propeller-diameter", "smoothing-tc" ],
+      "properties": {
+        "turning-direction": {
+          "type": "string",
+          "enum": [ "clock-wise", "counter-clock-wise" ]
+        },
+        "normal-vector": { "type": "string" },
+        "coeff-of-thrust": { "type": "number" },
+        "coeff-of-torque": { "type": "number" },
+        "max-rpm": { "type": "number" },
+        "propeller-diameter": { "type": "number" },
+        "smoothing-tc": { "type": "number" }
+      }
+    },
+    "wheel-settings": {
+      "type": "object",
+      "required": ["wheel-type", "coeff-of-friction", "coeff-of-wheel-torque", "engine", "steering", "brake"],
+      "properties": {
+        "wheel-type": { "type": "number" },
+        "coeff-of-friction":{"type":"number"},
+        "coeff-of-wheel-torque":{"type":"number"},
+        "engine": {"type": "boolean"},
+        "steering": {"type": "boolean"},
+        "brake": {"type": "boolean"}
+      }
+    },
+    "tilt-settings": {
+      "type": "object",
+      "required": [ "angle-max", "angle-min", "axis", "smoothing-tc", "target" ],
+      "properties": {
+        "angle-min": { "type": "number" },
+        "angle-max": { "type": "number" },
+        "axis": { "type": "string" },
+        "input-map": { "$ref": "#/definitions/input-map" },
+        "smoothing-tc": { "type": "number" },
+        "target": { "type": "string" }
+      }
+    },
+    "is-simple-flight": {
+      "properties": {
+        "type": { "enum": [ "simple-flight-api" ] }
+      },
+      "required": [ "type" ]
+    },
+    "simple-flight-required": { //make simple-flight-api-settings required for simple-flight
+      "anyOf": [
+        { "not": { "$ref": "#/definitions/is-simple-flight" } },
+        { "required": [ "simple-flight-api-settings" ] }
+      ]
+    },
+    "is-simple-drive": {
+      "properties": {
+        "type": { "enum": [ "simple-drive-api" ] }
+      },
+      "required": [ "type" ]
+    },
+    "simple-drive-required": { //make simple-drive-api-settings required for simple-drive
+      "anyOf": [
+        { "not": { "$ref": "#/definitions/is-simple-drive" } },
+        { "required": [ "simple-drive-api-settings" ] }
+      ]
+    },
+    "is-px4": {
+      "properties": {
+        "type": { "enum": [ "px4-api" ] }
+      },
+      "required": [ "type" ]
+    },
+    "px4-required": { //make px4-settings required for px4
+      "anyOf": [
+        { "not": { "$ref": "#/definitions/is-px4" } },
+        { "required": [ "px4-settings" ] }
+      ]
+    },
+    "is-ardupilot": {
+      "properties": {
+        "type": { "enum": [ "ardupilot-api" ] }
+      },
+      "required": [ "type" ]
+    },
+    "ardupilot-required": { //make ardupilot-settings required for ardupilot
+      "anyOf": [
+        { "not": { "$ref": "#/definitions/is-ardupilot" } },
+        { "required": [ "ardupilot-settings" ] }
+      ]
+    },
+    "capture-settings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [ "image-type", "width", "height", "fov-degrees", "capture-enabled", "pixels-as-float", "compress" ],
+        "properties": {
+          "image-type": {
+            "type": "number",
+            "enum": [ 0, 1, 2, 3, 4, 5, 6 ]
+          },
+          "width": { "type": "number" },
+          "height": { "type": "number" },
+          "fov-degrees": { "type": "number" },
+          "capture-enabled": { "type": "boolean" },
+          "streaming-enabled": { "type": "boolean" },
+          "pixels-as-float": { "type": "boolean" },
+          "compress": { "type": "boolean" },
+          "target-gamma": { "type": "number" }
+        }
+      }
+    },
+    "noise-settings": {
+      "type": "array",
+      "items": {
+        //Which ones are required?
+        "required": [
+          "enabled",
+          "image-type",
+          "rand-contrib",
+          "rand-speed",
+          "rand-size",
+          "rand-density",
+          "horz-wave-contrib",
+          "horz-wave-strength",
+          "horz-wave-vert-size",
+          "horz-wave-screen-size",
+          "horz-noise-lines-contrib",
+          "horz-noise-lines-density-y",
+          "horz-noise-lines-density-xy",
+          "horz-distortion-contrib",
+          "horz-distortion-strength"
+        ],
+        "properties": {
+          "enabled": { "type": "boolean" },
+          "image-type": { "type": "integer" },
+          "rand-contrib": { "type": "number" },
+          "rand-speed": { "type": "number" },
+          "rand-size": { "type": "number" },
+          "rand-density": { "type": "integer" },
+          "horz-wave-contrib": { "type": "number" },
+          "horz-wave-strength": { "type": "number" },
+          "horz-wave-vert-size": { "type": "number" },
+          "horz-wave-screen-size": { "type": "number" },
+          "horz-noise-lines-contrib": { "type": "number" },
+          "horz-noise-lines-density-y": { "type": "number" },
+          "horz-noise-lines-density-xy": { "type": "number" },
+          "horz-distortion-contrib": { "type": "number" },
+          "horz-distortion-strength": { "type": "number" }
+        }
+      }
+    },
+    "gimbal": {
+      "type": "object",
+      "required": [ "lock-roll", "lock-pitch", "lock-yaw" ],
+      "properties": {
+        "lock-roll": { "type": "boolean" },
+        "lock-pitch": { "type": "boolean" },
+        "lock-yaw": { "type": "boolean" }
+      }
+    },
+    "accelerometer": {
+      "type": "object",
+      "required": [ "velocity-random-walk", "tau", "bias-stability", "turn-on-bias" ],
+      "properties": {
+        "velocity-random-walk": { "type": "number" },
+        "tau": { "type": "number" },
+        "bias-stability": { "type": "number" },
+        "turn-on-stability": { "type": "string" }
+      }
+    },
+    "gyroscope": {
+      "type": "object",
+      "required": [ "angle-random-walk", "tau", "bias-stability", "turn-on-bias" ],
+      "properties": {
+        "angle-random-walk": { "type": "number" },
+        "tau": { "type": "number" },
+        "bias-stability": { "type": "number" },
+        "turn-on-stability": { "type": "string" }
+      }
+    },
+    "fov": {
+      "type": "object",
+      "required": [ "azimuth-max", "azimuth-min", "elevation-max", "elevation-min", "azimuth-resolution", "elevation-resolution" ],
+      "properties": {
+        "azimuth-max": { "type": "number" },
+        "azimuth-min": { "type": "number" },
+        "elevation-max": { "type": "number" },
+        "elevation-min": { "type": "number" },
+        "azimuth-resolution": { "type": "number" },
+        "elevation-resolution": { "type": "number" }
+      }
+    },
+    "masks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [ "azimuth-max", "azimuth-min", "elevation-max", "elevation-min", "range-min", "range-max", "velocity-min", "velocity-max", "rcs-sqm-min", "rcs-sqm-max" ],
+        "properties": {
+          "azimuth-max": { "type": "number" },
+          "azimuth-min": { "type": "number" },
+          "elevation-max": { "type": "number" },
+          "elevation-min": { "type": "number" },
+          "range-min": { "type": "number" },
+          "ange-max": { "type": "number" },
+          "evelocity-min": { "type": "number" },
+          "velocity-max": { "type": "number" },
+          "rcs-sqm-min": { "type": "number" },
+          "rcs-sqm-max": { "type": "number" }
+        }
+      }
+    },
+    "pressure-factor-sigma": {
+      "type": "number",
+      "description": "Standard Deviation for noise model. Ref: Mariner's Pressure Atlas, David Burch, 2014 https://www.starpath.com/ebooksamples/9780914025382_sample.pdf \n sea level min,avh,max = 950,1013,1050 ie approx 3.65% variation regular pressure changes in quiet conditions are taken as 1/20th of this GM process \n may generate ~70% of sigma in tau interval This means below config may produce ~10m variance per hour"
+    },
+    "uncorrelated-noise-sigma": {
+      "type": "number",
+      "description": "Standard Deviation for noise model. Experiments for MEAS MS56112 sensor shows 0.021mbar, datasheet has \n resoultion of 0.027mbar @ 1024 \n http://www.te.com/commerce/DocumentDelivery/DDEController?Action=srchrtrv&DocNm=MS5611-01BA03&DocType=Data+Sheet&DocLang=English"
+    },
+    "update-latency": {
+      "type": "number",
+      "description": "Latency setting for each update. see PX4 param reference for EKF: \n https://dev.px4.io/en/advanced/parameter_reference.html"
+    },
+    "is-camera": {
+      "properties": {
+        "type": { "enum": [ "camera" ] }
+      },
+      "required": [ "type" ]
+    },
+    "camera-required": { //make camera-settings required for camera
+      "anyOf": [
+        { "not": { "$ref": "#/definitions/is-camera" } },
+        { "required": [ "capture-interval", "capture-settings", "origin" ] }
+      ]
+    },
+    "is-battery": {
+      "properties": {
+        "type": { "enum": [ "battery" ] }
+      },
+      "required": [ "type" ]
+    },
+    "battery-required": { //make one of battery-settings required for batter
+      "anyOf": [
+        { "not": { "$ref": "#/definitions/is-battery" } },
+        { "required": [ "battery-mode", "total-battery-capacity", "battery-capacity-on-start" ] }
+      ]
+    },
+    "is-simple-discharge-mode": {
+      "properties": {
+        "battery-mode": { "enum": [ "simple-discharge-mode" ] }
+      },
+      "required": [ "battery-mode" ]
+    },
+    "simple-discharge-required": {
+      "anyOf": [
+        { "not": { "$ref": "#/definitions/is-simple-discharge-mode" } },
+        { "required": [ "battery-drain-rate-on-start" ] }
+      ]
+    },
+    "is-IMU": {
+      "properties": {
+        "type": { "enum": [ "imu" ] }
+      },
+      "required": [ "type" ]
+    },
+    "imu-required": { //make imu-settings required for imu
+      "anyOf": [
+        { "not": { "$ref": "#/definitions/is-IMU" } },
+        { "required": [ "accelerometer", "gyroscope" ] }
+      ]
+    },
+    "is-lidar": {
+      "properties": {
+        "type": { "enum": [ "lidar" ] }
+      },
+      "required": [ "type" ]
+    },
+    "lidar-required-generic-core": { //make lidar-settings required for most LIDAR types
+      "required": [
+        "number-of-channels",
+        "range",
+        "points-per-second",
+        "horizontal-rotation-frequency",
+        "horizontal-fov-start-deg",
+        "horizontal-fov-end-deg",
+        "vertical-fov-upper-deg",
+        "vertical-fov-lower-deg",
+        "origin"
+      ]
+    },
+    "lidar-required-generic-cylindrical": { //make lidar-settings required for lidar-type "generic-cylindrical"
+      "$ref": "#/definitions/lidar-required-generic-core"
+    },
+    "lidar-required-generic-rosette": { //make lidar-settings required for lidar for lidar-type "generic-rosette"
+      "allOf": [
+        { "$ref": "#/definitions/lidar-required-generic-core" },
+        { "required": [ "vertical-rotation-frequency" ] }
+      ]
+    },
+    "lidar-required": { //make lidar-settings required for lidar
+      "anyOf": [
+        { "not": { "$ref": "#/definitions/is-lidar" } }, //not LIDAR
+        { "properties": { "lidar-type": { "enum": [ "livox_mid70", "livox_avia" ] } } }, //lidar_type livox_mid70
+        {
+          "allOf": [ //lidar_type generic_rosette
+            { "properties": { "lidar-type": { "enum": [ "generic_rosette" ] } } },
+            { "$ref": "#/definitions/lidar-required-generic-rosette" }
+          ]
+        },
+        {
+          "allOf": [ //lidar_type generic_cylindrical (or not specified)
+            {
+              "anyOf": [
+                { "properties": { "lidar-type": { "type": "null" } } },
+                { "properties": { "lidar-type": { "enum": [ "generic_cylindrical", "gpu_cylindrical" ] } } }
+              ]
+            },
+            { "$ref": "#/definitions/lidar-required-generic-cylindrical" }
+          ]
+        }
+      ]
+    },
+    "is-radar": {
+      "properties": {
+        "type": { "enum": [ "radar" ] }
+      },
+      "required": [ "type" ]
+    },
+    "radar-required": { //make radar-settings required for radar
+      "anyOf": [
+        { "not": { "$ref": "#/definitions/is-radar" } },
+        {
+          "required": [
+            "fov",
+            "range-max",
+            "range-resolution",
+            "velocity-max",
+            "velocity-resolution",
+            "detection-interval",
+            "track-interval",
+            "rcs-adjust-factor",
+            "draw-debug-points",
+            "origin",
+            "masks"
+          ]
+        }
+      ]
+    },
+    "is-use-tcp": {
+      "properties": {
+        "use-tcp": { "enum": [ true ] }
+      },
+      "required": [ "use-tcp" ]
+    },
+    "tcp-required": {
+      "anyOf": [
+        { "not": { "$ref": "#/definitions/is-use-tcp" } },
+        { "required": [ "tcp-port" ] }
+      ]
+    },
+    "is-use-serial": {
+      "properties": {
+        "use-serial": { "enum": [ true ] }
+      },
+      "required": [ "use-serial" ]
+    },
+    "serial-required": {
+      "anyOf": [
+        { "not": { "$ref": "#/definitions/is-use-serial" } },
+        { "required": [ "serial-port" ] }
+      ]
+    }
+  }
+}

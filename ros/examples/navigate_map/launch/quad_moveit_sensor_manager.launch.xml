@@ -1,0 +1,6 @@
+<launch>
+  <arg name="app_dir"/>
+
+  <!-- Disable octomap updater and only use map preloaded by navigate_map.py -->
+  <rosparam command="load" file="$(arg app_dir)/config/sensors_null.yaml" />
+</launch>

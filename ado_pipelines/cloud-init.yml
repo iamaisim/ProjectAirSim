@@ -1,0 +1,52 @@
+#cloud-config
+
+# create the docker group
+groups:
+  - docker
+
+# Add default auto created user to docker group
+# system_info:
+#  default_user:
+#groups: [docker]
+
+apt:
+  sources:
+    docker.list:
+      source: deb [arch=amd64] https://download.docker.com/linux/ubuntu $RELEASE stable
+      keyid: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+    nvidia-container-toolkit.list:
+      source: 'deb https://nvidia.github.io/libnvidia-container/stable/deb/$(ARCH) /'
+      keyid: C95B321B61E88C1809C4F759DDCAE044F796ECB0
+    cuda-ubuntu2204-x86_64.list:
+      source: 'deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/ /'
+      keyid: EB693B3035CD5710E231E123A4B469963BF863CC
+      
+# drivers:
+#  nvidia:
+#    license-accepted: true 
+    
+packages:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg-agent
+  - software-properties-common
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - uidmap
+  - zip
+  - unzip
+  - git
+  - git-lfs
+  - ubuntu-drivers-common
+  - nvidia-driver-550
+#  - cuda-toolkit
+  - nvidia-container-toolkit
+  - libvulkan1
+  - vulkan-tools
+
+runcmd:
+  - modprobe nvidia
+  - nvidia-ctk runtime configure --runtime=docker
+  - systemctl restart docker

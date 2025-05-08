@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Directions from Seattle Art Museum, 1st Avenue, Seattle, WA, USA to The Seattle Great Wheel, Alaskan Way, Seattle, WA, USA</name>
+    <Style id="icon-1899-DB4436-nodesc-normal">
+      <IconStyle>
+        <color>ff3644db</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+        <hotSpot x="32" xunits="pixels" y="64" yunits="insetPixels"/>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+      <BalloonStyle>
+        <text><![CDATA[<h3>$[name]</h3>]]></text>
+      </BalloonStyle>
+    </Style>
+    <Style id="icon-1899-DB4436-nodesc-highlight">
+      <IconStyle>
+        <color>ff3644db</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+        <hotSpot x="32" xunits="pixels" y="64" yunits="insetPixels"/>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+      <BalloonStyle>
+        <text><![CDATA[<h3>$[name]</h3>]]></text>
+      </BalloonStyle>
+    </Style>
+    <StyleMap id="icon-1899-DB4436-nodesc">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1899-DB4436-nodesc-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1899-DB4436-nodesc-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="line-1267FF-5000-nodesc-normal">
+      <LineStyle>
+        <color>ffff6712</color>
+        <width>5</width>
+      </LineStyle>
+      <BalloonStyle>
+        <text><![CDATA[<h3>$[name]</h3>]]></text>
+      </BalloonStyle>
+    </Style>
+    <Style id="line-1267FF-5000-nodesc-highlight">
+      <LineStyle>
+        <color>ffff6712</color>
+        <width>7.5</width>
+      </LineStyle>
+      <BalloonStyle>
+        <text><![CDATA[<h3>$[name]</h3>]]></text>
+      </BalloonStyle>
+    </Style>
+    <StyleMap id="line-1267FF-5000-nodesc">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#line-1267FF-5000-nodesc-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#line-1267FF-5000-nodesc-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Placemark>
+      <name>Directions from Seattle Art Museum, 1st Avenue, Seattle, WA, USA to The Seattle Great Wheel, Alaskan Way, Seattle, WA, USA</name>
+      <styleUrl>#line-1267FF-5000-nodesc</styleUrl>
+      <LineString>
+        <tessellate>1</tessellate>
+        <coordinates>
+          -122.33749,47.60772,0
+          -122.33734,47.60756,0
+          -122.33727,47.60749,0
+          -122.3371,47.6073,0
+          -122.33663,47.60679,0
+          -122.33644,47.60658,0
+          -122.33608,47.6062,0
+          -122.33578,47.60587,0
+          -122.33542,47.60547,0
+          -122.33513,47.60516,0
+          -122.33523,47.60511,0
+          -122.33545,47.60502,0
+          -122.33568,47.60492,0
+          -122.3359,47.60482,0
+          -122.33612,47.60472,0
+          -122.33622,47.60467,0
+          -122.33636,47.60461,0
+          -122.33659,47.60452,0
+          -122.33682,47.60443,0
+          -122.33692,47.60439,0
+          -122.33694,47.60438,0
+          -122.33701,47.60435,0
+          -122.33734,47.60422,0
+          -122.33786,47.60402,0
+          -122.33788,47.60401,0
+          -122.33803,47.60395,0
+          -122.33816,47.60389,0
+          -122.3388,47.60459,0
+          -122.33945,47.60531,0
+          -122.3401,47.60602,0
+          -122.34062,47.60657,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <name>Seattle Art Museum, 1st Avenue, Seattle, WA, USA</name>
+      <styleUrl>#icon-1899-DB4436-nodesc</styleUrl>
+      <Point>
+        <coordinates>
+          -122.3374919,47.6077226,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>The Seattle Great Wheel, Alaskan Way, Seattle, WA, USA</name>
+      <styleUrl>#icon-1899-DB4436-nodesc</styleUrl>
+      <Point>
+        <coordinates>
+          -122.3406168,47.6065706,0
+        </coordinates>
+      </Point>
+    </Placemark>
+  </Document>
+</kml>

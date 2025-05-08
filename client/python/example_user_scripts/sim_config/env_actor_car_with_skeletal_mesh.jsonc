@@ -1,0 +1,17 @@
+{
+    "links": [
+      {
+        "name": "Frame",
+        "collision": {
+          "enabled": false
+        },
+        "visual": {
+          "geometry": {
+            "type": "skeletal_mesh",
+            "name": "/ProjectAirSim/SUV/Suv"
+          }
+        }
+      }
+    ]
+  }
+  

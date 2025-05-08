@@ -1,0 +1,94 @@
+{
+  "physics-type": "non-physics",
+  "links": [
+    {
+      "name": "RadarMountPoint"
+    },
+    {
+      "name": "RadarSensorBody1",
+      "visual": {
+        "origin": {
+          "xyz": "0.5 0.0 0",
+          "rpy-deg": "0 0 0"
+        },
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Engine/BasicShapes/Cube",
+          "scale": "0.1 1.0 0.5"
+        }
+      }
+    },
+    {
+      "name": "Tower",
+      "visual": {
+        "origin": {
+          "xyz": "0 0 15.0",
+          "rpy-deg": "0 0 0"
+        },
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Engine/BasicShapes/Cube",
+          "scale": "1.0 1.0 30.0"
+        }
+      }
+    }
+  ],
+  "joints": [
+    {
+      "id": "RadarMountPoint_RadarSensorBody1",
+      "type": "fixed",
+      "parent-link": "RadarMountPoint",
+      "child-link": "RadarSensorBody1",
+      "axis": "0 0 1"
+    },
+    {
+      "id": "RadarMountPoint_Tower",
+      "type": "fixed",
+      "parent-link": "RadarMountPoint",
+      "child-link": "Tower",
+      "axis": "0 0 1"
+    }
+  ],
+  "sensors": [
+    {
+      "id": "radar1",
+      "type": "radar",
+      "enabled": true,
+      "parent-link": "RadarMountPoint",
+      "fov": {
+        "azimuth-max": 0.785,
+        "azimuth-min": -0.785,
+        "elevation-max": 0.524,
+        "elevation-min": -0.524,
+        "azimuth-resolution": 0.0175,
+        "elevation-resolution": 0.0175
+      },
+      "range-max": 500.0,
+      "range-resolution": 1.0,
+      "velocity-max": 100.0,
+      "velocity-resolution": 1.0,
+      "detection-interval": 0.02,
+      "track-interval": 0.2,
+      "rcs-adjust-factor": 0.1,
+      "draw-debug-points": false,
+      "origin": {
+        "xyz": "0.6 0 0",
+        "rpy-deg": "0 0 0"
+      },
+      "masks": [
+        {
+          "azimuth-min": -0.8,
+          "azimuth-max": 0.8,
+          "elevation-min": -0.8,
+          "elevation-max": -0.2,
+          "range-min": 10.0,
+          "range-max": 200.0,
+          "velocity-min": -15.0,
+          "velocity-max": 15.0,
+          "rcs-sqm-min": 0.01,
+          "rcs-sqm-max": 100.0
+        }
+      ]
+    }
+  ]
+}

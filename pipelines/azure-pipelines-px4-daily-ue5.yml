@@ -1,0 +1,298 @@
+# Daily pipeline for ProjectAirSim PX4 SITL integration
+
+trigger:
+  branches:
+    # Don't trigger on branch pushes, only on schedule below
+    exclude:
+      - '*'
+
+schedules:
+  # https://docs.microsoft.com/en-us/azure/devops/pipelines/process/scheduled-triggers?view=azure-devops&tabs=yaml#supported-cron-syntax
+  - cron: '0 9 * * *'
+    displayName: Daily build 2:00am PDT (09:00 UTC)
+    branches:
+      include:
+        - main
+    always: false
+
+variables:
+  container_linux: projectairsimacr.azurecr.io/ue5p1p1/ubuntu20:libjpegxr
+  ue_root_linux: /home/projectairsimuser/ue-5.1.1-linux-debugeditor
+  ue_root_win: C:\Program Files\Epic Games\UE_5.1
+  vs_cmd_prompt: C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat
+  ccache_disable: 1  # disable ccache by env var to fix PX4 build flakey fail
+
+stages:
+  - stage: Daily_Build_PX4_SITL
+    jobs:
+      - job: Ubuntu_20_GPU
+        pool:
+          name: 'RoboSim'  # Self-hosted
+          demands:
+            - Spec -equals Ubuntu_20.04
+            - HasGPU -equals True
+        container:
+          image: $(container_linux)
+          endpoint: projectairsim_acr_service_principal
+          options: --gpus all
+        variables:
+          ue_root: $(ue_root_linux)
+        workspace:
+          clean: all
+        timeoutInMinutes: 120
+        cancelTimeoutInMinutes: 10
+        steps:
+          # ADO pipeline runs as a non-root user so need to take ownership of
+          # UE engine's dotnet folder (UE 5.1 runs
+          # a `chmod u+x "$UE_DOTNET_DIR/dotnet"` command in SetupDotnet.sh)
+          - script: |
+              cur_user=$(whoami)
+              echo "sudo chown -R ${cur_user} $(ue_root_linux)/Engine/Binaries/ThirdParty/DotNet"
+              sudo chown -R ${cur_user} $(ue_root_linux)/Engine/Binaries/ThirdParty/DotNet
+            displayName: Take ownership of UE's dotnet folder
+
+          # Clone the repo
+          - checkout: self
+
+          # Add NVIDIA's new key after their rotation on 4/27/2022
+          - script: |
+              sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
+            displayName: Add NVIDIA's new key to keyring
+
+          # Setup
+          - script: |
+              ./setup_linux_dev_tools.sh
+            displayName: Install system dependencies
+
+          # Build sim libs as Release config
+          - script: |
+              ./build.sh simlibs_release
+            displayName: Build sim libs for Linux64-Release
+
+          # Use pipeline cache for Unreal Engine user DDC cache
+          - task: Cache@2
+            inputs:
+              key: '"Blocks" | "$(Agent.OS)" | **/unreal/Blocks/Content/**/*.uasset | **/unreal/Blocks/Plugins/**/*.uasset'
+              path: UserDDC
+            displayName: Cache Unreal Engine user DDC
+
+          # Copy Unreal Engine user DDC pipeline cache into container's user folder
+          - script: |
+              ls -la ~/.config/Epic/
+              cp -r UserDDC/UnrealEngine ~/.config/Epic/ || :
+            displayName: Copy DDC from working folder to container
+
+          # Package UE game as Development config
+          - script: |
+              ./build.sh package_blocks_development
+            displayName: Package Blocks for Development (Release)
+
+          # Copy Unreal Engine user DDC into working folder to save pipeline cache
+          - script: |
+              mkdir -p UserDDC
+              ls -la ~/.config/Epic/UnrealEngine
+              cp -r ~/.config/Epic/UnrealEngine UserDDC/ || :
+            displayName: Copy DDC from container to working folder
+
+          # Checkout & setup PX4 toolchain (latest stable release v1.12.3)
+          # Add UTF exports to fix an encoding issue as described in https://github.com/PX4/PX4-Autopilot/pull/13978
+          - script: |
+              mkdir -p PX4
+              cd PX4 && git clone https://github.com/PX4/Firmware.git
+              cd Firmware
+              git checkout v1.12.3
+              python3 -m pip install --upgrade pip setuptools wheel
+              bash ./Tools/setup/ubuntu.sh --no-nuttx --no-sim-tools
+            displayName: Checkout & setup PX4 toolchain
+
+          # Build PX4 Firmware SITL
+          - script: |
+              cd PX4/Firmware
+              export LANG=C.UTF-8
+              export LC_ALL=C.UTF-8
+              make px4_sitl_default
+            displayName: Build PX4 Firmware SITL
+
+          # Setup Python client
+          - script: |
+              sudo apt-get update
+              sudo apt-get -y install python3.8 python3.8-dev python3.8-venv
+              python3.8 -m venv airsimenv
+              source ./airsimenv/bin/activate
+              python -m pip install --upgrade pip setuptools
+              python -m pip install ./client/python/projectairsim
+            displayName: Install ProjectAirSim py client package
+
+          # Launch UE game in background
+          - script: |
+              ./packages/Blocks/Development/Linux/Blocks.sh -RenderOffScreen &
+            displayName: Launch UE game in background
+
+          # Launch PX4 Firmware SITL in background (-d: daemon mode)
+          - script: |
+              sleep 10
+              cd PX4/Firmware
+              PX4_SIM_MODEL=iris ./build/px4_sitl_default/bin/px4 -d ./ROMFS/px4fmu_common -s etc/init.d-posix/rcS >px4_out.log 2>px4_err.log &
+            displayName: Launch PX4 Firmware SITL in background
+
+          # Run PX4 SITL end-end tests
+          - script: |
+              sleep 30
+              source ./airsimenv/bin/activate
+              python -m pip install pytest pytest-cov
+              sudo apt-get install -y net-tools
+              netstat -tulpn
+              ps -axu
+              cd client/python/projectairsim/tests && pytest -v --junitxml=pytest-px4-results.xml px4_test_sitl.py
+            displayName: Run pytest for PX4 SITL end-end tests
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFiles: '**/pytest-*.xml'
+              testRunTitle: 'End-end PX4 SITL Tests'
+              searchFolder: ./client/python
+            displayName: Publish end-end PX4 SITL test results
+            condition: succeededOrFailed()
+
+          # Publish sim logs as a build artifact (PX4 files cause Azure CopyFiles@2 task error so use manual copy script)
+          - script: |
+              rsync -mr ./client/python --include="*.log" --include="*/" --exclude="*" $(Build.ArtifactStagingDirectory)
+              rsync -mr ./packages/Blocks --include="*.log" --include="*/" --exclude="*" $(Build.ArtifactStagingDirectory)
+              rsync -mr ./PX4 --include="px4*.log" --include="*/" --exclude="*" $(Build.ArtifactStagingDirectory)
+            displayName: Stage sim log files as build artifact
+            condition: succeededOrFailed()
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: $(Build.ArtifactStagingDirectory)
+              artifactName: SimLogs_Linux64
+            displayName: Publish build artifacts
+            condition: succeededOrFailed()
+
+      # ------------------------------------------------------------------------
+
+      - job: WindowsServer_2022_GPU
+        pool:
+          name: 'projectairsim-ci'  # 1ES Hosted
+        variables:
+          ue_root: $(ue_root_win)
+        workspace:
+          clean: all
+        timeoutInMinutes: 120
+        cancelTimeoutInMinutes: 10
+        steps:
+          # Setup
+          - checkout: self
+
+          # Build sim libs for Release
+          - script: |
+              call "$(vs_cmd_prompt)"
+              call .\build.cmd simlibs_release
+            displayName: Build sim libs for Win64-Release
+
+          # Use pipeline cache for Unreal Engine user DDC cache
+          - task: Cache@2
+            inputs:
+              key: '"Blocks" | "$(Agent.OS)" | **/unreal/Blocks/Content/**/*.uasset | **/unreal/Blocks/Plugins/**/*.uasset'
+              path: UserDDC
+            displayName: Cache Unreal Engine user DDC
+
+          # Copy Unreal Engine user DDC pipeline cache into container's user folder
+          - script: |
+              dir "%userprofile%\AppData\Local\UnrealEngine"
+              xcopy /I /Y /S "UserDDC\UnrealEngine" "%userprofile%\AppData\Local\UnrealEngine" || cmd /c "exit 0"
+            displayName: Copy DDC from working folder to container
+
+          # Package UE game as Development config
+          - script: |
+              call "$(vs_cmd_prompt)"
+              call .\build.cmd package_blocks_development
+            displayName: Package Blocks for Development (Release)
+
+          # Copy Unreal Engine user DDC into working folder to save pipeline cache
+          - script: |
+              dir "%userprofile%\AppData\Local\UnrealEngine"
+              xcopy /I /Y /S "%userprofile%\AppData\Local\UnrealEngine" "UserDDC\UnrealEngine" || cmd /c "exit 0"
+            displayName: Copy DDC from container to working folder
+
+          # Checkout & setup PX4 Win toolchain
+          - script: |
+              git clone https://github.com/PX4/windows-toolchain PX4
+              cd PX4 && git config core.autocrlf false && git config core.eol lf && git reset --hard
+              echo Manually downloading cygwin installer so we can ignore PX4 script's 'Access is denied.' error from trying to use certutil.exe
+              powershell -Command "Invoke-WebRequest https://cygwin.com/setup-x86_64.exe -OutFile .\toolchain\cygwin64\setup-x86_64.exe"
+              call .\toolchain\scripts\install-all-components.bat
+            displayName: Checkout & setup PX4 Win toolchain
+
+          # Checkout & build PX4 Firmware SITL (latest stable release v1.12.3)
+          # Note: Latest Cygwin now installs Python 3.8 as well as 3.6, but need to force 3.6 to use python36-jinja2 package that was installed by PX4's script
+          # Note: Latest Cygwin now fails to install Python 3.8 pip packages, so have to manually reinstall the required packages
+          #       from 'PX4\toolchain\cygwin64\install-cygwin-python-packages.bat' after forcing it back to Python 3.6
+          - script: |
+              cd PX4
+              call .\toolchain\scripts\setup-environment.bat x
+              bash -l -c "rm /usr/bin/python3 && ln -s /usr/bin/python3.6 /usr/bin/python3"
+              bash -l -c "python3 -m pip -q --disable-pip-version-check install toml pyserial pyulog empy pyyaml cerberus pyros-genmsg packaging"
+              bash -l -c "git clone https://github.com/PX4/Firmware.git"
+              bash -l -c "cd Firmware && git checkout v1.12.3"
+              bash -l -c "cd Firmware && make px4_sitl_default"
+            displayName: Checkout & build PX4 Firmware SITL
+
+          # Setup Python client
+          - script: |
+              call "$(vs_cmd_prompt)"
+              python -m venv airsimenv
+              call .\airsimenv\Scripts\activate.bat
+              python -m pip install --upgrade pip setuptools
+              python -m pip install .\client\python\projectairsim
+            displayName: Install Project AirSim python client package
+
+          # Launch UE game in background
+          - script: |
+              start /b .\packages\Blocks\Development\Windows\Blocks.exe -RenderOffScreen
+            displayName: Launch UE game in background
+
+          # Launch PX4 Firmware SITL in background (-d: daemon mode)
+          - script: |
+              waitfor signal /t 10 2>NUL
+              cd PX4
+              call .\toolchain\scripts\setup-environment.bat x
+              start /B bash -l -c "cd Firmware && PX4_SIM_MODEL=iris ./build/px4_sitl_default/bin/px4 -d ./ROMFS/px4fmu_common -s etc/init.d-posix/rcS >px4_out.log 2>px4_err.log"
+            displayName: Launch PX4 Firmware SITL in background
+
+          # Run PX4 SITL end-end tests
+          - script: |
+              waitfor signal /t 30 2>NUL
+              call .\airsimenv\Scripts\activate.bat
+              python -m pip install pytest pytest-cov
+              netstat -an
+              tasklist
+              cd client\python\projectairsim\tests && pytest -v --junitxml=pytest-px4-results.xml px4_test_sitl.py
+            displayName: Run pytest for PX4 SITL end-end tests
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFiles: '**/pytest-*.xml'
+              testRunTitle: 'End-end PX4 SITL Tests'
+              searchFolder: .\client\python
+            displayName: Publish end-end PX4 SITL test results
+            condition: succeededOrFailed()
+
+          # Publish sim logs as a build artifact (PX4 files cause Azure CopyFiles@2 task error so use manual copy script)
+          - script: |
+              xcopy /s .\client\python\*.log $(Build.ArtifactStagingDirectory)
+              xcopy /s .\packages\Blocks\*.log $(Build.ArtifactStagingDirectory)
+              xcopy /s .\PX4\px4*.log $(Build.ArtifactStagingDirectory)
+            displayName: Stage sim log files as build artifact
+            condition: succeededOrFailed()
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: $(Build.ArtifactStagingDirectory)
+              artifactName: SimLogs_Win64
+            displayName: Publish build artifacts
+            condition: succeededOrFailed()
+
+          # Kill PX4 process and take ownership and permissions of cygwin folder to allow it to be deleted on next run
+          - script: |
+              taskkill /F /IM px4.exe
+              takeown /f ".\PX4\toolchain\cygwin64" /r /d Y
+              icacls ".\PX4\toolchain\cygwin64" /T /Q /C /reset
+            displayName: Set Cygwin folder permissions for next cleanup
+            condition: always()

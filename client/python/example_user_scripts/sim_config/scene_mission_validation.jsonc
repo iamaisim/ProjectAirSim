@@ -1,0 +1,35 @@
+{
+  "id": "SceneHelloGIS",
+  "actors": [
+    {
+      "type": "robot",
+      "name": "Drone1",
+      "origin": {
+        "geo-point": "47.641586 -122.14108 106.0",
+        "rpy-deg": "0 0 0"
+      },
+      "robot-config": "robot_quadrotor_fastphysics_sensors.jsonc"
+    }
+  ],
+  "clock": {
+    "type": "steppable",
+    "step-ns": 3000000,
+    "real-time-update-rate": 3000000,
+    "pause-on-start": false
+  },
+  "home-geo-point": { // Microsoft Campus
+    "latitude": 47.641468,
+    "longitude": -122.140165,
+    "altitude": 140.0
+  },
+  "segmentation": {
+    "initialize-ids": true,
+    "ignore-existing": false,
+    "use-owner-name": true
+  },
+  "scene-type": "CustomGIS",
+  // Set blank 'tiles-dir' path to use mini GIS tile set packaged in the
+  // binary's default tile path. To switch to a full GIS tile set, change
+  // the path to the tile set's directory.
+  "tiles-dir": ""
+}

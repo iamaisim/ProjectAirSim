@@ -1,0 +1,31 @@
+{
+  "id": "SceneDataCollectorDFW",
+  "actors": [
+    {
+      "type": "robot",
+      "name": "Drone1",
+      "origin": {
+        "xyz": "1111.0 -781.0 -68.0",
+        "rpy": "0 0 0"
+      },
+      "robot-config": "robot_quadrotor_nonphysics_annotations_downwards.jsonc"
+    }
+  ],
+  "clock": {
+    "type": "real-time",
+    "real-time-update-rate": 3000000
+  },
+  "home-geo-point": {
+    "latitude": 33.037290,
+    "longitude": -97.284282,
+    "altitude": 193.54
+  },
+  "segmentation": {
+    "initialize-ids": true,
+    "ignore-existing": false,
+    "use-owner-name": true
+  },
+  "scene-type": "CustomGIS",
+  "tiles-dir": "/mnt/datastore/gltf_data",
+  "tiles-altitude-offset": 91.4
+}

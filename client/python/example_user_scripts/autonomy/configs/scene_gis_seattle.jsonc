@@ -1,0 +1,43 @@
+{
+  "id": "SceneSeattleDrone",
+  "actors": [
+    {
+      "type": "robot",
+      "name": "Drone1",
+      "origin": {
+        "xyz": "0 0 -40.0",
+        "rpy-deg": "0 0 0"
+      },
+      "robot-config": "robot_quadrotor_fastphysics_sensors.jsonc"
+    }
+  ],
+  "environment-actors": [
+    {
+      "type": "env_actor",
+      "name": "DemoEnvActor",
+      "origin": {
+        "xyz": "358 311 -220",
+        "rpy-deg": "0 0 90"
+      },
+      "env-actor-config": "env_actor_quadtiltrotor.jsonc"
+    }
+  ],
+  "clock": {
+    "type": "steppable",
+    "step-ns": 3000000,
+    "real-time-update-rate": 3000000,
+    "pause-on-start": false
+  },
+  "home-geo-point": {
+    "latitude": 47.59943,
+    "longitude": -122.33467,
+    "altitude": 0
+  },
+  "segmentation": {
+    "initialize-ids": true,
+    "ignore-existing": false,
+    "use-owner-name": true
+  },
+  "scene-type": "CustomGIS",
+  "tiles-dir": "C:\\Users\\Public\\projectairsim\\gltf_tiles\\seattle"
+}

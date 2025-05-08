@@ -1,0 +1,411 @@
+{
+    "id": "SceneBasicDrone",
+    "actors": [
+      {
+        "type": "robot",
+        "name": "Drone1",
+        "origin": {
+          "xyz": "-20.0 7.0 -2.0",
+          "rpy-deg": "0 0 0"
+        },
+        "robot-config": "robot_quadrotor_fastphysics.jsonc"
+      }
+    ],
+    "environment-objects": [
+      {
+        "type": "env_particle_effect",
+        "name": "fire1",
+        "origin": {
+          "xyz": "-5.0 0.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_nfire_02.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire2",
+        "origin": {
+          "xyz": "-5.0 5.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_nfire_03.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire3",
+        "origin": {
+          "xyz": "-5.0 10.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_nfire_05.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire4",
+        "origin": {
+          "xyz": "-5.0 15.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_nfire_06.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire5",
+        "origin": {
+          "xyz": "-5.0 20.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_nfire_07.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire6",
+        "origin": {
+          "xyz": "-5.0 25.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_nfire_09.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire7",
+        "origin": {
+          "xyz": "-5.0 30.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_nfire_13.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire8",
+        "origin": {
+          "xyz": "-5.0 35.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_nfire_14.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire9",
+        "origin": {
+          "xyz": "-5.0 40.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_nfire_15.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire10",
+        "origin": {
+          "xyz": "-5.0 -5.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_nfire_grd_01.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire11",
+        "origin": {
+          "xyz": "-5.0 -10.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_nfire_grd_02.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire12",
+        "origin": {
+          "xyz": "-5.0 -15.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_nfireexp_00.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire13",
+        "origin": {
+          "xyz": "-5.0 -20.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_nfireexp_03.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire14",
+        "origin": {
+          "xyz": "-5.0 -25.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_pexplosion_big_a.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire15",
+        "origin": {
+          "xyz": "-5.0 -30.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_pexplosion_big_b.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire16",
+        "origin": {
+          "xyz": "-5.0 -35.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_pexplosion_molotov.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire17",
+        "origin": {
+          "xyz": "-5.0 -35.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_pexplosion_smoke.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire18",
+        "origin": {
+          "xyz": "-15.0 0.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_pfire_02.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire19",
+        "origin": {
+          "xyz": "-15.0 5.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_pfire_03.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire20",
+        "origin": {
+          "xyz": "-15.0 10.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_pfire_05.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire21",
+        "origin": {
+          "xyz": "-15.0 15.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_pfire_06.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire22",
+        "origin": {
+          "xyz": "-15.0 20.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_pfire_07.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire23",
+        "origin": {
+          "xyz": "-15.0 25.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_pfire_09.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire24",
+        "origin": {
+          "xyz": "-15.0 30.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_pfire_13.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire25",
+        "origin": {
+          "xyz": "-15.0 35.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_pfire_14.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire26",
+        "origin": {
+          "xyz": "-15.0 40.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_pfire_15.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire27",
+        "origin": {
+          "xyz": "-15.0 -5.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_pfire_grd_01.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire28",
+        "origin": {
+          "xyz": "-15.0 -10.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_pfire_grd_02.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire29",
+        "origin": {
+          "xyz": "-15.0 -15.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_pfire_debris_00.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire30",
+        "origin": {
+          "xyz": "-15.0 -20.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_pfire_debris_01.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire31",
+        "origin": {
+          "xyz": "-15.0 -25.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_pfire_flamethrower.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire32",
+        "origin": {
+          "xyz": "-15.0 -30.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_pfire_big.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire33",
+        "origin": {
+          "xyz": "-15.0 -35.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_pfire_small.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire34",
+        "origin": {
+          "xyz": "-15.0 -35.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_pfire_wall.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire35",
+        "origin": {
+          "xyz": "-30.0 -0.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_pfireexp_00.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "fire36",
+        "origin": {
+          "xyz": "-30.0 5.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_pfireexp_03.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "smoke01",
+        "origin": {
+          "xyz": "-30.0 10.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_psmoke_a.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "smoke02",
+        "origin": {
+          "xyz": "-30.0 15.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_psmoke_b.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "smoke03",
+        "origin": {
+          "xyz": "-30.0 20.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_psmoke_c.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "smoke04",
+        "origin": {
+          "xyz": "-30.0 25.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_psmoke_d.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "smoke05",
+        "origin": {
+          "xyz": "-30.0 30.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_psmoke_f.jsonc"
+      },
+      {
+        "type": "env_particle_effect",
+        "name": "smoke06",
+        "origin": {
+          "xyz": "-30.0 35.0 -1.0",
+          "rpy-deg": "0 0 0"
+        },
+        "env-object-config": "env_particle_effect_psteam_a.jsonc"
+      }
+    ],
+    "clock": {
+      "type": "steppable",
+      "step-ns": 3000000,
+      "real-time-update-rate": 3000000,
+      "pause-on-start": false
+    },
+    "home-geo-point": {
+      "latitude": 47.641468,
+      "longitude": -122.140165,
+      "altitude": 122.0
+    },
+    "segmentation": {
+      "initialize-ids": true,
+      "ignore-existing": false,
+      "use-owner-name": true
+    },
+    "scene-type": "UnrealNative"
+  }

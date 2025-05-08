@@ -1,0 +1,1 @@
+Simple action controller to translate the trajectory produced from moveit plugin in cmd_vel for the hector quadrotor contreller. It interface itself with moveit plugin using a costum defined action: MultiDofFollowJointTrajectory.action

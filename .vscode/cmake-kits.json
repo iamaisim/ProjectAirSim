@@ -1,0 +1,6 @@
+[
+  {
+    "name": "Unreal Linux Toolchain",
+    "toolchainFile": "unreal-linux-toolchain.cmake"
+  }
+]

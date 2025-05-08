@@ -1,0 +1,32 @@
+{
+  "platform": {
+    "default": "linux64",
+    "description": "The platform.",
+    "choices": {
+      "win64": {
+        "short": "win64",
+        "long": "Windows 64-bit"
+      },
+      "linux64": {
+        "short": "linux64",
+        "long": "Linux 64-bit"
+      }
+    }
+  },
+  "buildType": {
+    "default": "Debug",
+    "description": "The build type.",
+    "choices": {
+      "Debug": {
+        "short": "Debug",
+        "long": "Disable optimizations - include debug information.",
+        "buildType": "Debug"
+      },
+      "Release": {
+        "short": "Release",
+        "long": "Optimize for speed - exclude debug information.",
+        "buildType": "Release"
+      }
+    }
+  }
+}

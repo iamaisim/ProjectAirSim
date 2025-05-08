@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>projectairsim_ros</name>
+  <version>{# include "client_version.txt" #}</version>
+  <description>projectairsim_ros integrates Project AirSim with ROS 1 and 2 using the Project AirSim client API.</description>
+
+  <maintainer email="todo@microsoft.com">To Do</maintainer>
+
+  <license>Please refer to the Early Access Program (EAP) Agreement for the terms and conditions for using this product.</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>rclpy</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>radar_msgs</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>std_msgs</build_depend>
+
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>radar_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  
+  
+</package>

@@ -1,0 +1,43 @@
+<launch>
+    <!-- Top-level directories -->
+    <arg name="examples_dir" default="$(find projectairsim_ros_examples)"/>
+    <arg name="app_dir" default="$(arg examples_dir)/navigate_map"/>
+    <arg name="common_dir" default="$(arg examples_dir)/common"/>
+
+    <!-- Project AirSim simulation parameters -->
+    <arg name="airsim_ip_address" default="127.0.0.1"/>
+    <arg name="sim_config_path" default="$(arg examples_dir)/../../client/python/example_user_scripts/sim_config"/>
+    <arg name="sim_scene_name" default="SceneDroneSensors"/>
+    <arg name="robot_name" default="Drone1"/>
+
+    <!-- Project AirSim ROS topic names -->
+    <arg name="sim_scene_topic_base" default="Sim/$(arg sim_scene_name)"/>
+    <arg name="robot_topic_base" default="$(arg sim_scene_topic_base)/robots/$(arg robot_name)"/>
+
+    <!-- Launch Project AirSim node; the launch group will shutdown when this script exits -->
+    <node pkg="projectairsim_ros_examples" name="airsim_build_map" type="navigate_map.py" output="screen"
+        args="--address $(arg airsim_ip_address) --simconfigpath $(arg sim_config_path)">
+        required="true">
+    </node>
+
+    <!-- Map the global "map" frame used by the Project AirSim ROS node into the "world" frame used by MoveIt! -->
+    <node pkg="tf" type="static_transform_publisher" name="world_to_map" args="0.0 0.0 0.0 0.0 0.0 0.0 world map 100" />
+
+    <!-- Map the URDF's root base_link frame to Project AirSim drone's frame -->
+    <node pkg="tf" type="static_transform_publisher" name="virtual_joint_broadcaster_0" args="0 0 0 0 0 0 $(arg robot_topic_base) base_link 100" />
+
+    <!--rosrun action_controller action_controller -->
+    <node name="action_controller" pkg="action_controller" type="action_controller" output="screen">
+        <!-- Remap from generic velocity command topic to the one specifically for the Project AirSim drone -->
+        <remap from="/cmd_vel" to="$(arg robot_topic_base)/cmd_vel"/>
+        <remap from="/actual_pose" to="$(arg robot_topic_base)/actual_pose"/>
+    </node>
+
+    <!-- Launch MoveIt! nodes -->
+
+    <include file="$(arg app_dir)/launch/moveit.launch">
+        <arg name="app_dir" value="$(arg app_dir)"/>
+        <arg name="common_dir" value="$(arg common_dir)"/>
+    </include>
+
+</launch>

@@ -1,0 +1,16 @@
+{
+    "links": [
+      {
+        "name": "Frame",
+        "collision": {
+          "enabled": false
+        },
+        "visual": {
+          "geometry": {
+            "type": "skeletal_mesh",
+            "name": "/ProjectAirSim/Scanned3DPeoplePack/RP_Character/rp_nathan_rigged_003_ue4/rp_nathan_rigged_003_ue4"
+          }
+        }
+      }
+    ]
+  }

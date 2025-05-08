@@ -1,0 +1,5 @@
+<launch>
+  <arg name="app_dir"/>
+
+  <rosparam command="load" file="$(arg app_dir)/config/sensors_lidar.yaml" />
+</launch>

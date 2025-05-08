@@ -1,0 +1,13 @@
+float64 x
+float64 y
+float64 z
+float64 velocity
+float32 timeout_sec
+int32 drive_train_type
+bool yaw_is_rate
+float32 yaw
+float32 lookahead
+float32 adaptive_lookahead
+bool wait_on_last_task
+---
+bool success

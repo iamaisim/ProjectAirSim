@@ -1,0 +1,80 @@
+#
+# Azure pipeline to build ubuntu 22.04 ros2 base docker artifacts
+# 
+parameters:
+- name: baseimage
+  type: string 
+  default: adamrehn/ue4-runtime:22.04-cudagl11-x11
+- name: targetimage
+  type: string 
+  default: project_airsim_pipeline_ros2
+- name: targettag
+  type: string 
+  default: 22.04
+- name: ros2_distro
+  type: string 
+  default: humble
+
+variables:
+  vmss_pool: 'VMSS Agents Pool'
+  dockerRegistryServiceConnection: 'hameritt_acr_service_connection'
+
+resources:
+  repositories:
+  - repository: ProjectAirSim
+    type: github
+    endpoint: johnnovak_connection
+    name: microsoft/ProjectAirSim
+    trigger: none
+
+pool:
+  name: $(vmss_pool)
+
+jobs:
+- job: UbuntuBuildAzure
+  displayName: 'Build Ubuntu base docker artifacts'
+  steps:
+  - checkout: ProjectAirSim
+    path: ProjectAirSim
+
+  - script: |
+      sudo docker version
+      systemctl list-units
+    displayName: docker binary version
+
+  - script: |
+      ls -la /etc/systemd/system
+      ls -la /agent
+    displayName: list service dir
+    
+  - script: |
+      ps -Afwww
+    displayName: Running Processes
+  - task: Docker@2
+    displayName: Build Base ROS2 image
+    inputs:
+      command: build
+      Dockerfile: './docker/base_ros2_ubuntu.Dockerfile'
+      containerRegistry: $(dockerRegistryServiceConnection)
+      repository: ${{ parameters.targetimage }}_${{ parameters.ros2_distro }}
+      tags: |
+        ${{ parameters.targettag }}
+      arguments: '--build-arg BUILDKIT_SYNTAX=docker.io/docker/dockerfile:1.7-labs --build-arg BASE_IMAGE=${{ parameters.baseimage }} --build-arg ROS2_DISTRO=${{ parameters.ros2_distro }}'
+
+  - task: Docker@2
+    displayName: Login to Azure Container Registry
+    inputs:
+      command: login
+      containerRegistry: $(dockerRegistryServiceConnection)
+
+  - script: |
+      sudo docker image ls
+    displayName: Verify image names
+  - task: Docker@2
+    displayName: Publish image to Azure Container Registry
+    inputs:
+      command: Push
+      containerRegistry: $(dockerRegistryServiceConnection)
+      repository: ${{ parameters.targetimage }}_${{ parameters.ros2_distro }}
+      tags: |
+        ${{ parameters.targettag }}

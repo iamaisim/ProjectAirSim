@@ -1,6 +1,5 @@
 # Environment Objects Configuration Settings
 
-{# include enable_internal_docs.tpp #}
 Environment objects in Project AirSim are elements within the simulation that enhance visual realism without directly participating in the simulation's core tasks. These objects include various elements such as Niagara particle systems or Particle Components.
 
 Environment objects: 
@@ -21,9 +20,9 @@ These environment objects are nor affected by gravity or physics in general.
 
 | Parameter | Value | Description |
 | --------- | ----- | ----------- |
-| `visual` | **[Visual settings](#visual-settings-particles)** | Visual settings for the link's rendered mesh. |
+| `visual` | Array of **[Visual settings](#visual-settings)** | Visual settings for the link's rendered mesh. |
 
-### Visual settings particles
+### Visual settings
 
 The link's visual settings consist of what visual element will be rendered for the link.
 

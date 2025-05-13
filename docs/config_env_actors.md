@@ -1,6 +1,5 @@
 # Environment Actors Configuration Settings
 
-{# include enable_internal_docs.tpp #}
 Environment actors in Project AirSim are elements within the simulation environment that enhance its realism and complexity. These actors are not directly involved in primary simulation tasks but contribute to the overall immersive and authentic experience. They include a variety of entities designed to replicate real-world surroundings, which help in creating a comprehensive testing scenario for autonomous systems.
 
 The environment actors have the capacity of having a defined trajectory to follow. It can be configured in the same settings file **[Trajectory settings](#trajectory-settings)**, inside the script or using a path file.
@@ -171,9 +170,6 @@ A joint is a connection between two links (a single parent link and a single chi
 | `child-link` | string | Name identifier for the joint's child link. |
 | `axis` | `"1 0 0"` for X axis, `"0 1 0"` for Y axis, `"0 0 1"` for Z axis | Rotation axis for joint motion. |
 
-{#ifdef INTERNAL_DOCS #}
-{# include begin_internal.md #}
-
 ## Car configuration overview
 
 Ground vehicles designed to simulate real-world traffic and driving conditions. This is a grounded environment actor since it is affected by gravity. It also has wheels that follow the trajectory given.
@@ -290,8 +286,6 @@ A joint is a connection between two links (a single parent link and a single chi
 | `child-link` | string | Name identifier for the joint's child link. |
 | `axis` | `"1 0 0"` for X axis, `"0 1 0"` for Y axis, `"0 0 1"` for Z axis | Rotation axis for joint motion. |
 
-{#ifdef INTERNAL_DOCS #}
-{# include begin_internal.md #}
 
 ## Human configuration overview
 

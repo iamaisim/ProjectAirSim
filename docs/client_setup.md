@@ -1,15 +1,4 @@
 # Project AirSim Client Setup
-{# include get_client_version.tpp #}
-{# include enable_internal_docs.tpp #}
-
-{# ifdef INTERNAL_DOCS #}
-{# include begin_internal_dev_note.md #}
-
-The following instructions include optional steps for internal developers in addition to the setup performed by external users.  The steps are mostly the same except that a developer may install the client library "in place" instead of through the Python wheel file.  This allows clients to automatically pickup changes to the library rather than requiring the wheel to be rebuilt and reinstalled each time.  Developers are free to perform the standard external user setup, however, if they wish.
-
-{# include end_internal_dev_note.md #}
-{# endif INTERNAL_DOCS #}
-
 
 ## Python Client
 
@@ -17,28 +6,6 @@ A Python client uses the following to communicate with the Project AirSim simula
 
 - Python 3.10, 64-bit
 - **[pynng](https://github.com/codypiersall/pynng)** nanomsg-next-gen wrapper pip package
-
-
-## Python Client Library
-
-{# ifdef INTERNAL_DOCS #}
-{# include begin_internal_dev_note.md #}
-
-Developers usually will not install the client library from the Python wheel and later in the setup will instead register "in place" the Project AirSim Python client library which is located in the `client\python\projectairsim` directory.
-
-{# include end_internal_dev_note.md #}
-{# endif INTERNAL_DOCS #}
-
-
-The Project AirSim Python client library is provided as a Python wheel file:
-
-1. Locate the `client` folder from the Project AirSim distribution.
-2. Locate the `ProjectAirSim_Client_Binary_Wheel.zip` compressed archive file.
-3. From the archive file extract the wheel file with the name of the form `projectairsim-{# print CLIENT_VERSION #}-py3-none-any.whl` where `{# print CLIENT_VERSION #}` is the Project AirSim version ID of your distribution.
-
-The wheel file will be installed into the Python virtual environment using the Python pip tool (see details for each OS platform below).
-
----
 
 ### Setting Up the Client on **Windows**
 
@@ -58,8 +25,8 @@ The wheel file will be installed into the Python virtual environment using the P
 
     A) Install `virtualenv` and create a new environment (here named `airsim-venv` but you may choose any convenient name):
 
-        C:\Python38\python -m pip install virtualenv
-        C:\Python38\python -m venv C:\path\to\airsim-venv
+        C:\Python310\python -m pip install virtualenv
+        C:\Python310\python -m venv C:\path\to\airsim-venv
 
     B) Activate your environment:
 
@@ -86,30 +53,16 @@ The wheel file will be installed into the Python virtual environment using the P
 
         python -m pip install --upgrade pip
         python -m pip install setuptools wheel
+    
+    Developers must also install the cmake package:
+        python -m pip install cmake
 
-    {# ifdef INTERNAL_DOCS #}
-    {# include internal_dev_note.md #}: Internal developers must also install the cmake package:
-
-            python -m pip install cmake
-
-    {# endif INTERNAL_DOCS #}
-
-3. Install the Project AirSim Python client library from the <code>projectairsim-{# print CLIENT_VERSION #}-py3-none-any.whl</code> file in the distribution:
-
-        python -m pip install path\to\projectairsim-{# print CLIENT_VERSION #}-py3-none-any.whl
-
-	where <code>{# print CLIENT_VERSION #}</code> is the actual version ID of your distribution. {# ifdef INTERNAL_DOCS #}
-
-    {# include begin_internal_dev_note.md #}
-
-    Here developers will probably wish to instead install the client library "in place" from the library sources in the repo:
+3. Install the Project AirSim Python client library:
 
         cd path\to\repo
         python -m pip install -e client\python\projectairsim
 
-    {# include end_internal_dev_note.md #}
-
-    {# endif INTERNAL_DOCS #} If you get this error:
+    If you get this error:
 
         Error: Could not find a version that satisfies the requirement open3d
 
@@ -161,30 +114,15 @@ The wheel file will be installed into the Python virtual environment using the P
         python -m pip install --upgrade pip
         python -m pip install setuptools wheel
 
-    {# ifdef INTERNAL_DOCS #}
-    {# include internal_dev_note.md #}: Internal developers must also install the cmake package:
-
+    Developers must also install the cmake package:
             python -m pip install cmake
 
-    {# endif INTERNAL_DOCS #}
-
-3. Install the Project AirSim Python client library with the <code>projectairsim-{# print CLIENT_VERSION #}-py3-none-any.whl</code> file from the distribution:
-
-        python -m pip install path/to/projectairsim-{# print CLIENT_VERSION #}-py3-none-any.whl
-
-	where <code>{# print CLIENT_VERSION #}</code> is the actual version ID of your distribution. {# ifdef INTERNAL_DOCS #}
-
-    {# include begin_internal_dev_note.md #}
-
-    Here developers will probably wish to instead install the client library "in place" from the library sources in the repo:
+3. Install the Project AirSim Python client library:
 
         cd path\to\repo
         python -m pip install -e client\python\projectairsim
-
-    {# include end_internal_dev_note.md #}
-
-    {# endif INTERNAL_DOCS #} If you get this error:
-
+    
+    If you get this error:
         Error: Could not find a version that satisfies the requirement open3d
 
     most likely your virtual environment is using a 32-bit build or an unsupported version of Python. In either case, delete and rebuild the virtual environment (see step 2A) using a supported 64-bit version of Python.

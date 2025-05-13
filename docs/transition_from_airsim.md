@@ -23,7 +23,7 @@ To convert an existing AirSim Unreal environment to AirSim vNext, you can perfor
 
 3. Add AirSim vNext to the environment following **[How to add the AirSim vNext Plugin to a custom Unreal environment](use_plugin.md#how-to-add-the-airsim-v-next-plugin-to-a-custom-unreal-environment)**, including the part about setting the `GameMode` to `AirSimVNextGameMode` since `AirSimGameMode` is no longer valid.
 
-4. On first opening of the `<environment>.uproject` file with Unreal Engine 4.25, there may be some warnings about failing to load some AirSim content such as:
+4. On first opening of the `<environment>.uproject` file with Unreal Engine 5.2, there may be some warnings about failing to load some AirSim content such as:
 
         Failed to load /AirSim/StarterContent/Materials/M_Tech_Hex_Tile_Pulse.M_Tech_Hex_Tile_Pulse Referenced by StaticMeshComponent0
         Failed to load /AirSim/VehicleAdv/SUV/AutomotiveMaterials/Materials/Glass/M_Glass.M_Glass Referenced by StaticMeshComponent0
@@ -364,7 +364,7 @@ We `await` takeoff_async, which retrieves an asychronous task. We then execute t
 | AirSim OSS      | Project AirSim | Observations |
 | ----------- | ----------- | ----------- |
 | client.enableApiControl(bool)      | drone.enable_api_control(), drone.disable_api_control()       |        |
-| client.isApiControlEnabled() | Not implemented.| |
+| client.isApiControlEnabled() | drone.is_api_control_enabled().| |
 | client.reset()      | World()       | To reset the scene, instantiate the same World again.       |
 | client.confirmConnection() | Not implemented. | |
 | client.ping() | Not implemented.| |
@@ -414,7 +414,7 @@ We `await` takeoff_async, which retrieves an asychronous task. We then execute t
 | client.getGpsData()      | drone.get_gps_data(sensor_name)       |        |
 | client.getLidarData() | Not implemented. | Use self.client.subscribe() to subscribe to the LiDAR sensor and handle LiDAR data in the callback. |
 | client.simGetVehiclePose() | drone.get_ground_truth_pose() | |
-| client.getHomeGeoPoint() | Not implemented. | |
+| client.getHomeGeoPoint() | drone.geo_to_ned_coordinates(). | |
 
 #### Simulation 
 | AirSim OSS      | Project AirSim | Observations |
@@ -433,7 +433,7 @@ We `await` takeoff_async, which retrieves an asychronous task. We then execute t
 | client.simSetSegmentationObjectId() | world.set_segmentation_id_by_name() | |
 | client.simSetObjectMaterial() | Not implemented. | |
 | client.simSetObjectMaterialFromTexture() | world.set_object_material() | Use the `file:///` protocol to access local textures. |
-| client.simListAssets() | Not implemented. | |
+| client.simListAssets() | world.list_assets() | |
 | client.simSpawnObject() | world.spawn_object() | |
 | client.simDestroyObject() | world.destroy_object() | |
 | client.simListSceneObjects() | world.list_objects() | |
@@ -441,8 +441,8 @@ We `await` takeoff_async, which retrieves an asychronous task. We then execute t
 | client.simSetObjectPose() | world.set_object_pose() | |
 | client.simGetObjectScale() | world.get_object_scale() | |
 | client.simSetObjectScale() | world.set_object_scale() | |
-| client.simSwapTextures() | Not implemented. | |
-| client.simSetLightIntensity() | Not implemented. | |
+| client.simSwapTextures() | world.swap_object_texture() | |
+| client.simSetLightIntensity() | world.set_light_object_intensity() | |
 | client.simPlotArrows() | world.plot_debug_arrows() ||
 | client.simPlotPoints() | world.plot_debug_points() ||
 | client.simPlotLineStrip() | world.plot_debug_solid_line() ||
@@ -465,13 +465,13 @@ We `await` takeoff_async, which retrieves an asychronous task. We then execute t
 #### Image Types
 | AirSim OSS      | Project AirSim | Observations |
 | ----------- | ----------- | ----------- |
-|Scene = 0 |    SCENE = 0 ||
+|    Scene = 0 |    SCENE = 0 ||
 |    DepthPlanar = 1 |    DEPTH_PLANAR = 1||
 |    DepthPerspective = 2 | DEPTH_PERSPECTIVE = 2 ||
-|    DepthVis = 3 |||
-|    DisparityNormalized = 4 |||
+|    DepthVis = 3 | DEPTH_VIS = 4||
+|    DisparityNormalized = 4 | DISPARITY_NORMALIZED = 5||
 |    Segmentation = 5 |SEGMENTATION = 3||
-|    SurfaceNormals = 6 |||
+|    SurfaceNormals = 6 | SURFACE_NORMALS =6||
 |    Infrared = 7 |||
 |    OpticalFlow = 8 |||
 |    OpticalFlowVis = 9   |||

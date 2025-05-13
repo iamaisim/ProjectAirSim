@@ -1,9 +1,5 @@
-# Running Headless (Docker, Azure Cloud)
+# Running Headless (Docker)
 {# include enable_internal_docs.tpp #}
-
-## Running Project AirSim in the Cloud
-
-*TODO Add info for running on Azure here.*
 
 ## Using headless mode with VS Code Debugging
 

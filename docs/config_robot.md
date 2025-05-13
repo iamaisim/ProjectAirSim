@@ -1,7 +1,5 @@
 # Robot Configuration Settings
 
-{# include enable_internal_docs.tpp #}
-
 Project AirSim robots are configured as tree structures of **links** (physical components with mass and shape) and **joints** (connections and constraints between links).
 
 The robot can have a **physics type** associated with it to determine a physics engine that will parse the robot structure and construct a corresponding physics body using the data relevant for that physics type.
@@ -55,8 +53,6 @@ Project AirSim currently comes with some base configurations for quadrotor drone
 
 **[Fast Physics](physics/fast_physics.md)** is a basic light-weight physics model made for aerial drone flight. Fast Physics makes it easy to get started with flying a drone out-of-the-box.
 
-{# ifdef INTERNAL_DOCS #}
-{# include begin_internal.md #}
 ### Unreal Physics
 
 ``` json
@@ -67,9 +63,6 @@ Project AirSim currently comes with some base configurations for quadrotor drone
 
 *Note: The simulation will automatically detect when any actor in the scene is configured to use Unreal Physics, and this will link the physics calculation step to Unreal's rendering step, so the [sim clock setting](config_scene.md#steppable-clock) for `step-ns` may need to be much slower (20 ms = ~50 FPS) to maintain reasonable simulation advancement rate.*
 
-{# include end_internal.md #}
-
-{# endif INTERNAL_DOCS #}
 ## Link settings
 
 A link is a physical component with mass and shape. The link settings consist of inertial, collision, and visual elements.
@@ -291,9 +284,6 @@ Example of fixed joint for drone propellers using **[Fast Physics](physics/fast_
 ]
 ```
 
-{#ifdef INTERNAL_DOCS #}
-{# include begin_internal.md #}
-
 Example of continuous rotation joint for drone propellers using **[Unreal Physics](internal/physics/unreal_physics.md)** which rotates the propeller meshes using some applied torque on the propellers:
 
 ``` json
@@ -314,9 +304,6 @@ Example of continuous rotation joint for drone propellers using **[Unreal Physic
 ]
 ```
 
-{# include end_internal.md #}
-
-{#endif INTERNAL_DOCS #}
 ## Controller settings
 
 A controller is used to decide how to command the robot's actuators in order to apply forces and torques on the robot's links. Only a single controller per robot is currently supported.

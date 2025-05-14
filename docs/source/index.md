@@ -1,7 +1,3 @@
-# Project AirSim Documentation
-
-Welcome to the Project AirSim documentation!
-
 ```{include} ../../README.md
 :relative-docs: docs_build/source
 :relative-images: docs_build/source/images

@@ -1,7 +1,7 @@
 :: Copyright (C) Microsoft Corporation. 
-Copyright (C) IAMAI  Consulting.  
+:: Copyright (C) IAMAI  Consulting Corporation.  
 
-MIT License.
+:: MIT License.
 @echo off
 
 :: Simple example launcher script to bring up a sim binary with PixelStreaming

@@ -1,4 +1,7 @@
-// Copyright (C) Microsoft Corporation. All rights reserved.
+// Copyright (C) Microsoft Corporation. 
+// Copyright (C) IAMAI  Consulting.  
+
+// MIT License.
 
 #ifndef RENDERING_SCENE_INCLUDE_GLTF_DATA_PROVIDER_HPP_
 #define RENDERING_SCENE_INCLUDE_GLTF_DATA_PROVIDER_HPP_

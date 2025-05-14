@@ -1,4 +1,7 @@
-// Copyright (C) Microsoft Corporation.  All rights reserved.
+// Copyright (C) Microsoft Corporation. 
+// Copyright (C) IAMAI  Consulting.  
+
+// MIT License. All rights reserved.
 
 #ifndef CORE_SIM_INCLUDE_CORE_SIM_SENSORS_CAMERA_HPP_
 #define CORE_SIM_INCLUDE_CORE_SIM_SENSORS_CAMERA_HPP_

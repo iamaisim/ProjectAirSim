@@ -1,6 +1,9 @@
 """
 
-Copyright (C) Microsoft Corporation. All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (C) IAMAI  Consulting.  
+
+MIT License.
 
 
 This script holds helper methods for the data collection module

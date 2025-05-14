@@ -700,4 +700,7 @@ For each sensor type's specific settings, see the sensor pages:
 
 ---
 
-Copyright (C) Microsoft Corporation.  All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (c) 2025 IAMAI Simulations.
+
+MIT License. All rights reserved.

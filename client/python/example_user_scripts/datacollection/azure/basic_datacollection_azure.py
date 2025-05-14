@@ -1,5 +1,8 @@
 """
-Copyright (C) Microsoft Corporation. All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (C) IAMAI  Consulting.  
+
+MIT License.
 
 This script integrates all sub functions of datacollection
 1. Reads datacollection config (datacollection_config.jsonc)

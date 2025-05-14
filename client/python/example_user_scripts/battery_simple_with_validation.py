@@ -1,5 +1,8 @@
 """
-Copyright (C) Microsoft Corporation. All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (C) IAMAI  Consulting.  
+
+MIT License.
 
 Demonstrates how to inject a validation module into existing
 scripts. 

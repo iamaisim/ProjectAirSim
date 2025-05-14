@@ -1,5 +1,8 @@
 """
-Copyright (C) Microsoft Corporation. All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (C) IAMAI  Consulting.  
+
+MIT License.
 
 Script for generating a coco json file based on an input `Dataset` object as well
 as static information from the config

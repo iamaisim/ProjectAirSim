@@ -1,5 +1,8 @@
 #!/bin/bash
-# Copyright (C) Microsoft Corporation. All rights reserved.
+# Copyright (C) Microsoft Corporation. 
+Copyright (C) IAMAI  Consulting.  
+
+MIT License.
 
 ## Install mkdocs
 # python3.7 -m venv env

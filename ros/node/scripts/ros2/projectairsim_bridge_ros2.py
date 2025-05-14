@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """
-Copyright (C) Microsoft Corporation. All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (C) IAMAI  Consulting.  
+
+MIT License.
 
 ROS bridge for Project AirSim.  This example illustrates the basic setup of
 the Project AirSim ROS Bridge node for ROS2.  Here no client script is run at

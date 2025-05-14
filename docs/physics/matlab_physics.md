@@ -4,13 +4,13 @@ Project AirSim allows users to import their existing Simulink physics models as 
 
 ## Prerequisites
 
-Download and install Matlab + Simulink 2022a with the Aerospace Blockset add-on.
-
+Download and install Matlab + Simulink 2024b with the Aerospace Blockset add-on.
+ 
 ## Install Matlab Engine API for Python
 
 In order to connect to Matlab from the Python client, the Matlab Engine API for Python must be installed. More information can be found on the MathWorks [documentation](https://www.mathworks.com/help/matlab/matlab_external/install-the-matlab-engine-for-python.html) but the general installation steps are prescribed below:
 1. Run a command prompt as Administrator
-1. Activate a Python virtual environment and navigate to the directory where the Matlab API Python library is installed: `cd "C:\Program Files\MATLAB\R2022a\extern\engines\python"`
+1. Activate a Python virtual environment and navigate to the directory where the Matlab API Python library is installed: `cd "C:\Program Files\MATLAB\R2024b\extern\engines\python"`
 1. Install the Matlab API Python library: `python setup.py install`
 
 ## Example Scripts with Simulink Physics
@@ -23,7 +23,7 @@ The example Python client scripts and configuration files can be found in `clien
 - The `simulink/` folder contains the Matlab model loader m-file scripts, the Simulink models, and the S-function mex file. Each Matlab script loads the vehicle parameters, opens the Simulink model, and configures the Matlab Engine for the client script to use Python APIs to control. The Simulink model contains the drone and fixed-wing physics for the vehicle, and references the vehicle parameters loaded via the Matlab script.
 
 ### Running the Scripts
-1. Open Matlab 2022a.
+1. Open Matlab 2024b.
 1. Navigate the Matlab file explorer to the `client/python/example_user_scripts/simulink/` folder.
 1. Run the model loader m-file from the **Matlab console**:
    1. ex. `>> load_quadrotor_simulink_physics_model`
@@ -35,4 +35,7 @@ The example Python client scripts and configuration files can be found in `clien
 
 ---
 
-Copyright (C) Microsoft Corporation.  All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (c) 2025 IAMAI Simulations.
+
+MIT License. All rights reserved.

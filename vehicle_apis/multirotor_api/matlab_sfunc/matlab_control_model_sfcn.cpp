@@ -1,4 +1,7 @@
-// Copyright (C) Microsoft Corporation. All rights reserved.
+// Copyright (C) Microsoft Corporation. 
+// Copyright (C) IAMAI  Consulting.  
+
+// MIT License.
 
 #define S_FUNCTION_LEVEL 2
 #define S_FUNCTION_NAME matlab_control_model_sfcn

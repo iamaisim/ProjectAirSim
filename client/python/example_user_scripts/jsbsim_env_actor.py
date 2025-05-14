@@ -1,5 +1,8 @@
 """
-Copyright (C) Microsoft Corporation. All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (C) IAMAI  Consulting.  
+
+MIT License.
 Demo client script to demonstrate the use of environment
 actors with a trajectory imported from a JSBSim script
 and set via client API. The trajectory can be used by 

@@ -1,4 +1,7 @@
-// Copyright (C) Microsoft Corporation. All rights reserved.
+// Copyright (C) Microsoft Corporation. 
+// Copyright (C) IAMAI  Consulting.  
+
+// MIT License.
 
 #ifndef UNITY_SIM_UNITY_WRAPPER_INCLUDE_UNITY_INTEROP_STRUCTS_HPP_
 #define UNITY_SIM_UNITY_WRAPPER_INCLUDE_UNITY_INTEROP_STRUCTS_HPP_

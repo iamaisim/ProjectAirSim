@@ -6,4 +6,7 @@ If running the sim locally with the game viewport (stand-alone game or in Editor
 
 ---
 
-Copyright (C) Microsoft Corporation.  All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (c) 2025 IAMAI Simulations.
+
+MIT License. All rights reserved.

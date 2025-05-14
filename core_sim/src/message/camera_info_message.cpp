@@ -1,4 +1,7 @@
-// Copyright (C) Microsoft Corporation.  All rights reserved.
+// Copyright (C) Microsoft Corporation. 
+// Copyright (C) IAMAI  Consulting.  
+
+// MIT License. All rights reserved.
 // The CameraInfoMessage implementation.
 
 #include "core_sim/message/camera_info_message.hpp"

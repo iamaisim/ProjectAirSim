@@ -1,4 +1,7 @@
-// Copyright (C) Microsoft Corporation. All rights reserved.
+// Copyright (C) Microsoft Corporation. 
+Copyright (C) IAMAI  Consulting.  
+
+MIT License.
 
 #include "response_message.hpp"
 
@@ -18,9 +21,9 @@ namespace microsoft {
 namespace projectairsim {
 
 //! Message Spec success:
-//! {"id": 1, "results": { "res1": val1, …}, "version": 1.0}
+//! {"id": 1, "results": { "res1": val1, ï¿½}, "version": 1.0}
 //! Message Spec failure:
-//! {"id": 1, "error": { "code": ERROR_CODE, "message": “ERROR_MSG”}}
+//! {"id": 1, "error": { "code": ERROR_CODE, "message": ï¿½ERROR_MSGï¿½}}
 class ResponseMessage::Impl : public MessageImpl {
  public:
   Impl();

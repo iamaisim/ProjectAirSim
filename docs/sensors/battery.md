@@ -110,4 +110,7 @@ Power Consumed = rotor-power-coefficient x number_of_rotors x torque x ang_vel +
 | `rotor-power-coefficient`| float| Required for rotor-power-discharge-mode. Used to scale the rotor-power estimates by a constant, default is one.|
 
 ---
-Copyright (C) Microsoft Corporation.  All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (c) 2025 IAMAI Simulations.
+
+MIT License. All rights reserved.

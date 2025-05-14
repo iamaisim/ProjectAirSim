@@ -1,5 +1,8 @@
 """
-Copyright (C) Microsoft Corporation. All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (C) IAMAI  Consulting.  
+
+MIT License.
 
 Demonstrates flying a single FastPhysics drone in a Dallas/Fort Worth (DFW) GIS scene.
 A sim-packaged landing pad is spawned automatically through the scene config file.

@@ -1,4 +1,7 @@
-// Copyright (C) Microsoft Corporation.  All rights reserved.
+// Copyright (C) Microsoft Corporation. 
+// Copyright (C) IAMAI  Consulting.  
+
+// MIT License. All rights reserved.
 
 #ifndef MULTIROTOR_API_INCLUDE_COMMON_SMOOTHING_FILTER_HPP_
 #define MULTIROTOR_API_INCLUDE_COMMON_SMOOTHING_FILTER_HPP_

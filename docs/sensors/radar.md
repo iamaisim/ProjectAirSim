@@ -123,4 +123,7 @@ Mask settings define sections of the FOV that should NOT be included in the rada
 
 ---
 
-Copyright (C) Microsoft Corporation.  All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (c) 2025 IAMAI Simulations.
+
+MIT License. All rights reserved.

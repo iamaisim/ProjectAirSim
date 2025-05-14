@@ -1,5 +1,8 @@
 """
-Copyright (C) Microsoft Corporation. All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (C) IAMAI  Consulting.  
+
+MIT License.
 
 Update the reliability of the subscription to simulate communication
 faults. (i.e. deliver messages with some probability 'p' in (0,1))

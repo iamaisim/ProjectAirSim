@@ -1,4 +1,7 @@
-// Copyright (C) Microsoft Corporation. All rights reserved.
+// Copyright (C) Microsoft Corporation. 
+// Copyright (C) IAMAI  Consulting.  
+
+// MIT License.
 
 #ifndef PHYSICS_TEST_TEST_DATA_PHYSICS_TEST_CONFIG_HPP_
 #define PHYSICS_TEST_TEST_DATA_PHYSICS_TEST_CONFIG_HPP_

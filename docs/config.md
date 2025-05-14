@@ -90,4 +90,7 @@ For more detailed info, see **[Environment Actor Configuration Settings](config_
 
 ---
 
-Copyright (C) Microsoft Corporation.  All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (c) 2025 IAMAI Simulations.
+
+MIT License. All rights reserved.

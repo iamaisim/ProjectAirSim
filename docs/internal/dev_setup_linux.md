@@ -1,5 +1,4 @@
 # Developer Initial Setup for Linux
-{# include enable_internal_docs.tpp #}
 
 On Linux, Project AirSim can be developed with VS Code which provides a light-weight, cross-platform common experience between Linux and Windows.
 
@@ -106,4 +105,7 @@ Now you're ready to start **[Developing Project AirSim Libs](use_source.md#devel
 
 ---
 
-Copyright (C) Microsoft Corporation.  All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (c) 2025 IAMAI Simulations.
+
+MIT License. All rights reserved.

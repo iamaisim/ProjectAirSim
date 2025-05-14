@@ -1,5 +1,4 @@
 # Developer Initial Setup for Windows
-{# include enable_internal_docs.tpp #}
 
 On Windows, Project AirSim can be developed with either Visual Studio 2019 or VS Code. VS Code is convenient because it provides a lighter-weight, cross-platform common experience between Windows and Linux.
 
@@ -60,4 +59,7 @@ Now you're ready to start **[Developing Project AirSim Sim Libs](use_source.md#d
 
 ---
 
-Copyright (C) Microsoft Corporation.  All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (c) 2025 IAMAI Simulations.
+
+MIT License. All rights reserved.

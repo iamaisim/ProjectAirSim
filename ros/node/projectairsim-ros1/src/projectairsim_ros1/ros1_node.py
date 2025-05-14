@@ -1,5 +1,8 @@
 """
-Copyright (C) Microsoft Corporation. All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (C) IAMAI  Consulting.  
+
+MIT License.
 ROS bridge for Project AirSim: ROS 1 abstractions
 """
 from projectairsim_rosbridge import node

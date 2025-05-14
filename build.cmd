@@ -1,4 +1,7 @@
-REM Copyright (C) Microsoft Corporation. All rights reserved.
+REM Copyright (C) Microsoft Corporation. 
+Copyright (C) IAMAI  Consulting.  
+
+MIT License.
 
 @echo off
 setlocal

@@ -93,4 +93,7 @@ automatically disconnect when it is deleted, it is good practice to call
 
 ---
 
-Copyright (C) Microsoft Corporation. All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (C) IAMAI  Consulting.  
+
+MIT License.

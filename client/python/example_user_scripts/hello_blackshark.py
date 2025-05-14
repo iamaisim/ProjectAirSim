@@ -1,5 +1,8 @@
 """
-Copyright (C) Microsoft Corporation. All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (C) IAMAI  Consulting.  
+
+MIT License.
 
 Demonstrates flying a quadrotor drone in a GIS scene using Blackshark as an out-of-the-box example.
 This needs to be run with a Blackshark environment uproject that has the Airsim plugin 

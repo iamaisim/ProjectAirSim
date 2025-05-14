@@ -1,5 +1,8 @@
 """
-Copyright (C) Microsoft Corporation. All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (C) IAMAI  Consulting.  
+
+MIT License.
 ProjectAirSim:: Autonomy building-blocks:: Perception App1: Visual Drone Takeoff-Landing(Sync)
 """
 import asyncio

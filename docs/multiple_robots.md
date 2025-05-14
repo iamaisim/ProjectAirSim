@@ -33,4 +33,7 @@ You can simply add another actor block in the **[Scene Configuration Settings](c
 
 ---
 
-Copyright (C) Microsoft Corporation.  All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (c) 2025 IAMAI Simulations.
+
+MIT License. All rights reserved.

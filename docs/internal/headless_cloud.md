@@ -1,5 +1,9 @@
+<<<<<<< HEAD:docs/internal/headless_cloud.md
 # Running Headless (Docker, Azure Cloud)
 {# include enable_internal_docs.tpp #}
+=======
+# Running Headless (Docker)
+>>>>>>> b31015d (Added IAMAI copyright):docs/development/headless_cloud.md
 
 ## Running Project AirSim in the Cloud
 
@@ -66,4 +70,7 @@ This can also be done by directly modifying the `Blocks/Intermediate/ProjectFile
 
 ---
 
-Copyright (C) Microsoft Corporation.  All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (c) 2025 IAMAI Simulations.
+
+MIT License. All rights reserved.

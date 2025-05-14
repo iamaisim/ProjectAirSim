@@ -1,6 +1,9 @@
 """
 Model interface defininitions for Autonomy Blocks
-Copyright (C) Microsoft Corporation. All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (C) IAMAI  Consulting.  
+
+MIT License.
 """
 
 from dataclasses import dataclass

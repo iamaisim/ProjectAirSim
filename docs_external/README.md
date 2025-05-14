@@ -1,116 +1,116 @@
 # Welcome to Project AirSim
 
-_Non-public information provided under the terms of Non-Disclosure Agreement with Microsoft Corporation_
+Project AirSim is a simulation platform for drones, robots, and other autonomous systems.
 
-**Project AirSim** is an enterprise grade platform to enable rapid development of machine intelligence-centric autonomous systems, involving agents like drones and factory robots operating in the physical world.
+Building on the previous work of **[AirSim](https://github.com/microsoft/AirSim)**, it leverages **[Unreal Engine 5](https://www.unrealengine.com/)** to provide photo-realistic visuals, while providing the simulation framework needed to integrate custom physics, controllers, actuators, and sensors to develop an autonomous system.
 
-In the initial phase, the platform will provide two solution components:
-
-1. **AI-First Simulation** platform
-
-2. Collection of **Autonomy Blocks**
-
-The current drops contain the simulation platform; the autonomy blocks will be added in future drops.
-
-_Project AirSim_ is a name used for pre-release drops and the product name is likely to change in future releases.
-
-## AI-First simulation platform
-
-Related to Microsoft's **[AirSim](https://github.com/microsoft/AirSim)**, the simulation plaform leverages **[Unreal Engine 4](https://www.unrealengine.com/)** to provide photo-realistic visuals, while providing the simulation framework needed to integrate custom physics, controllers, actuators, and sensors to develop an autonomous system.
-
-The simulation platform consists of 3 main layers:
+Project AirSim consists of three main layers:
 
 1. **Project AirSim Sim Libs** - Base infrastructure for defining a generic robot structure and simulation scene tick loop
 
-2. **Project AirSim Plugin** - Host package (currently an Unreal Plugin) that builds on the sim libs core to connect external components (controller, physics, rendering) at runtime that are specific to each configured robot-type scenario (ex. quadrotor drones)
+2. **Project AirSim Plugin** - Host package (currently an Unreal Plugin) that builds on the sim libs to connect external components (controller, physics, rendering) at runtime that are specific to each configured robot-type scenario (ex. quadrotor drones)
 
 3. **Project AirSim Client Library** - End-user library to enable API calls to interact with the robot and simulation over a network connection
 
-The Project AirSim simulation platform currently supports Windows 10/Server 2019 and Ubuntu 20.04. For more info about hardware specs for working with Project AirSim, see **[System Specifications](system_specs.md)**.
+For more details on the architecture, see **[Project AirSim Architecture Overview](docs/development/use_source.md#airsim-v-next-architecture-overview)**.
 
-![Drone flying in Blocks environment](images/drone_in_blocks.jpg)
+Project AirSim currently supports Windows 11 and Ubuntu 20.04. For more info about hardware specs for working with Project AirSim, see **[System Specifications](docs/system_specs.md)**.
 
-## Autonomy blocks
+![Drone flying in Blocks environment](docs/images/drone_in_blocks.jpg)
 
-Autonomy blocks are a collection of ML-centric building blocks that enable rapid development of autonomous solutions like drone landing using camera, drone navigation, etc.
-If you are interested in exploring and/or building machine learning applications and models for autonomous perception/planning/control tasks, you can leverage the pre-trained models, datasets and learning environments in Project AirSim.
-Learn more about the initial offering here:
+## Getting Started
 
-*Coming soon! Stay tuned for the next release*
+See **[Installing system prerequisites](docs/system_specs.md#installing-system-prerequisites)** for information about Windows/Linux system setup needed before running Project AirSim.
 
-## What's New
+### 1. Develop with Project AirSim source
 
-For a complete list of changes, view our **[Changelog](changelog.md)**.
+> I'm going to build the sim libs, Plugin, Blocks, and my own UE project environment from the ground up so I can customize it to my application.
 
-## Getting started
+#### **[Build from source as a developer](docs/development/use_source.md)**
 
-### Early Access Program (EAP) package
+### 2. Drop-in Project AirSim Plugin
 
-If you've received Project AirSim as an EAP package, you can get started with the **[EAP quickstart](eap_quickstart.md)**.
+> I want to try adding the Project AirSim Plugin to my own UE project environment so I can build some autonomous stuff.
 
-###  Drop-in Project AirSim Plugin
+#### **[Use Project AirSim Plugin in custom environments](docs/use_plugin.md)**
 
-If you're ready to use the Project AirSim plugin in your own custom environment, see **[Use Project AirSim Plugin in custom environments](use_plugin.md)**.
+## Running Headless (Docker)
 
-### Transitioning from AirSim
+If you need to run a Project AirSim simulation on a headless system, such as in a Docker container, you can enable off-screen rendering by adding the `-RenderOffScreen` argument when launching the Unreal environment executable:
 
-See **[Transitioning from AirSim](transition_from_airsim.md)** for guidance on converting an AirSim Unreal environment and client code from AirSim to Project AirSim.
+```
+Blocks{.exe/.sh} -RenderOffScreen
+```
+
+If you are running without GPU access and want to run without any image rendering, you can disable rendering completely by adding the `-nullrhi` argument:
+
+```
+Blocks{.exe/.sh} -nullrhi
+```
+
+These arguments can also be used while debugging in VS Code by modifying the `launch.json` file, or in Visual Studio 2022 by modifying the project's `Configuration Properties`. See **[Running Headless (Docker, Azure Cloud)](docs/development/headless_cloud.md)** for more details.
 
 ## Reference
 
 ### Configuration JSONC Settings
 
-- **[Overview](config.md)**
-- **[Scene Settings](config_scene.md)**
-- **[Robot Settings](config_robot.md)**
+- **[Overview](docs/config.md)**
+- **[Scene Settings](docs/config_scene.md)**
+- **[Robot Settings](docs/config_robot.md)**
 
 ### Client API
 
-- **[Overall API Info](api.md)**
+- **[Overall API Info](docs/api.md)**
 
 ### ROS Integration
 
-- **[ROS Bridge Setup and Use](ros/ros.md)**
-- **[ROS Bridge Examples](ros/ros_examples.md)**
+- **[ROS Bridge Setup and Use](docs/ros/ros.md)**
+- **[ROS Bridge Examples](docs/ros/ros_examples.md)**
 
 ### Controllers
 
-- **[Flight Controllers](controllers/controllers.md)**
-- **[Simple Flight Controller](controllers/simple_flight.md)**
-- **[PX4 Flight Controller](controllers/px4/px4.md)**
+- **[Flight Controllers](docs/controllers/controllers.md)**
+- **[Simple Flight Controller](docs/controllers/simple_flight.md)**
+- **[PX4 Flight Controller](docs/controllers/px4/px4.md)**
 
 ### Sensors
 
 - Airspeed
 - Barometer
-- **[Camera](sensors/camera_capture_settings.md)**
+- **[Camera](docs/sensors/camera_capture_settings.md)**
+- Distance
 - GPS
 - IMU
-- **[Lidar](sensors/lidar.md)**
+- **[Lidar](docs/sensors/lidar.md)**
 - Magnetometer
-- **[Radar](sensors/radar.md)**
+- **[Radar](docs/sensors/radar.md)**
 
 ### Scene
 
-- **[Simulation Clock](scene/sim_clock.md)**
-- **[Weather Visual Effects](scene/weather_visual_effects.md)**
+- **[Simulation Clock](docs/scene/sim_clock.md)**
+- Coordinate System
+- **[Weather Visual Effects](docs/scene/weather_visual_effects.md)**
 
 ### Physics
 
-- **[Fast Physics](physics/fast_physics.md)**
+- **[Fast Physics](docs/physics/fast_physics.md)**
+- **[Matlab Physics](docs/physics/matlab_physics.md)**
 
 ## FAQ
 
-If you run into problems, please check the **[FAQ](faq.md)** for help.
+If you run into problems, check the **[FAQ](docs/faq.md)** for help.
 
-## Support
+## Transitioning from AirSim
 
-Please see the [Support page](support.md) for obtaining support for Project AirSim.
+See **[Transitioning from AirSim](docs/transition_from_airsim.md)** for guidance on converting an AirSim Unreal environment and client code from AirSim to Project AirSim.
 
-## License
+## Trademarks
 
-Please see the [License page](license.md) for Project AirSim license information.
+This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft trademarks or logos is subject to and must follow Microsoft’s Trademark & Brand Guidelines. Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship. Any use of third-party trademarks or logos are subject to those third-party’s policies.
 
 ---
 
-Copyright (C) Microsoft Corporation.  All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (C) IAMAI  Consulting.  
+
+MIT License

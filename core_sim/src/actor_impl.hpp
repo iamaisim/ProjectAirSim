@@ -1,4 +1,7 @@
-// Copyright (C) Microsoft Corporation. All rights reserved.
+// Copyright (C) Microsoft Corporation. 
+// Copyright (C) IAMAI  Consulting.  
+
+// MIT License.
 
 #ifndef CORE_SIM_SRC_ACTOR_IMPL_HPP_
 #define CORE_SIM_SRC_ACTOR_IMPL_HPP_

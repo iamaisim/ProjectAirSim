@@ -1,4 +1,7 @@
-// Copyright (C) Microsoft Corporation.  All rights reserved.
+// Copyright (C) Microsoft Corporation. 
+// Copyright (C) IAMAI  Consulting.  
+
+// MIT License. All rights reserved.
 // Sensorfactory that is responsible for creating sensors like UUnrealCamera,
 // UUnrealImu, etc.
 

@@ -1,4 +1,7 @@
-// Copyright (C) Microsoft Corporation. All rights reserved.
+// Copyright (C) Microsoft Corporation. 
+// Copyright (C) IAMAI  Consulting.  
+
+// MIT License.
 
 #ifndef TOOLS_LVMON_LIB_SRC_TCPCONNECTIONSERVER_H_
 #define TOOLS_LVMON_LIB_SRC_TCPCONNECTIONSERVER_H_

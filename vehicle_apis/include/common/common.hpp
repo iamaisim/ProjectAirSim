@@ -1,4 +1,7 @@
-// Copyright (C) Microsoft Corporation. All rights reserved.
+// Copyright (C) Microsoft Corporation. 
+// Copyright (C) IAMAI  Consulting.  
+
+// MIT License.
 
 #ifndef VEHICLE_APIS_INCLUDE_COMMON_COMMON_HPP_
 #define VEHICLE_APIS_INCLUDE_COMMON_COMMON_HPP_

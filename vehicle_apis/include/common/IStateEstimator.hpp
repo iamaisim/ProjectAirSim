@@ -1,4 +1,7 @@
-// Copyright (C) Microsoft Corporation. All rights reserved.
+// Copyright (C) Microsoft Corporation. 
+// Copyright (C) IAMAI  Consulting.  
+
+// MIT License.
 
 #ifndef VEHICLEAPIS_COMMON_ISTATEESTIMATOR_HPP_
 #define VEHICLEAPIS_COMMON_ISTATEESTIMATOR_HPP_

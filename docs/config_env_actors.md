@@ -351,4 +351,7 @@ The link's visual settings consist of what visual element will be rendered for t
 
 ---
 
-Copyright (C) Microsoft Corporation.  All rights reserved
+Copyright (C) Microsoft Corporation. 
+Copyright (c) 2025 IAMAI Simulations.
+
+MIT License. All rights reserved.

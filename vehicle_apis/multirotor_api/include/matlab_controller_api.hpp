@@ -1,4 +1,7 @@
-// Copyright (C) Microsoft Corporation. All rights reserved.
+// Copyright (C) Microsoft Corporation. 
+// Copyright (C) IAMAI  Consulting.  
+
+// MIT License.
 
 #ifndef MULTIROTOR_API_INCLUDE_MATLAB_CONTROLLER_API_HPP_
 #define MULTIROTOR_API_INCLUDE_MATLAB_CONTROLLER_API_HPP_

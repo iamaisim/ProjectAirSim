@@ -1,5 +1,7 @@
-// Copyright (C) Microsoft Corporation. All rights reserved.
+// Copyright (C) Microsoft Corporation. 
+// Copyright (C) IAMAI  Consulting.  
 
+// MIT License.
 #include "core_sim/link/geometry/skeletal_mesh.hpp"
 
 #include <memory>

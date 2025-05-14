@@ -78,4 +78,7 @@ This is useful, for example, when running in a **non-physics "computer vision" m
 
 ---
 
-Copyright (C) Microsoft Corporation.  All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (c) 2025 IAMAI Simulations.
+
+MIT License. All rights reserved.

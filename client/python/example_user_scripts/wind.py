@@ -1,5 +1,8 @@
 """
-Copyright (C) Microsoft Corporation. All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (C) IAMAI  Consulting.  
+
+MIT License.
 
 Demonstrates using set_wind_velocity and get_wind_velocity APIs. The set_external_force()
 API is used to showcase an alternative for how a wind force can be achieved.

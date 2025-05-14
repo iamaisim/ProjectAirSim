@@ -1,5 +1,8 @@
 """
-Copyright (C) Microsoft Corporation. All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (C) IAMAI  Consulting.  
+
+MIT License.
 
 Demonstrates the use of the set_object_material(), 
 set_object_texture_from_packaged_asset(), and set_object_texture_from_file() 

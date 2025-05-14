@@ -1,4 +1,7 @@
-// Copyright (C) Microsoft Corporation. All rights reserved.
+// Copyright (C) Microsoft Corporation. 
+// Copyright (C) IAMAI  Consulting.  
+
+// MIT License.
 
 #ifndef LVMON_LIB_SRC_LVMONSERVER_H_
 #define LVMON_LIB_SRC_LVMONSERVER_H_

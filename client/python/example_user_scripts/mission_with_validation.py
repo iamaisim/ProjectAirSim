@@ -1,5 +1,8 @@
 """
-Copyright (C) Microsoft Corporation. All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (C) IAMAI  Consulting.  
+
+MIT License.
 
 Demonstrates a simple mission on Microsoft Redmond campus with validation module.
 In the demo, the drone has a source and a target (both have a landing pad spawned).

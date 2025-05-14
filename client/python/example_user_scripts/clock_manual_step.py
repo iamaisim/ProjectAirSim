@@ -1,5 +1,8 @@
 """
-Copyright (C) Microsoft Corporation. All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (C) IAMAI  Consulting.  
+
+MIT License.
 
 Demonstrates manually stepping a simulation in lock step with sensor data
 using sim clock pause-on-start config setting and ContinueFor* client APIs.

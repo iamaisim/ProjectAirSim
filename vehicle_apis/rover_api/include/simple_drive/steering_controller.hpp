@@ -1,4 +1,7 @@
-// Copyright (C) Microsoft Corporation. All rights reserved.
+// Copyright (C) Microsoft Corporation. 
+// Copyright (C) IAMAI  Consulting.  
+
+// MIT License.
 
 #ifndef ROVER_API_INCLUDE_SIMPLE_DRIVE_STEERING_CONTROLLER_HPP_
 #define ROVER_API_INCLUDE_SIMPLE_DRIVE_STEERING_CONTROLLER_HPP_

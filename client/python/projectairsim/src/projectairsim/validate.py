@@ -1,5 +1,8 @@
 """
-Copyright (C) Microsoft Corporation. All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (C) IAMAI  Consulting.  
+
+MIT License.
 Python API class for ProjectAirSim Validation Suite. 
 Gives customers ability to define and enforce validation on a sim run.
 """

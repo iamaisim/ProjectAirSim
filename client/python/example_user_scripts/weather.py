@@ -1,5 +1,8 @@
 """
-Copyright (C) Microsoft Corporation. All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (C) IAMAI  Consulting.  
+
+MIT License.
 
 Demonstrates using weather effect APIs. The set_external_force() API is used to add 
 the physics from the impact of falling rain/snow to complement the visual effects.

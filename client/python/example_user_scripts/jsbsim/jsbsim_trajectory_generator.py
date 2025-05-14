@@ -1,5 +1,8 @@
 """
-Copyright (C) Microsoft Corporation. All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (C) IAMAI  Consulting.  
+
+MIT License.
 
 Script to generate a trajectory from a simulated vehicle 
 in a JSBSim script. The trajectory can then be consumed 

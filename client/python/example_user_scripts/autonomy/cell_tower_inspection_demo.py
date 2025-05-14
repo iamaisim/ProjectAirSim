@@ -1,5 +1,8 @@
 """
-Copyright (C) Microsoft Corporation. All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (C) IAMAI  Consulting.  
+
+MIT License.
 
 Seattle Cell Tower Inspection Demo Script.
 Uses 3D Aerial Obstacle Detection Autonomy Block for the Detect and Avoid Sequence.

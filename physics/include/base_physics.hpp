@@ -1,4 +1,7 @@
-// Copyright (C) Microsoft Corporation. All rights reserved.
+// Copyright (C) Microsoft Corporation. 
+// Copyright (C) IAMAI  Consulting.  
+
+// MIT License.
 
 #ifndef PHYSICS_INCLUDE_BASE_PHYSICS_HPP_
 #define PHYSICS_INCLUDE_BASE_PHYSICS_HPP_

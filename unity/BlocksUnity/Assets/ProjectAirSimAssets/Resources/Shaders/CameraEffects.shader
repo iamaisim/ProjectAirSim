@@ -1,4 +1,7 @@
-// Copyright (C) Microsoft Corporation. All rights reserved.
+// Copyright (C) Microsoft Corporation. 
+// Copyright (C) IAMAI  Consulting.  
+
+// MIT License.
 
 // Based on builtin Internal-DepthNormalsTexture.shader
 // EncodeDepthNormal() is replaced with custom Output() function

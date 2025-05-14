@@ -126,4 +126,7 @@ See **[How to Modify a Drone's Visual Appearance](modify_drone_visual.md)** for 
 
 ---
 
-Copyright (C) Microsoft Corporation.  All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (c) 2025 IAMAI Simulations.
+
+MIT License. All rights reserved.

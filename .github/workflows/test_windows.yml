@@ -20,4 +20,4 @@ jobs:
 
       - name: Build SimLibs
         shell: cmd
-        run: build simlibs_debug 
+        run: build simlibs_debug

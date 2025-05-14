@@ -1,0 +1,23 @@
+name: Windows Build
+
+# Controls when the action will run.
+on: [push]
+
+jobs:
+  build:
+    permissions:
+      actions: write
+      pages: write
+      contents: write
+    runs-on: windows-2022
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Enable Developer Command Prompt
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Build SimLibs
+        shell: cmd
+        run: build simlibs_debug 

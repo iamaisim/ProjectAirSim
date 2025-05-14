@@ -87,6 +87,6 @@ Normally when using ground control station software with PX4 (like [*QGroundCont
 ---
 
 Copyright (C) Microsoft Corporation. 
-Copyright (c) 2025 IAMAI Simulations.
+Copyright (C) IAMAI Consulting Corporation.
 
 MIT License. All rights reserved.

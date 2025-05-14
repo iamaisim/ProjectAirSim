@@ -309,6 +309,6 @@ Note: `linear_twist["z"]` needs to have a -ve value (upwards direction) for the 
 ---
 
 Copyright (C) Microsoft Corporation. 
-Copyright (c) 2025 IAMAI Simulations.
+Copyright (C) IAMAI Consulting Corporation.
 
 MIT License. All rights reserved.

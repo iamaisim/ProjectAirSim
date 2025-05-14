@@ -111,6 +111,6 @@ This project may contain trademarks or logos for projects, products, or services
 ---
 
 Copyright (C) Microsoft Corporation. 
-Copyright (C) IAMAI  Consulting.  
+Copyright (C) IAMAI Consulting Corporation.  
 
 MIT License

@@ -94,6 +94,6 @@ automatically disconnect when it is deleted, it is good practice to call
 ---
 
 Copyright (C) Microsoft Corporation. 
-Copyright (C) IAMAI  Consulting.  
+Copyright (C) IAMAI Consulting Corporation.
 
 MIT License.

@@ -1,6 +1,6 @@
 <!--
 Copyright (c) Microsoft Corporation.
-Copyright (C) IAMAI  Consulting.  
+Copyright (C) IAMAI Consulting Corporation.  
 Licensed under the MIT License.
 -->
 # Project AirSim

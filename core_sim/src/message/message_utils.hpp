@@ -1,5 +1,5 @@
 // Copyright (C) Microsoft Corporation. 
-// Copyright (C) IAMAI  Consulting.  
+// Copyright (C) IAMAI Consulting Corporation.  
 
 // MIT License.
 #ifndef CORE_SIM_SRC_MESSAGE_MESSAGE_UTILS_HPP_

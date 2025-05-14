@@ -229,6 +229,6 @@ To find out what object names were assigned what segmentation ID, check the simu
 ---
 
 Copyright (C) Microsoft Corporation. 
-Copyright (c) 2025 IAMAI Simulations.
+Copyright (C) IAMAI Consulting Corporation.
 
 MIT License. All rights reserved.

@@ -82,6 +82,6 @@ use a different backend.  Therefore, you should avoid explicitly calling
 ---
 
 Copyright (C) Microsoft Corporation. 
-Copyright (c) 2025 IAMAI Simulations.
+Copyright (C) IAMAI Consulting Corporation.
 
 MIT License. All rights reserved.

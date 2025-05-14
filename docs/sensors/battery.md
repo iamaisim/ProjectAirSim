@@ -111,6 +111,6 @@ Power Consumed = rotor-power-coefficient x number_of_rotors x torque x ang_vel +
 
 ---
 Copyright (C) Microsoft Corporation. 
-Copyright (c) 2025 IAMAI Simulations.
+Copyright (C) IAMAI Consulting Corporation.
 
 MIT License. All rights reserved.

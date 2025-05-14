@@ -1,6 +1,6 @@
 """
 Copyright (C) Microsoft Corporation. 
-Copyright (C) IAMAI  Consulting.  
+Copyright (C) IAMAI Consulting Corporation.  
 
 MIT License.
 ProjectAirSim:: Autonomy:: Gym Environment: ProjectAirSimVisualDroneLanding RL Environment for

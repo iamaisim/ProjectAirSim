@@ -68,6 +68,6 @@ RViz provides the GUI to MoveIt! via MoveIt's MotionPlanner RViz plug-in.  RViz 
 ---
 
 Copyright (C) Microsoft Corporation. 
-Copyright (c) 2025 IAMAI Simulations.
+Copyright (C) IAMAI Consulting Corporation.
 
 MIT License. All rights reserved.

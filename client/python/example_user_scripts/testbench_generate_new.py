@@ -1,6 +1,6 @@
 """
 Copyright (C) Microsoft Corporation. 
-Copyright (C) IAMAI  Consulting.  
+Copyright (C) IAMAI Consulting Corporation.  
 
 MIT License.
 This script is used to generate a test bench for the Project AirSim test bench.

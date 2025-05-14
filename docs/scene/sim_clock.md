@@ -46,6 +46,6 @@ This is useful, for example, when running **non-physics "computer vision" mode**
 ---
 
 Copyright (C) Microsoft Corporation. 
-Copyright (c) 2025 IAMAI Simulations.
+Copyright (C) IAMAI Consulting Corporation.
 
 MIT License. All rights reserved.

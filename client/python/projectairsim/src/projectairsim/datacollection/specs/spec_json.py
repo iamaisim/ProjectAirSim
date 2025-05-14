@@ -4,7 +4,7 @@ import numpy as np
 
 """
 Copyright (C) Microsoft Corporation. 
-Copyright (C) IAMAI  Consulting.  
+Copyright (C) IAMAI Consulting Corporation.  
 
 MIT License.
 

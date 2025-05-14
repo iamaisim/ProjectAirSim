@@ -71,6 +71,6 @@ This can also be done by directly modifying the `Blocks/Intermediate/ProjectFile
 ---
 
 Copyright (C) Microsoft Corporation. 
-Copyright (c) 2025 IAMAI Simulations.
+Copyright (C) IAMAI Consulting Corporation.
 
 MIT License. All rights reserved.

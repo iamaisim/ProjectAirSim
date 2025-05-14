@@ -5,7 +5,7 @@ Please refer to the Early Access Program (EAP) Agreement for the terms and condi
 ---
 
 Copyright (C) Microsoft Corporation. 
-Copyright (c) 2025 IAMAI Simulations.
+Copyright (C) IAMAI Consulting Corporation.
 
 MIT License. All rights reserved.
 

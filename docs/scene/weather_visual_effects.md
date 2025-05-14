@@ -7,6 +7,6 @@ If running the sim locally with the game viewport (stand-alone game or in Editor
 ---
 
 Copyright (C) Microsoft Corporation. 
-Copyright (c) 2025 IAMAI Simulations.
+Copyright (C) IAMAI Consulting Corporation.
 
 MIT License. All rights reserved.

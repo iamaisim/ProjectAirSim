@@ -106,6 +106,6 @@ Now you're ready to start **[Developing Project AirSim Libs](use_source.md#devel
 ---
 
 Copyright (C) Microsoft Corporation. 
-Copyright (c) 2025 IAMAI Simulations.
+Copyright (C) IAMAI Consulting Corporation.
 
 MIT License. All rights reserved.

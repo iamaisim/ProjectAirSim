@@ -144,6 +144,6 @@ For additional reference specifically about setting up Azure VMs to work with Pi
 ---
 
 Copyright (C) Microsoft Corporation. 
-Copyright (c) 2025 IAMAI Simulations.
+Copyright (C) IAMAI Consulting Corporation.
 
 MIT License. All rights reserved.

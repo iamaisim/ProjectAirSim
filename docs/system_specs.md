@@ -64,6 +64,6 @@ See **[Command Line Switches](command_line_switches.md)** for details about how 
 ---
 
 Copyright (C) Microsoft Corporation. 
-Copyright (c) 2025 IAMAI Simulations.
+Copyright (C) IAMAI Consulting Corporation.
 
 MIT License. All rights reserved.

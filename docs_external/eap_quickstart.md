@@ -160,6 +160,6 @@ If you want to run `GeoSpecificEnv_UnityProject` or `SyntheticEnv_UnityProject`,
 ---
 
 Copyright (C) Microsoft Corporation. 
-Copyright (C) IAMAI  Consulting.  
+Copyright (C) IAMAI Consulting Corporation.  
 
 MIT License.

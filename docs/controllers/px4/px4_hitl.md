@@ -81,6 +81,6 @@ You can also control the drone with a Python script using [the Python APIs](/api
 ---
 
 Copyright (C) Microsoft Corporation. 
-Copyright (c) 2025 IAMAI Simulations.
+Copyright (C) IAMAI Consulting Corporation.
 
 MIT License. All rights reserved.

@@ -39,6 +39,6 @@ On Linux, this file has the same contents as what is output to the stdout consol
 ---
 
 Copyright (C) Microsoft Corporation. 
-Copyright (c) 2025 IAMAI Simulations.
+Copyright (C) IAMAI Consulting Corporation.
 
 MIT License. All rights reserved.

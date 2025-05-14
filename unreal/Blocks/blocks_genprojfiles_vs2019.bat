@@ -1,5 +1,5 @@
 REM Copyright (C) Microsoft Corporation. 
-REM Copyright (C) IAMAI  Consulting Corporation.  
+REM Copyright (C) IAMAI Consulting Corporation.  
 
 REM MIT License.
 

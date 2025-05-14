@@ -91,6 +91,6 @@ For more detailed info, see **[Environment Actor Configuration Settings](config_
 ---
 
 Copyright (C) Microsoft Corporation. 
-Copyright (c) 2025 IAMAI Simulations.
+Copyright (C) IAMAI Consulting Corporation.
 
 MIT License. All rights reserved.

@@ -32,11 +32,11 @@ jobs:
         working-directory: docs
         run: make html
 
-      - name: Deploy to GitHub Pages (gen_page)
+      - name: Deploy to GitHub Pages (gh_page)
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/build/html
-          publish_branch: gen_page
+          publish_branch: gh_page
           force_orphan: true

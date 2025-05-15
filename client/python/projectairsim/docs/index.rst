@@ -1,6 +1,6 @@
 .. Project AirSim documentation master file
 
-Client Auto-Documentation
+Client Documentation
 =============================================================
 
 .. contents::

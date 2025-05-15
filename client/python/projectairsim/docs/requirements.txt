@@ -1,3 +1,7 @@
 sphinx
 sphinx_rtd_theme
 myst_parser
+cryptography
+wheel
+pytest
+pytest-cov

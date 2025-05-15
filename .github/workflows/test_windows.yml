@@ -1,7 +1,7 @@
 name: Windows Build
 
 # Controls when the action will run.
-on: [push]
+#on: [push]
 
 jobs:
   build:

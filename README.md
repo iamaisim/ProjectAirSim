@@ -7,6 +7,7 @@ If you're excited about high-fidelity autonomy simulations and want to support o
 You can also click **"Watch"** (🔔) above to get notified as soon as we go live.
 
 In the meantime, we'd love to start getting to know you —  
-**Join our Discord community:** [https://discord.gg/CA5QFT6w](https://discord.gg/CA5QFT6w)
+**Join our Discord community:** [https://discord.gg/CA5QFT6w](https://discord.gg/CA5QFT6w)  
+Or introduce yourself at [GitHub discussions](https://github.com/iamaisim/ProjectAirSim/discussions)
 
 Stay tuned!

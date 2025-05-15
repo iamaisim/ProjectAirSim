@@ -33,7 +33,9 @@ jobs:
         run: make html
 
       - name: Install dependencies for Python API docs
-        run: pip install -r client/python/projectairsim/docs/requirements.txt
+        run: |
+          pip install -r client/python/projectairsim/docs/requirements.txt
+          python -m pip install -e client/python/projectairsim
 
       - name: Build Python API docs
         working-directory: client/python/projectairsim/docs

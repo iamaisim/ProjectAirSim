@@ -90,5 +90,11 @@ apis.md
 :maxdepth: 2
 :caption: Settings
 
+```{toctree}
+:maxdepth: 1
+:caption: Python API Reference
+
+api_docs/index <https://iamaisim.github.io/ProjectAirSim/api_docs/index.html>
+
 settings.md
 ```

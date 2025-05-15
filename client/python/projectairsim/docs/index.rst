@@ -10,18 +10,6 @@ Client Auto-Documentation
    :caption: Contents:
 
 
-Utils
-=====
-.. automodule:: projectairsim.utils
-   :members:
-
-
-Types
-=====
-.. automodule:: projectairsim.types
-   :members:
-
-
 Client
 ======
 .. autoclass:: projectairsim.ProjectAirSimClient
@@ -35,10 +23,21 @@ World
 
 
 Drone
-=====
+======
 .. autoclass:: projectairsim.Drone
    :members:
 
+
+Types
+=====
+.. automodule:: projectairsim.types
+   :members:
+
+
+Utils
+=====
+.. automodule:: projectairsim.utils
+   :members:
 
 
 Indices and tables

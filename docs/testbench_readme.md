@@ -84,7 +84,7 @@ This adds hand-picked test cases, like a windy rainy noon, into the existing ben
 
 ---
 
-### 3. 🚁 Run the Tests
+### 3. Run the Tests
 Execute each scenario using a mission function:
 
 ```bash
@@ -257,3 +257,97 @@ Each mission run produces a validation report XML file (e.g., `scenario-0-valida
 These outputs are compatible with CI tools or can be manually reviewed for debugging or safety verification.
 
 ---
+
+## How Validation Works Internally
+
+Project AirSim includes a flexible validation framework via the `ValidationTaskModule` class. This module allows test developers to define constraints that the drone must follow during a mission and receive pass/fail results after execution.
+
+---
+
+### Task Types
+
+There are two main types of validation tasks:
+
+#### 1. Range Tasks
+These validate whether a numeric parameter stays within a defined range.
+
+Examples:
+- Altitude between 10m and 100m
+- Battery percentage always above 30%
+- Pose Z value must stay above ground level
+
+Created via:
+```python
+add_range_validation_task(name, param, min_val, max_val, strictness)
+```
+
+Where `strictness` can be:
+- `ALWAYS`: must always be within range
+- `NEVER`: must never be within range
+- `ATLEAST_ONCE`: must meet range at least once
+
+Parameters come from:
+- Sensor topics: using `create_sensor_validation_param`
+- Robot info topics: using `create_robot_info_validation_param`
+
+---
+
+#### 2. Reach Tasks
+These validate whether the drone gets close to or stays away from a specific spatial target.
+
+Examples:
+- Never go farther than 100m from home
+- Must get within 10m of a GPS waypoint at least once
+- Never be closer than 5m to a wind turbine object
+
+Created via:
+```python
+add_reach_validation_task(name, target_type, target_value, threshold, strictness)
+```
+
+Target types (`ReachTargetType`):
+- `GPS_DICT`, `GPS_LIST`: standard lat/lon/alt targets
+- `STATIC_SCENE_OBJECT`: named object in the scene
+- `NED_LIST`: fixed NED position
+
+---
+
+### Evaluation Process
+
+Each validation task continuously evaluates conditions as the simulation progresses:
+- Subscribes to relevant data (pose, sensor values, etc.)
+- Logs:
+  - Total number of checks
+  - Number of successful or failed checks
+  - Recent violations or successes
+
+Upon completion, results are summarized in:
+- Console logs
+- JUnit-compatible XML files (e.g., `scenario-0-validation-report.xml`)
+
+---
+
+### XML Report Format
+
+Validation results are exported using the `junit_xml` format. This includes:
+- A test suite per script/module
+- A test case per validation task
+- If a task fails, a `<failure>` entry with the reason is included
+
+These reports are compatible with CI pipelines or can be manually reviewed.
+
+---
+
+### Fault Injection Support
+
+The same module also defines a `FaultInjectionModule`, allowing:
+- Injection of programmable "faults" (functions) at specific timestamps
+- Subscribes to the simulation time (e.g., from `actual_pose`)
+- Triggers user-defined faults when the simulation reaches those timestamps
+
+Example:
+```python
+fault_module.add_fault_injection_at_simtime(lambda: drone.kill_motor(), simtime=12.5)
+```
+
+This allows precise testing of mission robustness against disturbances.

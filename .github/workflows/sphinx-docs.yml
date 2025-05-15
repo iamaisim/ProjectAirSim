@@ -42,7 +42,7 @@ jobs:
           mkdir -p build_docs
           cp -r docs/build/html/* build_docs/
           mkdir -p build_docs/api_docs
-          cp -r client/python/projectairsim/docs/build/html/* build_docs/api_docs/
+          cp -r client/python/projectairsim/docs/_build/html/* build_docs/api_docs/
 
       - name: Deploy to GitHub Pages (gh-pages)
         uses: peaceiris/actions-gh-pages@v3

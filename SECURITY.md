@@ -1,42 +1,42 @@
-<!-- BEGIN MICROSOFT SECURITY.MD V0.0.9 BLOCK -->
+<!-- BEGIN IAMAI SECURITY.MD BLOCK -->
 
 ## Security
 
-Microsoft takes the security of our software products and services seriously, which includes all source code repositories managed through our GitHub organizations, which include [Microsoft](https://github.com/Microsoft), [DotNet](https://github.com/dotnet), [AspNet](https://github.com/aspnet) and [Xamarin](https://github.com/xamarin).
+IAMAI Consulting Corporation takes the security of our software seriously. This includes all source code repositories managed through our GitHub organization: [IAMAI Consulting Corporation](https://github.com/iamaisim).
 
-If you believe you have found a security vulnerability in any Microsoft-owned repository that meets [Microsoft's definition of a security vulnerability](https://aka.ms/security.md/definition), please report it to us as described below.
+If you believe you have found a security vulnerability in any IAMAI Consulting Corporation repository, please report it to us as described below.
 
 ## Reporting Security Issues
 
-**Please do not report security vulnerabilities through public GitHub issues.**
+**Do not report security vulnerabilities through public GitHub issues.**
 
-Instead, please report them to the Microsoft Security Response Center (MSRC) at [https://msrc.microsoft.com/create-report](https://aka.ms/security.md/msrc/create-report).
+Instead, please report them privately to the IAMAI Security Team at [security@iamai.com](mailto:security@iamai.com).
 
-If you prefer to submit without logging in, send email to [secure@microsoft.com](mailto:secure@microsoft.com).  If possible, encrypt your message with our PGP key; please download it from the [Microsoft Security Response Center PGP Key page](https://aka.ms/security.md/msrc/pgp).
+We aim to respond within **24 hours**. If you do not receive a response within that time, please follow up to ensure your message was received.
 
-You should receive a response within 24 hours. If for some reason you do not, please follow up via email to ensure we received your original message. Additional information can be found at [microsoft.com/msrc](https://www.microsoft.com/msrc). 
+### Please include the following (when possible):
 
-Please include the requested information listed below (as much as you can provide) to help us better understand the nature and scope of the possible issue:
+- Type of issue (e.g., buffer overflow, injection, privilege escalation)
+- Full path(s) of the affected source file(s)
+- Repository, branch, tag, or commit where the issue exists
+- Required configuration or environment details
+- Step-by-step instructions to reproduce the issue
+- Proof-of-concept or exploit code (if available)
+- Expected vs. actual behavior
+- Potential impact and how it could be exploited
 
-  * Type of issue (e.g. buffer overflow, SQL injection, cross-site scripting, etc.)
-  * Full paths of source file(s) related to the manifestation of the issue
-  * The location of the affected source code (tag/branch/commit or direct URL)
-  * Any special configuration required to reproduce the issue
-  * Step-by-step instructions to reproduce the issue
-  * Proof-of-concept or exploit code (if possible)
-  * Impact of the issue, including how an attacker might exploit the issue
+This information will help us address the issue quickly and effectively.
 
-This information will help us triage your report more quickly.
+## Bug Bounty Program
 
-If you are reporting for a bug bounty, more complete reports can contribute to a higher bounty award. Please visit our [Microsoft Bug Bounty Program](https://aka.ms/security.md/msrc/bounty) page for more details about our active programs.
+We may offer rewards for responsibly disclosed vulnerabilities as part of our private or public bounty programs. Please inquire directly at [security@iamai.com](mailto:security@iamai.com) for eligibility.
 
-## Preferred Languages
+## Preferred Language
 
-We prefer all communications to be in English.
+We prefer reports and communication in **English or Spanish**.
 
 ## Policy
 
-Microsoft follows the principle of [Coordinated Vulnerability Disclosure](https://aka.ms/security.md/cvd).
+IAMAI Consulting Corporation follows the principles of [Coordinated Vulnerability Disclosure](https://www.iso.org/standard/72311.html) and we appreciate researchers who disclose issues responsibly.
 
-<!-- END MICROSOFT SECURITY.MD BLOCK -->
-
+<!-- END IAMAI SECURITY.MD BLOCK -->

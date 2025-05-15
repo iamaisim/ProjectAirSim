@@ -1,0 +1,575 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Changelog &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/documentation_options.js?v=2709fde1"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="internal/use_source.html">Build From Source as a Developer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="internal/use_prebuilt.html">Using Pre-built Binary Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="internal/dev_setup_linux.html">Developer Initial Setup for Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="internal/dev_setup_win.html">Developer Initial Setup for Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="internal/vscode_user_settings.html">Optional VS Code User Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="internal/headless_cloud.html">Running Headless (Docker)</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ROS Integration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ros/ros.html">Project AirSim ROS Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ros/ros2.html">ROS2 Setup for developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ros/ros_examples.html">Project AirSim ROS Bridge Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ros/example_build_map.html">Project AirSim ROS Bridge Examples: build_map</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ros/example_navigate_map.html">Project AirSim ROS Bridge Examples: navigate_map</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="internal/sensors/display.html">Sensor data visualization/display</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Data Collection</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="datacollection/config.html">Data Collection Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datacollection/randomizations.html">Object-Level Randomizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datacollection/trajectory.html">Trajectory Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datacollection/data_generation.html">Data Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datacollection/data_aggregation.html">Data Aggregation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="internal/physics/unreal_physics.html">Unreal Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="internal/scene/sim_clock_internal.html">Simulation Clock</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">api_docs/index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Changelog</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/changelog.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading">¶</a></h1>
+<section id="id1">
+<h2>[2023.9.15] - 2023-09-15<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Add ability to spawn non-cooperative environment actors near a robot’s path using <code class="docutils literal notranslate"><span class="pre">world.get_random_free_position_near_point()</span></code> and <code class="docutils literal notranslate"><span class="pre">world.get_random_free_position_near_path()</span></code> APIs demonstrated by example <code class="docutils literal notranslate"><span class="pre">non_cooperative_actor_demo.py</span></code> script</p></li>
+<li><p>Add asynchronous GIS tile loading for Unity</p></li>
+<li><p>Fix glTF runtime asset spawning to correct scale/rotations and account for the gfTF scene hierarchy transforms</p></li>
+<li><p>Enable support for Python 3.10 and update <code class="docutils literal notranslate"><span class="pre">msgpack</span></code> to 1.0.5</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">open3d</span></code> as an explicit client library dependency and pin to version 0.16 for correct LidarDisplay view control</p></li>
+<li><p>Add VS2022 builds for C++ client library</p></li>
+<li><p>Improvements to path planning logic in <code class="docutils literal notranslate"><span class="pre">motion_planner.py</span></code> example and data collection module</p></li>
+<li><p>Added preliminary wheeled rovor support and <code class="docutils literal notranslate"><span class="pre">hello_rover.py</span></code> initial example</p></li>
+<li><p>Added simulink_controller_quadrotor.py example that uses a Simulink controller model to fly a quadrotor with FastPhysics</p></li>
+<li><p>Fixes for configuring Unity camera sensor pose using degree units and changing pose at runtime</p></li>
+<li><p>Renaming for validation components for better clarity</p></li>
+<li><p>Improvements to the data collection module for running on Azure</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">world.get_surface_elevation_at_point()</span></code> API to query the height of the ground at a given point</p></li>
+</ul>
+</section>
+<section id="id2">
+<h2>[2023.8.2] - 2023-08-02<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Improvements to blackshark example</p></li>
+<li><p>Handle missing tiles</p></li>
+<li><p>Added blackshark renderer type</p></li>
+<li><p>Enable combined Simulink physics and controller in a single model</p></li>
+<li><p>Add Simulink S-Function Interface for Control Models</p></li>
+<li><p>Clear stale topics on client disconnect</p></li>
+<li><p>Fix client exception from receiving stale sim subscription not in topic dictionary</p></li>
+<li><p>Improve lidar benchmarker test timing accuracy and increase throughput</p></li>
+</ul>
+</section>
+<section id="id3">
+<h2>[2023.6.30] - 2023-06-30<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Fix crash from using <code class="docutils literal notranslate"><span class="pre">real-time</span></code> clock with lidar sensor</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">world.spawn_object_at_geo()</span></code> API support to Unity sim plugin</p></li>
+<li><p>Add initial <code class="docutils literal notranslate"><span class="pre">vr-mode</span></code> flag to scene config to disable sim streaming camera viewport manipulation to avoid conflicting with a VR headset’s viewport control</p></li>
+</ul>
+</section>
+<section id="id4">
+<h2>[2023.6.16] - 2023-06-16<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Preserve original scan pattern ordering for generic cylindrical lidar sensor point cloud arrays and default to reporting no-hit returns to get the full scan pattern in the set order</p></li>
+<li><p>Fixes for transform tree and Euler-Quaternion conversion singularity handling</p></li>
+<li><p>Fix UE version to 5.1 for SyntheticEnv and GeoSpecificEnv uproject files</p></li>
+<li><p>Add support for spawning skeletal mesh assets</p></li>
+<li><p>Start adding sim server infrastructure for enabling an interactive viewport camera</p></li>
+<li><p>Reduce idle CPU usage for sim server on Linux</p></li>
+<li><p>Data collection module cleanup for coordinate handling and geodetic conversion</p></li>
+</ul>
+</section>
+<section id="id5">
+<h2>[2023.6.2] - 2023-06-02<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Improvements to test bench and validation bench features, including import/exporting test benches and saving test bench results</p></li>
+<li><p>Add lidar sensor config flags <code class="docutils literal notranslate"><span class="pre">report-point-cloud</span></code> and <code class="docutils literal notranslate"><span class="pre">report-azimuth-elevation-range</span></code> to enable reporting hits as xyz (meters) and/or azimuth/elevation/range (radians/meters)</p></li>
+<li><p>Add DALL-E example integration with Autonomy Blocks package for augmenting camera sensor images</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">world.get_weather_visual_effects_param()</span></code> and <code class="docutils literal notranslate"><span class="pre">world.get_time_of_day()</span></code> APIs</p></li>
+<li><p>Fix for LidarDisplay custom view option</p></li>
+<li><p>Enable forward compatibility with UE 5.2</p></li>
+<li><p>Upgrade to UE 5.1 (not backwards compatible with 5.0)</p></li>
+<li><p>Fix packaging of Unity plugin/projects</p></li>
+<li><p>Improved validation feature example scripts</p></li>
+<li><p>Add test suite feature for automating scenario generation</p></li>
+<li><p>Add option to configure reliability of topics to simulate dropped messages</p></li>
+<li><p>Data generation framework bug fixes</p></li>
+<li><p>Add fault injection feature for simulating camera and rotor faults</p></li>
+</ul>
+</section>
+<section id="id6">
+<h2>[2023.3.27] - 2023-03-27<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Add GPS, IMU, Barometer &amp; Magnetometer sensor support to ROS Bridge</p></li>
+<li><p>Add various data augmentations to the data collection module</p></li>
+<li><p>Improvements to Xbox RC controller example <code class="docutils literal notranslate"><span class="pre">xbox_rc.py</span></code> scripts</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">show-debug-plots</span></code> config value to camera sensor capture settings to allow visualizing debug drawing in the camera images</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">actors_to_ignore</span></code> parameter to <code class="docutils literal notranslate"><span class="pre">world.create_voxel_grid()</span></code> API</p></li>
+<li><p>Add validation module examples with XML output capability</p></li>
+<li><p>Fix yaw control for body frame move APIs with SimpleFlight controller</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">ardupilot_quadrotor.py</span></code> and <code class="docutils literal notranslate"><span class="pre">ardupilot_hexarotor.py</span></code> example scripts for using ArduPilot controller</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">datacollection</span></code> Python client module for data generation and example scripts in a <code class="docutils literal notranslate"><span class="pre">datacollection/</span></code> subfolder</p></li>
+<li><p>Update packaging of UnrealEnv_GeoSpecificEnv and UnrealEnv_SyntheticEnv binaries</p></li>
+</ul>
+</section>
+<section id="id7">
+<h2>[2023.2.24] - 2023-02-24<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Add initial ArduPilot controller support through UDP port connections to ArduPilot SITL and example script ardupilot_quadrotor.py.</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">livox_avia</span></code> lidar sensor type and update lidar_livox.py example script to demonstrate either the <code class="docutils literal notranslate"><span class="pre">avia</span></code> or <code class="docutils literal notranslate"><span class="pre">mid70</span></code> scan patterns</p></li>
+<li><p>Improve performance of world.create_voxel_grid() API</p></li>
+<li><p>Add initial validation suite client scripts with example battery_simple_with_validation.py and validation_module_example.py</p></li>
+<li><p>Fix UE version check in server log to be 5.0</p></li>
+</ul>
+</section>
+<section id="id8">
+<h2>[2023.1.27] - 2023-01-27<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Add optional parameters to ImageDisplay add_image() for resizing the image visualization pop-up windows</p></li>
+<li><p>Build Simulink S-function MEX file for Linux and fix example model time step settings</p></li>
+<li><p>Integrate robot link/joint transform tree hierarchy with FastPhysics and MatlabPhysics models</p></li>
+<li><p>Add JSON config validation schema for environment actor parts of the configs</p></li>
+<li><p>Fix log warnings about “No message published for topic…” on initial subscription</p></li>
+<li><p>Fix crashes from invalid config IDs and make sim server able to reload a new scene after a failed partial-loading</p></li>
+</ul>
+</section>
+<section id="id9">
+<h2>[2023.1.13] - 2023-01-13<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Add yaw rate parameter to <code class="docutils literal notranslate"><span class="pre">drone.move_by_heading_async()</span></code> and <code class="docutils literal notranslate"><span class="pre">drone.rotate_to_yaw_async()</span></code> APIs to be able to limit the turning rate</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">drone.set_external_force()</span></code> API to apply an external force vector directly on the drone</p></li>
+<li><p>Fix for camera capture interval not throttling rendering load</p></li>
+<li><p>Add ability to spawn objects in the scene by scene config using a <code class="docutils literal notranslate"><span class="pre">spawn-objects</span></code> section</p></li>
+<li><p>Add laser index array to lidar point cloud data</p></li>
+<li><p>Rename world spawn object APIs for better clarity: <code class="docutils literal notranslate"><span class="pre">spawn_object_at_lat_lon()</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">spawn_object_at_geo()</span></code>, <code class="docutils literal notranslate"><span class="pre">spawn_runtime_object()</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">spawn_object_from_file()</span></code>, <code class="docutils literal notranslate"><span class="pre">spawn_runtime_object_at_lat_lon</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">spawn_object_from_file_at_geo</span></code></p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">drone.get_ground_truth_geo_location()</span></code> and <code class="docutils literal notranslate"><span class="pre">drone.get_estimated_geo_location()</span></code> APIs</p></li>
+<li><p>Add a configurabe distance filter for camera object detection bounding box annotations</p></li>
+</ul>
+</section>
+<section id="id10">
+<h2>[2023.1.4] - 2023-01-04<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Add option in lidar sensor config to report no-hit returns using <code class="docutils literal notranslate"><span class="pre">report-no-return-points</span></code> and <code class="docutils literal notranslate"><span class="pre">no-return-point-value</span></code>, enabled by default for Livox Mid-70</p></li>
+<li><p>Add option in config JSON rotation fields to use <code class="docutils literal notranslate"><span class="pre">rpy-deg</span></code> to set the values in degrees instead of <code class="docutils literal notranslate"><span class="pre">rpy</span></code> radians</p></li>
+<li><p>Add drone APIs to get multirotor controller state info: get_estimated_kinematics(), get_landed_state(), can_arm(), get_ready_state()</p></li>
+<li><p>Add drone.camera_draw_frustum() API to visualize a camera sensor’s view frustum with debug lines</p></li>
+<li><p>Add world.set_object_texture_from_file() API to set an object texture from a client-local file</p></li>
+<li><p>Add drone.is_api_control_enabled() API</p></li>
+<li><p>Add a water plane Unreal asset in Drone content plugin</p></li>
+<li><p>ROS bridge fixes and improvements</p></li>
+<li><p>Example script API renaming fixes</p></li>
+<li><p>Add drone.move_by_velocity_body_frame_async() and drone.move_by_velocity_body_frame_z_async() APIs</p></li>
+<li><p>Add velocity parameter to drone.go_home_async() API</p></li>
+<li><p>Add geo coordinate versions of drone APIs</p></li>
+<li><p>Add drone.get_airspeed_data() request-response API</p></li>
+<li><p>Publish topic for rotor actuator speed, angle, torque, and thrust data</p></li>
+</ul>
+</section>
+<section id="id11">
+<h2>[2022.11.23] - 2022-11-23<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Switch versioning to date-style format</p></li>
+<li><p>Fix a bug that was preventing GIS tiles from rendering at certain geo positions/altitudes</p></li>
+<li><p>Add a hello_gis.py example that uses a built-in mini GIS tileset in the GeoSpecificEnv binary</p></li>
+<li><p>Add world.set_object_material() and world.set_object_material_from_texture() APIs to change an objects material/texture at runtime</p></li>
+<li><p>Add Simulink physics S-function block mask parameter to allow an AirSim time step that’s different from the Simulink model time step</p></li>
+<li><p>Document all user API method docstrings including description, arguments with types, and return value with type</p></li>
+<li><p>Update autonomy_utils client library for latest autonomy block inference model server and workflow</p></li>
+<li><p>Allow modifying SimpleFlight controller parameters through config JSON</p></li>
+<li><p>Allow subscribing multiple times with separate callbacks to a single topic</p></li>
+<li><p>Add drone.camera_look_at_object() API to automatically keep a camera pointing at a target object in the scene</p></li>
+<li><p>Improvements to world object’s scene config handling</p></li>
+<li><p>Fix camera projection matrix to regenerate when FOV changes to fix zoomed bounding boxes</p></li>
+</ul>
+</section>
+<section id="id12">
+<h2>[0.1.23] - 2022-10-31<a class="headerlink" href="#id12" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Change Project AirSim Python Client API names to use snake case</p></li>
+<li><p>Fix UE5 breaking ID Name lookups</p></li>
+<li><p>Added jsbsim trajectory generator with example script</p></li>
+<li><p>Link wind visuals to physics and add rain/snow/leaves to depth and segmentation views</p></li>
+<li><p>Add support for ROS2</p></li>
+<li><p>Add distance sensor</p></li>
+</ul>
+</section>
+<section id="id13">
+<h2>[0.1.22] - 2022-10-10<a class="headerlink" href="#id13" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Update to UE 5.0.3 and Ubuntu 20.04</p></li>
+<li><p>Renaming to Project AirSim</p></li>
+<li><p>Rename and clean up example user scripts</p></li>
+<li><p>Update quadtiltrotor example script to be in DFW GIS scene</p></li>
+</ul>
+</section>
+<section id="id14">
+<h2>[0.1.21] - 2022-09-26<a class="headerlink" href="#id14" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Port example scripts from AirSim OSS</p></li>
+<li><p>Enable link rotation for environment actors</p></li>
+<li><p>Scene configuration can now be loaded and modified before being sent to simulation</p></li>
+<li><p>Add DepthVis, SurfaceNormals, and DisparityNormalized camera image types</p></li>
+<li><p>Fix SpawnRuntimeObject to allow actors to be initially created without a mesh</p></li>
+</ul>
+</section>
+<section id="id15">
+<h2>[0.1.20] - 2022-09-13<a class="headerlink" href="#id15" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Enhance SpawnObject client API to support Unreal Engine blueprints</p></li>
+<li><p>Add API call to get segmentation ID mappings</p></li>
+</ul>
+</section>
+<section id="id16">
+<h2>[0.1.19] - 2022-09-03<a class="headerlink" href="#id16" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Clear Debug Text on FlushPersistentMarkers and World()</p></li>
+<li><p>Add Gimbal Actuator for mavlink gimbal v2 in PX4 controller</p></li>
+<li><p>Expose camera info topics properly in python client</p></li>
+<li><p>Enable setting trajectories (NED + geographic) for Env Actors via API</p></li>
+</ul>
+</section>
+<section id="id17">
+<h2>[0.1.18] - 2022-08-15<a class="headerlink" href="#id17" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Improve scene loading performance in Unity</p></li>
+<li><p>Fix pitch-roll-yaw order in Python scripts using quaternion_to_eulerian_angles()</p></li>
+<li><p>Add task name to async tasks in Python client scripts to help debug failed tasks</p></li>
+<li><p>Fix spelling of “Eulerian” in code</p></li>
+<li><p>Implement weather APIs in Unity</p></li>
+<li><p>Add GetPose() to Python client API Drone class</p></li>
+</ul>
+</section>
+<section id="id18">
+<h2>[0.1.17] - 2022-08-03<a class="headerlink" href="#id18" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Add support for additional tensor input formats</p></li>
+<li><p>Add manual controller to allow setting control signals directly by API</p></li>
+<li><p>Improve runtime asset material rendering</p></li>
+<li><p>Add AirTaxi asset to Drone plugin</p></li>
+<li><p>Initial hello AVX demo client-side connector script</p></li>
+<li><p>Fix for unpack_image handling of depth images</p></li>
+<li><p>Fix mesh scaling specified in robot config not being applied</p></li>
+<li><p>Connect all rotor/control surface input signals in Simulink model</p></li>
+<li><p>Fix calculation of rotor rotation angle used for setting the rotation rate</p></li>
+<li><p>Fix depth camera image to be uint16 mm</p></li>
+<li><p>Standardize Simulink model along with user script</p></li>
+<li><p>Add annotations to image topic</p></li>
+<li><p>Added debug plot functions to client API</p></li>
+<li><p>Make 3D BBox available as service method API</p></li>
+</ul>
+</section>
+<section id="id19">
+<h2>[0.1.16] - 2022-07-10<a class="headerlink" href="#id19" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Fix some weather effects not clearing properly</p></li>
+<li><p>Fix various ImageDisplay and LidarDisplay issues</p></li>
+<li><p>Enhance Unity support</p></li>
+<li><p>Update WorldSimApi to support scene reloading</p></li>
+<li><p>Update docs for autonomy blocks</p></li>
+<li><p>Reduce EAP drop sizes</p></li>
+</ul>
+</section>
+<section id="id20">
+<h2>[0.1.15] - 2022-06-20<a class="headerlink" href="#id20" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Fix camera FOV bug.</p></li>
+<li><p>Add debugging plot functions and vehicle tracing support to client API</p></li>
+<li><p>Package ONNX DLLs with Unity Plugins folder</p></li>
+<li><p>Add “start-landed” config option</p></li>
+<li><p>Fix simulated Livox Mid-70 sensor not having the same orientation as a physical unit</p></li>
+<li><p>Add GIS tile support to Unity implementation</p></li>
+<li><p>Improve Tiltrotor physics and compatibility with PX4</p></li>
+</ul>
+</section>
+<section id="id21">
+<h2>[0.1.14] - 2022-06-06<a class="headerlink" href="#id21" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Add TensorRT as optional execution provider for Onnx</p></li>
+<li><p>Improved Simpleflight fixed-wing forward speed control</p></li>
+<li><p>Add SetMissionMode() and RequestControl() client API methods</p></li>
+<li><p>Port Simpleflight improvements from AirSim v1</p></li>
+</ul>
+</section>
+<section id="id22">
+<h2>[0.1.13] - 2022-05-23<a class="headerlink" href="#id22" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Fix ROS Bridge not using the correct transform frame for LIDAR data</p></li>
+<li><p>Fix autonomy module packaging</p></li>
+<li><p>Add BlueprintCallable static methods for HUD Blueprint to get sim topic data</p></li>
+<li><p>Add Simpleflight tiltrotor controller</p></li>
+<li><p>Add S-function compatible with both VTOL and quadrotor models</p></li>
+<li><p>Add 3D projected vertices to annotations</p></li>
+<li><p>Add Onnx post processing inside Camera sensor</p></li>
+<li><p>Clip projected 3D bounding boxes to image coords</p></li>
+<li><p>Improve Unity integration</p></li>
+</ul>
+</section>
+<section id="id23">
+<h2>[0.1.12] - 2022-05-09<a class="headerlink" href="#id23" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Add support for client authorization</p></li>
+<li><p>Add “disable-self-hits” optional config flag for LIDAR sensors</p></li>
+<li><p>Addition of a standard VTOL model in MathWorks Simulink</p></li>
+<li><p>Initial demo of Unity integration</p></li>
+<li><p>Battery sensor code and document improvements</p></li>
+<li><p>Add access to published topic data for Unreal actors</p></li>
+</ul>
+</section>
+<section id="id24">
+<h2>[0.1.11] - 2022-05-03<a class="headerlink" href="#id24" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Autonomy Gym doc updates and DAA Bonsai inkling sample updates</p></li>
+<li><p>Fixes for using PX4 v1.12.3 and WSL2</p></li>
+</ul>
+</section>
+<section id="id25">
+<h2>[0.1.10] - 2022-04-12<a class="headerlink" href="#id25" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Create a standard VTOL airframe to fly with PX4 and FastPhysics</p></li>
+<li><p>Enhanced Lidar with material-independent intensity</p></li>
+<li><p>Fix mismatch in client BatteryState enum</p></li>
+<li><p>Add SetGroundTruthKinematics API</p></li>
+<li><p>Updates to trainable sim packaging</p></li>
+<li><p>Add focal length / zoom to camera sensor</p></li>
+<li><p>Miscellaneous bug fixes</p></li>
+</ul>
+</section>
+<section id="id26">
+<h2>[0.1.9] - 2022-03-27<a class="headerlink" href="#id26" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Fix parameter count error when calling MoveByHeading client method</p></li>
+<li><p>Fix log calls using the wrong format for narrow strings</p></li>
+<li><p>Compute intensity for GPU lidar through a shader</p></li>
+<li><p>Add planner script</p></li>
+<li><p>Add example script for drone move API’s</p></li>
+</ul>
+</section>
+<section id="id27">
+<h2>[0.1.8] - 2022-03-14<a class="headerlink" href="#id27" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Improve GIS processing</p></li>
+<li><p>Add GIS tile altitude offset config</p></li>
+<li><p>Enable Voxel Grid Generation</p></li>
+<li><p>Add World scene logging for Drone construction</p></li>
+<li><p>Add energy consumption model to battery simulation.</p></li>
+<li><p>Fix TimeOfDay settings reset at the beginning of a scene</p></li>
+<li><p>Enhance AI block</p></li>
+<li><p>Update autonomy docs and wheel installation step</p></li>
+</ul>
+</section>
+<section id="id28">
+<h2>[0.1.7] - 2022-01-31<a class="headerlink" href="#id28" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Integrate Autonomy Block #1 client package and samples</p></li>
+<li><p>Add variable LIDAR reporting frequency</p></li>
+<li><p>Fix errors with PX4 when the commands are sent too soon</p></li>
+</ul>
+</section>
+<section id="id29">
+<h2>[0.1.6] - 2022-01-24<a class="headerlink" href="#id29" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Add SwitchStreamingView API for cycling streaming camera view and update cycling logic</p></li>
+<li><p>Fix rotor torque calculation to use filtered control signal instead of control signal input</p></li>
+<li><p>Switch from Sky Sphere blueprint to Sun Sky/Volumetric Cloud system (SetSunAngle API replaced by SetSunPositionFromDateTime)</p></li>
+<li><p>Fix missing cv2 import for using compressed camera images</p></li>
+<li><p>Update to UE 4.27.2 to include latest PixelStreaming signalling web server</p></li>
+<li><p>Update PX4 documentation for using WSL2, multiple vehicles, and corrected port info</p></li>
+<li><p>Enable build scripts to use Visual Studio 2022</p></li>
+<li><p>Enable PX4 HITL connect to be canceled</p></li>
+<li><p>Add more documentation and example scripts for Livox Mid-70 LIDAR sensor</p></li>
+<li><p>Fix crashes from invalid parent/child link references in robot configurations</p></li>
+<li><p>Add documentation about installing system prerequisites, such as Vulkan libraries for Linux</p></li>
+</ul>
+</section>
+<section id="id30">
+<h2>[0.1.5] - 2021-12-07<a class="headerlink" href="#id30" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Add Unreal Engine prerequisites installer into binaries</p></li>
+<li><p>Add example user script that pulls live weather data and adds live weather effects</p></li>
+<li><p>Add support for streaming camera images with h.264/WebRTC</p></li>
+<li><p>Add support for simulating Livox Mid-70 LIDAR sensor</p></li>
+<li><p>Reorganize ROS Bridge folder</p></li>
+<li><p>Add two ROS examples using Project AirSim with the ROS MoveIt! package</p></li>
+</ul>
+</section>
+<section id="id31">
+<h2>[0.1.4] - 2021-11-22<a class="headerlink" href="#id31" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Add Drone.GetAnnotations() to retrieve annotations with objects of interest in camera sensor view</p></li>
+<li><p>Add image_utils.draw_bbox3d() for clients to draw 3D bounding box annotations</p></li>
+<li><p>Add range validation on drone home geographical location</p></li>
+<li><p>Fix spurious warning when using Unreal Engine version 4.27</p></li>
+<li><p>Fix objects added during runtime not showing up in segmentation cameras</p></li>
+<li><p>Add battery sensor</p></li>
+</ul>
+</section>
+<section id="id32">
+<h2>[0.1.3] - 2021-10-29<a class="headerlink" href="#id32" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Move to Unreal Engine 4.27 (NOTE: 4.27 now required to build UE environment projects)</p></li>
+<li><p>Fix bounding box annotated images not being published if camera images are not rendered (e.g., “–nullrhi” and no image subscribers)</p></li>
+<li><p>Merge separate flags enabling 2D and 3D bounding box annotated images into a single flag enabling all annotated images</p></li>
+</ul>
+</section>
+<section id="id33">
+<h2>[0.1.2] - 2021-10-10<a class="headerlink" href="#id33" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Add option to spawn robots by lat/lon/alt instead of local NED coordinates by replacing the origin’s <code class="docutils literal notranslate"><span class="pre">xyz</span></code> with <code class="docutils literal notranslate"><span class="pre">geo-point</span></code></p></li>
+<li><p>Fix for accounting for rotation in oriented 3D bounding box center</p></li>
+<li><p>Add global wind speed to scene config and add <code class="docutils literal notranslate"><span class="pre">world.SetWindVelocity()</span></code> API, with <code class="docutils literal notranslate"><span class="pre">hello_wind.py</span></code> example script</p></li>
+<li><p>Fix depth image unpacking as <code class="docutils literal notranslate"><span class="pre">16UC1</span></code> format to preserve depth value accuracy (units are distance in millimeters) and fix naming from <code class="docutils literal notranslate"><span class="pre">depth_planner</span></code> to <code class="docutils literal notranslate"><span class="pre">depth_planar</span></code></p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">hello_weather_apis.py</span></code> and <code class="docutils literal notranslate"><span class="pre">hello_time_apis.py</span></code> example scripts</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">world.ResetWeatherEffects()</span></code> API and fix weather settings persisting even if scene is reloaded</p></li>
+<li><p>Fix crash from calculating camera projection matrix on a disabled scene camera</p></li>
+<li><p>Fix ImageDisplay bug that could endlessly fill image queues if display pop-ups are closed by the ESC key while the image subscription stays active</p></li>
+<li><p>Add support for using a PC game controller as an RC controller for SimpleFlight</p></li>
+<li><p>Add ROS bridge client wrapper with pub/sub support for robot pose, camera pose, camera images, lidar point clouds, radar detections/tracks, scene loading, and robot/camera transform frames</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">drone.SetCameraPose()</span></code> API for changine a camera’s pose, with <code class="docutils literal notranslate"><span class="pre">hello_camera_setpose.py</span></code> example script</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">LidarDisplay</span></code> point cloud colorization by each point’s segmentation ID</p></li>
+</ul>
+</section>
+<section id="id34">
+<h2>[0.1.1] - 2021-09-10<a class="headerlink" href="#id34" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Expose PX4 lock step timeout thresholds as optional config settings</p></li>
+<li><p>Disable QGC proxy in example PX4 SITL settings to avoid unintended conflicts with external mavlink proxy utilities</p></li>
+<li><p>Improve PX4 parameter setting robustness by increasing number and frequency of retries before throwing an exception</p></li>
+<li><p>Added optional <code class="docutils literal notranslate"><span class="pre">tiles-dir-is-client-relative</span></code> setting to resolve a client-relative path to local glTF tiles</p></li>
+<li><p>Enabled Python 3.9 support by removing <code class="docutils literal notranslate"><span class="pre">open3d</span></code> requirement (<code class="docutils literal notranslate"><span class="pre">open3d</span></code> still needs to be pip installed manually to use LidarDisplay visualization utility)</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">jsonschema</span></code> as an explicit client package dependency</p></li>
+<li><p>Added VTOL fixed wing flight support to Simple Flight controller</p></li>
+<li><p>Support getting bounding box annotated images, with <code class="docutils literal notranslate"><span class="pre">hello_bbox.py</span></code> example script</p></li>
+<li><p>Support loading glTF assets at runtime, with <code class="docutils literal notranslate"><span class="pre">runtime_assets.py</span></code> example script</p></li>
+</ul>
+</section>
+<section id="id35">
+<h2>[0.1.0] - 2021-08-06<a class="headerlink" href="#id35" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Initial release</p></li>
+</ul>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.  All rights reserved.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, IAMAI Consulting Corp..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

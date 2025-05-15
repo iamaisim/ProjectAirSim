@@ -1,0 +1,235 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sensor data visualization/display &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Data Collection Config" href="../../datacollection/config.html" />
+    <link rel="prev" title="Battery sensor" href="../../sensors/battery.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../use_source.html">Build From Source as a Developer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../use_prebuilt.html">Using Pre-built Binary Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev_setup_linux.html">Developer Initial Setup for Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev_setup_win.html">Developer Initial Setup for Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vscode_user_settings.html">Optional VS Code User Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../headless_cloud.html">Running Headless (Docker)</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ROS Integration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../ros/ros.html">Project AirSim ROS Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ros/ros2.html">ROS2 Setup for developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ros/ros_examples.html">Project AirSim ROS Bridge Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ros/example_build_map.html">Project AirSim ROS Bridge Examples: build_map</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ros/example_navigate_map.html">Project AirSim ROS Bridge Examples: navigate_map</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Sensor data visualization/display</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#choosing-the-display-backend">Choosing the display backend</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#setting-backend-in-your-matplotlibrc-file">1. Setting <code class="docutils literal notranslate"><span class="pre">backend</span></code> in your <code class="docutils literal notranslate"><span class="pre">matplotlibrc</span></code> file::</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#setting-the-mplbackend-environment-variable">2. Setting the <code class="docutils literal notranslate"><span class="pre">MPLBACKEND</span></code> environment variable:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#if-your-script-depends-on-a-specific-backend-you-can-use-the-function">3. If your script depends on a specific backend you can use the function</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Data Collection</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../datacollection/config.html">Data Collection Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../datacollection/randomizations.html">Object-Level Randomizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../datacollection/trajectory.html">Trajectory Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../datacollection/data_generation.html">Data Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../datacollection/data_aggregation.html">Data Aggregation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/unreal_physics.html">Unreal Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/sim_clock_internal.html">Simulation Clock</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">api_docs/index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Sensor data visualization/display</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/internal/sensors/display.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="sensor-data-visualization-display">
+<h1>Sensor data visualization/display<a class="headerlink" href="#sensor-data-visualization-display" title="Link to this heading">¶</a></h1>
+<section id="choosing-the-display-backend">
+<h2>Choosing the display backend<a class="headerlink" href="#choosing-the-display-backend" title="Link to this heading">¶</a></h2>
+<p>Matplotlib is used to plot and display the sensor data. Image-specific display utility functions are implemented in <a class="reference internal" href="#../../../client/python/projectairsim/src/projectairsim/image_utils.py"><span class="xref myst">client/python/projectairsim/src/projectairsim/image_utils.py</span></a>.
+The backend is strictly enforced to be <code class="docutils literal notranslate"><span class="pre">TkAgg</span></code> for consistency and reliability. Other backends may work but GTK has been reported to cause issues.</p>
+<p>The backend used for rendering the plot can be configured by changing the MPL backend value offered by Matplotlib.
+The list of supported backends can be found here: https://matplotlib.org/stable/tutorials/introductory/usage.html#the-builtin-backends</p>
+<p>Relevant details about how to choose the backend with Matplotlib is reproduced below:</p>
+<p>There are three ways to configure your backend:</p>
+<ol class="arabic simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">backend</span></code> parameter in your <code class="docutils literal notranslate"><span class="pre">matplotlibrc</span></code> file</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">MPLBACKEND</span></code> environment variable</p></li>
+<li><p>The function <code class="docutils literal notranslate"><span class="pre">matplotlib.use</span></code></p></li>
+</ol>
+<p>Below is a more detailed description.</p>
+<p>If there is more than one configuration present, the last one from the
+list takes precedence; e.g. calling <code class="docutils literal notranslate"><span class="pre">matplotlib.use()</span></code> will override
+the setting in your <code class="docutils literal notranslate"><span class="pre">matplotlibrc</span></code>.</p>
+<p>Without a backend explicitly set, Matplotlib automatically detects a usable
+backend based on what is available on your system and on whether a GUI event
+loop is already running. On Linux, if the environment variable
+<code class="docutils literal notranslate"><span class="pre">DISPLAY</span></code> is unset, the “event loop” is identified as “headless”,
+which causes a fallback to a noninteractive backend (agg); in all other
+cases, an interactive backend is preferred (usually, at least tkagg will be
+available).</p>
+<p>Here is a detailed description of the configuration methods:</p>
+<section id="setting-backend-in-your-matplotlibrc-file">
+<h3>1. Setting <code class="docutils literal notranslate"><span class="pre">backend</span></code> in your <code class="docutils literal notranslate"><span class="pre">matplotlibrc</span></code> file::<a class="headerlink" href="#setting-backend-in-your-matplotlibrc-file" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>backend<span class="w"> </span>:<span class="w"> </span>qt5agg<span class="w">   </span><span class="c1"># use pyqt5 with antigrain (agg) rendering.</span>
+</pre></div>
+</div>
+</section>
+<section id="setting-the-mplbackend-environment-variable">
+<h3>2. Setting the <code class="docutils literal notranslate"><span class="pre">MPLBACKEND</span></code> environment variable:<a class="headerlink" href="#setting-the-mplbackend-environment-variable" title="Link to this heading">¶</a></h3>
+<p>You can set the environment variable either for your current shell or for
+a single script.</p>
+<p>On Unix:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">export</span> <span class="n">MPLBACKEND</span><span class="o">=</span><span class="n">qt5agg</span>
+<span class="o">&gt;</span> <span class="n">python</span> <span class="n">simple_plot</span><span class="o">.</span><span class="n">py</span>
+
+<span class="o">&gt;</span> <span class="n">MPLBACKEND</span><span class="o">=</span><span class="n">qt5agg</span> <span class="n">python</span> <span class="n">sensor_data_plot</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>On Windows, only the former is possible:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="nb">set</span> <span class="n">MPLBACKEND</span><span class="o">=</span><span class="n">qt5agg</span>
+<span class="o">&gt;</span> <span class="n">python</span> <span class="n">sensor_data_plot</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>Setting this environment variable will override the <code class="docutils literal notranslate"><span class="pre">backend</span></code> parameter
+in <em>any</em> <code class="docutils literal notranslate"><span class="pre">matplotlibrc</span></code>, even if there is a <code class="docutils literal notranslate"><span class="pre">matplotlibrc</span></code> in
+your current working directory. Therefore, setting <code class="docutils literal notranslate"><span class="pre">MPLBACKEND</span></code>
+globally, e.g. in your <code class="docutils literal notranslate"><span class="pre">.bashrc</span></code> or <code class="docutils literal notranslate"><span class="pre">.profile</span></code>, is discouraged
+as it might lead to counter-intuitive behavior.</p>
+</section>
+<section id="if-your-script-depends-on-a-specific-backend-you-can-use-the-function">
+<h3>3. If your script depends on a specific backend you can use the function<a class="headerlink" href="#if-your-script-depends-on-a-specific-backend-you-can-use-the-function" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">matplotlib.use</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span>
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;qt5agg&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This should be done before any figure is created, otherwise Matplotlib may
+fail to switch the backend and raise an ImportError.</p>
+<p>Using <code class="docutils literal notranslate"><span class="pre">~matplotlib.use</span></code> will require changes in your code if users want to
+use a different backend.  Therefore, you should avoid explicitly calling
+<code class="docutils literal notranslate"><span class="pre">~matplotlib.use</span></code> unless absolutely necessary.</p>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.  All rights reserved.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../../sensors/battery.html" class="btn btn-neutral float-left" title="Battery sensor" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../datacollection/config.html" class="btn btn-neutral float-right" title="Data Collection Config" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, IAMAI Consulting Corp..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

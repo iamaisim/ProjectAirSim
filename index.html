@@ -1,0 +1,538 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project AirSim &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/documentation_options.js?v=2709fde1"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Build From Source as a Developer" href="internal/use_source.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="internal/use_source.html">Build From Source as a Developer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="internal/use_prebuilt.html">Using Pre-built Binary Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="internal/dev_setup_linux.html">Developer Initial Setup for Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="internal/dev_setup_win.html">Developer Initial Setup for Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="internal/vscode_user_settings.html">Optional VS Code User Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="internal/headless_cloud.html">Running Headless (Docker)</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ROS Integration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ros/ros.html">Project AirSim ROS Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ros/ros2.html">ROS2 Setup for developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ros/ros_examples.html">Project AirSim ROS Bridge Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ros/example_build_map.html">Project AirSim ROS Bridge Examples: build_map</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ros/example_navigate_map.html">Project AirSim ROS Bridge Examples: navigate_map</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="internal/sensors/display.html">Sensor data visualization/display</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Data Collection</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="datacollection/config.html">Data Collection Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datacollection/randomizations.html">Object-Level Randomizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datacollection/trajectory.html">Trajectory Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datacollection/data_generation.html">Data Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datacollection/data_aggregation.html">Data Aggregation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="internal/physics/unreal_physics.html">Unreal Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="internal/scene/sim_clock_internal.html">Simulation Clock</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">api_docs/index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Project AirSim</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="project-airsim">
+<h1>Project AirSim<a class="headerlink" href="#project-airsim" title="Link to this heading">¶</a></h1>
+</section>
+<section id="welcome-to-project-airsim">
+<h1>Welcome to Project AirSim<a class="headerlink" href="#welcome-to-project-airsim" title="Link to this heading">¶</a></h1>
+<p>Project AirSim is a simulation platform for drones, robots, and other autonomous systems.</p>
+<p>Building on the previous work of <strong><a class="reference external" href="https://github.com/microsoft/AirSim">AirSim</a></strong>, it leverages <strong><a class="reference external" href="https://www.unrealengine.com/">Unreal Engine 5</a></strong> to provide photo-realistic visuals, while providing the simulation framework needed to integrate custom physics, controllers, actuators, and sensors to develop an autonomous system.</p>
+<p>Project AirSim consists of three main layers:</p>
+<ol class="arabic simple">
+<li><p><strong>Project AirSim Sim Libs</strong> - Base infrastructure for defining a generic robot structure and simulation scene tick loop</p></li>
+<li><p><strong>Project AirSim Plugin</strong> - Host package (currently an Unreal Plugin) that builds on the sim libs to connect external components (controller, physics, rendering) at runtime that are specific to each configured robot-type scenario (ex. quadrotor drones)</p></li>
+<li><p><strong>Project AirSim Client Library</strong> - End-user library to enable API calls to interact with the robot and simulation over a network connection</p></li>
+</ol>
+<p>For more details on the architecture, see <strong><a class="reference internal" href="#docs/development/use_source.md#airsim-v-next-architecture-overview"><span class="xref myst">Project AirSim Architecture Overview</span></a></strong>.</p>
+<p>Project AirSim currently supports Windows 11 and Ubuntu 22. For more info about hardware specs for working with Project AirSim, see <strong><a class="reference internal" href="#docs/system_specs.md"><span class="xref myst">System Specifications</span></a></strong>.</p>
+<p><img alt="Drone flying in Blocks environment" src="../images/drone_in_blocks.jpg" /></p>
+<section id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h2>
+<p>See <strong><a class="reference internal" href="#docs/system_specs.md#installing-system-prerequisites"><span class="xref myst">Installing system prerequisites</span></a></strong> for information about Windows/Linux system setup needed before running Project AirSim.</p>
+<section id="develop-with-project-airsim-source">
+<h3>1. Develop with Project AirSim source<a class="headerlink" href="#develop-with-project-airsim-source" title="Link to this heading">¶</a></h3>
+<blockquote>
+<div><p>I’m going to build the sim libs, Plugin, Blocks, and my own UE project environment from the ground up so I can customize it to my application.</p>
+</div></blockquote>
+<section id="build-from-source-as-a-developer">
+<h4><strong><a class="reference internal" href="#docs/development/use_source.md"><span class="xref myst">Build from source as a developer</span></a></strong><a class="headerlink" href="#build-from-source-as-a-developer" title="Link to this heading">¶</a></h4>
+</section>
+</section>
+<section id="drop-in-project-airsim-plugin">
+<h3>2. Drop-in Project AirSim Plugin<a class="headerlink" href="#drop-in-project-airsim-plugin" title="Link to this heading">¶</a></h3>
+<blockquote>
+<div><p>I want to try adding the Project AirSim Plugin to my own UE project environment so I can build some autonomous stuff.</p>
+</div></blockquote>
+<section id="use-project-airsim-plugin-in-custom-environments">
+<h4><strong><a class="reference internal" href="#docs/use_plugin.md"><span class="xref myst">Use Project AirSim Plugin in custom environments</span></a></strong><a class="headerlink" href="#use-project-airsim-plugin-in-custom-environments" title="Link to this heading">¶</a></h4>
+</section>
+</section>
+</section>
+<section id="running-headless-docker">
+<h2>Running Headless (Docker)<a class="headerlink" href="#running-headless-docker" title="Link to this heading">¶</a></h2>
+<p>If you need to run a Project AirSim simulation on a headless system, such as in a Docker container, you can enable off-screen rendering by adding the <code class="docutils literal notranslate"><span class="pre">-RenderOffScreen</span></code> argument when launching the Unreal environment executable:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Blocks</span><span class="p">{</span><span class="o">.</span><span class="n">exe</span><span class="o">/.</span><span class="n">sh</span><span class="p">}</span> <span class="o">-</span><span class="n">RenderOffScreen</span>
+</pre></div>
+</div>
+<p>If you are running without GPU access and want to run without any image rendering, you can disable rendering completely by adding the <code class="docutils literal notranslate"><span class="pre">-nullrhi</span></code> argument:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Blocks</span><span class="p">{</span><span class="o">.</span><span class="n">exe</span><span class="o">/.</span><span class="n">sh</span><span class="p">}</span> <span class="o">-</span><span class="n">nullrhi</span>
+</pre></div>
+</div>
+<p>These arguments can also be used while debugging in VS Code by modifying the <code class="docutils literal notranslate"><span class="pre">launch.json</span></code> file, or in Visual Studio 2022 by modifying the project’s <code class="docutils literal notranslate"><span class="pre">Configuration</span> <span class="pre">Properties</span></code>. See <strong><a class="reference internal" href="#docs/development/headless_cloud.md"><span class="xref myst">Running Headless (Docker, Azure Cloud)</span></a></strong> for more details.</p>
+</section>
+<section id="reference">
+<h2>Reference<a class="headerlink" href="#reference" title="Link to this heading">¶</a></h2>
+<section id="configuration-jsonc-settings">
+<h3>Configuration JSONC Settings<a class="headerlink" href="#configuration-jsonc-settings" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong><a class="reference internal" href="#docs/config.md"><span class="xref myst">Overview</span></a></strong></p></li>
+<li><p><strong><a class="reference internal" href="#docs/config_scene.md"><span class="xref myst">Scene Settings</span></a></strong></p></li>
+<li><p><strong><a class="reference internal" href="#docs/config_robot.md"><span class="xref myst">Robot Settings</span></a></strong></p></li>
+</ul>
+</section>
+<section id="client-api">
+<h3>Client API<a class="headerlink" href="#client-api" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong><a class="reference internal" href="#docs/api.md"><span class="xref myst">Overall API Info</span></a></strong></p></li>
+</ul>
+</section>
+<section id="ros-integration">
+<h3>ROS Integration<a class="headerlink" href="#ros-integration" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong><a class="reference internal" href="#docs/ros/ros.md"><span class="xref myst">ROS Bridge Setup and Use</span></a></strong></p></li>
+<li><p><strong><a class="reference internal" href="#docs/ros/ros_examples.md"><span class="xref myst">ROS Bridge Examples</span></a></strong></p></li>
+</ul>
+</section>
+<section id="controllers">
+<h3>Controllers<a class="headerlink" href="#controllers" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong><a class="reference internal" href="#docs/controllers/controllers.md"><span class="xref myst">Flight Controllers</span></a></strong></p></li>
+<li><p><strong><a class="reference internal" href="#docs/controllers/simple_flight.md"><span class="xref myst">Simple Flight Controller</span></a></strong></p></li>
+<li><p><strong><a class="reference internal" href="#docs/controllers/px4/px4.md"><span class="xref myst">PX4 Flight Controller</span></a></strong></p></li>
+</ul>
+</section>
+<section id="sensors">
+<h3>Sensors<a class="headerlink" href="#sensors" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Airspeed</p></li>
+<li><p>Barometer</p></li>
+<li><p><strong><a class="reference internal" href="#docs/sensors/camera_capture_settings.md"><span class="xref myst">Camera</span></a></strong></p></li>
+<li><p>Distance</p></li>
+<li><p>GPS</p></li>
+<li><p>IMU</p></li>
+<li><p><strong><a class="reference internal" href="#docs/sensors/lidar.md"><span class="xref myst">Lidar</span></a></strong></p></li>
+<li><p>Magnetometer</p></li>
+<li><p><strong><a class="reference internal" href="#docs/sensors/radar.md"><span class="xref myst">Radar</span></a></strong></p></li>
+</ul>
+</section>
+<section id="scene">
+<h3>Scene<a class="headerlink" href="#scene" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong><a class="reference internal" href="#docs/scene/sim_clock.md"><span class="xref myst">Simulation Clock</span></a></strong></p></li>
+<li><p>Coordinate System</p></li>
+<li><p><strong><a class="reference internal" href="#docs/scene/weather_visual_effects.md"><span class="xref myst">Weather Visual Effects</span></a></strong></p></li>
+</ul>
+</section>
+<section id="physics">
+<h3>Physics<a class="headerlink" href="#physics" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong><a class="reference internal" href="#docs/physics/fast_physics.md"><span class="xref myst">Fast Physics</span></a></strong></p></li>
+<li><p><strong><a class="reference internal" href="#docs/physics/matlab_physics.md"><span class="xref myst">Matlab Physics</span></a></strong></p></li>
+</ul>
+</section>
+<section id="autonomy-blocks">
+<h3>Autonomy Blocks<a class="headerlink" href="#autonomy-blocks" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong><a class="reference internal" href="#docs/autonomy/autonomy.md"><span class="xref myst">Autonomy Building-Blocks</span></a></strong></p></li>
+<li><p><strong><a class="reference internal" href="#docs/autonomy/gym/gym_envs.md"><span class="xref myst">Autonomy Gym</span></a></strong></p></li>
+</ul>
+</section>
+</section>
+<section id="faq">
+<h2>FAQ<a class="headerlink" href="#faq" title="Link to this heading">¶</a></h2>
+<p>If you run into problems, check the <strong><a class="reference internal" href="#docs/faq.md"><span class="xref myst">FAQ</span></a></strong> for help.</p>
+</section>
+<section id="transitioning-from-airsim">
+<h2>Transitioning from AirSim<a class="headerlink" href="#transitioning-from-airsim" title="Link to this heading">¶</a></h2>
+<p>See <strong><a class="reference internal" href="#docs/transition_from_airsim.md"><span class="xref myst">Transitioning from AirSim</span></a></strong> for guidance on converting an AirSim Unreal environment and client code from AirSim to Project AirSim.</p>
+</section>
+<section id="trademarks">
+<h2>Trademarks<a class="headerlink" href="#trademarks" title="Link to this heading">¶</a></h2>
+<p>This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft trademarks or logos is subject to and must follow Microsoft’s Trademark &amp; Brand Guidelines. Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship. Any use of third-party trademarks or logos are subject to those third-party’s policies.</p>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.
+Copyright (C) IAMAI Consulting Corporation.</p>
+<p>MIT License</p>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="internal/use_source.html">Build From Source as a Developer</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="internal/use_source.html#project-airsim-architecture-overview">Project AirSim architecture overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="internal/use_source.html#initial-developer-setup">Initial developer setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="internal/use_source.html#developing-project-airsim-sim-libs">Developing Project AirSim Sim Libs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="internal/use_source.html#command-line-windows-linux">Command Line (Windows/Linux)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="internal/use_source.html#vs-code-windows-linux">VS Code (Windows/Linux)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="internal/use_source.html#visual-studio-2019-windows-only">Visual Studio 2019 (Windows only)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="internal/use_source.html#developing-with-the-project-airsim-client-library">Developing with the Project AirSim client library</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="internal/use_prebuilt.html">Using Pre-built Binary Environments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="internal/use_prebuilt.html#package-contents">Package contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="internal/use_prebuilt.html#how-to-launch-the-environment">How to launch the environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="internal/use_prebuilt.html#how-to-interact-with-the-drone">How to interact with the drone</a></li>
+<li class="toctree-l2"><a class="reference internal" href="internal/use_prebuilt.html#how-to-add-multiple-drones">How to add multiple drones</a></li>
+<li class="toctree-l2"><a class="reference internal" href="internal/use_prebuilt.html#how-to-modify-the-drone">How to modify the drone</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="internal/dev_setup_linux.html">Developer Initial Setup for Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="internal/dev_setup_win.html">Developer Initial Setup for Windows</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="internal/dev_setup_win.html#setup">Setup</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="internal/vscode_user_settings.html">Optional VS Code User Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="internal/headless_cloud.html">Running Headless (Docker)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="internal/headless_cloud.html#using-headless-mode-with-vs-code-debugging">Using headless mode with VS Code Debugging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="internal/headless_cloud.html#using-headless-mode-with-visual-studio-2019-debugging">Using headless mode with Visual Studio 2019 Debugging</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">ROS Integration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ros/ros.html">Project AirSim ROS Bridge</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros.html#ros-bridge-library-in-place-install">ROS bridge library in-place install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros.html#building">Building</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros.html#running">Running</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros.html#command-line-arguments">Command-line arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros.html#ros-topics-and-tf-transform-api">ROS topics and tf transform API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros.html#running-with-a-mission-script">Running with a mission script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ros/ros2.html">ROS2 Setup for developers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros2.html#setup-python-client-venv">1. Setup python client(venv)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros2.html#install-ros-humble">2. Install ROS(humble)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros2.html#install-bridge">3. Install bridge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros2.html#activate-node">4. Activate node</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros2.html#publish-topic-messages">5. Publish topic messages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros2.html#activate-video-streaming-node">6. Activate video streaming node</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros2.html#ros2-topics-and-tf-frames">ROS2 Topics and TF Frames</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ros/ros_examples.html">Project AirSim ROS Bridge Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros_examples.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros_examples.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros_examples.html#building">Building</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros_examples.html#running">Running</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros_examples.html#individual-examples">Individual Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros_examples.html#simple-takeoff-and-land-example-services">Simple Takeoff and land example (services)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros_examples.html#takeoffgroup-and-landgroup-example-services">TakeoffGroup and LandGroup example (services)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros_examples.html#arm-and-disarm-services">Arm and Disarm Services</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros_examples.html#armgroup-and-disarmgroup-services">ArmGroup and DisarmGroup Services</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros_examples.html#create-voxel-grid-service">Create Voxel Grid Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros_examples.html#create-segmented-voxel-grid-service">Create Segmented Voxel Grid service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros_examples.html#create-occupancy-grid-service">Create Occupancy Grid Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros_examples.html#save-occupancy-grid-service">Save Occupancy Grid Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros_examples.html#moveonpath-service">MoveOnPath Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros_examples.html#movetoposition">MoveToPosition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/ros_examples.html#moveonpath-action">MoveOnPath Action</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ros/example_build_map.html">Project AirSim ROS Bridge Examples: build_map</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ros/example_build_map.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/example_build_map.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/example_build_map.html#building">Building</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/example_build_map.html#running">Running</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/example_build_map.html#ros-parameters">ROS parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/example_build_map.html#technical-description">Technical description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/example_build_map.html#rd-party-attributions">3rd party attributions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ros/example_navigate_map.html">Project AirSim ROS Bridge Examples: navigate_map</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ros/example_navigate_map.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/example_navigate_map.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/example_navigate_map.html#building">Building</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/example_navigate_map.html#running">Running</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/example_navigate_map.html#ros-parameters">ROS parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/example_navigate_map.html#technical-description">Technical description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros/example_navigate_map.html#rd-party-attributions">3rd party attributions</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sensors/camera_capture_settings.html#camera-level-parameters">Camera-level parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sensors/camera_capture_settings.html#annotation-settings">Annotation settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sensors/camera_capture_settings.html#explanation-of-fields">Explanation of Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sensors/camera_capture_settings.html#capture-level-parameters">Capture-level parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#pre-requisites">Pre-Requisites</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#sample-config-downcamera-sensor-configured-with-post-processing-model">Sample config: DownCamera Sensor configured with post processing model</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_streaming.html">Camera Streaming</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sensors/camera_streaming.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sensors/camera_streaming.html#configuring-streaming-cameras">Configuring streaming cameras</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sensors/camera_streaming.html#launching-the-sim-with-camera-streaming-on-a-local-machine">Launching the sim with camera streaming on a local machine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sensors/camera_streaming.html#setting-the-maximum-fps-for-pixel-streaming">Setting the Maximum FPS for Pixel Streaming</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sensors/camera_streaming.html#launching-the-sim-with-camera-streaming-on-a-vm-or-a-remote-compute-machine">Launching the sim with camera streaming on a VM or a remote compute machine</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/segmentation.html">Segmentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sensors/segmentation.html#mesh-names-for-automatically-initializing-ids">Mesh names for automatically initializing IDs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sensors/segmentation.html#assigning-segmentation-ids-in-unreal-editor">Assigning segmentation IDs in Unreal Editor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sensors/segmentation.html#segmentation-pallet">Segmentation Pallet</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html">Lidar sensor</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sensors/lidar.html#lidar-detections">Lidar detections</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sensors/lidar.html#sample-config">Sample config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sensors/lidar.html#point-rate-and-report-frequency">Point rate and report frequency</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sensors/lidar.html#fov-settings">FOV settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sensors/lidar.html#lidar-types">Lidar types</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html">Radar sensor overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sensors/radar.html#radar-detections">Radar detections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sensors/radar.html#radar-tracks">Radar tracks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html#radar-sensor-settings">Radar sensor settings</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sensors/radar.html#sample-config">Sample config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sensors/radar.html#fov-settings">FOV settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sensors/radar.html#mask-settings">Mask settings</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html">Battery sensor</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sensors/battery.html#battery-usage">Battery usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sensors/battery.html#battery-simulation-modes">Battery Simulation Modes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="internal/sensors/display.html">Sensor data visualization/display</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="internal/sensors/display.html#choosing-the-display-backend">Choosing the display backend</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Data Collection</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="datacollection/config.html">Data Collection Config</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="datacollection/config.html#environment-spec">Environment Spec</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datacollection/config.html#collection-spec">Collection Spec</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datacollection/config.html#augmentation-spec">Augmentation Spec</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datacollection/config.html#output-spec">Output Spec</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="datacollection/randomizations.html">Object-Level Randomizations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="datacollection/randomizations.html#texture">Texture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datacollection/randomizations.html#scale">Scale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datacollection/randomizations.html#rotation">Rotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datacollection/randomizations.html#translation">Translation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datacollection/randomizations.html#flip">Flip</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="datacollection/trajectory.html">Trajectory Generation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="datacollection/trajectory.html#takeoff-landing">Takeoff-Landing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datacollection/trajectory.html#conic">Conic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datacollection/trajectory.html#port2port">Port2Port</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datacollection/trajectory.html#cylindrical">Cylindrical</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datacollection/trajectory.html#note">Note:</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="datacollection/data_generation.html">Data Generation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="datacollection/data_generation.html#note">Note</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datacollection/data_generation.html#trajectory-generation">Trajectory Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datacollection/data_generation.html#data-collection">Data Collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datacollection/data_generation.html#data-validation">Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datacollection/data_generation.html#data-aggregation">Data Aggregation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datacollection/data_generation.html#data-augmentation">Data Augmentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="datacollection/data_aggregation.html">Data Aggregation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="datacollection/data_aggregation.html#coco-json">COCO JSON</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datacollection/data_aggregation.html#json">JSON</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datacollection/data_aggregation.html#jsonl">JSONL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datacollection/data_aggregation.html#csv">CSV</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/matlab_physics.html">Matlab Physics for Drones</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="physics/matlab_physics.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="physics/matlab_physics.html#install-matlab-engine-api-for-python">Install Matlab Engine API for Python</a></li>
+<li class="toctree-l2"><a class="reference internal" href="physics/matlab_physics.html#example-scripts-with-simulink-physics">Example Scripts with Simulink Physics</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="internal/physics/unreal_physics.html">Unreal Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/sim_clock.html">Simulation Clock</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="scene/sim_clock.html#sim-clock-config">Sim Clock Config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scene/sim_clock.html#sim-clock-api">Sim Clock API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scene/sim_clock.html#example-usage-scenarios">Example Usage Scenarios</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="internal/scene/sim_clock_internal.html">Simulation Clock</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="internal/scene/sim_clock_internal.html#sim-clock-config">Sim clock config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="internal/scene/sim_clock_internal.html#sim-clock-api">Sim clock API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="internal/scene/sim_clock_internal.html#example-usage-scenarios">Example usage scenarios</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">api_docs/index</a></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="internal/use_source.html" class="btn btn-neutral float-right" title="Build From Source as a Developer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, IAMAI Consulting Corp..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

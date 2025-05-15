@@ -14,7 +14,7 @@ Project AirSim consists of three main layers:
 
 For more details on the architecture, see **[Project AirSim Architecture Overview](docs/development/use_source.md#airsim-v-next-architecture-overview)**.
 
-Project AirSim currently supports Windows 11 and Ubuntu 20.04. For more info about hardware specs for working with Project AirSim, see **[System Specifications](docs/system_specs.md)**.
+Project AirSim currently supports Windows 11 and Ubuntu 22. For more info about hardware specs for working with Project AirSim, see **[System Specifications](docs/system_specs.md)**.
 
 ![Drone flying in Blocks environment](docs/images/drone_in_blocks.jpg)
 

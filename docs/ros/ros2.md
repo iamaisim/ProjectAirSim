@@ -1,5 +1,6 @@
-# ROS2 Setup for developers(WIP)
+# ROS2 Setup for developers
 
+Project AirSim can join a ROS2 network using the Project AirSim ROS2 Bridge. The bridge is a pure Python ROS2 node that connects to Project AirSim using the Client API. It is provided as a Python package and can be run as a ROS2 node or directly with the Python interpreter. This bridge is compatible with the Pixel Streaming infrastructure and supports camera, lidar, radar, and pose topics.
 
 ### 1. Setup python client(venv)
 
@@ -64,3 +65,35 @@ Executing 'webrtc_node.py' will initialize the ros2 node that will connect with 
 ```
 ros2 run projectairsim_ros webrtc_node.py
 ```
+
+### ROS2 Topics and TF Frames
+
+#### Subscribed Topics
+- `/airsim_node/<robot_name>/cmd_vel` ([geometry_msgs/Twist](http://docs.ros.org/en/api/geometry_msgs/html/msg/Twist.html))
+- `/airsim_node/<robot_name>/desired_pose` ([geometry_msgs/PoseStamped](http://docs.ros.org/en/api/geometry_msgs/html/msg/PoseStamped.html))
+- `/airsim_node/<robot_name>/<camera_name>/desired_pose` ([geometry_msgs/PoseStamped](http://docs.ros.org/en/api/geometry_msgs/html/msg/PoseStamped.html))
+- `/airsim_node/load_scene` ([projectairsim_ros/srv/LoadScene])
+
+#### Published Topics
+- `/airsim_node/<robot_name>/actual_pose` ([geometry_msgs/PoseStamped])
+- `/airsim_node/<robot_name>/<camera_name>/<image_type>/image` ([sensor_msgs/Image])
+- `/airsim_node/<robot_name>/<camera_name>/<image_type>/camera_info` ([sensor_msgs/CameraInfo])
+- `/airsim_node/<robot_name>/<lidar_name>/lidar` ([sensor_msgs/PointCloud2])
+- `/airsim_node/<robot_name>/<radar_name>/radar_detections` ([radar_msgs/RadarScan])
+- `/airsim_node/<robot_name>/<radar_name>/radar_tracks` ([radar_msgs/RadarTracks])
+- `/airsim_streaming_camera/image_raw` (H.264 stream forwarding)
+
+#### TF Broadcasted Frames
+- `airsim_node/<robot_name>`: robot base frame from `map`
+- `airsim_node/<robot_name>/<camera_name>/<image_type>`: camera image frame from `map`
+
+#### Image Types Mapping
+| image_type ID | Name                     |
+|---------------|--------------------------|
+| 0             | scene_camera             |
+| 1             | depth_planar_camera      |
+| 2             | depth_camera             |
+| 3             | segmentation_camera      |
+| 4             | depth_vis_camera         |
+| 5             | disparity_normalized_camera |
+| 6             | surface_normals          |

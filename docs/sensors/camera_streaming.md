@@ -102,6 +102,42 @@ Launch the packaged binary with the following command:
 
 Adjust the `60` value to the desired maximum FPS for your use case.
 
+## Launching the sim with camera streaming on a VM or a remote compute machine
+
+To connect to a remote PixelStreaming view, such as running the sim server on VM, the following is needed:
+
+1. Ensure port 80 is open for TCP and UDP on the sim server compute machine (including through any OS firewall settings) to allow the stream viewer web browser to connect to the Signalling Web Server and proxy user inputs back to the server.
+
+2. The Signalling Web Server launching scripts need to detect the server's public IP for the STUN server to connect the client to the server over the internet. As of UE 5.2, there are some bugs in the launching scripts that prevent the public IP from being detected correctly. To fix these bugs, manually modify the scripts as follows:
+
+    **(Linux) Start_Common.sh**
+
+    Change
+    ```
+    publicip=$(curl -s https://api.ipify.org > /dev/null)
+    ```
+    to
+    ```
+    publicip=$(curl -s https://api.ipify.org)
+    ```
+
+    **(Windows) Start_Common.ps1**
+
+    Change
+    ```
+    $global:publicip = Invoke-WebRequest -Uri "https://api.ipify.org" -UseBasicParsing
+    if ($global:PublicIP -ne $null -Or $global:PublicIP.length -eq 0) {
+    ```
+    to
+    ```
+    $global:PublicIP = Invoke-WebRequest -Uri "https://api.ipify.org" -UseBasicParsing
+    if ($global:PublicIP -eq $null -Or $global:PublicIP.length -eq 0) {
+    ```
+
+    When launching the Signalling Web Server, you should see the public IP detected in the script's print out instead of the default 127.0.0.1 local IP.
+
+3. Connect a web browser to the public IP address of the sim server and if everything is configured correctly, you should see the stream view player web page that is hosted by the Signalling Web Server.
+
 ---
 
 Copyright (C) Microsoft Corporation.  All rights reserved.

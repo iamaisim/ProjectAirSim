@@ -414,7 +414,7 @@ We `await` takeoff_async, which retrieves an asychronous task. We then execute t
 | client.getGpsData()      | drone.get_gps_data(sensor_name)       |        |
 | client.getLidarData() | Not implemented. | Use self.client.subscribe() to subscribe to the LiDAR sensor and handle LiDAR data in the callback. |
 | client.simGetVehiclePose() | drone.get_ground_truth_pose() | |
-| client.getHomeGeoPoint() | drone.geo_to_ned_coordinates(). | |
+| client.getHomeGeoPoint() | Not implemented. | |
 
 #### Simulation 
 | AirSim OSS      | Project AirSim | Observations |

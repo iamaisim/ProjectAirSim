@@ -8,48 +8,47 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pages: write
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Install dependencies for main docs
+      - name: Install main doc dependencies
         run: |
-          python -m pip install --upgrade pip
+          python3 -m pip install --upgrade pip
           pip install -r docs/requirements.txt
 
-      - name: Build Sphinx documentation (main)
+      - name: Build main Sphinx docs
         working-directory: docs
         run: make html
 
-      - name: Install dependencies for Python API docs
+      - name: Install API doc dependencies
         run: |
           pip install -r client/python/projectairsim/docs/requirements.txt
           python -m pip install -e client/python/projectairsim
 
-      - name: Build Python API docs
+      - name: Build API docs
         working-directory: client/python/projectairsim/docs
         run: make html
 
-      - name: Copy API docs into main site
+      - name: Assemble final docs structure in build_docs/
         run: |
-          mkdir -p docs/build/html/api_docs
-          cp -r client/python/projectairsim/docs/build/html/* docs/build/html/api_docs/
+          mkdir -p build_docs
+          cp -r docs/build/html/* build_docs/
+          mkdir -p build_docs/api_docs
+          cp -r client/python/projectairsim/docs/build/html/* build_docs/api_docs/
 
-      - name: Deploy to GitHub Pages (gh_page)
+      - name: Deploy to GitHub Pages (gh-pages)
         uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/build/html
-          publish_branch: gh_page
+          publish_dir: build_docs
+          publish_branch: gh-pages
           force_orphan: true

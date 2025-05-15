@@ -10,8 +10,8 @@ import sphinx_rtd_theme
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'Project Airsim'
-copyright = '2025, IAMAI'
-author = 'IAMAI'
+copyright = '2025, IAMAI Consulting Corp.'
+author = 'IAMAI Consulting Corp.'
 release = '0.1'
 
 # -- General configuration ---------------------------------------------------

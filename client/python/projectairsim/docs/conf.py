@@ -6,8 +6,8 @@ import sys
 sys.path.insert(0, os.path.abspath("../src"))
 
 project = 'Project AirSim'
-copyright = '2022, Microsoft'
-author = 'Microsoft'
+copyright = '2025, IAMAI Consulting Corp.'
+author = 'IAMAI Consulting Corp.'
 
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon']
 

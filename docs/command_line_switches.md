@@ -1,6 +1,5 @@
 # Command Line Switches
 
-{# include enable_internal_docs.tpp #}
 Project AirSim supports the following command line switches.  Since Project AirSim environments are built as Unreal executables, there are some Unreal command line switch options that can be useful:
 
 | Switch | Description |
@@ -14,9 +13,7 @@ Project AirSim supports the following command line switches.  Since Project AirS
 | <code>&#x2011;fullscreen</code> | Run in full-screen mode |
 | <code>&#x2011;NoVSync</code> | Disable VSync to prevent capping FPS at the monitor's refresh rate |
 | <code>&#x2011;nosound</code> | Disable any sound output |
-{# ifdef INTERNAL_DOCS #}
 | <code>&#x2011;benchmark</code> | Enabled Unreal's benchmark mode that seems to remove any sleeps in between rendering/tick loops to run without limiting to any real-time execution rate FPS target (this mode needs further testing to confirm any side-effects and how it could be used properly) |
-{# endif INTERNAL_DOCS #}
 | <code>&#x2011;gltfDir=</code><i>dir/containing/tiles/</i> | If you'll be using a GIS scene, you can specify the directory to read the tiles from. Alternatively, if you're trying CesiumForUnreal you can provide the root tileset json file. |
 | <code>&#x2011;clientauthpubkey=</code><i>public_key</i> | Specify a client authorization public key to require clients to present a client authorization token before being allowed to use the client API.  Overrides the key set by the [PROJECTAIRSIM_CLIENT_AUTH_PUBKEY](#environment_variables) environment variable. |
 

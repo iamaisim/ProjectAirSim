@@ -9,7 +9,7 @@ The Project AirSim ROS Bridge examples requires the following:
 * The following Python packages in addition to those required by the Project AirSim ROS Bridge: [moveit](http://wiki.ros.org/moveit) and[moveit_msgs](http://wiki.ros.org/moveit_msgs).
 
 ## Setup
-1. Setup the [Project AirSim ROS Bridge](ros.md#setup).
+1. Setup the [Project AirSim ROS Bridge](ros2.md#Install-bridge).
 2. The files for Project AirSim ROS Bridge examples are in the `ros/examples` and `ros/examples_externals` directory of the distribution files and are provided as the ROS catkin package `projectairsim_ros_examples`.  These directories must be added to your ROS catkin workspace and and built.  It's recommended to add a soft link in the `catkin_ws/src` directory to the `ros` directory of the extracted Project AirSim distribution files which will add all Project AirSim ROS packages to your ROS catkin workspace.
 4. Activate the [Python virtual environment setup for Project AirSim](../client_setup.md).
 

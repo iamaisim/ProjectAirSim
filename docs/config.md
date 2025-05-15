@@ -86,7 +86,7 @@ An example environment actor config looks like:
 }
 ```
 
-For more detailed info, see **[Environment Actor Configuration Settings](config_env_actors.md)**.
+For more detailed info, see **[Environment Actor Configuration Settings](config_env_actors.md)** and **[Environment Object Configuration Settings](config_env_objects.md)**.
 
 ---
 

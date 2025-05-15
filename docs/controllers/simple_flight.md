@@ -1,5 +1,4 @@
 # Simple Flight Controller for Drones
-{# include enable_internal_docs.tpp #}
 
 The Simple Flight flight controller built into Project AirSim enables you to get your drone flying quickly and easily.
 
@@ -23,25 +22,6 @@ To use Simple Flight to fly a robot programmatically with a Python mission scrip
 7. (Optional) Disable API control with `projectairsim.Drone.disable_api_control()`
 
 To use Simple Flight to fly a robot manually with a manual controller like an Xbox game controller, see [Using an Xbox controller](#using-an-xbox-game-controller), below.
-
-{# ifdef INTERNAL_DOCS #}
-***NOTE: THE FOLLOWING PARAGRAPH AND TABLE IS PRERELEASE.***
-
-The param `allow_api_always` is currently not yet configurable through a config file.  It is always true thus "RC enable API control" will currently never have an effect.
-
-Project AirSim currently only supports one client connected at a time, so a separate mission script cannot run simultaneously with the sample Xbox RC controller script.  A combined script that shares a single ProjectAirSimClient object with both scripts, however, would allow both to run simultaneously.  At any point in time, the vehicle can be controlled by either a mission script programmatically or by the RC controller manually, but not both.  The following table shows when each method has control of the vehicle:
-
-| Condition | RC | RC | RC | Prog | Prog | Prog | None |
-| --------- | -- | -- | -- | ---- | ---- | ---- | ---- |
-| RC controller connected | Yes | Yes | Yes | Yes | Yes | No | No |
-| Param `allow_api_always` | No | No | Yes | No | Yes | &mdash; | &mdash; |
-| RC enable API control | No | Yes | &mdash; | Yes | &mdash; | &mdash; | &mdash; |
-| Client API enable_api_control | &mdash; | No | No | Yes | Yes | Yes | No |
-
-A dash ("&mdash;") means it doesn't matter whether the condition is in effect or not.
-
-***END PRERELEASE.***
-{# endif INTERNAL_DOCS #}
 
 ## Using an Xbox controller
 

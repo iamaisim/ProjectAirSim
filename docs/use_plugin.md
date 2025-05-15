@@ -98,13 +98,14 @@ When you press `Play`, the drone should spawn and you're ready to fly!
 
 The Project AirSim Plugin includes a content-only `Drone` plugin with the drone mesh assets that are used at runtime to spawn the drone. During play in the Editor, this content is accessible, but since the content is not directly referenced in the environment's code, it may not get **[cooked](https://docs.unrealengine.com/en-US/Engine/Deployment/Cooking/index.html)** during binary packaging of the environement.
 
-To ensure the `Drone` and `Project AirSim` Plugin content is always cooked during environment packaging to a stand-alone game binary, you can add the following modifications to your environment's `Config/DefaultGame.ini` file:
+To ensure the `Drone`, `Rover` and `Project AirSim` Plugin content is always cooked during environment packaging to a stand-alone game binary, you can add the following modifications to your environment's `Config/DefaultGame.ini` file:
 
 To force Project AirSim plugin content (e.g., Drone assets) to get cooked:
 ```
 [/Script/UnrealEd.ProjectPackagingSettings]
 +DirectoriesToAlwaysCook=(Path="/ProjectAirSim")
 +DirectoriesToAlwaysCook=(Path="/Drone")
++DirectoriesToAlwaysCook=(Path="/Rover")
 ```
 
 or to force **all** content in the environment to always get cooked:

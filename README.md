@@ -2,7 +2,7 @@
 
 Project AirSim is a simulation platform for drones, robots, and other autonomous systems.
 
-Building on the previous work of **[AirSim](https://github.com/microsoft/AirSim)**, it leverages **[Unreal Engine 4](https://www.unrealengine.com/)** to provide photo-realistic visuals, while providing the simulation framework needed to integrate custom physics, controllers, actuators, and sensors to develop an autonomous system.
+Building on the previous work of **[AirSim](https://github.com/microsoft/AirSim)**, it leverages **[Unreal Engine 5](https://www.unrealengine.com/)** to provide photo-realistic visuals, while providing the simulation framework needed to integrate custom physics, controllers, actuators, and sensors to develop an autonomous system.
 
 Project AirSim consists of three main layers:
 
@@ -12,25 +12,21 @@ Project AirSim consists of three main layers:
 
 3. **Project AirSim Client Library** - End-user library to enable API calls to interact with the robot and simulation over a network connection
 
-For more details on the architecture, see **[Project AirSim Architecture Overview](docs/internal/use_source.md#airsim-v-next-architecture-overview)**.
+For more details on the architecture, see **[Project AirSim Architecture Overview](docs/development/use_source.md#airsim-v-next-architecture-overview)**.
 
-Project AirSim currently supports Windows 10/Server 2019 and Ubuntu 20.04. For more info about hardware specs for working with Project AirSim, see **[System Specifications](docs/system_specs.md)**.
+Project AirSim currently supports Windows 11 and Ubuntu 22. For more info about hardware specs for working with Project AirSim, see **[System Specifications](docs/system_specs.md)**.
 
 ![Drone flying in Blocks environment](docs/images/drone_in_blocks.jpg)
-
-## What's New
-
-For a complete list of changes, view our **[Changelog](docs/changelog.md)**.
 
 ## Getting Started
 
 See **[Installing system prerequisites](docs/system_specs.md#installing-system-prerequisites)** for information about Windows/Linux system setup needed before running Project AirSim.
 
-### 1. Pre-built environment binaries
+### 1. Develop with Project AirSim source
 
-> I just want to download and run a Project AirSim environment and drive it with some Python code.
+> I'm going to build the sim libs, Plugin, Blocks, and my own UE project environment from the ground up so I can customize it to my application.
 
-#### **[Use pre-built binary environments](docs/internal/use_prebuilt.md)**
+#### **[Build from source as a developer](docs/development/use_source.md)**
 
 ### 2. Drop-in Project AirSim Plugin
 
@@ -38,21 +34,9 @@ See **[Installing system prerequisites](docs/system_specs.md#installing-system-p
 
 #### **[Use Project AirSim Plugin in custom environments](docs/use_plugin.md)**
 
-### 3. Develop with Project AirSim source
+## Running Headless (Docker)
 
-> I'm going to build the sim libs, Plugin, Blocks, and my own UE project environment from the ground up so I can customize it to my application.
-
-#### **[Build from source as a developer](docs/internal/use_source.md)**
-
-### 4. Develop autonomy capabilities using Project AirSim
-
-> I'm going to explore/build machine learning applications and models for autonomous perception/planning/control tasks using pre-trained models, datasets and learning environments from Project AirSim
-
-#### **[Leverage/Build autonomy building-blocks using Project AirSim](docs/autonomy/autonomy.md)
-
-## Running Headless (Docker, Azure Cloud)
-
-If you need to run a Project AirSim simulation on a headless system, such as in a Docker container or in the cloud on an Azure VM, you can enable off-screen rendering by adding the `-RenderOffScreen` argument when launching the Unreal environment executable:
+If you need to run a Project AirSim simulation on a headless system, such as in a Docker container, you can enable off-screen rendering by adding the `-RenderOffScreen` argument when launching the Unreal environment executable:
 
 ```
 Blocks{.exe/.sh} -RenderOffScreen
@@ -64,7 +48,7 @@ If you are running without GPU access and want to run without any image renderin
 Blocks{.exe/.sh} -nullrhi
 ```
 
-These arguments can also be used while debugging in VS Code by modifying the `launch.json` file, or in Visual Studio 2019 by modifying the project's `Configuration Properties`. See **[Running Headless (Docker, Azure Cloud)](docs/internal/headless_cloud.md)** for more details.
+These arguments can also be used while debugging in VS Code by modifying the `launch.json` file, or in Visual Studio 2022 by modifying the project's `Configuration Properties`. See **[Running Headless (Docker, Azure Cloud)](docs/development/headless_cloud.md)** for more details.
 
 ## Reference
 
@@ -131,4 +115,7 @@ This project may contain trademarks or logos for projects, products, or services
 
 ---
 
-Copyright (C) Microsoft Corporation.  All rights reserved.
+Copyright (C) Microsoft Corporation. 
+Copyright (C) IAMAI Consulting Corporation.  
+
+MIT License

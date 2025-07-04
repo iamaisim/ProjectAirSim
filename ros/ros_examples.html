@@ -1,0 +1,398 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project AirSim ROS Bridge Examples &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Project AirSim ROS Bridge Examples</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/ros/ros_examples.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="project-airsim-ros-bridge-examples">
+<h1>Project AirSim ROS Bridge Examples<a class="headerlink" href="#project-airsim-ros-bridge-examples" title="Link to this heading">¶</a></h1>
+<p>Examples of using the Project AirSim ROS Bridge as part of a ROS network are included in the Project AirSim distribution under the <code class="docutils literal notranslate"><span class="pre">ros/examples</span></code> directory.</p>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading">¶</a></h2>
+<p>The Project AirSim ROS Bridge examples requires the following:</p>
+<ul class="simple">
+<li><p>A version of Python supported by the <a class="reference internal" href="../client_setup.html#python-client"><span class="std std-ref">Project AirSim Client API</span></a>.</p></li>
+<li><p>The following Python packages in addition to those required by the Project AirSim ROS Bridge: <a class="reference external" href="http://wiki.ros.org/moveit">moveit</a> and<a class="reference external" href="http://wiki.ros.org/moveit_msgs">moveit_msgs</a>.</p></li>
+</ul>
+</section>
+<section id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Setup the <a class="reference internal" href="ros2.html#Install-bridge"><span class="std std-ref">Project AirSim ROS Bridge</span></a>.</p></li>
+<li><p>The files for Project AirSim ROS Bridge examples are in the <code class="docutils literal notranslate"><span class="pre">ros/examples</span></code> and <code class="docutils literal notranslate"><span class="pre">ros/examples_externals</span></code> directory of the distribution files and are provided as the ROS catkin package <code class="docutils literal notranslate"><span class="pre">projectairsim_ros_examples</span></code>.  These directories must be added to your ROS catkin workspace and and built.  It’s recommended to add a soft link in the <code class="docutils literal notranslate"><span class="pre">catkin_ws/src</span></code> directory to the <code class="docutils literal notranslate"><span class="pre">ros</span></code> directory of the extracted Project AirSim distribution files which will add all Project AirSim ROS packages to your ROS catkin workspace.</p></li>
+<li><p>Activate the <a class="reference internal" href="../client_setup.html"><span class="std std-doc">Python virtual environment setup for Project AirSim</span></a>.</p></li>
+</ol>
+</section>
+<section id="building">
+<h2>Building<a class="headerlink" href="#building" title="Link to this heading">¶</a></h2>
+<p>To build the Project AirSim ROS Bridge Examples package run <code class="docutils literal notranslate"><span class="pre">catkin_make</span></code>.</p>
+</section>
+<section id="running">
+<h2>Running<a class="headerlink" href="#running" title="Link to this heading">¶</a></h2>
+<p>The Project AirSim ROS Bridge Examples must be run from within a <a class="reference internal" href="../client_setup.html"><span class="std std-doc">Python virtual environment setup for Project AirSim</span></a>.</p>
+</section>
+<section id="individual-examples">
+<h2>Individual Examples<a class="headerlink" href="#individual-examples" title="Link to this heading">¶</a></h2>
+<p><a class="reference internal" href="example_build_map.html"><span class="std std-doc">build_map</span></a>: Creates a 3D occupancy map (octomap) using Project AirSim, the MoveIt! motion library, and RViz.</p>
+<p><a class="reference internal" href="example_navigate_map.html"><span class="std std-doc">navigate_map</span></a>: Navigate the 3D occupancy map constructed by <a class="reference internal" href="example_build_map.html"><span class="std std-doc">build_map</span></a> using Project AirSim, the MoveIt! motion library, and RViz.</p>
+</section>
+<section id="simple-takeoff-and-land-example-services">
+<h2>Simple Takeoff and land example (services)<a class="headerlink" href="#simple-takeoff-and-land-example-services" title="Link to this heading">¶</a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/airsim_node/Drone1/takeoff<span class="w"> </span>projectairsim_ros/srv/Takeoff
+</pre></div>
+</div>
+<p>The drone takes off in the simulator</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/airsim_node/Drone1/land<span class="w"> </span>projectairsim_ros/srv/Land
+</pre></div>
+</div>
+<p>The drone lands.</p>
+</section>
+<section id="takeoffgroup-and-landgroup-example-services">
+<h2>TakeoffGroup and LandGroup example (services)<a class="headerlink" href="#takeoffgroup-and-landgroup-example-services" title="Link to this heading">¶</a></h2>
+<p>Can be tested with scene_two_drones.jsonc</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/airsim_node/takeoff_group<span class="w"> </span>projectairsim_ros/srv/TakeoffGroup<span class="w"> </span><span class="s2">&quot;{vehicle_names: [&#39;Drone1&#39;, &#39;Drone2&#39;]}&quot;</span>
+</pre></div>
+</div>
+<p>The drone takes off in the simulator</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/airsim_node/land_group<span class="w"> </span>projectairsim_ros/srv/LandGroup<span class="w"> </span><span class="s2">&quot;{vehicle_names: [&#39;Drone1&#39;, &#39;Drone2&#39;]}&quot;</span>
+</pre></div>
+</div>
+<p>The drone lands.</p>
+</section>
+<section id="arm-and-disarm-services">
+<h2>Arm and Disarm Services<a class="headerlink" href="#arm-and-disarm-services" title="Link to this heading">¶</a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/airsim_node/Drone1/arm<span class="w"> </span>projectairsim_ros/srv/Arm
+</pre></div>
+</div>
+<p>The drone takes off in the simulator</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/airsim_node/Drone1/disarm<span class="w"> </span>projectairsim_ros/srv/Disarm
+</pre></div>
+</div>
+</section>
+<section id="armgroup-and-disarmgroup-services">
+<h2>ArmGroup and DisarmGroup Services<a class="headerlink" href="#armgroup-and-disarmgroup-services" title="Link to this heading">¶</a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/airsim_node/arm_group<span class="w"> </span>projectairsim_ros/srv/ArmGroup<span class="w">  </span><span class="s2">&quot;{vehicle_names: [&#39;Drone1&#39;, &#39;Drone2&#39;]}&quot;</span>
+</pre></div>
+</div>
+<p>The drone takes off in the simulator</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/airsim_node/disarm_group<span class="w"> </span>projectairsim_ros/srv/DisarmGroup<span class="w">  </span><span class="s2">&quot;{vehicle_names: [&#39;Drone1&#39;, &#39;Drone2&#39;]}&quot;</span>
+
+
+<span class="c1">## Working with Mesh and Segmentation IDs Services</span>
+Note:<span class="w"> </span>Mesh<span class="w"> </span>ID<span class="w"> </span>and<span class="w"> </span>Object<span class="w"> </span>ID<span class="w"> </span>are<span class="w"> </span>the<span class="w"> </span>same<span class="w"> </span>thing
+
+Get<span class="w"> </span>the<span class="w"> </span>RGB<span class="w"> </span>color<span class="w"> </span>given<span class="w"> </span>a<span class="w"> </span>mesh<span class="w"> </span>ID
+<span class="sb">```</span>shell
+ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/airsim_node/get_color_from_mesh<span class="w"> </span>projectairsim_ros/srv/GetColorFromMeshId<span class="w"> </span><span class="s2">&quot;{object_id: &#39;TemplateCube_Rounded_6&#39;}&quot;</span>
+</pre></div>
+</div>
+<p>Get the RGB color given a segmentation ID</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/airsim_node/get_color_from_seg_id<span class="w"> </span>projectairsim_ros/srv/GetColorFromSegId<span class="w"> </span><span class="s2">&quot;{segmentation_id: 3}&quot;</span>
+</pre></div>
+</div>
+<p>Get the mesh name associated with a segmentation ID</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/airsim_node/get_mesh_from_seg_id<span class="w"> </span>projectairsim_ros/srv/GetMeshIdsFromSegId<span class="w"> </span><span class="s2">&quot;{segmentation_id: 95}&quot;</span>
+</pre></div>
+</div>
+<p>Get the segmentation ID associated with a mesh ID</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/airsim_node/get_seg_id_from_mesh<span class="w"> </span>projectairsim_ros/srv/GetSegIdFromMeshId<span class="w"> </span><span class="s2">&quot;{object_id: &#39;TemplateCube_Rounded_6&#39;}&quot;</span>
+</pre></div>
+</div>
+<p>Get the segmentation ID associated with a color</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/airsim_node/get_seg_id_from_color<span class="w"> </span>projectairsim_ros/srv/GetSegIdFromColor<span class="w"> </span><span class="s2">&quot;{r: &#39;43&#39;, g: &#39;47&#39;, b: &#39;206&#39;}&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="create-voxel-grid-service">
+<h2>Create Voxel Grid Service<a class="headerlink" href="#create-voxel-grid-service" title="Link to this heading">¶</a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/airsim_node/create_voxel_grid<span class="w"> </span>projectairsim_ros/srv/CreateVoxelGrid<span class="w"> </span><span class="se">\</span>
+<span class="s2">&quot;{position_x: 0.0,position_y: 0.0,position_z: -20.0,ncells_x: 100,ncells_y: 100,ncells_z: 100,resolution: 0.5,n_z_resolution: 2,output_file: &#39;/home/airsim_user/ProjectAirSim/ros/node/maps/voxelgrid.binvox&#39;}&quot;</span>
+</pre></div>
+</div>
+<p>The resolution of the grid in the z axis is resolution * n_z_resolution (In the example 0.5 m * 2 = 1 m)</p>
+</section>
+<section id="create-segmented-voxel-grid-service">
+<h2>Create Segmented Voxel Grid service<a class="headerlink" href="#create-segmented-voxel-grid-service" title="Link to this heading">¶</a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/airsim_node/create_segmented_voxel_grid<span class="w"> </span>projectairsim_ros/srv/CreateVoxelGrid<span class="w"> </span><span class="se">\</span>
+<span class="s2">&quot;{position_x: 0.0,position_y: 0.0,position_z: -20.0,ncells_x: 100,ncells_y: 100,ncells_z: 100,resolution: 1,n_z_resolution: 1,output_file: &#39;/home/airsim_user/ProjectAirSim/ros/node/maps/segmentedvoxelgrid.binvox&#39;}&quot;</span>
+</pre></div>
+</div>
+<p>The resolution of the grid in the z axis is resolution * n_z_resolution</p>
+</section>
+<section id="create-occupancy-grid-service">
+<h2>Create Occupancy Grid Service<a class="headerlink" href="#create-occupancy-grid-service" title="Link to this heading">¶</a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/airsim_node/create_occupancy_grid<span class="w"> </span>projectairsim_ros/srv/OccupancyGrid<span class="w"> </span><span class="s2">&quot;{position_x: 0.0,position_y: 0.0,position_z: -2.0,ncells_x: 1000,ncells_y: 1000,res: 1.0, n_z_resolution: 1}&quot;</span>
+</pre></div>
+</div>
+<p>The resolution of the grid in the z axis is resolution * n_z_resolution</p>
+</section>
+<section id="save-occupancy-grid-service">
+<h2>Save Occupancy Grid Service<a class="headerlink" href="#save-occupancy-grid-service" title="Link to this heading">¶</a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/map_saver/save_map<span class="w"> </span>nav2_msgs/srv/SaveMap<span class="w"> </span><span class="s2">&quot;{map_topic: &#39;/occupancy_grid&#39;, map_url: &#39;/home/airsim_user/ProjectAirSim/ros/node/maps/my_map&#39;, image_format: &#39;pgm&#39;, map_mode: &#39;trinary&#39;, free_thresh: &#39;0.25&#39;, occupied_thresh: &#39;0.65&#39;}&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="moveonpath-service">
+<h2>MoveOnPath Service<a class="headerlink" href="#moveonpath-service" title="Link to this heading">¶</a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/airsim_node/Drone1/move_on_path<span class="w"> </span>projectairsim_ros/srv/MoveOnPath<span class="w"> </span><span class="se">\ </span><span class="s2">&quot;{</span>
+<span class="s2">path: [</span>
+<span class="s2">{</span>
+<span class="s2">header: {</span>
+<span class="s2">stamp: {</span>
+<span class="s2">sec: 0,</span>
+<span class="s2">nanosec: 0</span>
+<span class="s2">},</span>
+<span class="s2">frame_id: &#39;world&#39;</span>
+<span class="s2">},</span>
+<span class="s2">pose: {</span>
+<span class="s2">position: {</span>
+<span class="s2">x: 0.0,</span>
+<span class="s2">y: 0.0,</span>
+<span class="s2">z: -10.0</span>
+<span class="s2">},</span>
+<span class="s2">orientation: {</span>
+<span class="s2">x: 0.0,</span>
+<span class="s2">y: 0.0,</span>
+<span class="s2">z: 0.0,</span>
+<span class="s2">w: 1.0</span>
+<span class="s2">}</span>
+<span class="s2">}</span>
+<span class="s2">},</span>
+<span class="s2">{</span>
+<span class="s2">header: {</span>
+<span class="s2">stamp: {</span>
+<span class="s2">sec: 0,</span>
+<span class="s2">nanosec: 0</span>
+<span class="s2">},</span>
+<span class="s2">frame_id: &#39;map&#39;</span>
+<span class="s2">},</span>
+<span class="s2">pose: {</span>
+<span class="s2">position: {</span>
+<span class="s2">x: 50.0,</span>
+<span class="s2">y: 10.0,</span>
+<span class="s2">z: -2.0</span>
+<span class="s2">},</span>
+<span class="s2">orientation: {</span>
+<span class="s2">x: 0.0,</span>
+<span class="s2">y: 0.0,</span>
+<span class="s2">z: 0.707,</span>
+<span class="s2">w: 0.707</span>
+<span class="s2">}</span>
+<span class="s2">}</span>
+<span class="s2">}</span>
+<span class="s2">],</span>
+<span class="s2">velocity: 1.5,</span>
+<span class="s2">timeout_sec: 30,</span>
+<span class="s2">lookahead: -1.0,</span>
+<span class="s2">adaptive_lookahead: 1.0,</span>
+<span class="s2">drive_train_type: 1,</span>
+<span class="s2">yaw_is_rate: true,</span>
+<span class="s2">yaw: 0.0, </span>
+<span class="s2">}&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="movetoposition">
+<h2>MoveToPosition<a class="headerlink" href="#movetoposition" title="Link to this heading">¶</a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/airsim_node/Drone1/move_to_position<span class="w"> </span>projectairsim_ros/srv/MoveToPosition<span class="w"> </span><span class="se">\ </span><span class="s2">&quot;{x: 0.0, y: 0.0, z: -10.0, velocity: 1.5, lookahead: -1.0, adaptive_lookahead: 1.0}&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="moveonpath-action">
+<h2>MoveOnPath Action<a class="headerlink" href="#moveonpath-action" title="Link to this heading">¶</a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>action<span class="w"> </span>send_goal<span class="w"> </span>/airsim_node/Drone1/move_on_path<span class="w"> </span>projectairsim_ros/action/MoveOnPath<span class="w"> </span><span class="se">\ </span><span class="s2">&quot;{</span>
+<span class="s2">path: [</span>
+<span class="s2">{</span>
+<span class="s2">header: {</span>
+<span class="s2">stamp: {</span>
+<span class="s2">sec: 0,</span>
+<span class="s2">nanosec: 0</span>
+<span class="s2">},</span>
+<span class="s2">frame_id: &#39;world&#39;</span>
+<span class="s2">},</span>
+<span class="s2">pose: {</span>
+<span class="s2">position: {</span>
+<span class="s2">x: 0.0,</span>
+<span class="s2">y: 0.0,</span>
+<span class="s2">z: -10.0</span>
+<span class="s2">},</span>
+<span class="s2">orientation: {</span>
+<span class="s2">x: 0.0,</span>
+<span class="s2">y: 0.0,</span>
+<span class="s2">z: 0.0,</span>
+<span class="s2">w: 1.0</span>
+<span class="s2">}</span>
+<span class="s2">}</span>
+<span class="s2">},</span>
+<span class="s2">{</span>
+<span class="s2">header: {</span>
+<span class="s2">stamp: {</span>
+<span class="s2">sec: 0,</span>
+<span class="s2">nanosec: 0</span>
+<span class="s2">},</span>
+<span class="s2">frame_id: &#39;map&#39;</span>
+<span class="s2">},</span>
+<span class="s2">pose: {</span>
+<span class="s2">position: {</span>
+<span class="s2">x: 50.0,</span>
+<span class="s2">y: 10.0,</span>
+<span class="s2">z: -2.25</span>
+<span class="s2">},</span>
+<span class="s2">orientation: {</span>
+<span class="s2">x: 0.0,</span>
+<span class="s2">y: 0.0,</span>
+<span class="s2">z: 0.5,</span>
+<span class="s2">w: 0.707</span>
+<span class="s2">}</span>
+<span class="s2">}</span>
+<span class="s2">}</span>
+<span class="s2">],</span>
+<span class="s2">velocity: 10,</span>
+<span class="s2">timeout_sec: 30,</span>
+<span class="s2">lookahead: -1.0,</span>
+<span class="s2">adaptive_lookahead: 1.0,</span>
+<span class="s2">drive_train_type: 1,</span>
+<span class="s2">yaw_is_rate: true,</span>
+<span class="s2">yaw: 0.0, </span>
+<span class="s2">}&quot;</span>
+---
+
+
+---
+
+Copyright<span class="w"> </span><span class="o">(</span>C<span class="o">)</span><span class="w"> </span>Microsoft<span class="w"> </span>Corporation.<span class="w">  </span>
+Copyright<span class="w"> </span><span class="o">(</span>C<span class="o">)</span><span class="w"> </span><span class="m">2025</span><span class="w"> </span>IAMAI<span class="w"> </span>Consulting<span class="w"> </span>Corp.
+
+MIT<span class="w"> </span>License.<span class="w"> </span>All<span class="w"> </span>rights<span class="w"> </span>reserved.
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

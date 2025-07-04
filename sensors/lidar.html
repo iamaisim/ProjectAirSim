@@ -1,0 +1,362 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lidar sensor &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Radar sensor overview" href="radar.html" />
+    <link rel="prev" title="Segmentation" href="segmentation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="segmentation.html">Segmentation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Lidar sensor</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#lidar-detections">Lidar detections</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#lidar-sensor-settings">Lidar sensor settings</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#sample-config">Sample config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#point-rate-and-report-frequency">Point rate and report frequency</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fov-settings">FOV settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#lidar-types">Lidar types</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#generic-cylindrical-lidar-type">Generic cylindrical lidar type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#generic-rosette-lidar-type">Generic rosette lidar type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#livox-mid-70-lidar-type">Livox Mid-70 lidar type</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Lidar sensor</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/sensors/lidar.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="lidar-sensor">
+<h1>Lidar sensor<a class="headerlink" href="#lidar-sensor" title="Link to this heading">¶</a></h1>
+<p>The lidar sensor is currently implemented as an ideal sensor that projects simulated laser beams over a cylindrical or circular field of view (FOV). The sensor’s settings specify the scan pattern and rate.</p>
+<section id="lidar-detections">
+<h2>Lidar detections<a class="headerlink" href="#lidar-detections" title="Link to this heading">¶</a></h2>
+<p>Each beam intersecting with an object’s mesh generates a lidar return with a 3D position relative to the sensor. The intensity of the return (which is affected many factors including atmospheric conditions, reflective properties of the object, and orientation of the object) is currently not simulated.</p>
+</section>
+</section>
+<section id="lidar-sensor-settings">
+<h1>Lidar sensor settings<a class="headerlink" href="#lidar-sensor-settings" title="Link to this heading">¶</a></h1>
+<section id="sample-config">
+<h2>Sample config<a class="headerlink" href="#sample-config" title="Link to this heading">¶</a></h2>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="nt">&quot;sensors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;lidar1&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;lidar&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;parent-link&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;LidarMountPoint&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;lidar-type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;generic-cylindrical&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;number-of-channels&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;range&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;points-per-second&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100000</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;report-frequency&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;horizontal-rotation-frequency&quot;</span><span class="p">:</span><span class="mf">10.0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;horizontal-fov-start-deg&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;horizontal-fov-end-deg&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">360.0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;vertical-rotation-frequency&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;vertical-fov-lower-deg&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-45.0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;vertical-fov-upper-deg&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-15.0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;radial-scaling&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;disable-self-hits&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;draw-debug-points&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;origin&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;xyz&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.6 0 0&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;rpy-deg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0 0 0&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">id</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name of lidar sensor.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">type</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">lidar</span></code></p></td>
+<td><p>Sensor type specifying this as a lidar sensor.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">enabled</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>Whether sensor is enabled.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">parent-link</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name of the link that the sensor is attached to.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lidar-type</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Lidar sensor type. See below for details.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">number-of-channels</span></code></p></td>
+<td><p>integer</p></td>
+<td><p>Number of simultaneous scan channels.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">range</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Maximum sensing range (meters.)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">points-per-second</span></code></p></td>
+<td><p>integer</p></td>
+<td><p>Number of points returned per second (sensor total, not per channel.)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">report-frequency</span></code></p></td>
+<td><p>float</p></td>
+<td><p>How often the sensor data is returned.  See below for details.  Defaults to zero meaning as frequently as possible. (≥0 Hertz, values &lt;0.5 same as 0)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">horizontal-rotation-frequency</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Horizontal scan rate (revolutions per second.)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">horizontal-fov-start-deg</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Horizontal field of view starting angle. See below for details. (0.0 to 360.0 degrees)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">horizontal-fov-end-deg</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Horizontal field of view ending angle. See below for details. (0.0 to 360.0 degrees)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">vertical-rotation-frequency</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Vertical scan rate (revolutions per second.)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">vertical-fov-start-deg</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Vertical field of view starting angle. See below for details. (-90.0 to +90.0 degrees)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">vertical-fov-end-deg</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Vertical field of view ending angle. See below for details. (-90.0 to +90.0 degrees)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">radial-scaling</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Scan position scaling factor in radial direction. See below for details.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">disable-self-hits</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>If true, lidar traces will pass through the sensor’s owner robot to prevent self hits. Defaults to false if not specified.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">draw-debug-points</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>If true, markers will be rendered at the beam hit points on the detected objects. This is not supported in Unreal’s Shipping configuration. Defaults to false if not specified.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">origin</span></code>: <code class="docutils literal notranslate"><span class="pre">xyz</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Position offset “X Y Z” of the sensor relative to the parent link’s origin in <strong>meters</strong>. Defaults to all zero if <code class="docutils literal notranslate"><span class="pre">origin</span></code> is not specified.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">origin</span></code>: <code class="docutils literal notranslate"><span class="pre">rpy</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Rotation offset “Roll Pitch Yaw” of the sensor relative to the parent link’s origin in <strong>radians</strong>. Defaults to all zero if <code class="docutils literal notranslate"><span class="pre">origin</span></code> is not specified.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="point-rate-and-report-frequency">
+<h2>Point rate and report frequency<a class="headerlink" href="#point-rate-and-report-frequency" title="Link to this heading">¶</a></h2>
+<p>A sensor “report” consists of a set of 3D points detected by the sensor and their corresponding segmentation IDs.  The number of points in each report varies so that the average number of points reported per second matches the <code class="docutils literal notranslate"><span class="pre">points-per-second</span></code> setting.</p>
+<p>With the default <code class="docutils literal notranslate"><span class="pre">report-frequency</span></code> setting of zero, the sensor publishes reports as frequently as possible which is usually once per simulation step.  A non-zero <code class="docutils literal notranslate"><span class="pre">report-frequency</span></code> of 0.5 or more sets the average report publication rate with the reports varying size to maintain the specified <code class="docutils literal notranslate"><span class="pre">points-per-second</span></code> overall.  Note that the simulation step size affects how well the sensor can meet the <code class="docutils literal notranslate"><span class="pre">report-frequency</span></code> setting from report to report but the average report rate will approach the setting value.</p>
+</section>
+<section id="fov-settings">
+<h2>FOV settings<a class="headerlink" href="#fov-settings" title="Link to this heading">¶</a></h2>
+<p>The field of view (FOV) settings define the area where data is returned.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">horizontal-fov-*-deg</span></code> settings specify the start and ending horizontal angles of the sweep area where 0° is straight ahead, increasing right (clockwise from overhead) relative to the sensor.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">vertical-fov-*-deg</span></code> settings specify the start and ending vertical angles of the sweep area where +90° is straight up and -90° is straight down relative to the sensor.</p>
+<p>A particular lidar type may ignore one or both the horizontal and vertical FOV settings.  See the <a class="reference internal" href="#lidar_type"><span class="xref myst">lidar type</span></a> section below for details.</p>
+</section>
+<section id="lidar-types">
+<h2>Lidar types<a class="headerlink" href="#lidar-types" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">lidar-type</span></code> setting specifies sensor characteristics not specified by the other settings and may set default values for those other settings.  Most importantly, <code class="docutils literal notranslate"><span class="pre">lidar-type</span></code> specifies the laser scan pattern.</p>
+<p>The possible <code class="docutils literal notranslate"><span class="pre">lidar-type</span></code> values and their descriptions are:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">generic_cylindrical</span></code></p></td>
+<td><p>The sensor scans a cylindrical volume.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">generic_rosette</span></code></p></td>
+<td><p>The sensor beams scan a conical volume with a hypotrochoid curve.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">livox_mid70</span></code></p></td>
+<td><p>The sensor simulates a Livox Mid-70 lidar sensor.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">livox_avia</span></code></p></td>
+<td><p>The sensor simulates a Livox Avia lidar sensor.</p></td>
+</tr>
+</tbody>
+</table>
+<section id="generic-cylindrical-lidar-type">
+<h3>Generic cylindrical lidar type<a class="headerlink" href="#generic-cylindrical-lidar-type" title="Link to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">generic_cylindrical</span></code> lidar type is similar to the Velodyne Puck lidar sensor (https://velodynelidar.com/products/puck).  It has multiple laser beams (specified by <code class="docutils literal notranslate"><span class="pre">number-of-channels</span></code>) which sweep out shallow horizontal cones.  The laser beams are equally spaced vertically to cover the vertical FOV.  The beams sweep horizontally 360°, but data is returned only when the beams are within the horizontal FOV range.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">vertical-rotation-frequency</span></code> and <code class="docutils literal notranslate"><span class="pre">radial-scaling</span></code> settings are ignored.</p>
+</section>
+<section id="generic-rosette-lidar-type">
+<h3>Generic rosette lidar type<a class="headerlink" href="#generic-rosette-lidar-type" title="Link to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">generic_rosette</span></code> lidar type has multiple laser beams (specified by <code class="docutils literal notranslate"><span class="pre">number-of-channels</span></code>) which sweep out a conical volume in a “rosette” pattern based on a hypotrochoid roulette curve: a “rolling circle” travels on the inside of the perimeter of a larger “fixed circle” while the “tracing point” attached at a fixed radius on the rolling circle traces out the curve.  For easier configuration, <code class="docutils literal notranslate"><span class="pre">generic_rosette</span></code> allows the angular rate of the “rolling circle” to be specified directly through <code class="docutils literal notranslate"><span class="pre">vertical-rotation-frequency</span></code> rather than through ratios of the “rolling” and “fixed” circles.  <code class="docutils literal notranslate"><span class="pre">vertical-rotation-frequency</span></code> can be negative which generates a epitrochoid curve instead (where the rolling circle travels on the outside of the fixed circle.)  <code class="docutils literal notranslate"><span class="pre">horizontal-rotation-frequency</span></code> specifies the angular rate at which the rolling circle travels around the fixed circle.</p>
+<p>The positions in polar coordinates of the points sampled from the rosette pattern are mapped to the directions the lasers are pointed.  The polar angle is used directly as the horizontal angle of the laser.  Like <code class="docutils literal notranslate"><span class="pre">generic_cylindrical</span></code>, the beams sweep horizontally 360° but data is only returned when the beams are within the horizontal FOV range specified by the <code class="docutils literal notranslate"><span class="pre">horizontal-fov-*-deg</span></code> settings.</p>
+<p>The polar radius is mapped to the vertical FOV.  The radius of the tracing point is automatically set so that the polar radius ranges from 0.0 to 1.0.  A polar radius of 0.0 corresponds to <code class="docutils literal notranslate"><span class="pre">vertical-fov-lower-deg</span></code> while a polar radius of 1.0 corresponds to <code class="docutils literal notranslate"><span class="pre">vertical-fov-upper-deg</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">radial-scaling</span></code> setting fine-tunes the shape of the scanning pattern curve by scaling the tracing point’s angular offset from the rolling circle center’s angular position (as seen from fixed circle’s center,) causing the tracing point to travel in an ovoidal path around the rolling circle.  A value of “1.0” (the default) leaves the curve unmodified.  A value greater the 1.0 “stretches” the position of the tracing point away from the center of the rolling circle along the radial path around the center of the fixed circle.  A value less than 1.0 compresses the tracing point’s position towards the center of the rolling circle.  A hypotrochoid curve typically has “petals” and values greater than 1.0 widens those petals while values less than 1.0 narrows them.</p>
+</section>
+<section id="livox-mid-70-lidar-type">
+<h3>Livox Mid-70 lidar type<a class="headerlink" href="#livox-mid-70-lidar-type" title="Link to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">livox_mid70</span></code> lidar type simulates the Livox Mid-70 lidar sensor (https://www.livoxtech.com/mid-70).  It is based on the <code class="docutils literal notranslate"><span class="pre">generic_rosette</span></code> lidar type with appropriate default values for the Mid-70 thus none of the lidar characteristic settings such as <code class="docutils literal notranslate"><span class="pre">number-of-channels</span></code> or <code class="docutils literal notranslate"><span class="pre">horizontal-rotation-frequency</span></code> need to be specified.  These settings can still be specified, for instance, to tweak the sensor to better match an actual unit or simulate a closely related but slightly different model.</p>
+<p>A standard <code class="docutils literal notranslate"><span class="pre">livox_mid70</span></code> config would be similar to this:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="nt">&quot;sensors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;lidar1&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;lidar&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;parent-link&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;LidarMountPoint&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;lidar-type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;livox_mid70&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;draw-debug-points&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;origin&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;xyz&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.6 0 0&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;rpy-deg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0 0 0&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI Consulting Corp.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="segmentation.html" class="btn btn-neutral float-left" title="Segmentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="radar.html" class="btn btn-neutral float-right" title="Radar sensor overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

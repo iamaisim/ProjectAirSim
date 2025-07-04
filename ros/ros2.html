@@ -1,0 +1,267 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ROS2 Setup for developers &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">ROS2 Setup for developers</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/ros/ros2.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="ros2-setup-for-developers">
+<h1>ROS2 Setup for developers<a class="headerlink" href="#ros2-setup-for-developers" title="Link to this heading">¶</a></h1>
+<p>Project AirSim can join a ROS2 network using the Project AirSim ROS2 Bridge. The bridge is a pure Python ROS2 node that connects to Project AirSim using the Client API. It is provided as a Python package and can be run as a ROS2 node or directly with the Python interpreter. This bridge is compatible with the Pixel Streaming infrastructure and supports camera, lidar, radar, and pose topics.</p>
+<section id="setup-python-client-venv">
+<h2>1. Setup python client(venv)<a class="headerlink" href="#setup-python-client-venv" title="Link to this heading">¶</a></h2>
+<p><a class="reference internal" href="../client_setup.html"><span class="std std-doc">Setup python client</span></a></p>
+</section>
+<section id="install-ros-humble">
+<h2>2. Install ROS(humble)<a class="headerlink" href="#install-ros-humble" title="Link to this heading">¶</a></h2>
+<p>How to install <a class="reference external" href="https://docs.ros.org/en/humble/Installation.html">ros_humble</a>
+…</p>
+<p>Install <a class="reference external" href="http://wiki.ros.org/radar_msgs">radar_msgs</a></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">ros</span><span class="o">-</span><span class="n">humble</span><span class="o">-</span><span class="n">radar</span><span class="o">-</span><span class="n">msgs</span>
+</pre></div>
+</div>
+<p>…
+Build and activate projectairsim-interfaces(custom message/service types)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">./</span><span class="n">ros</span><span class="o">/</span><span class="n">node</span> 
+<span class="n">colcon</span> <span class="n">build</span>
+<span class="o">.</span> <span class="n">install</span><span class="o">/</span><span class="n">setup</span><span class="o">.</span><span class="n">bash</span>
+</pre></div>
+</div>
+</section>
+<section id="install-bridge">
+<h2>3. Install bridge<a class="headerlink" href="#install-bridge" title="Link to this heading">¶</a></h2>
+<p>In a virtual environment, install <code class="docutils literal notranslate"><span class="pre">projectairsim-rosbridge</span></code> and <code class="docutils literal notranslate"><span class="pre">projectairsim-ros2</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">./</span><span class="n">ros</span><span class="o">/</span><span class="n">node</span><span class="o">/</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="n">projectairsim</span><span class="o">-</span><span class="n">rosbridge</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="n">projectairsim</span><span class="o">-</span><span class="n">ros2</span>
+</pre></div>
+</div>
+</section>
+<section id="activate-node">
+<h2>4. Activate node<a class="headerlink" href="#activate-node" title="Link to this heading">¶</a></h2>
+<p>Executing <code class="docutils literal notranslate"><span class="pre">projectairsim_bridge_ros2.py</span></code> will initialize the ros2 node that will start listening and broadcasting topics.
+In a virtual environment,</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">./</span><span class="n">scripts</span><span class="o">/</span><span class="n">ros2</span><span class="o">/</span><span class="n">projectairsim_bridge_ros2</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">simconfigpath</span> <span class="n">PATH_TO_SIM_CONFIGS</span> <span class="o">--</span><span class="n">address</span> <span class="o">&lt;</span><span class="n">IPv4_server_address</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="publish-topic-messages">
+<h2>5. Publish topic messages<a class="headerlink" href="#publish-topic-messages" title="Link to this heading">¶</a></h2>
+<p>In a separate terminal window:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">ros</span><span class="o">/</span><span class="n">humble</span><span class="o">/</span><span class="n">setup</span><span class="o">.</span><span class="n">bash</span>
+</pre></div>
+</div>
+<section id="to-get-a-list-of-available-topics">
+<h3>To get a list of available topics:<a class="headerlink" href="#to-get-a-list-of-available-topics" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ros2</span> <span class="n">topic</span> <span class="nb">list</span>
+</pre></div>
+</div>
+</section>
+<section id="to-load-a-new-scene-config">
+<h3>To load a new scene config<a class="headerlink" href="#to-load-a-new-scene-config" title="Link to this heading">¶</a></h3>
+<p>This will make available new topics, relevant to scene.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ros2</span> <span class="n">service</span> <span class="n">call</span> <span class="o">/</span><span class="n">airsim_node</span><span class="o">/</span><span class="n">load_scene</span> <span class="n">projectairsim_ros</span><span class="o">/</span><span class="n">srv</span><span class="o">/</span><span class="n">LoadScene</span> <span class="s2">&quot;{scene_file: &#39;scene_basic_drone.jsonc&#39;, is_primary_client: 1}&quot;</span>
+</pre></div>
+</div>
+<p>NODENAME changes. You can find NODENAME in the topic list.</p>
+</section>
+</section>
+<section id="activate-video-streaming-node">
+<h2>6. Activate video streaming node<a class="headerlink" href="#activate-video-streaming-node" title="Link to this heading">¶</a></h2>
+<p>Executing ‘webrtc_node.py’ will initialize the ros2 node that will connect with pixel streaming video server.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ros2</span> <span class="n">run</span> <span class="n">projectairsim_ros</span> <span class="n">webrtc_node</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+</section>
+<section id="ros2-topics-and-tf-frames">
+<h2>ROS2 Topics and TF Frames<a class="headerlink" href="#ros2-topics-and-tf-frames" title="Link to this heading">¶</a></h2>
+<section id="subscribed-topics">
+<h3>Subscribed Topics<a class="headerlink" href="#subscribed-topics" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">/airsim_node/&lt;robot_name&gt;/cmd_vel</span></code> (<a class="reference external" href="http://docs.ros.org/en/api/geometry_msgs/html/msg/Twist.html">geometry_msgs/Twist</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/airsim_node/&lt;robot_name&gt;/desired_pose</span></code> (<a class="reference external" href="http://docs.ros.org/en/api/geometry_msgs/html/msg/PoseStamped.html">geometry_msgs/PoseStamped</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/airsim_node/&lt;robot_name&gt;/&lt;camera_name&gt;/desired_pose</span></code> (<a class="reference external" href="http://docs.ros.org/en/api/geometry_msgs/html/msg/PoseStamped.html">geometry_msgs/PoseStamped</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/airsim_node/load_scene</span></code> ([projectairsim_ros/srv/LoadScene])</p></li>
+</ul>
+</section>
+<section id="published-topics">
+<h3>Published Topics<a class="headerlink" href="#published-topics" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">/airsim_node/&lt;robot_name&gt;/actual_pose</span></code> ([geometry_msgs/PoseStamped])</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/airsim_node/&lt;robot_name&gt;/&lt;camera_name&gt;/&lt;image_type&gt;/image</span></code> ([sensor_msgs/Image])</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/airsim_node/&lt;robot_name&gt;/&lt;camera_name&gt;/&lt;image_type&gt;/camera_info</span></code> ([sensor_msgs/CameraInfo])</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/airsim_node/&lt;robot_name&gt;/&lt;lidar_name&gt;/lidar</span></code> ([sensor_msgs/PointCloud2])</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/airsim_node/&lt;robot_name&gt;/&lt;radar_name&gt;/radar_detections</span></code> ([radar_msgs/RadarScan])</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/airsim_node/&lt;robot_name&gt;/&lt;radar_name&gt;/radar_tracks</span></code> ([radar_msgs/RadarTracks])</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/airsim_streaming_camera/image_raw</span></code> (H.264 stream forwarding)</p></li>
+</ul>
+</section>
+<section id="tf-broadcasted-frames">
+<h3>TF Broadcasted Frames<a class="headerlink" href="#tf-broadcasted-frames" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">airsim_node/&lt;robot_name&gt;</span></code>: robot base frame from <code class="docutils literal notranslate"><span class="pre">map</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">airsim_node/&lt;robot_name&gt;/&lt;camera_name&gt;/&lt;image_type&gt;</span></code>: camera image frame from <code class="docutils literal notranslate"><span class="pre">map</span></code></p></li>
+</ul>
+</section>
+<section id="image-types-mapping">
+<h3>Image Types Mapping<a class="headerlink" href="#image-types-mapping" title="Link to this heading">¶</a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>image_type ID</p></th>
+<th class="head"><p>Name</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td><p>scene_camera</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>depth_planar_camera</p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>depth_camera</p></td>
+</tr>
+<tr class="row-odd"><td><p>3</p></td>
+<td><p>segmentation_camera</p></td>
+</tr>
+<tr class="row-even"><td><p>4</p></td>
+<td><p>depth_vis_camera</p></td>
+</tr>
+<tr class="row-odd"><td><p>5</p></td>
+<td><p>disparity_normalized_camera</p></td>
+</tr>
+<tr class="row-even"><td><p>6</p></td>
+<td><p>surface_normals</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

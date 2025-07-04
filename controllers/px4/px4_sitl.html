@@ -1,0 +1,510 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Using a PX4 Controller as Software-In-The-Loop (SITL) &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="PX4 Software-in-the-Loop with WSL 2" href="px4_sitl_wsl2.html" />
+    <link rel="prev" title="PX4 with Multiple Robots" href="px4_multi_vehicle.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Using a PX4 Controller as Software-In-The-Loop (SITL)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#supported-airframes">Supported airframes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-up-px4-software-in-the-loop">Setting up PX4 Software-In-The-Loop</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#setup-the-px4-build-environment-for-windows">Setup the PX4 build environment for Windows</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#setup-the-px4-build-environment-for-linux">Setup the PX4 build environment for Linux</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#the-first-flight-session">The first flight session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-the-gps-origin">Setting the GPS origin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#smooth-offboard-transitions">Smooth offboard transitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#check-the-home-position">Check the home position</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#no-remote-control">No remote control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-px4-mavlink-based-gimbal">Using PX4 Mavlink based Gimbal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ending-a-flight-session">Ending a flight session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#starting-a-new-flight-session">Starting a new flight session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#remote-controller">Remote controller</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-px4-sitl-configurations">Advanced PX4 SITL configurations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#multiple-robots-with-px4">Multiple robots with PX4</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#running-px4-remotely">Running PX4 remotely</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#running-px4-in-windows-subsystem-for-linux-version-2-wsl-2">Running PX4 in Windows Subsystem for Linux version 2 (WSL 2)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#network-firewall-configuration">Network firewall configuration</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Using a PX4 Controller as Software-In-The-Loop (SITL)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/controllers/px4/px4_sitl.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="using-a-px4-controller-as-software-in-the-loop-sitl">
+<h1>Using a PX4 Controller as Software-In-The-Loop (SITL)<a class="headerlink" href="#using-a-px4-controller-as-software-in-the-loop-sitl" title="Link to this heading">¶</a></h1>
+<p>In SITL, the PX4 flight controller software is running on the same computer as Project AirSim or on another computer on the local network.</p>
+<p>See <a class="reference internal" href="px4.html#supported-versions-of-px4"><span class="std std-ref">Supported Versions of PX4</span></a> for versions of PX4 supported by Project AirSim in the SITL configuration.</p>
+<section id="supported-airframes">
+<h2>Supported airframes<a class="headerlink" href="#supported-airframes" title="Link to this heading">¶</a></h2>
+<p>All Project AirSim airframes are supported when using PX4 SITL.  See <a class="reference internal" href="#starting-a-new-flight-session"><span class="xref myst">Starting a New Flight Session</span></a> for how to launch PX4 for a specific airframe.</p>
+</section>
+<section id="setting-up-px4-software-in-the-loop">
+<h2>Setting up PX4 Software-In-The-Loop<a class="headerlink" href="#setting-up-px4-software-in-the-loop" title="Link to this heading">¶</a></h2>
+<p>For manual flight simulation, you will also need a controller supported by your operating system such as an XBox game controller (see <a class="reference internal" href="#remote-controller"><span class="xref myst">Remote Controller</span></a>, below.)</p>
+<p>The <a class="reference external" href="http://dev.px4.io">PX4 software</a> provides a “software-in-loop” simulation (SITL) version of their stack that runs in natively in Linux. If you are on Windows then you can use the <a class="reference external" href="https://docs.px4.io/master/en/setup/dev_env_windows_cygwin.html">Cygwin Toolchain</a>.</p>
+<p><strong>Note:</strong> Whenever you stop the Project AirSim Unreal application you must restart PX4 before you can begin another flight session with Project AirSim and PX4.  See <a class="reference internal" href="#starting-a-new-flight-session"><span class="xref myst">Starting a New Flight Session</span></a>, below.</p>
+<section id="setup-the-px4-build-environment-for-windows">
+<h3>Setup the PX4 build environment for Windows<a class="headerlink" href="#setup-the-px4-build-environment-for-windows" title="Link to this heading">¶</a></h3>
+<p>Before setting up PX4, ensure that the Project AirSim <a class="reference internal" href="../../client_setup.html"><span class="std std-doc">Client Setup</span></a> has been completed first.</p>
+<p>On Windows, install the <a class="reference external" href="https://docs.px4.io/master/en/setup/dev_env_windows_cygwin.html">Cygwin Toolchain</a>.</p>
+<ol class="arabic">
+<li><p>Follow the steps through cloning the repository.  You may skip the example step to run JMAVSim.</p></li>
+<li><p>In the PX4 console window (started by <code class="docutils literal notranslate"><span class="pre">run-console.bat</span></code>), navigate into the PX4-Autopilot repo directory if not there already:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> cd PX4-Autopilot
+</pre></div>
+</div>
+</li>
+<li><p>Find the latest stable release from <a class="reference external" href="https://github.com/PX4/PX4-Autopilot/releases">https://github.com/PX4/PX4-Autopilot/releases</a>
+and checkout the source code matching that release, for example:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> git checkout v1.12.3
+</pre></div>
+</div>
+</li>
+<li><p>Build PX4 for the first time with the command:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> make px4_sitl none_iris
+</pre></div>
+</div>
+<p>Note that this may take a while.  PX4 will automatically start at the end of the build.</p>
+</li>
+</ol>
+<p>Proceed to <a class="reference internal" href="#the-first-a-flight-session"><span class="xref myst">The First Flight Session</span></a>, below.</p>
+</section>
+<section id="setup-the-px4-build-environment-for-linux">
+<h3>Setup the PX4 build environment for Linux<a class="headerlink" href="#setup-the-px4-build-environment-for-linux" title="Link to this heading">¶</a></h3>
+<p>Before setting up PX4, ensure that the Project AirSim <a class="reference internal" href="../../client_setup.html"><span class="std std-doc">Client Setup</span></a> has been completed first.</p>
+<p>For reference, the official setup steps for PX4 on Linux <a class="reference external" href="https://docs.px4.io/master/en/dev_setup/dev_env_linux_ubuntu.html">are here.</a>  Follow the instructions for <a class="reference external" href="https://docs.px4.io/master/en/dev_setup/dev_env_linux_ubuntu.html#gazebo-jmavsim-and-nuttx-pixhawk-targets">Gazebo, JMAVSim and NuttX (Pixhawk) Targets</a>.</p>
+<p>The following steps are the Linux-relevant parts from <a class="reference internal" href="px4_build.html"><span class="std std-doc">our own version of the PX4 build instructions</span></a> which is a bit more concise about what we need exactly:</p>
+<ol class="arabic">
+<li><p>Open a bash terminal</p></li>
+<li><p>Get the PX4 source code:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> mkdir -p PX4
+ cd PX4
+ git clone https://github.com/PX4/PX4-Autopilot.git --recursive
+ bash ./PX4-Autopilot/Tools/setup/ubuntu.sh --no-nuttx --no-sim-tools
+ cd PX4-Autopilot
+</pre></div>
+</div>
+</li>
+<li><p>Find the latest stable release from <a class="reference external" href="https://github.com/PX4/PX4-Autopilot/releases">https://github.com/PX4/PX4-Autopilot/releases</a>
+and checkout the source code matching that release, for example:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> git checkout v1.12.3
+</pre></div>
+</div>
+</li>
+<li><p>Build PX4 for the first time with the command:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> make px4_sitl none_iris
+</pre></div>
+</div>
+<p>Note that this may take a while.  PX4 will automatically start at the end of the build.</p>
+</li>
+</ol>
+<p>Proceed to <a class="reference internal" href="#the-first-a-flight-session"><span class="xref myst">The first flight session</span></a>, below.</p>
+</section>
+</section>
+<section id="the-first-flight-session">
+<h2>The first flight session<a class="headerlink" href="#the-first-flight-session" title="Link to this heading">¶</a></h2>
+<ol class="arabic">
+<li><p>You should see a message saying the SITL PX4 app is waiting for the simulator (Project AirSim) to connect.  You will also see information about which ports are configured for a MAVLink connection to the PX4 app.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> INFO  [simulator] Waiting for simulator to connect on TCP port 4560
+ INFO  [init] Mixer: etc/mixers/quad_w.main.mix on /dev/pwm_output0
+ INFO  [mavlink] mode: Normal, data rate: 4000000 B/s on udp port 14570 remote port 14550
+ INFO  [mavlink] mode: Onboard, data rate: 4000000 B/s on udp port 14580 remote port 14540
+</pre></div>
+</div>
+<p><strong>Note:</strong> This is also an interactive PX4 console, type <code class="docutils literal notranslate"><span class="pre">help</span></code> to see the
+list of commands you can enter here.  They are mostly low level PX4
+commands, but some of them can be useful for debugging.</p>
+<p><strong>Note:</strong> In recent versions of PX4, the console may not respond until after the simulator has connected.  Pressing the Enter key should display a “pxh&gt;” prompt when the console is ready to accept commands.</p>
+</li>
+<li><p>Now edit <a class="reference internal" href="../../config_robot.html"><span class="std std-doc">the robot configuration settings</span></a> file to make sure you have matching UDP and TCP port settings:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> {
+     ...
+     &quot;controller&quot;: {
+         &quot;id&quot;: &quot;PX4_Controller&quot;,
+         &quot;type&quot;: &quot;px4-api&quot;,
+         &quot;px4-settings&quot;: {
+             &quot;lock-step&quot;: true,
+             &quot;use-tcp&quot;: true,
+             &quot;tcp-port&quot;: 4560,
+             &quot;control-ip-address&quot;: &quot;127.0.0.1&quot;,
+             &quot;control-port&quot;: 14540,
+             &quot;parameters&quot;: {
+                 &quot;NAV_RCL_ACT&quot;: 0,
+                 &quot;NAV_DLL_ACT&quot;: 0,
+                 &quot;COM_OBL_ACT&quot;: 1,
+                 &quot;LPE_LAT&quot;: 47.641468,
+                 &quot;LPE_LON&quot;: -122.140165
+             }
+         }
+     },
+     ...
+ }
+</pre></div>
+</div>
+<p>Notice that the PX4 simulator is using the TCP networking protocol, so we must set <code class="docutils literal notranslate"><span class="pre">&quot;use-tcp&quot;</span></code> to <code class="docutils literal notranslate"><span class="pre">true</span></code>.  We are also enabling <code class="docutils literal notranslate"><span class="pre">lock-step</span></code> mode (see <a class="reference internal" href="px4_lockstep.html"><span class="std std-doc">PX4 LockStep</span></a> for more information.)</p>
+</li>
+<li><p>In your network firewall software, open incoming TCP port 4560 and incoming UDP port 14540.</p></li>
+<li><p>Run the Project AirSim Unreal application.  It should start with an empty Blocks environment.</p></li>
+<li><p>If not started already, start a command line window and activate the Project AirSim Python client environment (see <a class="reference internal" href="../../client_setup.html"><span class="std std-doc">Project AirSim Client Setup</span></a>.)</p></li>
+<li><p>In the client command line window, navigate to the <code class="docutils literal notranslate"><span class="pre">projectairsim_client\ProjectAirSim_Example_User_Scripts</span></code> directory and run the command:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> python hello_drone.py
+</pre></div>
+</div>
+<p>Project AirSim should connect to the PX4 SITL simulation via TCP. You should see a bunch of messages from the SITL PX4 console window. Specifically, the following messages tell you that Project AirSim is connected properly and that GPS fusion is stable:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> INFO  [simulator] Simulator connected on UDP port 14560
+ INFO  [mavlink] partner IP: 127.0.0.1
+ INFO  [ecl/EKF] EKF GPS checks passed (WGS-84 origin set)
+ INFO  [ecl/EKF] EKF commencing GPS fusion
+</pre></div>
+</div>
+<p>If you do not see these messages then check your port settings.</p>
+</li>
+<li><p><a class="reference external" href="http://qgroundcontrol.com/"><em>QGroundControl</em></a> can be used with PX4 SITL.  Make sure there are no PX4 devices plugged in otherwise <em>QGroundControl</em> will connect to that instead.</p>
+<p>Manual flight requires a user input device, but note that we don’t have a physical PX4 device to which a remote control (RC) can be directly connected.  The alternatives are to use a) an Xbox 360 controller connected to your computer, b) an RC connected to your computer over USB (as supported by the FrSky Taranis X9D Plus, for example), or c) an RC connected to your computer using a trainer USB cable.  An RC connected to your computer using method b) or c) will look like a game controller. You will need to do extra set up in <em>QGroundControl</em> to use a virtual joystick for RC control.</p>
+<p>You do not need to do this unless you plan to fly a drone manually in Project AirSim.  Autonomous flight using the Python API does not require an RC (see <a class="reference internal" href="#no-remote-control"><span class="xref myst">No Remote Control</span></a>, below.)</p>
+</li>
+</ol>
+</section>
+<section id="setting-the-gps-origin">
+<h2>Setting the GPS origin<a class="headerlink" href="#setting-the-gps-origin" title="Link to this heading">¶</a></h2>
+<p>These settings are specified in the <code class="docutils literal notranslate"><span class="pre">parameters</span></code> section of the sample robot configuration, <code class="docutils literal notranslate"><span class="pre">robot_quadrotor_fastphysics.jsonc</span></code>:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="nt">&quot;LPE_LAT&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">47.641468</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;LPE_LON&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-122.140165</span><span class="p">,</span>
+</pre></div>
+</div>
+<p>PX4 in SITL mode needs to be configured with the correct home location.
+The home location needs to be set to the same coordinates as <a class="reference internal" href="../../config_scene.html#main-scene-configuration"><span class="std std-ref">home-geo-point</span></a>.</p>
+<p>You can run the following commands in the SITL PX4 console window to check
+whether these values are set correctly.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>param<span class="w"> </span>show<span class="w"> </span>LPE_LAT
+param<span class="w"> </span>show<span class="w"> </span>LPE_LON
+</pre></div>
+</div>
+</section>
+<section id="smooth-offboard-transitions">
+<h2>Smooth offboard transitions<a class="headerlink" href="#smooth-offboard-transitions" title="Link to this heading">¶</a></h2>
+<p>This setting is specified in the <code class="docutils literal notranslate"><span class="pre">parameters</span></code> section of the sample robot configuration, <code class="docutils literal notranslate"><span class="pre">robot_quadrotor_fastphysics.jsonc</span></code>:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="nt">&quot;COM_OBL_ACT&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+</pre></div>
+</div>
+<p>This tells the drone to automatically hover after each offboard control command finishes (the default setting is to land).  Hovering makes for a smoother transition between multiple offboard commands.  You can check this setting by running the following PX4 console command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>param<span class="w"> </span>show<span class="w"> </span>COM_OBL_ACT
+</pre></div>
+</div>
+</section>
+<section id="check-the-home-position">
+<h2>Check the home position<a class="headerlink" href="#check-the-home-position" title="Link to this heading">¶</a></h2>
+<p>If you are using DroneShell to execute commands (e.g., arm, takeoff, etc.), you must wait until after the home position is set before issuing commands. You will see these messages appear in the PX4 SITL console when the home position is set:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>INFO  [commander] home: 47.6414680, -122.1401672, 119.99
+INFO  [tone_alarm] home_set
+</pre></div>
+</div>
+<p>After these messages appear, the DroneShell <code class="docutils literal notranslate"><span class="pre">pos</span></code> command should report this position and commands should be accepted by PX4.  If you attempt to takeoff without a home position you will see the message:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>WARN  [commander] Takeoff denied, disarm and re-try
+</pre></div>
+</div>
+<p>After the home position is set, check the local position reported by the <code class="docutils literal notranslate"><span class="pre">pos</span></code> command:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Local position: x=-0.0326988, y=0.00656854, z=5.48506
+</pre></div>
+</div>
+<p>If the Z coordinate value is large, like in this example, then takeoff might not work as expected.  Try Restarting PX4 and Project AirSim.</p>
+</section>
+<section id="no-remote-control">
+<h2>No remote control<a class="headerlink" href="#no-remote-control" title="Link to this heading">¶</a></h2>
+<p>These settings are specified in the <code class="docutils literal notranslate"><span class="pre">parameters</span></code> section of the sample robot configuration, <code class="docutils literal notranslate"><span class="pre">robot_quadrotor_fastphysics.jsonc</span></code>:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&quot;NAV_RCL_ACT&quot;: 0,
+&quot;NAV_DLL_ACT&quot;: 0,
+</pre></div>
+</div>
+<p>These parmeters are required if you plan to fly the SITL mode PX4 with no remote control (using only Python scripts, for example.)  These parameters stop the PX4 from entering “failsafe mode” every time a move command is completed.  You can use the following PX4 command to verify that these values are set correctly:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>param<span class="w"> </span>show<span class="w"> </span>NAV_RCL_ACT
+param<span class="w"> </span>show<span class="w"> </span>NAV_DLL_ACT
+</pre></div>
+</div>
+<p><strong>WARNING:</strong> <em><strong>DO NOT</strong></em> do this on a real drone as it is too dangerous to fly without these failsafe measures enabled.</p>
+<p>You can also run the following commands in the PX4 console to set these parameters manually:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>param<span class="w"> </span><span class="nb">set</span><span class="w"> </span>NAV_RCL_ACT<span class="w"> </span><span class="m">0</span>
+param<span class="w"> </span><span class="nb">set</span><span class="w"> </span>NAV_DLL_ACT<span class="w"> </span><span class="m">0</span>
+</pre></div>
+</div>
+</section>
+<section id="using-px4-mavlink-based-gimbal">
+<h2>Using PX4 Mavlink based Gimbal<a class="headerlink" href="#using-px4-mavlink-based-gimbal" title="Link to this heading">¶</a></h2>
+<p>To use Gimbal with Mavlink support from PX4. You need to configure a couple of things.</p>
+<ol class="arabic">
+<li><p>Enable PX4 Gimbal using the following parameteres in the <code class="docutils literal notranslate"><span class="pre">parameters</span></code> section of the sample robot configuration,
+<code class="docutils literal notranslate"><span class="pre">robot_quadrotor_px4_gimbal.jsonc</span></code>:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> &quot;MNT_MODE_IN&quot;: 4,
+ &quot;MNT_MODE_OUT&quot;: 2
+</pre></div>
+</div>
+</li>
+<li><p>Configure a gimbal (which is a type of an actuator with basic configuration as follows):</p></li>
+</ol>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Gimbal_Chase_Actuator&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;gimbal&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;parent-link&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Frame&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;child-link&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Prop_RR&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;origin&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;xyz&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;-10.0 0.0 -1.0&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;rpy-deg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0 -11.46 0&quot;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Then link this with the appropriate camera by adding gimbal section of the camera.</p></li>
+</ol>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Chase&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;camera&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;parent-link&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Frame&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;capture-interval&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.03</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;capture-settings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;image-type&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;width&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1280</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;height&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">720</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;fov-degrees&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">90</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;capture-enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;streaming-enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;pixels-as-float&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;compress&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;target-gamma&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">2.5</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;gimbal&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;gimbal-id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Gimbal_Chase_Actuator&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;lock-roll&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;lock-pitch&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;lock-yaw&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="err">...</span>
+<span class="w">      </span><span class="err">...</span>
+</pre></div>
+</div>
+</section>
+<section id="ending-a-flight-session">
+<h2>Ending a flight session<a class="headerlink" href="#ending-a-flight-session" title="Link to this heading">¶</a></h2>
+<p>To end a flight session:</p>
+<ol class="arabic simple">
+<li><p>Stop the Python client script, if any.  On Windows, you may need to press <code class="docutils literal notranslate"><span class="pre">Ctrl+Break</span></code> instead of <code class="docutils literal notranslate"><span class="pre">Ctrl+C</span></code>.</p></li>
+<li><p>Stop the Project AirSim simulation.  If Project AirSim is running as a stand-alone executable, close the Project AirSim application window.</p></li>
+<li><p>Stop the PX4 SITL simulation by running the PX4 console command <code class="docutils literal notranslate"><span class="pre">shutdown</span></code>.  If PX4 is still running the startup script and the PX4 console is not responding to commands, press <code class="docutils literal notranslate"><span class="pre">Ctrl+C</span></code>.</p></li>
+</ol>
+</section>
+<section id="starting-a-new-flight-session">
+<h2>Starting a new flight session<a class="headerlink" href="#starting-a-new-flight-session" title="Link to this heading">¶</a></h2>
+<p><strong>Note:</strong> Before starting a new flight session, first stop any instance of PX4 SITL that was connected to a simulation (such as Project AirSim.)  Once connected to any simulation (not just Project AirSim), a PX4 SITL instance will not reconnect another simulation instance and will tie up the PX4 SITL network ports, interfering with a new flight session.</p>
+<p>To start a flight session, start PX4 by running the same command to build it:</p>
+<ol class="arabic">
+<li><p>If not already open, open a command line window (on Windows, the PX4 console window; on Linux, a bash terminal).</p></li>
+<li><p>If not already there, navigate to the <code class="docutils literal notranslate"><span class="pre">PX4-Autopilot</span></code> repo directory.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> cd PX4-Autopilot
+</pre></div>
+</div>
+</li>
+<li><p>Use following command to build and start PX4 firmware in SITL mode:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> make px4_sitl none_airframe
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">airframe</span></code> is one of the following:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Project AirSim Airframe</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">airframe</span></code> String</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Quadrotor</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">iris</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>VTOL Fixed-Wing Tailsitter</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tailsitter</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>For instance to run PX4 SITL for the VTOL fixed-wing tailsitter airframe, run the following command:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> make px4_sitl none_tailsitter
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="remote-controller">
+<h2>Remote controller<a class="headerlink" href="#remote-controller" title="Link to this heading">¶</a></h2>
+<p><em>QGroundControl</em> enables manual flight in Project AirSim using a remote control or joystick-like game controller (such as an Xbox game controller) connected to your PC.  See <a class="reference external" href="https://docs.qgroundcontrol.com/master/en/SetupView/Joystick.html"><em>QGroundControl</em> Joystick Setup</a> for more information.</p>
+</section>
+<section id="advanced-px4-sitl-configurations">
+<h2>Advanced PX4 SITL configurations<a class="headerlink" href="#advanced-px4-sitl-configurations" title="Link to this heading">¶</a></h2>
+<p>PX4 SITL is usually run on the same computer as Project AirSim with one instance of each, but Project AirSim and PX4 support more complex configurations.</p>
+<section id="multiple-robots-with-px4">
+<h3>Multiple robots with PX4<a class="headerlink" href="#multiple-robots-with-px4" title="Link to this heading">¶</a></h3>
+<p>See <a class="reference internal" href="px4_multi_vehicle.html"><span class="std std-doc">Multi-vehicle simulation with PX4</span></a>.</p>
+</section>
+<section id="running-px4-remotely">
+<h3>Running PX4 remotely<a class="headerlink" href="#running-px4-remotely" title="Link to this heading">¶</a></h3>
+<p>PX4 SITL is usually run on the same computer as Project AirSim but it is possible to run PX4 on separate computer.  See <a class="reference external" href="https://docs.px4.io/v1.testing/en/simulation/#running-simulation-on-a-remote-server">Running Simulation on a Remote Server</a> in the PX4 documentation.</p>
+<p>In Project AirSim, put the IP address of the remote computer running PX4 into the <code class="docutils literal notranslate"><span class="pre">control-ip-address</span></code> parameter of the <code class="docutils literal notranslate"><span class="pre">controller/px4-settings</span></code> section in the <a class="reference internal" href="../../config_robot.html#PX4_communication_port_settings"><span class="std std-ref">robot configuration settings</span></a>.</p>
+</section>
+<section id="running-px4-in-windows-subsystem-for-linux-version-2-wsl-2">
+<h3>Running PX4 in Windows Subsystem for Linux version 2 (WSL 2)<a class="headerlink" href="#running-px4-in-windows-subsystem-for-linux-version-2-wsl-2" title="Link to this heading">¶</a></h3>
+<p>See <a class="reference internal" href="px4_sitl_wsl2.html"><span class="std std-doc">PX4 Software-in-the-Loop with WSL 2</span></a>.</p>
+</section>
+<section id="network-firewall-configuration">
+<h3>Network firewall configuration<a class="headerlink" href="#network-firewall-configuration" title="Link to this heading">¶</a></h3>
+<p>When running PX4 remotely or in WSL2, you’ll need configure your network firewall appropriately.</p>
+<p>For both configurations:</p>
+<ul class="simple">
+<li><p>On the Project AirSim computer, allow incoming connections to the TCP/IP port <code class="docutils literal notranslate"><span class="pre">tcp-port</span></code>.</p></li>
+</ul>
+<p>For PX4 running remotely:</p>
+<ul class="simple">
+<li><p>On the Project AirSim computer, allow outgoing connections to the UDP/IP port <code class="docutils literal notranslate"><span class="pre">control-port-remote</span></code>.</p></li>
+<li><p>On the PX4 computer, allow incoming connections to the UDP/IP port <code class="docutils literal notranslate"><span class="pre">control-port-remote</span></code>.</p></li>
+</ul>
+<p>For PX4 in WSL2:</p>
+<ul class="simple">
+<li><p>On the Project AirSim computer, allow incoming connections to the UDP/IP port <code class="docutils literal notranslate"><span class="pre">control-port</span></code>.</p></li>
+</ul>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI Consulting Corp.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="px4_multi_vehicle.html" class="btn btn-neutral float-left" title="PX4 with Multiple Robots" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="px4_sitl_wsl2.html" class="btn btn-neutral float-right" title="PX4 Software-in-the-Loop with WSL 2" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

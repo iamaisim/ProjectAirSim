@@ -1,0 +1,217 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Configuration JSONC Settings &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/documentation_options.js?v=2709fde1"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Configuration JSONC Settings</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/config.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="configuration-jsonc-settings">
+<h1>Configuration JSONC Settings<a class="headerlink" href="#configuration-jsonc-settings" title="Link to this heading">¶</a></h1>
+<p>Project AirSim configuration files use the <a class="reference external" href="https://commentjson.readthedocs.io/en/latest/">JSONC (JSON with Comments)</a> file format. The configuration JSONC settings that client scripts load are stored in a <code class="docutils literal notranslate"><span class="pre">sim_config/</span></code> subfolder relative to the client script:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;client scripts&gt;
+└─ sim_config
+      scene_basic_drone.jsonc
+      scene_...
+      robot_quadrotor_fastphysics.jsonc
+      robot_...
+</pre></div>
+</div>
+<p>The configuration settings are split into two levels:</p>
+<ol class="arabic simple">
+<li><p><strong><a class="reference internal" href="#scene-config"><span class="xref myst">Scene config</span></a></strong> - Settings for a specific scene, such as a list of actors and clock settings for that scene. This can be any JSONC file in the <code class="docutils literal notranslate"><span class="pre">sim_config/</span></code> folder, but generally starts with <code class="docutils literal notranslate"><span class="pre">scene_</span></code> as a filename prefix.</p></li>
+<li><p><strong><a class="reference internal" href="#robot-config"><span class="xref myst">Robot config</span></a></strong> - Settings for a specific robot, such as its link/joint structure, controller, sensors, etc. This can be any JSONC file in the <code class="docutils literal notranslate"><span class="pre">sim_config/</span></code> folder, but generally starts with <code class="docutils literal notranslate"><span class="pre">robot_</span></code> as a filename prefix. Multiple actors in a scene can reference the same config file.</p></li>
+<li><p><strong><a class="reference internal" href="#environment-actors-config"><span class="xref myst">Environment actors config</span></a></strong> - Settings for a specific environment actor, such as its link/joint structure, controller, sensors, etc. This can be any JSONC file in the <code class="docutils literal notranslate"><span class="pre">sim_config/</span></code> folder. For drones, the filename prefix generally start with <code class="docutils literal notranslate"><span class="pre">env_actor_</span></code>; for cars, they start with <code class="docutils literal notranslate"><span class="pre">env_actor_car</span></code>; for humans, they start with <code class="docutils literal notranslate"><span class="pre">env_actor_human</span></code>; and for particles, they start with <code class="docutils literal notranslate"><span class="pre">env_particle_effect</span></code>. Multiple actors in a scene can reference the same config file.</p></li>
+</ol>
+<p><em>Note: Unlike Python, the JSON standard requires double-quotes (<code class="docutils literal notranslate"><span class="pre">&quot;</span></code>) so be sure not to use single-quotes (<code class="docutils literal notranslate"><span class="pre">'</span></code>) in the JSONC configuration files.</em></p>
+<section id="scene-config">
+<h2>Scene config<a class="headerlink" href="#scene-config" title="Link to this heading">¶</a></h2>
+<p>An example scene config look like:</p>
+<p><code class="docutils literal notranslate"><span class="pre">scene_env_actor.jsonc</span></code></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SceneBasicDrone&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;actors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;robot&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Drone1&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;origin&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;robot-config&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;robot_quadrotor_fastphysics.jsonc&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;environment-actors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;env_car&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;car1&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;origin&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;env-actor-config&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;env_actor_car.jsonc&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;clock&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;home-geo-point&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;segmentation&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;scene-type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;UnrealNative&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">actors</span></code> array contains a block for each robot to spawn in the simulation at its specified <code class="docutils literal notranslate"><span class="pre">origin</span></code> coordinates, and each robot’s <code class="docutils literal notranslate"><span class="pre">robot-config</span></code> string points to the robot config JSON file to load for it.</p>
+<p>For more detailed info, see <strong><a class="reference internal" href="config_scene.html"><span class="std std-doc">Scene Configuration Settings</span></a></strong>.</p>
+</section>
+<section id="robot-config">
+<h2>Robot config<a class="headerlink" href="#robot-config" title="Link to this heading">¶</a></h2>
+<p>An example robot config looks like:</p>
+<p><code class="docutils literal notranslate"><span class="pre">robot_quadrotor_fastphysics.jsonc</span></code></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;physics-type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fast-physics&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;links&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;joints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;controller&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;actuators&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;sensors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>For more detailed info, see <strong><a class="reference internal" href="config_robot.html"><span class="std std-doc">Robot Configuration Settings</span></a></strong>.</p>
+</section>
+<section id="environment-actors-config">
+<h2>Environment actors config<a class="headerlink" href="#environment-actors-config" title="Link to this heading">¶</a></h2>
+<p>An example environment actor config looks like:</p>
+<p><code class="docutils literal notranslate"><span class="pre">env_actor_car.jsonc</span></code></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;links&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;joints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>For more detailed info, see <strong><a class="reference internal" href="config_env_actors.html"><span class="std std-doc">Environment Actor Configuration Settings</span></a></strong> and <strong><a class="reference internal" href="config_env_objects.html"><span class="std std-doc">Environment Object Configuration Settings</span></a></strong>.</p>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI Consulting Corp.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

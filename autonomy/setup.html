@@ -1,0 +1,168 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Setting-up ProjectAirSim Autonomy Blocks &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Setting-up ProjectAirSim Autonomy Blocks</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/autonomy/setup.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="setting-up-projectairsim-autonomy-blocks">
+<h1>Setting-up ProjectAirSim Autonomy Blocks<a class="headerlink" href="#setting-up-projectairsim-autonomy-blocks" title="Link to this heading">¶</a></h1>
+<ol class="arabic">
+<li><p>Setup the runtime environment and install dependencies</p>
+<ol class="arabic">
+<li><p>Setup the <code class="docutils literal notranslate"><span class="pre">ProjectAirSim</span></code> client by following the steps listed in <a class="reference internal" href="../client_setup.html"><span class="std std-doc">client_setup</span></a> based on your platform (Linux/Windows)</p></li>
+<li><p>Activate the python environment where you have installed the <code class="docutils literal notranslate"><span class="pre">projectairsim</span></code> python client package and install the additional <code class="docutils literal notranslate"><span class="pre">autonomy</span></code> module dependencies using the following command where <code class="docutils literal notranslate"><span class="pre">VERSION</span></code> is the Project AirSim version ID such as <code class="docutils literal notranslate"><span class="pre">0.1.8</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">projectairsim-0.1.8-py3-none-any.whl</span></code>) depending on the wheel package you have.</p>
+<blockquote>
+<div><p>Note: The extra <strong>[autonomy]</strong> (including the square braces) after the wheel file name is necessary.</p>
+</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">projectairsim-{VERSION}-py3-none-any.whl[autonomy]</span></code></p>
+</li>
+</ol>
+<blockquote>
+<div><p>Note: In order to run the pre-trained autonomy models efficiently,  A CUDA-capable GPU device with the compatible driver is expected to be installed on your system. The above setup would install the necessary <code class="docutils literal notranslate"><span class="pre">cudatoolkit</span></code> and deep learning framework (PyTorch) for Linux. If you are using <strong>Windows</strong> or <strong>Mac OS</strong>, in order to utilize the GPU device using <code class="docutils literal notranslate"><span class="pre">cudatoolkit</span></code>, please install using the command provided at <a class="reference external" href="https://pytorch.org">https://pytorch.org</a>. As an example, for installing the PyTorch stable release version <code class="docutils literal notranslate"><span class="pre">1.10.1</span></code> on Windows using Pip and CUDA 11.3, run the following command:
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">torch==1.10.1+cu113</span> <span class="pre">torchvision==0.11.2+cu113</span> <span class="pre">-f</span> <span class="pre">https://download.pytorch.org/whl/cu113/torch_stable.html</span></code></p>
+</div></blockquote>
+</li>
+<li><p>Check if your setup went successful</p>
+<ol class="arabic simple">
+<li><p>Run the followingImport a perception module from Project AirSim Autonomy to ensure your <code class="docutils literal notranslate"><span class="pre">autonomy</span></code> module setup went through successfully:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w">  </span><span class="s2">&quot;from projectairsim.autonomy.perception import PosePredictor&quot;</span>
+</pre></div>
+</div>
+<p>If the above line executes without error on your <code class="docutils literal notranslate"><span class="pre">ProjectAirSim</span></code> python virtual environment, you are all set!</p>
+<p>While not absolutely necessary, it is recommended to have a GPU on your machine to run the perception models. You can check if you have a GPU device that the model can use using the following command returns True:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import torch; print(torch.cuda.is_available())&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p>Obtain the pre-trained models using the separate instructions provided to you  or reach out to the ProjectAirSim Autonomy team for instructions.</p></li>
+</ol>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

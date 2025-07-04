@@ -1,0 +1,169 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PX4 Lockstep Mode &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="PX4 with Multiple Robots" href="px4_multi_vehicle.html" />
+    <link rel="prev" title="Using a PX4 Controller as Hardware-In-The-Loop (HITL)" href="px4_hitl.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">PX4 Lockstep Mode</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/controllers/px4/px4_lockstep.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="px4-lockstep-mode">
+<h1>PX4 Lockstep Mode<a class="headerlink" href="#px4-lockstep-mode" title="Link to this heading">¶</a></h1>
+<p>Recent versions of PX4 support a new <a class="reference external" href="https://docs.px4.io/master/en/simulation/#lockstep-simulation">lockstep feature</a> when communicating with a simulator over TCP.  <code class="docutils literal notranslate"><span class="pre">Lockstep</span></code> decouples the internal clocks of PX4 and the simulator from real-time and synchronizes them to each other so that both internal clocks advance together.  This allows PX4 to behave normally even during unusually long delays in simulator updates.</p>
+<p>It is recommended that when you are running a <code class="docutils literal notranslate"><span class="pre">lockstep</span></code>-enabled version of PX4 in SITL mode that you specify the controller settings within the robot configuration of Project AirSim to set <code class="docutils literal notranslate"><span class="pre">lock-step</span></code> to <code class="docutils literal notranslate"><span class="pre">true</span></code> and set <code class="docutils literal notranslate"><span class="pre">use-tcp</span></code> to <code class="docutils literal notranslate"><span class="pre">true</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+        <span class="o">...</span>
+        <span class="s2">&quot;controller&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;PX4_Controller&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;px4-api&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;px4-settings&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;lock-step&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+                <span class="s2">&quot;use-tcp&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+            <span class="o">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This configures Project AirSim to use a “non-realtime” clock that advances in step with each sensor update sent to PX4.  PX4 thinks time is progressing smoothly no matter how long
+it takes Project AirSim to actually process each loop update.</p>
+<p>This has the following advantages:</p>
+<ul class="simple">
+<li><p>Project AirSim can be used on slow machines that cannot update the simulation fast enough for real-time.</p></li>
+<li><p>You can debug Project AirSim, hit a breakpoint, and PX4 will behave normally after you resume.</p></li>
+<li><p>You can use very slow sensors (such as LIDAR with a large number of simulated points) and PX4 will still behave normally.</p></li>
+</ul>
+<p>There are some side effects to <code class="docutils literal notranslate"><span class="pre">lockstep</span></code>, primarily slower update loops.  Running Project AirSim on an underpowered machine or with processing-heavy sensors (like LIDAR) will cause slow updates or show some visible jerkiness in the simulated flight when you watch the screen update in real-time.</p>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI Consulting Corp.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="px4_hitl.html" class="btn btn-neutral float-left" title="Using a PX4 Controller as Hardware-In-The-Loop (HITL)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="px4_multi_vehicle.html" class="btn btn-neutral float-right" title="PX4 with Multiple Robots" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

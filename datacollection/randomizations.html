@@ -1,0 +1,207 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Object-Level Randomizations &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Object-Level Randomizations</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/datacollection/randomizations.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="object-level-randomizations">
+<h1>Object-Level Randomizations<a class="headerlink" href="#object-level-randomizations" title="Link to this heading">¶</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">Data</span> <span class="pre">Generation</span></code> module allows developers to introduce randomizations at the object level. That is, the assets being spawned in a scene can have a variety of their properties randomized. This allows for more variety in the collected data and leads to a more rounded dataset at the end. These randomizations can also be used to induce edge-case scenarios to the dataset; again for obtaining a better dataset.</p>
+<p>The following properties can be randomized through the module:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#texture"><span class="xref myst">Texture</span></a></p></li>
+<li><p><a class="reference internal" href="#scale"><span class="xref myst">Scale</span></a></p></li>
+<li><p><a class="reference internal" href="#rotation"><span class="xref myst">Rotation</span></a></p></li>
+<li><p><a class="reference internal" href="#translation"><span class="xref myst">Translation</span></a></p></li>
+<li><p><a class="reference internal" href="#flip"><span class="xref myst">Flip</span></a></p></li>
+</ul>
+<p>An example for configuring these randomizations at an asset level can be found in <a class="reference download internal" download="" href="../_downloads/1d9e55b697d1a3360a9803721d5f9965/datacollector_config.jsonc"><span class="xref download myst"><code class="docutils literal notranslate"><span class="pre">datacollector_config.jsonc</span></code></span></a></p>
+<section id="texture">
+<h2>Texture<a class="headerlink" href="#texture" title="Link to this heading">¶</a></h2>
+<p>Allows for the texture of the asset to be randomized. This feature can be configured using the following param:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;texture&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="c1">// List of different textures to choose from.</span>
+<span class="w">    </span><span class="s2">&quot;default&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;shiny_texture&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;matte_texture&quot;</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="scale">
+<h2>Scale<a class="headerlink" href="#scale" title="Link to this heading">¶</a></h2>
+<p>Allows for the scale of the asset to be randomized. Scale is a unit-less multiple that is applied to the <code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code> and, <code class="docutils literal notranslate"><span class="pre">z</span></code> dimensions of the asset. This feature can be configured using the following param:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;scale&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;amount&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="c1">// Number of variations to produce.</span>
+<span class="w">    </span><span class="nt">&quot;upper_bound&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="c1">// Upper bound of the scale factor.</span>
+<span class="w">    </span><span class="nt">&quot;lower_bound&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="w"> </span><span class="c1">// Lower bound of the scale factor.</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="rotation">
+<h2>Rotation<a class="headerlink" href="#rotation" title="Link to this heading">¶</a></h2>
+<p>Allows for the rotational-orientation of the asset to be randomized. This type of randomization can be applied to either of the rotational axes - <code class="docutils literal notranslate"><span class="pre">roll</span></code>, <code class="docutils literal notranslate"><span class="pre">pitch</span></code> or <code class="docutils literal notranslate"><span class="pre">yaw</span></code>. This feature can be configured using the following param:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;rotation&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;amount&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="c1">// Number of variations to produce.</span>
+<span class="w">    </span><span class="nt">&quot;upper_bound&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">90.0</span><span class="p">,</span><span class="w"> </span><span class="c1">// Upper bound of rotation, in degrees.</span>
+<span class="w">    </span><span class="nt">&quot;lower_bound&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-90.0</span><span class="p">,</span><span class="w"> </span><span class="c1">// Lower bound of rotation, in degrees.</span>
+<span class="w">    </span><span class="nt">&quot;axis&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;roll&quot;</span><span class="w"> </span><span class="c1">// Axis for rotation.</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="translation">
+<h2>Translation<a class="headerlink" href="#translation" title="Link to this heading">¶</a></h2>
+<p>Allows for the position of the asset to be randomized. This type of randomization can be applied to either of the cartesian axes - <code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code> or <code class="docutils literal notranslate"><span class="pre">z</span></code>. This feature can be configured using the following param:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;rotation&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;amount&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="c1">// Number of variations to produce.</span>
+<span class="w">    </span><span class="nt">&quot;upper_bound&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">90.0</span><span class="p">,</span><span class="w"> </span><span class="c1">// Upper bound of rotation, in degrees.</span>
+<span class="w">    </span><span class="nt">&quot;lower_bound&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-90.0</span><span class="p">,</span><span class="w"> </span><span class="c1">// Lower bound of rotation, in degrees.</span>
+<span class="w">    </span><span class="nt">&quot;axis&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;roll&quot;</span><span class="w"> </span><span class="c1">// Axis for rotation.</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="flip">
+<h2>Flip<a class="headerlink" href="#flip" title="Link to this heading">¶</a></h2>
+<p>Allows for randomized flipping of the asset along an axis. This type of randomization can be applied to either of the rotational axes - <code class="docutils literal notranslate"><span class="pre">roll</span></code>, <code class="docutils literal notranslate"><span class="pre">pitch</span></code> or <code class="docutils literal notranslate"><span class="pre">yaw</span></code>. This feature can be configured using the following param:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;flip&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;axis&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;roll&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Axis for flipping.</span>
+<span class="w">    </span><span class="nt">&quot;initial_rpy&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="mi">20</span><span class="p">,</span>
+<span class="w">        </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">        </span><span class="mi">0</span>
+<span class="w">    </span><span class="p">]</span><span class="w"> </span><span class="c1">// Starting roll, pitch, yaw of the object.</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

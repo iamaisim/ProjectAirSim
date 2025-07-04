@@ -1,0 +1,1234 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Robot Configuration Settings &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/documentation_options.js?v=2709fde1"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Robot Configuration Settings</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/config_robot.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="robot-configuration-settings">
+<h1>Robot Configuration Settings<a class="headerlink" href="#robot-configuration-settings" title="Link to this heading">¶</a></h1>
+<p>Project AirSim robots are configured as tree structures of <strong>links</strong> (physical components with mass and shape) and <strong>joints</strong> (connections and constraints between links).</p>
+<p>The robot can have a <strong>physics type</strong> associated with it to determine a physics engine that will parse the robot structure and construct a corresponding physics body using the data relevant for that physics type.</p>
+<p>The robot can also have a <strong>controller</strong> that will decide the control outputs to apply to the robot’s actuators.</p>
+<p>The array of <strong>actuators</strong> can be specified with the associated links to apply forces and torques to, based on the control outputs.</p>
+<p>An array of <strong>sensors</strong> can configure various types of sensors such as cameras, IMUs, etc, can be attached to the robot’s links.</p>
+<p>Project AirSim currently comes with some base configurations for quadrotor drones to demonstrate how to configure a robot for simulation.</p>
+<section id="robot-configuration-overview-drone-example">
+<h2>Robot configuration overview (drone example)<a class="headerlink" href="#robot-configuration-overview-drone-example" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">robot_quadrotor_fastphysics.jsonc</span></code></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;physics-type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fast-physics&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;links&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;joints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;controller&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;actuators&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;sensors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">physics-type</span></code></p></td>
+<td><p><strong><a class="reference internal" href="#physics-type"><span class="xref myst">Physics type</span></a></strong></p></td>
+<td><p>Physics to use to control the robot’s motion</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">links</span></code></p></td>
+<td><p>Array of <strong><a class="reference internal" href="#link-settings"><span class="xref myst">Link settings</span></a></strong></p></td>
+<td><p>Link settings for each link component of the robot.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">joints</span></code></p></td>
+<td><p>Array of <strong><a class="reference internal" href="#joint-settings"><span class="xref myst">Joint settings</span></a></strong></p></td>
+<td><p>Joint settings for connecting links together.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">controller</span></code></p></td>
+<td><p><strong><a class="reference internal" href="#controller-settings"><span class="xref myst">Controller settings</span></a></strong></p></td>
+<td><p>Controller settings to drive the robot’s actuators.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">actuators</span></code></p></td>
+<td><p>Array of <strong><a class="reference internal" href="#actuator-settings"><span class="xref myst">Actuator settings</span></a></strong></p></td>
+<td><p>Actuator settings for each applying forces and torques to the robot’s links.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sensors</span></code></p></td>
+<td><p>Array of <strong><a class="reference internal" href="#sensor-settings"><span class="xref myst">Sensor settings</span></a></strong></p></td>
+<td><p>Sensor settings for attaching sensors to the robot’s links.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="physics-type">
+<h2>Physics type<a class="headerlink" href="#physics-type" title="Link to this heading">¶</a></h2>
+<section id="non-physics-computer-vision-mode">
+<h3>Non-Physics  (Computer Vision mode)<a class="headerlink" href="#non-physics-computer-vision-mode" title="Link to this heading">¶</a></h3>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;physics-type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;non-physics&quot;</span>
+</pre></div>
+</div>
+<p><strong>Non-physics</strong> mode means that the robot will not move unless its pose is set directly with API calls from the client. This can be useful for “Computer Vision” mode to gather sensor data at manually-specified poses in the simulation world, or if the robot’s motion will be determined by an external algorithm.</p>
+</section>
+<section id="fast-physics">
+<h3>Fast Physics<a class="headerlink" href="#fast-physics" title="Link to this heading">¶</a></h3>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;physics-type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fast-physics&quot;</span>
+</pre></div>
+</div>
+<p><strong><a class="reference internal" href="physics/fast_physics.html"><span class="std std-doc">Fast Physics</span></a></strong> is a basic light-weight physics model made for aerial drone flight. Fast Physics makes it easy to get started with flying a drone out-of-the-box.</p>
+</section>
+<section id="unreal-physics">
+<h3>Unreal Physics<a class="headerlink" href="#unreal-physics" title="Link to this heading">¶</a></h3>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;physics-type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;unreal-physics&quot;</span>
+</pre></div>
+</div>
+<p><strong><a class="reference internal" href="#internal/physics/unreal_physics.md"><span class="xref myst">Unreal physics</span></a></strong> uses the <strong><a class="reference external" href="https://developer.nvidia.com/gameworks-physx-overview">PhysX</a></strong> engine that’s built-in to Unreal. PhysX can calculate motion for multi-jointed robots with constraints on each joint, as well as rigid body dynamics for aerial drone flight.</p>
+<p><em>Note: The simulation will automatically detect when any actor in the scene is configured to use Unreal Physics, and this will link the physics calculation step to Unreal’s rendering step, so the <a class="reference internal" href="config_scene.html#steppable-clock"><span class="std std-ref">sim clock setting</span></a> for <code class="docutils literal notranslate"><span class="pre">step-ns</span></code> may need to be much slower (20 ms = ~50 FPS) to maintain reasonable simulation advancement rate.</em></p>
+</section>
+</section>
+<section id="link-settings">
+<h2>Link settings<a class="headerlink" href="#link-settings" title="Link to this heading">¶</a></h2>
+<p>A link is a physical component with mass and shape. The link settings consist of inertial, collision, and visual elements.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;links&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Frame&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;inertial&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;collision&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;visual&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="err">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name identifier for the link.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">inertial</span></code></p></td>
+<td><p><strong><a class="reference internal" href="#inertial-settings"><span class="xref myst">Inertial settings</span></a></strong></p></td>
+<td><p>Inertial settings that affect the rigid body motion of the link.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">collision</span></code></p></td>
+<td><p><strong><a class="reference internal" href="#collision-settings"><span class="xref myst">Collision settings</span></a></strong></p></td>
+<td><p>Collision settings for collision detection and response.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">visual</span></code></p></td>
+<td><p><strong><a class="reference internal" href="#visual-settings"><span class="xref myst">Visual settings</span></a></strong></p></td>
+<td><p>Visual settings for the link’s rendered mesh.</p></td>
+</tr>
+</tbody>
+</table>
+<section id="inertial-settings">
+<h3>Inertial settings<a class="headerlink" href="#inertial-settings" title="Link to this heading">¶</a></h3>
+<p>The link’s inertial settings consist of mass, origin, inertia, and aerodynamic drag.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;inertial&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;origin&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;xyz&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.253 -0.253 -0.01&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;rpy-deg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0 0 0&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;mass&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;inertia&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;geometry&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="err">...</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;aerodynamics&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;drag-coefficient&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.325</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;geometry&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="err">...</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">origin</span></code>: <code class="docutils literal notranslate"><span class="pre">xyz</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Position “X Y Z” of the link relative to the link’s parent joint in <strong>meter</strong> units. Defaults to all zero if no <code class="docutils literal notranslate"><span class="pre">origin</span></code> is specified.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">origin</span></code>: <code class="docutils literal notranslate"><span class="pre">rpy</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Rotation “Roll Pitch Yaw” of the link relative to the link’s parent joint in <strong>radian</strong> units. Defaults to all zero if no <code class="docutils literal notranslate"><span class="pre">origin</span></code> is specified.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mass</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Mass of this link in SI <strong>kg</strong> units.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">inertia</span></code>: <code class="docutils literal notranslate"><span class="pre">type</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">geometry</span></code>, <code class="docutils literal notranslate"><span class="pre">matrix</span></code>, <code class="docutils literal notranslate"><span class="pre">point-mass</span></code></p></td>
+<td><p>Inertia matrix specification type.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">aerodynamics</span></code>: <code class="docutils literal notranslate"><span class="pre">drag-coefficient</span></code></p></td>
+<td><p>float</p></td>
+<td><p>The Cd drag coefficient for the link.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">aerodynamics</span></code>: <code class="docutils literal notranslate"><span class="pre">type</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">geometry</span></code>, <code class="docutils literal notranslate"><span class="pre">cross-section-areas-xyz</span></code></p></td>
+<td><p>Aerodynamic drag face specification type.</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Inertia</strong></p>
+<p>The link’s rotational inertia matrix (inertia tensor) is specified assuming symmetry around the principle axes so any off-diagonal components (those other than Ixx, Iyy, Izz) are assumed to be zero.</p>
+<p>If specified as a <code class="docutils literal notranslate"><span class="pre">matrix</span></code> type, directly set the diagonal component values:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;inertia&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;matrix&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;ixx&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;iyy&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;izz&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>If specified as a <code class="docutils literal notranslate"><span class="pre">geometry</span></code> type (only <code class="docutils literal notranslate"><span class="pre">box</span></code> is currently supported), set the <code class="docutils literal notranslate"><span class="pre">size</span></code> values as “X Y Z” dimensions in SI <strong>meter</strong> units :</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;inertia&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;geometry&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;geometry&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;box&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;size&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.180 0.110 0.040&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>If specified as a <code class="docutils literal notranslate"><span class="pre">point-mass</span></code> type, no details are needed because the inertia matrix for this link will be all zero, and the mass will only affect the inertia of other connected links by the Parallel Axis Theorem.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;inertia&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;point-mass&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Aerodynamics</strong></p>
+<p>The link’s aerodynamic drag is specified as the <code class="docutils literal notranslate"><span class="pre">drag-coefficient</span></code> Cd and cross-sectional face areas on each of the link’s principle axes.</p>
+<p>If specified as cross-sectional areas type, directly set the face areas in SI <strong>square meter</strong> units for the “X Y Z” axes:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;aerodynamics&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;drag-coefficient&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.325</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cross-section-areas-xyz&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;cross-section-areas-xyz&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0 1.0 1.0&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>If specified as a <code class="docutils literal notranslate"><span class="pre">geometry</span></code> type (<code class="docutils literal notranslate"><span class="pre">box</span></code> or <code class="docutils literal notranslate"><span class="pre">cylinder</span></code> are currently supported), then set the geometry’s dimensions and the cross-sectional areas will be calculated automatically.</p>
+<p><code class="docutils literal notranslate"><span class="pre">box</span></code> with “X Y Z” dimensions set in SI <strong>meter</strong> units:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;aerodynamics&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;drag-coefficient&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.325</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;geometry&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;geometry&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;box&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;size&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.180 0.110 0.040&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">cylinder</span></code> with <code class="docutils literal notranslate"><span class="pre">radius</span></code> and <code class="docutils literal notranslate"><span class="pre">length</span></code> dimensions set in SI <strong>meter</strong> units:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;aerodynamics&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;drag-coefficient&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.325</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;geometry&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;geometry&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;cylinder&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;radius&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.1143</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;length&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.01</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="collision-settings">
+<h3>Collision settings<a class="headerlink" href="#collision-settings" title="Link to this heading">¶</a></h3>
+<p>The link’s collision settings consist of an enabled flag and parameters for restitution and friction coefficients used in calculating its collision response.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;collision&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;restitution&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;friction&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">enabled</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>Flag to enable/disable collision detection for this link’s <strong><a class="reference internal" href="#visual-settings"><span class="xref myst">visual mesh</span></a></strong>. Disabling collision may be useful for non-physics “computer vision” mode while still being able to see the robot’s mesh visually. This defaults to <code class="docutils literal notranslate"><span class="pre">true</span></code> if omitted, but if the link does not specify a visual mesh, collisions cannot be detected so this setting would not be used.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">restitution</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Restitution coefficient for how the link’s velocity will react normal to the collision (0.0 = no bounce, 1.0 = bounce off with equal velocity as impact).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">friction</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Friction coefficient for how the link’s velocity will react tangential to the collision (0.0 = no tangential velocity reduction, 1.0 = full tangential velocity reduction).</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="visual-settings">
+<h3>Visual settings<a class="headerlink" href="#visual-settings" title="Link to this heading">¶</a></h3>
+<p>The link’s visual settings consist of what visual element will be rendered for the link. Currently, only <code class="docutils literal notranslate"><span class="pre">unreal_mesh</span></code> geometry types are supported.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">visual</span></code> element can be omitted if no visual mesh is desired, such as for non-physics “computer vision” mode, and this will also effectively disable collision detection since there is no mesh to collide with.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;visual&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;geometry&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;unreal_mesh&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/Drone/Quadrotor1&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;scale&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0 1.0 1.0&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">geometry</span></code>: <code class="docutils literal notranslate"><span class="pre">type</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unreal_mesh</span></code></p></td>
+<td><p>The type of mesh geometry to use (currently only <code class="docutils literal notranslate"><span class="pre">unreal_mesh</span></code> is supported). The mesh must be imported into the Unreal environment as a .uasset to be available at runtime.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">geometry</span></code>: <code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p>string</p></td>
+<td><p>For <code class="docutils literal notranslate"><span class="pre">unreal_mesh</span></code>, this should be the Unreal content path to the mesh in the environment.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">geometry</span></code>: <code class="docutils literal notranslate"><span class="pre">scale</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Adjust the mesh’s scale. Defaults to all 1.0 if not specified. <strong>Note:</strong> A link’s scale will also be inherited by any child links to maintain relative size, so their scales may also need adjustment to compensate.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="joint-settings">
+<h2>Joint settings<a class="headerlink" href="#joint-settings" title="Link to this heading">¶</a></h2>
+<p>A joint is a connection between two links (a single parent link and a single child link) in order to define a relationship for relative motion. Constraints for the joint type can specify the type of joint motion to allow.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;joints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Frame_Prop_FL&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fixed&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;parent-link&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Frame&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;child-link&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Prop_FL&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;axis&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0 0 1&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.57</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;damping-constant&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="err">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">id</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name identifier for the joint.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">origin</span></code>: <code class="docutils literal notranslate"><span class="pre">xyz</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Position “X Y Z” of the joint’s child link relative to the joint’s parent link in <strong>meter</strong> units. Defaults to all zero if no <code class="docutils literal notranslate"><span class="pre">origin</span></code> is specified.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">origin</span></code>: <code class="docutils literal notranslate"><span class="pre">rpy</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Rotation “Roll Pitch Yaw” of the joint’s child link relative to the joint’s parent link in <strong>radian</strong> units. Defaults to all zero if no <code class="docutils literal notranslate"><span class="pre">origin</span></code> is specified.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">parent-link</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name identifier for the joint’s parent link.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">child-link</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name identifier for the joint’s child link.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">type</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">fixed</span></code>, <code class="docutils literal notranslate"><span class="pre">continuous</span></code>, <code class="docutils literal notranslate"><span class="pre">revolute</span></code></p></td>
+<td><p>Type of joint constraint. <code class="docutils literal notranslate"><span class="pre">fixed</span></code> means the pose of the <code class="docutils literal notranslate"><span class="pre">child-link</span></code> should stay fixed relative to the <code class="docutils literal notranslate"><span class="pre">parent-link</span></code>. <code class="docutils literal notranslate"><span class="pre">continuous</span></code> means the <code class="docutils literal notranslate"><span class="pre">child-link</span></code> can rotate continously around the <code class="docutils literal notranslate"><span class="pre">axis</span></code> normal. <code class="docutils literal notranslate"><span class="pre">revolute</span></code> means the <code class="docutils literal notranslate"><span class="pre">child-link</span></code> can rotate like a hinge around the <code class="docutils literal notranslate"><span class="pre">axis</span></code> up to an angle <code class="docutils literal notranslate"><span class="pre">limit</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">axis</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;1</span> <span class="pre">0</span> <span class="pre">0&quot;</span></code> for X axis, <code class="docutils literal notranslate"><span class="pre">&quot;0</span> <span class="pre">1</span> <span class="pre">0&quot;</span></code> for Y axis, <code class="docutils literal notranslate"><span class="pre">&quot;0</span> <span class="pre">0</span> <span class="pre">1&quot;</span></code> for Z axis</p></td>
+<td><p>Rotation axis for joint motion.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">limit</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Rotation angle limit in <strong>radians</strong>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">damping-constant</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Damping coefficient for rotation motion over time.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Example of fixed joint for drone propellers using <strong><a class="reference internal" href="physics/fast_physics.html"><span class="std std-doc">Fast Physics</span></a></strong> which visually rotates the propeller meshes without using joint physics:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;joints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Frame_Prop_FL&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fixed&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;parent-link&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Frame&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;child-link&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Prop_FL&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;axis&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0 0 1&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="err">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>Example of continuous rotation joint for drone propellers using <strong><a class="reference internal" href="#internal/physics/unreal_physics.md"><span class="xref myst">Unreal Physics</span></a></strong> which rotates the propeller meshes using some applied torque on the propellers:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;joints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Frame_Prop_FL&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;origin&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;xyz&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.253 -0.253 -0.01&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;rpy-deg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0 0 0&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;continuous&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;parent-link&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Frame&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;child-link&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Prop_FL&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;axis&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0 0 1&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;damping-constant&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="err">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="controller-settings">
+<h2>Controller settings<a class="headerlink" href="#controller-settings" title="Link to this heading">¶</a></h2>
+<p>A controller is used to decide how to command the robot’s actuators in order to apply forces and torques on the robot’s links. Only a single controller per robot is currently supported.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;controller&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Simple_Flight_Controller&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;airframe-setup&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;quadrotor-x&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;simple-flight-api&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;simple-flight-api-settings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">id</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name identifier for the controller.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">airframe-setup</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Type of airframe. Simple Flight currently supports <code class="docutils literal notranslate"><span class="pre">quadrotor-x</span></code>, <code class="docutils literal notranslate"><span class="pre">hexarotor-x</span></code>, <code class="docutils literal notranslate"><span class="pre">vtol-quad-x-tailsitter</span></code>, and <code class="docutils literal notranslate"><span class="pre">vtol-quad-tiltrotor</span></code>, defaulting to <code class="docutils literal notranslate"><span class="pre">quadrotor-x</span></code> if omitted. PX4 ignores this setting because the airframe type is determined by the PX4 firmware that is running.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">type</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Type of the controller. Currently, <strong><a class="reference internal" href="controllers/simple_flight.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">simple-flight-api</span></code></span></a></strong>, <strong><a class="reference internal" href="controllers/px4/px4.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">px4-api</span></code></span></a></strong>, and <code class="docutils literal notranslate"><span class="pre">manual-controller-api</span></code> are supported.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">simple-flight-api-settings</span></code></p></td>
+<td><p>See <a class="reference internal" href="#simple-flight-settings"><span class="xref myst">Simple Flight settings</span></a></p></td>
+<td><p>Settings specific to the <code class="docutils literal notranslate"><span class="pre">simple-flight-api</span></code> controller type.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">px4-settings</span></code></p></td>
+<td><p>See <a class="reference internal" href="#px4-settings"><span class="xref myst">PX4 settings</span></a></p></td>
+<td><p>Settings specific to the <code class="docutils literal notranslate"><span class="pre">px4-api</span></code> controller type.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">manual-controller-api-settings</span></code></p></td>
+<td><p>See <a class="reference internal" href="#manual-controller-settings"><span class="xref myst">Manual Controller settings</span></a></p></td>
+<td><p>Settings specific to the <code class="docutils literal notranslate"><span class="pre">manual-controller-api</span></code> controller type.</p></td>
+</tr>
+</tbody>
+</table>
+<section id="simple-flight-settings">
+<h3>Simple Flight settings<a class="headerlink" href="#simple-flight-settings" title="Link to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">simple-flight-api-settings</span></code> collection contains the settings for the Simple Flight controller:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;simple-flight-api-settings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;actuator-order&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="err">...</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">actuator-order</span></code></p></td>
+<td><p>Array of actuator <code class="docutils literal notranslate"><span class="pre">id</span></code> tags</p></td>
+<td><p>The actuator name identifiers to link to the controller’s commanded outputs.  See <a class="reference internal" href="#actuator-order-settings"><span class="xref myst">Actuator order settings</span></a> below for the order.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="px4-settings">
+<h3>PX4 settings<a class="headerlink" href="#px4-settings" title="Link to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">px4-settings</span></code> collection contains the settings for the PX4 flight controller:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;px4-settings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;lock-step&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;use-serial&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;serial-port&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;*&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;serial-baud-rate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">115200</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;use-tcp&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;tcp-port&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4560</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;control-ip-address&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;control-port-local&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">14540</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;control-port-remote&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">14540</span><span class="p">,</span><span class="w"> </span><span class="c1">//Used only when control-ip-address is not the local host</span>
+<span class="w">  </span><span class="nt">&quot;qgc-host-ip&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">//Set only when enabling GCS proxy</span>
+<span class="w">  </span><span class="nt">&quot;qgc-port&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">14550</span><span class="p">,</span><span class="w"> </span><span class="c1">//Set only when enabling GCS proxy</span>
+<span class="w">  </span><span class="nt">&quot;parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;NAV_RCL_ACT&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;NAV_DLL_ACT&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;COM_OBL_ACT&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;LPE_LAT&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">47.641468</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;LPE_LON&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-122.140165</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;actuator-order&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="err">...</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lock-step</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>Enables lock-step mode with the PX4 SITL configuration.  When true, Project AirSim and PX4 execute synchronously and can run faster or slower than real time as needed.  When false, Project AirSim and PX4 execute asynchronously in real time and can lost step with each if either cannot run fast enough.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use-serial</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>When true, Project AirSim connects to a PX4 HITL configuration over a serial port.  Takes precedence over <code class="docutils literal notranslate"><span class="pre">use-tcp</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">serial-port</span></code></p></td>
+<td><p>string</p></td>
+<td><p>When <code class="docutils literal notranslate"><span class="pre">use-serial</span></code> is true, specifies the serial port to the PX4 HITL device.  On Windows, this is the COM port (e.g., “COM3”).  On Linux, this is the serial port device (e.g., “/dev/ttyS0”).  The special value “<code class="docutils literal notranslate"><span class="pre">*</span></code>” causes Project AirSim to search the available serial ports for known Pixhawk hardware devices and use the first one.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">serial-baud-rate</span></code></p></td>
+<td><p>integer</p></td>
+<td><p>When <code class="docutils literal notranslate"><span class="pre">use-serial</span></code> is true, specifies the serial port communication rate to the PX4 HITL device.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use-tcp</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>When true, Project AirSim connects to a PX4 SITL simulation over TCP/IP.  <code class="docutils literal notranslate"><span class="pre">use-serial</span></code> takes precedence over <code class="docutils literal notranslate"><span class="pre">use-tcp</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tcp-port</span></code></p></td>
+<td><p>integer</p></td>
+<td><p>When <code class="docutils literal notranslate"><span class="pre">use-tcp</span></code> is true, specifies the TCP/IP port where the PX4 SITL simulation will communicate with Project AirSim for simulation messages.  Usually <code class="docutils literal notranslate"><span class="pre">4560</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">local-host-ip</span></code></p></td>
+<td><p>integer</p></td>
+<td><p>This setting is used when PX4 SITL is running remotely.  When <code class="docutils literal notranslate"><span class="pre">use-tcp</span></code> is true, it specifies the IP address of the network adapter of the Project AirSim computer where <code class="docutils literal notranslate"><span class="pre">tcp-port</span></code> and <code class="docutils literal notranslate"><span class="pre">control-port</span></code> port will be opened by Project AirSim to communicate with PX4 SITL simulation running remotely.  See <a class="reference internal" href="#px4-communication-port-settings"><span class="xref myst">PX4 communication port settings</span></a>, below.  Usually unassigned or <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">control-ip-address</span></code></p></td>
+<td><p>string</p></td>
+<td><p>When <code class="docutils literal notranslate"><span class="pre">use-tcp</span></code> is true, specifies the IP address where PX4 will connect to Project AirSim for external developer/offboard API messages, usually the IPv4 loopback address <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code>.  See <a class="reference internal" href="#px4-communication-port-settings"><span class="xref myst">PX4 communication port settings</span></a>, below.  The values <code class="docutils literal notranslate"><span class="pre">local</span></code> and <code class="docutils literal notranslate"><span class="pre">localhost</span></code> are aliases for <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code>.  The value <code class="docutils literal notranslate"><span class="pre">remote</span></code> will use the IP address of the PX4 host connecting to the simulation port, <code class="docutils literal notranslate"><span class="pre">tcp-port</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">control-port</span></code></p></td>
+<td><p>string</p></td>
+<td><p>When <code class="docutils literal notranslate"><span class="pre">use-tcp</span></code> is true, specifies the UDP/IP port where PX4 will connect to Project AirSim for external developer/offboard API messages.  When there are multiple PX4-controlled vehicles, the first nine vehicle instances use ports <code class="docutils literal notranslate"><span class="pre">14540</span></code> through <code class="docutils literal notranslate"><span class="pre">14549</span></code> sequentially.  Subsequent vehicle instances share port <code class="docutils literal notranslate"><span class="pre">14549</span></code>.  See <a class="reference internal" href="#px4-communication-port-settings"><span class="xref myst">PX4 communication port settings</span></a>, below.  <code class="docutils literal notranslate"><span class="pre">control-port-local</span></code> is an alias.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">control-port-remote</span></code></p></td>
+<td><p>string</p></td>
+<td><p>When <code class="docutils literal notranslate"><span class="pre">use-tcp</span></code> is true and <code class="docutils literal notranslate"><span class="pre">control-ip-address</span></code> is not the local host, specifies the UDP/IP Project AirSim where Project AirSim will connect for external developer/offboard API messages.  See <a class="reference internal" href="#px4-communication-port-settings"><span class="xref myst">PX4 communication port settings</span></a>, below.  Usually <code class="docutils literal notranslate"><span class="pre">14580</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qgc-host-ip</span></code></p></td>
+<td><p>string</p></td>
+<td><p>When non-empty, specifies the IP address where Project AirSim will connect to the ground control station (such as <em>QGroundControl</em>).  See <a class="reference internal" href="#ground-control-station-settings"><span class="xref myst">Ground control station settings</span></a>, below.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qgc-port</span></code></p></td>
+<td><p>integer</p></td>
+<td><p>When <code class="docutils literal notranslate"><span class="pre">qgc-host-ip</span></code> is non-empty, specifies the UDP/IP port where Project AirSim will connect to the ground control station.  See <a class="reference internal" href="#ground-control-station-settings"><span class="xref myst">Ground control station settings</span></a>, below.  Usually <code class="docutils literal notranslate"><span class="pre">14550</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">actuator-order</span></code></p></td>
+<td><p>Array of actuator <code class="docutils literal notranslate"><span class="pre">id</span></code> tags</p></td>
+<td><p>The actuator name identifiers to link to the controller’s commanded outputs.  See <a class="reference internal" href="#actuator-order-settings"><span class="xref myst">Actuator order settings</span></a> below for the order.</p></td>
+</tr>
+</tbody>
+</table>
+<section id="px4-communication-port-settings">
+<h4>PX4 communication port settings<a class="headerlink" href="#px4-communication-port-settings" title="Link to this heading">¶</a></h4>
+<p>In a PX4 HITL configuration, PX4 communicates with Project AirSim over the MAVLink communications channel (either serial or serial over USB).  PX4 sends control messages such as actuator settings while Project AirSim sends messages such as sensor data updates.</p>
+<p>In a PX4 SITL configuration, PX4 communicates with Project AirSim using two separate communications channels: one for simulator messages (mainly sensor data) and another for API/offboard messages (actuator settings and flight control.)  Simulation messages are sent over the TCP/IP port specified by <code class="docutils literal notranslate"><span class="pre">tcp-port</span></code>.  API/offboard messages are sent over the UDP/IP port specified by <code class="docutils literal notranslate"><span class="pre">control-port</span></code>.  This enables PX4 to support additional SITL features such as locked-step mode.</p>
+<p>When using multiple vehicles in the simulation, each robot has its own external developer/offboard API instance.  The first nine Project AirSim robot instances configure <code class="docutils literal notranslate"><span class="pre">control-port</span></code> to ports <code class="docutils literal notranslate"><span class="pre">14590</span></code> through <code class="docutils literal notranslate"><span class="pre">14598</span></code> sequentially.  The tenth and subsequent instances sets <code class="docutils literal notranslate"><span class="pre">control-port</span></code> to port <code class="docutils literal notranslate"><span class="pre">14599</span></code> which is shared.  All robots set <code class="docutils literal notranslate"><span class="pre">tcp-port</span></code> to the same value.</p>
+<p>Project AirSim supports several different PX4 SITL configurations: on the same computer, different computers, and Windows Subsystem for Linux 2 (WSL2.)  For more information on these configurations, see <a class="reference internal" href="controllers/px4/px4_sitl.html#alternate_px4_sitl_configurations"><span class="std std-ref">Advanced PX4 SITL configurations</span></a>.  The following tables show how to set the communication settings for each configuration.</p>
+<p><u>Settings for SITL simulation communications channel</u>:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>SITL Configuration</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">tcp-port</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">local-host-ip</span></code></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Same computer</p></td>
+<td><p>Usually <code class="docutils literal notranslate"><span class="pre">4560</span></code></p></td>
+<td><p>(Unassigned)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Different computer</p></td>
+<td><p>Usually <code class="docutils literal notranslate"><span class="pre">4560</span></code></p></td>
+<td><p>IP address of Project AirSim’s network adapter to PX4 host</p></td>
+</tr>
+<tr class="row-even"><td><p>PX4 in WSL2</p></td>
+<td><p>Usually <code class="docutils literal notranslate"><span class="pre">4560</span></code></p></td>
+<td><p>IP address of Project AirSim’s virtual network adapter to WSL2</p></td>
+</tr>
+</tbody>
+</table>
+<p>PX4 connects to Project AirSim at TCP/IP port <code class="docutils literal notranslate"><span class="pre">tcp-port</span></code>.</p>
+<p>For PX4 in WSL2, the value for <code class="docutils literal notranslate"><span class="pre">local-host-ip</span></code> can be found by running the command <code class="docutils literal notranslate"><span class="pre">ipconfig</span></code> in a Command Prompt window and looking for IP address under “Ethernet adapter vEthernet (WSL)”.</p>
+<p><u>Settings for SITL API/offboard communications channel</u>:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>SITL Configuration</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">control-port</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">control-port-remote</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">control-ip-address</span></code></p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Same computer</p></td>
+<td><p>Usually <code class="docutils literal notranslate"><span class="pre">14540</span></code></p></td>
+<td><p>(Unassigned)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>Different computer</p></td>
+<td><p>(Ignored)</p></td>
+<td><p>Usually <code class="docutils literal notranslate"><span class="pre">14580</span></code></p></td>
+<td><p>IP address of PX4 host</p></td>
+<td><p>Use <a class="reference external" href="https://docs.px4.io/master/en/simulation/#running-simulation-on-a-remote-server">MAVLink Router</a> running on the PX4 host.</p></td>
+</tr>
+<tr class="row-even"><td><p>PX4 in WSL2</p></td>
+<td><p>Usually <code class="docutils literal notranslate"><span class="pre">14540</span></code></p></td>
+<td><p>(Unassigned)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">remote</span></code></p></td>
+<td><p>In WSL2, set environment variable <code class="docutils literal notranslate"><span class="pre">PX4_SIM_HOST_ADDR</span></code> to Project AirSim host IP address.  MAVLink Router is not used.</p></td>
+</tr>
+</tbody>
+</table>
+<p>When running PX4 on the same computer or in WSL2, PX4 connects to Project AirSim at UDP/IP port <code class="docutils literal notranslate"><span class="pre">control-port</span></code>.  When running PX4 remotely, Project AirSim connects to PX4 at the UDP/IP port <code class="docutils literal notranslate"><span class="pre">control-port-remote</span></code>.</p>
+</section>
+<section id="ground-control-station-settings">
+<h4>Ground control station settings<a class="headerlink" href="#ground-control-station-settings" title="Link to this heading">¶</a></h4>
+<p>On a physical vehicle, PX4 communicates with a GCS (aka. Ground Control Station such as <em>QGroundControl</em>) through a telemetry link (usually via radio).  In a PX4 SITL configuration, the PX4 SITL simulation connects directly to the GCS software over the local computer network.  In a PX4 HITL configuration, only one application can connect to the PX4 device hardware at a time, so the GCS can’t connect to the PX4 device when it’s connected Project AirSim.  Project AirSim, however, can act as a proxy enabling a GCS to be used with the simulation.</p>
+<p>When the GCS application is run on the same computer as Project AirSim and PX4, do the following:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>PX4 Configuration</p></th>
+<th class="head"><p>Setup (ground control station on same computer)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>HITL</p></td>
+<td><p>Project AirSim will proxy the GPC.  Set <code class="docutils literal notranslate"><span class="pre">qgc-host-ip</span></code> to <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code> (the IPv4 loopback address) and <code class="docutils literal notranslate"><span class="pre">qgc-port</span></code> to the GCS’ UDP/IP port (usually <code class="docutils literal notranslate"><span class="pre">14550</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>SITL</p></td>
+<td><p>PX4 will connect to the GCS directly.  Leave <code class="docutils literal notranslate"><span class="pre">qgc-host-ip</span></code> unset or set to an empty string (<code class="docutils literal notranslate"><span class="pre">qgc-port</span></code> will be ignored).</p></td>
+</tr>
+</tbody>
+</table>
+<p>Project AirSim’s GCS proxy also allows the GCS application can be run on a remote computer with both PX4 HITL and SITL configurations:</p>
+<ul class="simple">
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">qgc-host-ip</span></code> to the IP address of the computer running the GCS application.</p></li>
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">qgc-port</span></code> to the UDP/IP port of the GCS application (usually <code class="docutils literal notranslate"><span class="pre">14550</span></code>.)</p></li>
+<li><p>Remember to configure the network firewall software of Project AirSim’s computer to allow outgoing connections to the GCS’ UDP/IP port and of the GCS computer to allow incoming connections to the same port.</p></li>
+</ul>
+</section>
+</section>
+<section id="actuator-order-settings">
+<h3>Actuator order settings<a class="headerlink" href="#actuator-order-settings" title="Link to this heading">¶</a></h3>
+<p>Under <code class="docutils literal notranslate"><span class="pre">simple-flight-api-settings</span></code> and <code class="docutils literal notranslate"><span class="pre">px4-settings</span></code> this array maps the control outputs from the controller to the robot’s actuators.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;simple-flight-api-settings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;actuator-order&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Prop_FR_actuator&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Prop_RL_actuator&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Prop_FL_actuator&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Prop_RR_actuator&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">actuator-order</span></code></p></td>
+<td><p>Array of actuator <code class="docutils literal notranslate"><span class="pre">id</span></code> tags</p></td>
+<td><p>The actuator name identifiers to link to the controller’s commanded outputs.  See below for the order.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The order and number of the actuator <code class="docutils literal notranslate"><span class="pre">id</span></code> tags depends on the airframe:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Project AirSim Airframe</p></th>
+<th class="head"><p>Actuator Order</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">quadrotor-x</span></code></p></td>
+<td><p><a class="reference external" href="https://docs.px4.io/master/en/airframes/airframe_reference.html#quadrotor-x">Quadrotor-X order</a> (front right, rear left, front left, rear right)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hexarotor-x</span></code></p></td>
+<td><p><a class="reference external" href="https://docs.px4.io/master/en/airframes/airframe_reference.html#hexarotor-x">Hexarotor-X order</a> (front right, rear left, front left, rear right)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">vtol-quad-x-tailsitter</span></code></p></td>
+<td><p>*<a class="reference external" href="https://docs.px4.io/master/en/airframes/airframe_reference.html#vtol-quad-tailsitter">VTOL Quad Tailsitter order</a> (front right, rear left, front left, rear right, unused output port, elevon left, elevon right)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">vtol-quad-tiltrotor</span></code></p></td>
+<td><p>*<a class="reference external" href="https://docs.px4.io/master/en/airframes/airframe_reference.html#vtol-tiltrotor">VTOL Tiltrotor order</a> (rotor outboard left, rotor inboard left, rotor inboard right, rotor outboard right, tilt outboard left, tilt inboard left, tilt inboard right, tilt outboard right, aileron left, aileron right, elevator, rudder)</p></td>
+</tr>
+</tbody>
+</table>
+<p>*<em>Note: The PX4 documentation does not currently show the correct order.</em></p>
+</section>
+<section id="manual-controller-settings">
+<h3>Manual Controller settings<a class="headerlink" href="#manual-controller-settings" title="Link to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">manual-controller-api-settings</span></code> collection contains the settings for the Manual Controller:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;manual-controller-api-settings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;actuator-order&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Prop_FR_actuator&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;initial-value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Prop_RL_actuator&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;initial-value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Prop_FL_actuator&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;initial-value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Prop_RR_actuator&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;initial-value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">actuator-order</span></code></p></td>
+<td><p>Array of actuator <code class="docutils literal notranslate"><span class="pre">id</span></code> tags (string) and optional <code class="docutils literal notranslate"><span class="pre">initial-value</span></code> control signal values (float).</p></td>
+<td><p>The actuator name identifiers to link to the controller’s commanded outputs. If omitted, the default <code class="docutils literal notranslate"><span class="pre">initial-value</span></code> is <code class="docutils literal notranslate"><span class="pre">0.0</span></code>. Since there is no actual control logic or corresponding airframe, the order and number of linked actuators can be set freely.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="actuator-settings">
+<h2>Actuator settings<a class="headerlink" href="#actuator-settings" title="Link to this heading">¶</a></h2>
+<p>Actuators are used to apply forces and torques to links based on controller commands, and can be attached to parent links.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;actuators&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Prop_FL_actuator&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rotor&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;parent-link&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Frame&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;child-link&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Prop_FL&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;origin&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;xyz&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.253 -0.253 -0.01&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;rpy-deg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0 0 0&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;rotor-settings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="err">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name identifier for the actuator.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">type</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rotor</span></code>, <code class="docutils literal notranslate"><span class="pre">lift-drag-control-surface</span></code>, or <code class="docutils literal notranslate"><span class="pre">tilt</span></code></p></td>
+<td><p>Type of actuator.  See below.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">enabled</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>Enable or disable the actuator without having to delete the config object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">parent-link</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name identifier for the actuator’s parent link, which the actuator will apply its forces/torques to.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">child-link</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name identifier for the actuator’s child link, which is currently only used to visually spin propeller links without using joint physics.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">origin</span></code>: <code class="docutils literal notranslate"><span class="pre">xyz</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Position “X Y Z” of the actuator’s applied forces/torques relative to the parent link’s origin in <strong>meter</strong> units. Defaults to all zero if no <code class="docutils literal notranslate"><span class="pre">origin</span></code> is specified.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">origin</span></code>: <code class="docutils literal notranslate"><span class="pre">rpy</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Rotation “Roll Pitch Yaw” of the actuator’s applied forces/torques relative to the parent link’s origin in <strong>radian</strong> units. Defaults to all zero if no <code class="docutils literal notranslate"><span class="pre">origin</span></code> is specified.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lift-drag-control-surface-settings</span></code></p></td>
+<td><p>See below</p></td>
+<td><p>Settings specific to the lift-draw-control-surface actuator type.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rotor-settings</span></code></p></td>
+<td><p>See below</p></td>
+<td><p>Settings specific to the rotor actuator type.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tilt-settings</span></code></p></td>
+<td><p>See below</p></td>
+<td><p>Settings specific to the tilt actuator type.</p></td>
+</tr>
+</tbody>
+</table>
+<section id="actuator-types">
+<h3>Actuator types<a class="headerlink" href="#actuator-types" title="Link to this heading">¶</a></h3>
+<p>The supported actuator types are:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Actuator Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lift-drag-control-surface</span></code></p></td>
+<td><p>Provides movement for wing-like surfaces such as ailerons and rudders.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rotor</span></code></p></td>
+<td><p>An actuator that supplies continuous rotation such as the motor for a propeller.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tilt</span></code></p></td>
+<td><p>An actuator that supplies limited rotation such as the motor for a tilting rotor pod.  Similar to <code class="docutils literal notranslate"><span class="pre">lift-drag-control-surface</span></code> but more flexible (and more complex to configure.)</p></td>
+</tr>
+</tbody>
+</table>
+<p>The settings for each actuator type is below.</p>
+</section>
+<section id="lift-drag-control-actuator-settings">
+<h3>Lift-drag-control actuator settings:<a class="headerlink" href="#lift-drag-control-actuator-settings" title="Link to this heading">¶</a></h3>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;lift-drag-control-surface-settings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Prop_FL_actuator&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;rotation-rate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.524</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;smoothing-tc&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rotation-rate</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Maximum surface rotation from zero (radians.)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">smoothing-tc</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Smoothing time constant used in a first-order filter to simulate actuator dynamics (inertia, delay).</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="rotor-actuator-settings">
+<h3>Rotor actuator settings:<a class="headerlink" href="#rotor-actuator-settings" title="Link to this heading">¶</a></h3>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;rotor-settings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;turning-direction&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;clock-wise&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;normal-vector&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.0 0.0 -1.0&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;coeff-of-thrust&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.109919</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;coeff-of-torque&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.040164</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;max-rpm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">6396.667</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;propeller-diameter&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.2286</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;smoothing-tc&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.005</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">turning-direction</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">clock-wise</span></code>, <code class="docutils literal notranslate"><span class="pre">counter-clock-wise</span></code></p></td>
+<td><p>Rotation direction of the rotor. Clockwise is in the positive right-hand rotation around axis, while counter-clockwise is in the opposite direction.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">normal-vector</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Normal vector to define the rotation axis of the rotor in NED frame. Currently, only <code class="docutils literal notranslate"><span class="pre">&quot;0.0</span> <span class="pre">0.0</span> <span class="pre">-1.0&quot;</span></code> (straight up) is supported.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">coeff-of-thrust</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Propeller’s coefficient of thrust, CT.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">coeff-of-torque</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Propeller’s coefficient of torque, CP.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max-rpm</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Max rotation speed in <strong>rotations-per-minute</strong> units.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">propeller-diameter</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Propeller diameter in <strong>meter</strong> units, used to calculate the rotor’s max thrust and torque.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">smoothing-tc</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Smoothing time constant used in a first-order filter to simulate actuator dynamics (inertia, delay).</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="tilt-actuator-settings">
+<h3>Tilt actuator settings:<a class="headerlink" href="#tilt-actuator-settings" title="Link to this heading">¶</a></h3>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;tilt-settings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Prop_FL_actuator&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;angle-min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;angle-max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.57</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;axis&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.0 -1.0&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;smoothing-tc&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;input-map&quot;</span><span class="p">:{</span><span class="err">...</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">axis</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Normal vector to define the rotation axis of the target actuator in NED frame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">angle-min</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Tilt angle at minimum control input, -1.0 (radians.)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">angle-max</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Tilt angle at maximum control input, +1.0 (radians.)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">input-map</span></code></p></td>
+<td><p>See below</p></td>
+<td><p>Settings for mapping the control input.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">target</span></code></p></td>
+<td><p>string</p></td>
+<td><p>ID of the target actuator being tilted by this actuator.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">smoothing-tc</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Smoothing time constant used in a first-order filter to simulate actuator dynamics (inertia, delay).</p></td>
+</tr>
+</tbody>
+</table>
+<p>Unlike the <code class="docutils literal notranslate"><span class="pre">lift-drag-control-surface</span></code> actuator, the <code class="docutils literal notranslate"><span class="pre">tilt</span></code> actuator sets the orientation of the <code class="docutils literal notranslate"><span class="pre">target</span></code> actuator in addition to rotating the geometry of the <code class="docutils literal notranslate"><span class="pre">child-link</span></code> object to handle situations where the child-link geometry is not the same as that of the target actuator.</p>
+</section>
+<section id="input-map-settings">
+<h3>Input-map settings<a class="headerlink" href="#input-map-settings" title="Link to this heading">¶</a></h3>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;input-map&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;clamp-input&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;clamp-output&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;input-min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-1.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;input-max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;output-min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-1.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;output-max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;scale&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">clamp-input</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>Whether the input control signal is first clamped to the input range (limited to a value at or between <code class="docutils literal notranslate"><span class="pre">input-min</span></code> and <code class="docutils literal notranslate"><span class="pre">input-max</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">clamp-output</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>Whether the output control signal is clamped to the output range.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">input-min</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Minimum input range value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">input-max</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Maximum input range value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">scale</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Scale factor to apply to normalized input value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">output-min</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Minimum output range value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">output-max</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Maximum output range value.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Different flight controllers and control mixers may define the control signal for a particular actuator differently such as the range of the signal (e.g., [-1, +1] vs. [0, +1]) or polarity (-1 to +1 is clockwise vs. counter-clockwise.)  While generally the actuator settings can be chosen to account for many of these differences, some situations may require more manipulation than those settings allow.</p>
+<p>The input map setting linearly maps the input control signal sent to the actuator to an output control signal processed by the actuator.  By setting the input range and output range, the input from the flight controller is mapped to the range preferred by the actuator.  The scale setting magnifies or diminishes the input signal and a negative scale setting inverts the input signal.  Finally, the <code class="docutils literal notranslate"><span class="pre">clamp-input</span></code> and <code class="docutils literal notranslate"><span class="pre">clamp-output</span></code> setting determine whether the input signal is clamped to the input range before processing and whether the output signal is clamped to the output range after processing.</p>
+<p>The signal processed by the actuator from the control input signal is calculated by the input map as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">input</span><span class="o">-</span><span class="n">value</span> <span class="o">=</span> <span class="n">control</span><span class="o">-</span><span class="nb">input</span> <span class="n">clamped</span> <span class="n">to</span> <span class="p">[</span><span class="nb">input</span><span class="o">-</span><span class="nb">min</span><span class="p">,</span> <span class="nb">input</span><span class="o">-</span><span class="nb">max</span><span class="p">]</span> <span class="k">if</span> <span class="n">clamp</span><span class="o">-</span><span class="nb">input</span> <span class="ow">is</span> <span class="n">true</span><span class="p">;</span> <span class="n">control</span><span class="o">-</span><span class="nb">input</span> <span class="n">otherwise</span>
+
+<span class="n">output</span><span class="o">-</span><span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="n">input_value</span> <span class="o">-</span> <span class="nb">input</span><span class="o">-</span><span class="nb">min</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="nb">input</span><span class="o">-</span><span class="nb">max</span> <span class="o">-</span> <span class="nb">input</span><span class="o">-</span><span class="nb">min</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale</span> <span class="o">*</span> <span class="p">(</span><span class="n">output</span><span class="o">-</span><span class="nb">max</span> <span class="o">-</span> <span class="n">output</span><span class="o">-</span><span class="nb">min</span><span class="p">)</span> <span class="o">+</span> <span class="n">output_min</span>
+
+<span class="n">actuator</span><span class="o">-</span><span class="n">signal</span> <span class="o">=</span> <span class="n">output</span><span class="o">-</span><span class="n">value</span> <span class="n">clamped</span> <span class="n">to</span> <span class="p">[</span><span class="n">output</span><span class="o">-</span><span class="nb">min</span><span class="p">,</span> <span class="n">output</span><span class="o">-</span><span class="nb">max</span><span class="p">]</span> <span class="k">if</span> <span class="n">clamp</span><span class="o">-</span><span class="n">output</span> <span class="ow">is</span> <span class="n">true</span><span class="p">;</span> <span class="n">output</span><span class="o">-</span><span class="n">value</span> <span class="n">otherwise</span>
+</pre></div>
+</div>
+<p>The default settings shown in the JSON example at the top of this section is a 1:1 mapping of the input to the output (no change) with the output signal clamped to the range [-1, +1].</p>
+</section>
+</section>
+<section id="sensor-settings">
+<h2>Sensor settings<a class="headerlink" href="#sensor-settings" title="Link to this heading">¶</a></h2>
+<p>Sensors can be attached to parent links to measure data about the environment from the link’s position or about the link itself.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;sensors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DownCamera&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;camera&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;parent-link&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Frame&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="err">...</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="err">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">id</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name identifier for the sensor.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">type</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">airspeed</span></code>, <code class="docutils literal notranslate"><span class="pre">barometer</span></code>, <code class="docutils literal notranslate"><span class="pre">camera</span></code>, <code class="docutils literal notranslate"><span class="pre">gps</span></code>, <code class="docutils literal notranslate"><span class="pre">imu</span></code>, <code class="docutils literal notranslate"><span class="pre">lidar</span></code>, <code class="docutils literal notranslate"><span class="pre">magnetometer</span></code>, <code class="docutils literal notranslate"><span class="pre">radar</span></code></p></td>
+<td><p>Type of sensor.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">enabled</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>Enable or disable the sensor without having to delete the config object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">parent-link</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name identifier for the sensor’s parent link, which the sensor will be attached to.</p></td>
+</tr>
+</tbody>
+</table>
+<p>For each sensor type’s specific settings, see the sensor pages:</p>
+<ul class="simple">
+<li><p>Airspeed Settings</p></li>
+<li><p>Barometer Settings</p></li>
+<li><p><strong><a class="reference internal" href="sensors/camera_capture_settings.html"><span class="std std-doc">Camera Settings</span></a></strong></p></li>
+<li><p>GPS Settings</p></li>
+<li><p>IMU Settings</p></li>
+<li><p><strong><a class="reference internal" href="sensors/lidar.html"><span class="std std-doc">Lidar Settings</span></a></strong></p></li>
+<li><p>Magnetometer Settings</p></li>
+<li><p><strong><a class="reference internal" href="sensors/radar.html"><span class="std std-doc">Radar Settings</span></a></strong></p></li>
+</ul>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI Consulting Corp.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

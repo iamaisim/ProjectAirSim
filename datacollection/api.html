@@ -1,0 +1,197 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Generation API Overview &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Data Generation API Overview</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/datacollection/api.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="data-generation-api-overview">
+<h1>Data Generation API Overview<a class="headerlink" href="#data-generation-api-overview" title="Link to this heading">¶</a></h1>
+<p>The Data Generation <a class="reference internal" href="#../../client%5Cpython/projectairsim/src/projectairsim/datacollection/data_generator.py"><span class="xref myst">module</span></a> API’s provide a develop interface to interact, update, add to and launch data collection runs and its underlying parameters/functionalities. These API’s combined with the <a class="reference internal" href="#../../client%5Cpython%5Cexample_user_scripts%5Cdatacollection%5Cconfigs%5Cdatacollector_config.jsonc"><span class="xref myst">config</span></a> act as a way for the developer to accomplish their goals as easily as possible.</p>
+<p>These API’s can be divided into <code class="docutils literal notranslate"><span class="pre">4</span></code> major categories:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#base-apis"><span class="xref myst">Base API’s</span></a></p></li>
+<li><p><a class="reference internal" href="#pre-trajectory-generation-apis"><span class="xref myst">Pre Trajectory Generation API’s</span></a></p></li>
+<li><p><a class="reference internal" href="#pre-collection-apis"><span class="xref myst">Pre Collection API’s</span></a></p></li>
+<li><p><a class="reference internal" href="#validation-apis"><span class="xref myst">Validation API’s</span></a></p></li>
+<li><p><a class="reference internal" href="#augmentation-apis"><span class="xref myst">Augmentation API’s</span></a></p></li>
+</ul>
+<section id="datagenerator-object">
+<h2>DataGenerator Object<a class="headerlink" href="#datagenerator-object" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#../../client%5Cpython%5Cprojectairsim%5Csrc%5Cprojectairsim%5Cdatacollection%5Cdata_generator.py#L51"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">DataGenerator(config_dir,</span> <span class="pre">server_ip,</span> <span class="pre">save_path)</span></code></span></a></p></li>
+</ul>
+</section>
+<section id="base-apis">
+<h2>Base APIs<a class="headerlink" href="#base-apis" title="Link to this heading">¶</a></h2>
+<p>These API’s are the fundamental tasks you can achieve via the module. <a class="reference internal" href="#../../client%5Cpython%5Cexample_user_scripts%5Cdatacollection%5Cbasic_datacollection.py"><span class="xref myst">basic_datacollection.py</span></a> acts an example script for these API’s</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#../../client%5Cpython%5Cprojectairsim%5Csrc%5Cprojectairsim%5Cdatacollection%5Cdata_generator.py#L122"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">generate_trajectory(enable_weather_sweep,</span> <span class="pre">enable_time_sweep)</span></code></span></a> - Generate trajectory for all GeoLocation’s and return them in a list</p></li>
+<li><p><a class="reference internal" href="#../../client%5Cpython%5Cprojectairsim%5Csrc%5Cprojectairsim%5Cdatacollection%5Cdata_generator.py#L160"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">collect_data(collection_type,</span> <span class="pre">server_ip)</span></code></span></a> - Collect desired data over the generated trajectories</p></li>
+<li><p><a class="reference internal" href="#../../client%5Cpython%5Cprojectairsim%5Csrc%5Cprojectairsim%5Cdatacollection%5Cdata_generator.py#L182"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">validate_data(dataset)</span></code></span></a> - Validate collected data and return a clean dataset</p></li>
+<li><p><a class="reference internal" href="#../../client%5Cpython%5Cprojectairsim%5Csrc%5Cprojectairsim%5Cdatacollection%5Cdata_generator.py#L200"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">aggregate_data(dataset)</span></code></span></a> - Aggregate all metadata into csv/json/json/coco formats</p></li>
+<li><p><a class="reference internal" href="#../../client%5Cpython%5Cprojectairsim%5Csrc%5Cprojectairsim%5Cdatacollection%5Cdata_generator.py#L219"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">augment_data()</span></code></span></a> - Augment collected data based on config</p></li>
+</ul>
+</section>
+<section id="pre-trajectory-generation-apis">
+<h2>Pre Trajectory Generation APIs<a class="headerlink" href="#pre-trajectory-generation-apis" title="Link to this heading">¶</a></h2>
+<p>These API’s provides the developer with finer control over trajectory generation. Through these API’s, the developer can programmatically update and add to the parameters defined in the config adn thus adjust the generated trajectory to their desire. These API’s only have their intended effect if called before the trajectory generation API. <a class="reference internal" href="#../../client%5Cpython%5Cexample_user_scripts%5Cdatacollection/datacollection_trajectory_apis.py"><span class="xref myst">datacollection_trajectory_apis.py</span></a> acts as an example script for these API’s</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#../../client%5Cpython%5Cprojectairsim%5Csrc%5Cprojectairsim%5Cdatacollection%5Cdata_generator.py#L239"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">add_weather_variation(type,</span> <span class="pre">intensity)</span></code></span></a> - Adds a new weather variation</p></li>
+<li><p><a class="reference internal" href="#../../client%5Cpython%5Cprojectairsim%5Csrc%5Cprojectairsim%5Cdatacollection%5Cdata_generator.py#L263"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">update_time_variation(state,</span> <span class="pre">start_time,</span> <span class="pre">end_time,</span> <span class="pre">step)</span></code></span></a> - Update the time variation applied to trajectory</p></li>
+<li><p><a class="reference internal" href="#../../client%5Cpython%5Cprojectairsim%5Csrc%5Cprojectairsim%5Cdatacollection%5Cdata_generator.py#L284"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">add_trajectory_preset(name,</span> <span class="pre">trajectories)</span></code></span></a> - Add a trajectory preset to config</p></li>
+<li><p><a class="reference internal" href="#../../client%5Cpython%5Cprojectairsim%5Csrc%5Cprojectairsim%5Cdatacollection%5Cdata_generator.py#L300"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">update_location_trajectory_preset(location_name,</span> <span class="pre">preset_name)</span></code></span></a> - Update a location with new trajectory preset</p></li>
+<li><p><a class="reference internal" href="#../../client%5Cpython%5Cprojectairsim%5Csrc%5Cprojectairsim%5Cdatacollection%5Cdata_generator.py#L324"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">add_env_actor_to_location(location_name,</span> <span class="pre">actor_name,</span> <span class="pre">trajectory_preset_name,</span> <span class="pre">duration,</span> <span class="pre">to_loop,</span> <span class="pre">time_offset,</span> <span class="pre">overwrite)</span></code></span></a> - Add/Update env actor settings for given location</p></li>
+<li><p><a class="reference internal" href="#../../client%5Cpython%5Cprojectairsim%5Csrc%5Cprojectairsim%5Cdatacollection%5Cdata_generator.py#L367"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">add_geo_location(location_name,</span> <span class="pre">trajectory_name,</span> <span class="pre">scene_name,</span> <span class="pre">scene_config,</span> <span class="pre">coordinates,</span> <span class="pre">asset,</span> <span class="pre">object_id)</span></code></span></a> - Add a location to the data collection config (does not support env actors)</p></li>
+</ul>
+</section>
+<section id="pre-collection-apis">
+<h2>Pre Collection APIs<a class="headerlink" href="#pre-collection-apis" title="Link to this heading">¶</a></h2>
+<p>These API’s provide control over data collection parameters. These API’s only have their intended effect if called before the data collection API. <a class="reference internal" href="#../../client%5Cpython%5Cexample_user_scripts%5Cdatacollection/datacollection_collection_apis.py"><span class="xref myst">datacollection_collection_apis.py</span></a> acts as an example script for these API’s</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#../../client%5Cpython%5Cprojectairsim%5Csrc%5Cprojectairsim%5Cdatacollection%5Cdata_generator.py#L411"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">update_data_spec(enabled_modalities,</span> <span class="pre">enabled_annotations)</span></code></span></a> - Update the modalities and annotations to be collected</p></li>
+</ul>
+</section>
+<section id="validation-apis">
+<h2>Validation APIs<a class="headerlink" href="#validation-apis" title="Link to this heading">¶</a></h2>
+<p>These API’s expose the various sub-functions within the validation API and allow the develop to access that data. These API’s only have their intended effect if called after the collection API. <a class="reference internal" href="#../../client%5Cpython%5Cexample_user_scripts%5Cdatacollection/datacollection_validation_apis.py"><span class="xref myst">datacollection_validation_apis.py</span></a> acts as an example script for these API’s</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#../../client%5Cpython%5Cprojectairsim%5Csrc%5Cprojectairsim%5Cdatacollection%5Cdata_generator.py#L420"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">get_data_card_dict(dataset)</span></code></span></a> - Returns the validated data card dictionary</p></li>
+<li><p><a class="reference internal" href="#../../client%5Cpython%5Cprojectairsim%5Csrc%5Cprojectairsim%5Cdatacollection%5Cdata_generator.py#L433"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">generate_video(annotation,</span> <span class="pre">num_images)</span></code></span></a> - Generate a visual representation of the collected data with 2d/3d Annotations</p></li>
+</ul>
+</section>
+<section id="augmentation-apis">
+<h2>Augmentation APIs<a class="headerlink" href="#augmentation-apis" title="Link to this heading">¶</a></h2>
+<p>These API’s provide the developer with finer control over the augmentation settings that will be applied over the alrealy-collected dataset. <a class="reference internal" href="#../../client%5Cpython%5Cexample_user_scripts%5Cdatacollection/datacollection_augmentation_apis.py"><span class="xref myst">datacollection_augmentation_apis.py</span></a> acts as an example script for these API’s</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#../../client%5Cpython%5Cprojectairsim%5Csrc%5Cprojectairsim%5Cdatacollection%5Cdata_generator.py#L460"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">update_augmentation_spec(augmentations)</span></code></span></a> - Change the augmentations and their params that will be applied to the collected data</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

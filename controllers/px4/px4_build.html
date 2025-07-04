@@ -1,0 +1,267 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Building PX4 &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Using a PX4 Controller as Hardware-In-The-Loop (HITL)" href="px4_hitl.html" />
+    <link rel="prev" title="PX4 Autopilot Flight Controller" href="px4.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Building PX4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#source-code">Source code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#px4-build-tools">PX4 build tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#build-sitl-version">Build SITL version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#arm-embedded-tools">ARM embedded tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#build-px4-for-arm-hardware">Build PX4 for ARM hardware</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#some-useful-parameters">Some useful parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Building PX4</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/controllers/px4/px4_build.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="building-px4">
+<h1>Building PX4<a class="headerlink" href="#building-px4" title="Link to this heading">¶</a></h1>
+<section id="source-code">
+<h2>Source code<a class="headerlink" href="#source-code" title="Link to this heading">¶</a></h2>
+<p>Getting the PX4 source code is easy:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">git</span>
+<span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">PX4</span><span class="o">/</span><span class="n">PX4</span><span class="o">-</span><span class="n">Autopilot</span><span class="o">.</span><span class="n">git</span> <span class="o">--</span><span class="n">recursive</span>
+<span class="n">bash</span> <span class="o">./</span><span class="n">PX4</span><span class="o">-</span><span class="n">Autopilot</span><span class="o">/</span><span class="n">Tools</span><span class="o">/</span><span class="n">setup</span><span class="o">/</span><span class="n">ubuntu</span><span class="o">.</span><span class="n">sh</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">sim</span><span class="o">-</span><span class="n">tools</span>
+<span class="n">cd</span> <span class="n">PX4</span><span class="o">-</span><span class="n">Autopilot</span>
+</pre></div>
+</div>
+<p>Find the latest stable release from <a class="reference external" href="https://github.com/PX4/PX4-Autopilot/releases">https://github.com/PX4/PX4-Autopilot/releases</a>
+and checkout the source code matching that release, for example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">checkout</span> <span class="n">v1</span><span class="mf">.12.3</span>
+</pre></div>
+</div>
+<p>Now to build it you will need the right tools.</p>
+</section>
+<section id="px4-build-tools">
+<h2>PX4 build tools<a class="headerlink" href="#px4-build-tools" title="Link to this heading">¶</a></h2>
+<p>The full instructions are available on the <a class="reference external" href="https://docs.px4.io/master/en/dev_setup/building_px4.html">dev.px4.io</a> website,
+but we’ve copied the relevant subset of those instructions here for your convenience.</p>
+</section>
+<section id="build-sitl-version">
+<h2>Build SITL version<a class="headerlink" href="#build-sitl-version" title="Link to this heading">¶</a></h2>
+<p>Now you can make the SITL version that runs in posix, from the Firmware folder you created above:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">px4_sitl</span> <span class="n">none_iris</span>
+</pre></div>
+</div>
+<p>Note: this build system is quite special, it knows how to update git submodules (and there’s a lot
+of them), then it runs cmake (if necessary), then it runs the build itself. So in a way the root
+Makefile is a meta-meta makefile :-)   You might see prompts like this:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="w"> </span>*******************************************************************************
+<span class="w"> </span>*<span class="w">   </span>IF<span class="w"> </span>YOU<span class="w"> </span>DID<span class="w"> </span>NOT<span class="w"> </span>CHANGE<span class="w"> </span>THIS<span class="w"> </span>FILE<span class="w"> </span><span class="o">(</span>OR<span class="w"> </span>YOU<span class="w"> </span>DON<span class="s1">&#39;T KNOW WHAT A SUBMODULE IS):  *</span>
+<span class="s1"> *   Hit &#39;</span>u<span class="err">&#39;</span><span class="w"> </span>and<span class="w"> </span>&lt;ENTER&gt;<span class="w"> </span>to<span class="w"> </span>update<span class="w"> </span>ALL<span class="w"> </span>submodules<span class="w"> </span>and<span class="w"> </span>resolve<span class="w"> </span>this.<span class="w">            </span>*
+<span class="w"> </span>*<span class="w">   </span><span class="o">(</span>performs<span class="w"> </span>git<span class="w"> </span>submodule<span class="w"> </span>sync<span class="w"> </span>--recursive<span class="w">                                  </span>*
+<span class="w"> </span>*<span class="w">    </span>and<span class="w"> </span>git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init<span class="w"> </span>--recursive<span class="w"> </span><span class="o">)</span><span class="w">                            </span>*
+<span class="w"> </span>*******************************************************************************
+</pre></div>
+</div>
+<p>Every time you see this prompt type ‘u’ on your keyboard.</p>
+<p>It shouldn’t take long, about 2 minutes. If all succeeds, the last line will link the <code class="docutils literal notranslate"><span class="pre">px4</span></code> app,
+which you can then run using the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">px4_sitl</span> <span class="n">none_iris</span>
+</pre></div>
+</div>
+<p>And you should see output that looks like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>creating new parameters file
+creating new dataman file
+
+______  __   __    ___
+| ___ \ \ \ / /   /   |
+| |_/ /  \ V /   / /| |
+|  __/   /   \  / /_| |
+| |     / /^\ \ \___  |
+\_|     \/   \/     |_/
+
+px4 starting.
+
+18446744073709551615 WARNING: setRealtimeSched failed (not run as root?)
+ERROR [param] importing from &#39;rootfs/eeprom/parameters&#39; failed (-1)
+Command &#39;param&#39; failed, returned 1
+  SYS_AUTOSTART: curr: 0 -&gt; new: 4010
+  SYS_MC_EST_GROUP: curr: 2 -&gt; new: 1
+INFO  [dataman] Unkown restart, data manager file &#39;rootfs/fs/microsd/dataman&#39; size is 11797680 bytes
+  BAT_N_CELLS: curr: 0 -&gt; new: 3
+  CAL_GYRO0_ID: curr: 0 -&gt; new: 2293768
+  CAL_ACC0_ID: curr: 0 -&gt; new: 1376264
+  CAL_ACC1_ID: curr: 0 -&gt; new: 1310728
+  CAL_MAG0_ID: curr: 0 -&gt; new: 196616
+
+</pre></div>
+</div>
+<p>So this is good!  The first run sets up the PX4 parameters for SITL mode. The second and subsequent runs have less output. This app is also an interactive console where you can type commands. Type help’ to see what they are and just type <code class="docutils literal notranslate"><span class="pre">shutdown</span></code> or <code class="docutils literal notranslate"><span class="pre">Ctrl-C</span></code> to kill it. You can do that and restart it any time, that’s a great way to reset any wonky state if you need to (it’s equivalent to a Pixhawk hardware reboot).</p>
+<p><strong>Note:</strong> Whenever you stop the Project AirSim Unreal application you must restart PX4 before you can begin another flight session with Project AirSim and PX4.</p>
+</section>
+<section id="arm-embedded-tools">
+<h2>ARM embedded tools<a class="headerlink" href="#arm-embedded-tools" title="Link to this heading">¶</a></h2>
+<p>If you plan to build the PX4 firmware for real Pixhawk hardware then you will need the gcc cross-compiler for ARM Cortex-M4 chipset. You can get this compiler by PX4 DevGuide, specifically
+this is in their <code class="docutils literal notranslate"><span class="pre">ubuntu_sim_nuttx.sh</span></code> setup script.</p>
+<p>After following those setup instructions you can verify the install by entering this command <code class="docutils literal notranslate"><span class="pre">arm-none-eabi-gcc</span> <span class="pre">--version</span></code>.  You should see the following output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">arm</span><span class="o">-</span><span class="n">none</span><span class="o">-</span><span class="n">eabi</span><span class="o">-</span><span class="n">gcc</span> <span class="p">(</span><span class="n">GNU</span> <span class="n">Tools</span> <span class="k">for</span> <span class="n">Arm</span> <span class="n">Embedded</span> <span class="n">Processors</span> <span class="mi">7</span><span class="o">-</span><span class="mi">2017</span><span class="o">-</span><span class="n">q4</span><span class="o">-</span><span class="n">major</span><span class="p">)</span> <span class="mf">7.2.1</span> <span class="mi">20170904</span> <span class="p">(</span><span class="n">release</span><span class="p">)</span> <span class="p">[</span><span class="n">ARM</span><span class="o">/</span><span class="n">embedded</span><span class="o">-</span><span class="mi">7</span><span class="o">-</span><span class="n">branch</span> <span class="n">revision</span> <span class="mi">255204</span><span class="p">]</span>
+<span class="n">Copyright</span> <span class="p">(</span><span class="n">C</span><span class="p">)</span> <span class="mi">2017</span> <span class="n">Free</span> <span class="n">Software</span> <span class="n">Foundation</span><span class="p">,</span> <span class="n">Inc</span><span class="o">.</span>
+<span class="n">This</span> <span class="ow">is</span> <span class="n">free</span> <span class="n">software</span><span class="p">;</span> <span class="n">see</span> <span class="n">the</span> <span class="n">source</span> <span class="k">for</span> <span class="n">copying</span> <span class="n">conditions</span><span class="o">.</span>  <span class="n">There</span> <span class="ow">is</span> <span class="n">NO</span>
+<span class="n">warranty</span><span class="p">;</span> <span class="ow">not</span> <span class="n">even</span> <span class="k">for</span> <span class="n">MERCHANTABILITY</span> <span class="ow">or</span> <span class="n">FITNESS</span> <span class="n">FOR</span> <span class="n">A</span> <span class="n">PARTICULAR</span> <span class="n">PURPOSE</span><span class="o">.</span>
+</pre></div>
+</div>
+</section>
+<section id="build-px4-for-arm-hardware">
+<h2>Build PX4 for ARM hardware<a class="headerlink" href="#build-px4-for-arm-hardware" title="Link to this heading">¶</a></h2>
+<p>Now you can build the PX4 firmware for running on real Pixhawk hardware:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">px4_fmu</span><span class="o">-</span><span class="n">v4</span>
+</pre></div>
+</div>
+<p>This build will take a little longer because it is building a lot more including the NuttX real time OS, all the drivers for the sensors in the Pixhawk flight controller, and more.  It is also running the compiler in super size-squeezing mode so it can fit all that in a 1 megabyte ROM !!</p>
+<p>One nice tidbit is you can plug in your Pixhawk via USB, and type <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">px4fmu-v2_default</span> <span class="pre">upload</span></code> to flash the hardware with these brand new bits, so you don’t need to use <em>QGroundControl</em> for that.</p>
+</section>
+<section id="some-useful-parameters">
+<h2>Some useful parameters<a class="headerlink" href="#some-useful-parameters" title="Link to this heading">¶</a></h2>
+<p>PX4 has many customizable parameters (over 700 of them, in fact) and to get best results with AirSim we have found the following parameters are handy:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//</span> <span class="n">be</span> <span class="n">sure</span> <span class="n">to</span> <span class="n">enable</span> <span class="n">the</span> <span class="n">new</span> <span class="n">position</span> <span class="n">estimator</span> <span class="n">module</span><span class="p">:</span>
+<span class="n">param</span> <span class="nb">set</span> <span class="n">SYS_MC_EST_GROUP</span> <span class="mi">2</span>
+
+<span class="o">//</span> <span class="n">increase</span> <span class="n">default</span> <span class="n">limits</span> <span class="n">on</span> <span class="n">cruise</span> <span class="n">speed</span> <span class="n">so</span> <span class="n">you</span> <span class="n">can</span> <span class="n">move</span> <span class="n">around</span> <span class="n">a</span> <span class="n">large</span> <span class="nb">map</span> <span class="n">more</span> <span class="n">quickly</span><span class="o">.</span>
+<span class="n">param</span> <span class="n">MPC_XY_CRUISE</span> <span class="mi">10</span>
+<span class="n">param</span> <span class="n">MPC_XY_VEL_MAX</span> <span class="mi">10</span>
+<span class="n">param</span> <span class="n">MPC_Z_VEL_MAX_DN</span> <span class="mi">2</span>
+
+<span class="o">//</span> <span class="n">increase</span> <span class="n">timeout</span> <span class="k">for</span> <span class="n">auto</span><span class="o">-</span><span class="n">disarm</span> <span class="n">on</span> <span class="n">landing</span> <span class="n">so</span> <span class="n">that</span> <span class="nb">any</span> <span class="n">long</span> <span class="n">running</span> <span class="n">app</span> <span class="n">doesn</span><span class="s1">&#39;t have to worry about it</span>
+<span class="n">param</span> <span class="n">COM_DISARM_LAND</span> <span class="mi">60</span>
+
+<span class="o">//</span> <span class="n">make</span> <span class="n">it</span> <span class="n">possible</span> <span class="n">to</span> <span class="n">fly</span> <span class="n">without</span> <span class="n">radio</span> <span class="n">control</span> <span class="n">attached</span> <span class="p">(</span><span class="n">do</span> <span class="n">NOT</span> <span class="n">do</span> <span class="n">this</span> <span class="n">one</span> <span class="n">on</span> <span class="n">a</span> <span class="n">real</span> <span class="n">drone</span><span class="p">)</span>
+<span class="n">param</span> <span class="n">NAV_RCL_ACT</span> <span class="mi">0</span>
+
+<span class="o">//</span> <span class="n">enable</span> <span class="n">new</span> <span class="n">syslogger</span> <span class="n">to</span> <span class="n">get</span> <span class="n">more</span> <span class="n">information</span> <span class="kn">from</span><span class="w"> </span><span class="nn">PX4</span> <span class="n">logs</span>
+<span class="n">param</span> <span class="nb">set</span> <span class="n">SYS_LOGGER</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="px4.html" class="btn btn-neutral float-left" title="PX4 Autopilot Flight Controller" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="px4_hitl.html" class="btn btn-neutral float-right" title="Using a PX4 Controller as Hardware-In-The-Loop (HITL)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

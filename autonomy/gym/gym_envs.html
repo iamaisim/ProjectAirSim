@@ -1,0 +1,278 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Autonomy Gym Environments &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Autonomy Gym Environments</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/autonomy/gym/gym_envs.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="autonomy-gym-environments">
+<h1>Autonomy Gym Environments<a class="headerlink" href="#autonomy-gym-environments" title="Link to this heading">¶</a></h1>
+<p>Project AirSim’s Autonomy module offers a set of “Gym environments”, which are Project AirSim Simulation environments with built-in mechanisms to act as a training platform for Reinforcement Learning agents. The Autonomy Gym environments represent configurable Markov Decision Processes with an interface compatible with the <a class="reference external" href="https://gym.openai.com">OpenAI Gym</a> specifications. This allows the user to use any Reinforcement Learning algorithm to train an Agent to solve tasks like obstacle avoidance, drone landing, etc.</p>
+<p>Following is a description of the RL Gym environments made available as part of this release:</p>
+<section id="detect-avoid">
+<h2>1. Detect Avoid<a class="headerlink" href="#detect-avoid" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">ProjectAirSimDetectAvoidEnv-v0</span></code> environment allows training an RL Agent to control a Drone/UAV to avoid obstacles and reach desired goal locations in a ProjectAirSim simulation environment.</p>
+<p>The training scenario with the default set of config values for the goal locations and start state is shown below:</p>
+<p><img alt="" src="../../_images/detectavoidenv-default-config.png" /></p>
+<p>The Agent is tasked with controlling the drone using high-level velocity vector commands to navigate the drone to the goal location while avoiding the obstacles.</p>
+<section id="using-the-environment-for-rl-training">
+<h3>Using the environment for RL training<a class="headerlink" href="#using-the-environment-for-rl-training" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple" start="0">
+<li><p><strong>Setup</strong>: If you have not done so already, please follow the <a class="reference internal" href="../setup.html"><span class="std std-doc">autonomy module setup instructions</span></a> to setup a Python environment with the necessary Project AirSim client library modules installed.</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>projectairsim-<span class="o">{</span>VERSION<span class="o">}</span>-py3-none-any.whl<span class="o">[</span>autonomy<span class="o">]</span>
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li><p><strong>Run Project AirSim Sim server</strong>: <code class="docutils literal notranslate"><span class="pre">Blocks.sh</span></code> / <code class="docutils literal notranslate"><span class="pre">Blocks.exe</span></code></p></li>
+<li><p><strong>Create ProjectAirSim Detect-Avoid Gym environment</strong>:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">projectairsim.autonomy.gym_envs</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">gym</span>
+
+<span class="n">detect_avoid_env</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;ProjectAirSimDetectAvoidEnv-v0&quot;</span><span class="p">)</span>
+<span class="c1"># Use the `detect_avoid_env` like any other OpenAI Gym Environment to train your RL Agent!</span>
+</pre></div>
+</div>
+</section>
+<section id="state-observation-space-and-action-space">
+<h3>State/Observation space and Action space<a class="headerlink" href="#state-observation-space-and-action-space" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">observation_space</span><span class="p">:</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Dict</span> <span class="o">=</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Dict</span><span class="p">({</span>
+    <span class="s2">&quot;pose&quot;</span><span class="p">:</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,)),</span>
+    <span class="s2">&quot;obstacles&quot;</span><span class="p">:</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Tuple</span><span class="p">(</span>
+        <span class="p">(</span>
+            <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">obstacle_bbox_shape</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_obstacles</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;distance_to_obstacles&quot;</span><span class="p">:</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="p">(</span><span class="n">num_obstacles</span><span class="p">,)),</span>
+    <span class="s2">&quot;displacement_to_goal&quot;</span><span class="p">:</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,))</span> <span class="c1"># Dx, Dy, Dz</span>
+<span class="p">})</span>
+
+<span class="n">action_space</span> <span class="o">=</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,))</span>
+
+<span class="n">reward</span> <span class="o">=</span> <span class="p">(</span><span class="n">arena_norm_factor</span> <span class="err">–</span> <span class="n">norm_l2</span><span class="p">(</span><span class="n">GoalPose</span><span class="p">,</span> <span class="n">DronePose</span><span class="p">))</span> <span class="o">/</span> <span class="n">arena_norm_factor</span>
+</pre></div>
+</div>
+</section>
+<section id="customizing-the-training-environment">
+<h3>Customizing the training environment<a class="headerlink" href="#customizing-the-training-environment" title="Link to this heading">¶</a></h3>
+<p>This environment has the following features which promote generalizability in the learned Agent policies:</p>
+<ul class="simple">
+<li><p>Randomize Goal location on every episode</p></li>
+<li><p>Randomize Obstacle locations on every episode</p></li>
+<li><p>Enable/Disable episodic obstacle randomization</p></li>
+</ul>
+<p>The list of configurable parameters supported by this environment is provided below with comments on their usage:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;dt&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="s2">&quot;step_limit&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+    <span class="s2">&quot;goal_tolerance&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="s2">&quot;randomize_obstacle_poses&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s2">&quot;num_obstacles&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;arena_config&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;top_left&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;x_m&quot;</span><span class="p">:</span> <span class="mi">145</span><span class="p">,</span> <span class="s2">&quot;y_m&quot;</span><span class="p">:</span> <span class="mi">350</span><span class="p">,</span> <span class="s2">&quot;z_m&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.1</span><span class="p">},</span>
+        <span class="s2">&quot;center&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;x_m&quot;</span><span class="p">:</span> <span class="mi">96</span><span class="p">,</span> <span class="s2">&quot;y_m&quot;</span><span class="p">:</span> <span class="mi">398</span><span class="p">,</span> <span class="s2">&quot;z_m&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.1</span><span class="p">},</span>
+        <span class="s2">&quot;extent_x_m&quot;</span><span class="p">:</span> <span class="mi">98</span><span class="p">,</span>
+        <span class="s2">&quot;extent_y_m&quot;</span><span class="p">:</span> <span class="mi">96</span><span class="p">,</span>
+        <span class="s2">&quot;extent_z_m&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;goals&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;v_vertex&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="mf">75.3</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="mf">399.4</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="mf">1.1</span><span class="p">},</span>
+        <span class="s2">&quot;v_apex_left&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="mf">136.5</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="mf">370.7</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="mf">1.1</span><span class="p">},</span>
+        <span class="s2">&quot;v_apex_right&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="mf">133.8</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="mf">422.4</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="mf">1.1</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;obstacles_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;PowerTower&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;length_m&quot;</span><span class="p">:</span> <span class="mf">9.6</span><span class="p">,</span>
+                <span class="s2">&quot;breadth_m&quot;</span><span class="p">:</span> <span class="mi">22</span><span class="p">,</span>
+                <span class="s2">&quot;height_m&quot;</span><span class="p">:</span> <span class="mi">38</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;Building&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;length_m&quot;</span><span class="p">:</span> <span class="mf">62.0</span><span class="p">,</span> <span class="s2">&quot;breadth_m&quot;</span><span class="p">:</span> <span class="mf">62.0</span><span class="p">,</span> <span class="s2">&quot;height_m&quot;</span><span class="p">:</span> <span class="mi">242</span><span class="p">}</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;obstacles_config&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;PowerTower1&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;PowerTower&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pose&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;translation&quot;</span><span class="p">:</span> <span class="n">Vector3</span><span class="p">({</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="mf">64.0</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="mf">372.0</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">}),</span>
+                <span class="s2">&quot;rotation&quot;</span><span class="p">:</span> <span class="n">Quaternion</span><span class="p">({</span><span class="s2">&quot;w&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}),</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+            <span class="s2">&quot;enable_physics&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;PowerTower2&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;PowerTower&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pose&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;translation&quot;</span><span class="p">:</span> <span class="n">Vector3</span><span class="p">({</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="mf">65.2</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="mf">420.0</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">}),</span>
+                <span class="s2">&quot;rotation&quot;</span><span class="p">:</span> <span class="n">Quaternion</span><span class="p">({</span><span class="s2">&quot;w&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}),</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+            <span class="s2">&quot;enable_physics&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;Building1&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Building&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pose&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;translation&quot;</span><span class="p">:</span> <span class="n">Vector3</span><span class="p">({</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="mf">105.0</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="mf">400.0</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">}),</span>
+                <span class="s2">&quot;rotation&quot;</span><span class="p">:</span> <span class="n">Quaternion</span><span class="p">({</span><span class="s2">&quot;w&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}),</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+            <span class="s2">&quot;enable_physics&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;obstacle_poses&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;front-left&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;translation&quot;</span><span class="p">:</span> <span class="n">Vector3</span><span class="p">({</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="mf">64.0</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="mf">372.0</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">}),</span>
+            <span class="s2">&quot;rotation&quot;</span><span class="p">:</span> <span class="n">Quaternion</span><span class="p">({</span><span class="s2">&quot;w&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}),</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;front-right&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;translation&quot;</span><span class="p">:</span> <span class="n">Vector3</span><span class="p">({</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="mf">65.2</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="mf">420.0</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">}),</span>
+            <span class="s2">&quot;rotation&quot;</span><span class="p">:</span> <span class="n">Quaternion</span><span class="p">({</span><span class="s2">&quot;w&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}),</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;back&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;translation&quot;</span><span class="p">:</span> <span class="n">Vector3</span><span class="p">({</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="mf">105.0</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="mf">400.0</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">}),</span>
+            <span class="s2">&quot;rotation&quot;</span><span class="p">:</span> <span class="n">Quaternion</span><span class="p">({</span><span class="s2">&quot;w&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}),</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="rl-policy-performance-assessment-and-debugging">
+<h3>RL Policy Performance Assessment and Debugging<a class="headerlink" href="#rl-policy-performance-assessment-and-debugging" title="Link to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">ProjectAirSimDetectAvoidEnv-v0</span></code> offers a debugging mode to help with runtime assessment of RL Agents and to visualize and identify issues during training.</p>
+<p>This mode can be enabled by setting <code class="docutils literal notranslate"><span class="pre">DEBUGGING</span></code> to <code class="docutils literal notranslate"><span class="pre">True</span></code> in the <code class="docutils literal notranslate"><span class="pre">projectairsim_detect_avoid_env.py</span></code> script. Once set, a visual rendering is enabled at every <code class="docutils literal notranslate"><span class="pre">step(a)</span></code> in the environment similar to the screenshot shown below:</p>
+<p><img alt="" src="images/autonomy/gym_envs/projectairsim_detectavoid_debug_view.png" /></p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

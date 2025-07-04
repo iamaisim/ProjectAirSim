@@ -1,0 +1,300 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Battery sensor &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Fast Physics for Drones" href="../physics/fast_physics.html" />
+    <link rel="prev" title="Radar sensor overview" href="radar.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Battery sensor</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#battery-usage">Battery usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#battery-simulation-modes">Battery Simulation Modes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sample-config-for-simple-discharge-mode">Sample Config for Simple Discharge Mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sample-config-for-energy-consumption-mode">Sample config for Energy Consumption Mode</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Battery sensor</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/sensors/battery.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="battery-sensor">
+<h1>Battery sensor<a class="headerlink" href="#battery-sensor" title="Link to this heading">¶</a></h1>
+<p>The battery sensor is implemented as a collection of APIs to help plan and execute mission planning and perception loops through estimation of state of charge and flight times. It is not meant to help with battery modeling.</p>
+<section id="battery-usage">
+<h2>Battery usage<a class="headerlink" href="#battery-usage" title="Link to this heading">¶</a></h2>
+<p>Battery information is available through the Pub/Sub channel. The following information is published as a part
+of this channel.</p>
+<ol class="arabic simple">
+<li><p>Timestamp with simtime</p></li>
+<li><p>Battery remaining (percentage from 0-100)</p></li>
+<li><p>Estimated time remaining (expected battery time in seconds to empty)</p></li>
+<li><p>Battery charge state (specifies if battery is ok, low, critical or unhealthy)</p></li>
+</ol>
+<p>Example info published on the Pub/Sub channel</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s1">&#39;time_stamp&#39;</span><span class="p">:</span> <span class="mi">39000000</span><span class="p">,</span> 
+  <span class="s1">&#39;battery_pct_remaining&#39;</span><span class="p">:</span> <span class="mf">83.33333587646484</span><span class="p">,</span> 
+  <span class="s1">&#39;estimated_time_remaining&#39;</span><span class="p">:</span> <span class="mi">7500</span><span class="p">,</span> 
+  <span class="s1">&#39;battery_charge_state&#39;</span><span class="p">:</span> <span class="s1">&#39;BATTERY_CHARGE_STATE_OK&#39;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="battery-simulation-modes">
+<h2>Battery Simulation Modes<a class="headerlink" href="#battery-simulation-modes" title="Link to this heading">¶</a></h2>
+<p>There are two different modes in the battery sensor each with its specific use cases.</p>
+<ol class="arabic simple">
+<li><p>Simple Discharge Mode:</p>
+<ul class="simple">
+<li><p>Configurable maximum capacity through JSON</p></li>
+<li><p>Configurable charge level at start of flight/simulation</p></li>
+<li><p>Charge level depletes at the rate specified through discharge rate.</p></li>
+<li><p>Discharge rate adjustable through API calls and config.</p></li>
+</ul>
+</li>
+</ol>
+<p>This is useful for those who want complete control over the discharge rate. It is possible to set an intitial charge and adjust the discharge for various segments of flight. i.e. start with 0 discharge rate, increase to high for takeoff/landing, set it to a medium rate for landing.</p>
+<p>Or you can simply set the discharge rate to the average of your observed value and let it deplete until you hit your minimum acceptable charge level.</p>
+<section id="sample-config-for-simple-discharge-mode">
+<h3>Sample Config for Simple Discharge Mode<a class="headerlink" href="#sample-config-for-simple-discharge-mode" title="Link to this heading">¶</a></h3>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;sensors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Battery&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;battery&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;parent-link&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Frame&quot;</span><span class="p">,</span>
+
+<span class="w">      </span><span class="nt">&quot;battery-mode&quot;</span><span class="p">:</span><span class="s2">&quot;simple-discharge-mode&quot;</span><span class="p">,</span>
+
+<span class="w">      </span><span class="nt">&quot;total-battery-capacity&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">36000</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;battery-capacity-on-start&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">30000</span><span class="p">,</span>
+<span class="w">      </span><span class="c1">// The drain rate can be adjusted at runtime using client api calls.</span>
+<span class="w">      </span><span class="nt">&quot;battery-drain-rate-on-start&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Energy Consumption Model:</p>
+<ul class="simple">
+<li><p>Configurable max and initial capacity like the simple discharge mode.</p></li>
+<li><p>Estimates discharge rate through a physics model for energy consumption of brushless motors onboard.</p></li>
+<li><p>Discharge rate adjustable to a linear scaling factor.</p></li>
+</ul>
+</li>
+</ol>
+<p>This model uses a simplified energy equation to estimate energy consumption of brushless motors. It depletes power proportional to number of rotors x torque x angular_velocity.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Power</span> <span class="n">Consumed</span> <span class="o">=</span> <span class="n">rotor</span><span class="o">-</span><span class="n">power</span><span class="o">-</span><span class="n">coefficient</span> <span class="n">x</span> <span class="n">number_of_rotors</span> <span class="n">x</span> <span class="n">torque</span> <span class="n">x</span> <span class="n">ang_vel</span> <span class="o">+</span> <span class="n">constant</span>
+</pre></div>
+</div>
+<p>This can be scaled using a linear coefficient in the config referred to as “rotor-power-coefficient”  to match real usage. The constant accounts for any other onboard sensor/compute power usage. This can be used as a tool to estimate energy efficient routes during mission planning.</p>
+</section>
+<section id="sample-config-for-energy-consumption-mode">
+<h3>Sample config for Energy Consumption Mode<a class="headerlink" href="#sample-config-for-energy-consumption-mode" title="Link to this heading">¶</a></h3>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;sensors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Battery&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;battery&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;parent-link&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Frame&quot;</span><span class="p">,</span>
+
+<span class="w">      </span><span class="nt">&quot;battery-mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rotor-power-discharge-mode&quot;</span><span class="p">,</span>
+
+<span class="w">      </span><span class="c1">// Use joules as unit for capacity.</span>
+<span class="w">      </span><span class="c1">//  1 Amp hour = 3600 * Joules, 1 milli Amp hour = 3.6 Joules</span>
+<span class="w">      </span><span class="nt">&quot;total-battery-capacity&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">36000</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;battery-capacity-on-start&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">30000</span><span class="p">,</span>
+<span class="w">      </span><span class="c1">// Use this to scale linearly</span>
+<span class="w">      </span><span class="nt">&quot;rotor-power-coefficient&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="battery-sensor-settings">
+<h1>Battery sensor settings<a class="headerlink" href="#battery-sensor-settings" title="Link to this heading">¶</a></h1>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">id</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name of battery sensor.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">type</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">battery</span></code></p></td>
+<td><p>Sensor type specifying this as a battery sensor.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">enabled</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>Whether sensor is enabled.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">parent-link</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name of the link that the sensor is attached to.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">battery-mode</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Mode of battery simulator. “rotor-power-discharge-mode” or  “simple-discharge-mode”</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">total-battery-capacity</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Total capacity of the battery aka Max charge it can hold. For rotor power discharge, the units need to be in joules.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">battery-capacity-on-start</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Capacity/charge of the battery at the beginning of flight/simulation.Needs to the same unit as total capacity</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">battery-drain-rate-on-start</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Required for simple-discharge-mode. The rate at which the battery depletes per second at the beginning of flight. Units needs to match with capacity.  Modifiable during runtime.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rotor-power-coefficient</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Required for rotor-power-discharge-mode. Used to scale the rotor-power estimates by a constant, default is one.</p></td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI Consulting Corp.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="radar.html" class="btn btn-neutral float-left" title="Radar sensor overview" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../physics/fast_physics.html" class="btn btn-neutral float-right" title="Fast Physics for Drones" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

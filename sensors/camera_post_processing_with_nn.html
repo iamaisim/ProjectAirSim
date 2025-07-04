@@ -1,0 +1,317 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Camera Images Post processing using Neural Network models &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Camera Streaming" href="camera_streaming.html" />
+    <link rel="prev" title="Supported imaging/capture camera customizations" href="camera_capture_settings.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Camera Images Post processing using Neural Network models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pre-requisites">Pre-Requisites</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#model-format">Model Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#neural-network-input-and-output-structures">Neural Network Input and Output structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cuda-requirements">CUDA Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tensorrt-requirments">TensorRT Requirments</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#image-post-processing-settings">Image post processing settings</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#sample-config-downcamera-sensor-configured-with-post-processing-model">Sample config: DownCamera Sensor configured with post processing model</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Camera Images Post processing using Neural Network models</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/sensors/camera_post_processing_with_nn.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="camera-images-post-processing-using-neural-network-models">
+<h1>Camera Images Post processing using Neural Network models<a class="headerlink" href="#camera-images-post-processing-using-neural-network-models" title="Link to this heading">¶</a></h1>
+<p>We are adding support to execute different Neural Networks models natively on the Sim itself to postprocess the scene images from Camera.
+Right now, this is aimed at running a pretrained a model to extract information like object recognition, semantic segmentation etc…</p>
+<section id="pre-requisites">
+<h2>Pre-Requisites<a class="headerlink" href="#pre-requisites" title="Link to this heading">¶</a></h2>
+<p>Currently, we support execution on the following inferencing runtimes.</p>
+<ol class="arabic simple">
+<li><p>CUDA (See CUDA requirements for details.)</p></li>
+<li><p>Plain CPU</p></li>
+</ol>
+<p>You can enable or disable CUDA support from the config option. See sample config for an example. TensorRT is not supported right but will be added in the future versions.</p>
+<section id="model-format">
+<h3>Model Format<a class="headerlink" href="#model-format" title="Link to this heading">¶</a></h3>
+<p>Only ONNX models are currently supported.</p>
+</section>
+<section id="neural-network-input-and-output-structures">
+<h3>Neural Network Input and Output structures<a class="headerlink" href="#neural-network-input-and-output-structures" title="Link to this heading">¶</a></h3>
+<p>Currently, we only publish uint8 as our output with Pub/Sub model. So output data is expected to be uint8/int.</p>
+<ol class="arabic simple">
+<li><p>The input layer:</p>
+<ul class="simple">
+<li><p>Float</p></li>
+<li><p>Dimensions of the same size as the scene camera - by default this is 400x225x3.</p></li>
+</ul>
+</li>
+<li><p>The output layer:</p>
+<ul class="simple">
+<li><p>uint8/int</p></li>
+<li><p>Output will be packaged a simple vector and published.</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="cuda-requirements">
+<h3>CUDA Requirements<a class="headerlink" href="#cuda-requirements" title="Link to this heading">¶</a></h3>
+<p>To enable CUDA, you need to have the following installed on your machine locally.</p>
+<ol class="arabic simple">
+<li><p>CUDA 11.0 or greater</p></li>
+<li><p>CUDNN associated with the CUDA version of your choice.</p></li>
+</ol>
+</section>
+<section id="tensorrt-requirments">
+<h3>TensorRT Requirments<a class="headerlink" href="#tensorrt-requirments" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p>CUDA 11.0 or greater</p></li>
+<li><p>CUDNN associated with CUDA above. (Required as a fallback for when TensorRT does not support some of the operations.)</p></li>
+<li><p>TensorRT library associated with the CUDA version of your choice.</p></li>
+<li><p>TensorRT needs the neural network model to contain shape inference information in the onnx file. See here https://onnxruntime.ai/docs/execution-providers/TensorRT-ExecutionProvider.html#shape-inference-for-tensorrt-subgraphs</p></li>
+</ol>
+</section>
+</section>
+</section>
+<section id="image-post-processing-settings">
+<h1>Image post processing settings<a class="headerlink" href="#image-post-processing-settings" title="Link to this heading">¶</a></h1>
+<section id="sample-config-downcamera-sensor-configured-with-post-processing-model">
+<h2>Sample config: DownCamera Sensor configured with post processing model<a class="headerlink" href="#sample-config-downcamera-sensor-configured-with-post-processing-model" title="Link to this heading">¶</a></h2>
+<p>Scroll down to see post-process-model-settings since they are at the bottom.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>  {
+    &quot;id&quot;: &quot;DownCamera&quot;,
+    &quot;type&quot;: &quot;camera&quot;,
+    &quot;enabled&quot;: true,
+    &quot;parent-link&quot;: &quot;Frame&quot;,
+    &quot;capture-interval&quot;: 0.001,
+    &quot;capture-settings&quot;: [
+      {
+        &quot;image-type&quot;: 0,
+        &quot;width&quot;: 400,
+        &quot;height&quot;: 225,
+        &quot;fov-degrees&quot;: 90,
+        &quot;capture-enabled&quot;: true,
+        &quot;streaming-enabled&quot;: false,
+        &quot;pixels-as-float&quot;: false,
+        &quot;compress&quot;: false,
+        &quot;target-gamma&quot;: 2.5
+      },
+      {
+        &quot;image-type&quot;: 1,
+        &quot;width&quot;: 400,
+        &quot;height&quot;: 225,
+        &quot;fov-degrees&quot;: 90,
+        &quot;capture-enabled&quot;: false,
+        &quot;streaming-enabled&quot;: false,
+        &quot;pixels-as-float&quot;: false,
+        &quot;compress&quot;: false
+      },
+      {
+        &quot;image-type&quot;: 2,
+        &quot;width&quot;: 400,
+        &quot;height&quot;: 225,
+        &quot;fov-degrees&quot;: 90,
+        &quot;capture-enabled&quot;: true,
+        &quot;streaming-enabled&quot;: false,
+        &quot;pixels-as-float&quot;: false,
+        &quot;compress&quot;: false
+      },
+      {
+        &quot;image-type&quot;: 3,
+        &quot;width&quot;: 400,
+        &quot;height&quot;: 225,
+        &quot;fov-degrees&quot;: 90,
+        &quot;capture-enabled&quot;: true,
+        &quot;streaming-enabled&quot;: false,
+        &quot;pixels-as-float&quot;: false,
+        &quot;compress&quot;: false
+      }
+    ],
+    &quot;noise-settings&quot;: [
+      {
+        &quot;enabled&quot;: false,
+        &quot;image-type&quot;: 1,
+        &quot;rand-contrib&quot;: 0.2,
+        &quot;rand-speed&quot;: 100000.0,
+        &quot;rand-size&quot;: 500.0,
+        &quot;rand-density&quot;: 2,
+        &quot;horz-wave-contrib&quot;: 0.03,
+        &quot;horz-wave-strength&quot;: 0.08,
+        &quot;horz-wave-vert-size&quot;: 1.0,
+        &quot;horz-wave-screen-size&quot;: 1.0,
+        &quot;horz-noise-lines-contrib&quot;: 1.0,
+        &quot;horz-noise-lines-density-y&quot;: 0.01,
+        &quot;horz-noise-lines-density-xy&quot;: 0.5,
+        &quot;horz-distortion-contrib&quot;: 1.0,
+        &quot;horz-distortion-strength&quot;: 0.002
+      }
+    ],
+    &quot;origin&quot;: {
+      &quot;xyz&quot;: &quot;1.1 2.2 -3.3&quot;,
+      &quot;rpy-deg&quot;: &quot;0.0 -85.94 0.0&quot;
+    },
+    &quot;post-process-model-settings&quot;: {
+      &quot;enabled&quot;: true,
+      &quot;model-filepath&quot;: &quot;C:/repos/models/fcn-resnet50-12-int8.onnx&quot;,
+      &quot;execution-provider&quot;: &quot;cpu&quot;
+    }
+  },
+</pre></div>
+</div>
+</section>
+</section>
+<section id="post-processing-model-settings">
+<h1>Post processing model settings<a class="headerlink" href="#post-processing-model-settings" title="Link to this heading">¶</a></h1>
+<p>Only the post processing settings are documented here. For other general camera settings, see other camera pages.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">enabled</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>Whether post processing is enabled.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">execution-provider</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Default is “cpu”. Use “cuda” or “tensorrt” to execute using CUDA/TensorRT execution provider. This might speed up the execution process. See pre-reqs for enabling CUDA or TensorRT.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">model-filepath</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Absolute path to the model file to execute on the sim. Currently needs to be an ONNX  model.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="camera_capture_settings.html" class="btn btn-neutral float-left" title="Supported imaging/capture camera customizations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="camera_streaming.html" class="btn btn-neutral float-right" title="Camera Streaming" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

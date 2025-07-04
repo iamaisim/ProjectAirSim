@@ -1,0 +1,241 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Using Project AirSim Plugin in Custom Environments &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/documentation_options.js?v=2709fde1"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Using Project AirSim Plugin in Custom Environments</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/use_plugin.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="using-project-airsim-plugin-in-custom-environments">
+<h1>Using Project AirSim Plugin in Custom Environments<a class="headerlink" href="#using-project-airsim-plugin-in-custom-environments" title="Link to this heading">¶</a></h1>
+<p>The Project AirSim UE Plugin can be easily dropped into your own custom Unreal environment to enable simulation without requiring any code changes to your project.</p>
+<section id="project-airsim-ue-plugin-package-contents">
+<h2>Project AirSim UE Plugin Package contents<a class="headerlink" href="#project-airsim-ue-plugin-package-contents" title="Link to this heading">¶</a></h2>
+<p>The Project AirSim UE Plugin package contains the following contents:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>ProjectAirSim_UE_Plugin_{Win64|Linux64}
+  └─ Plugins
+     └─ ProjectAirSim
+     |  └─ Content
+     |  └─ Resources
+     |  └─ SimLibs
+     |  └─ Source
+     |    ProjectAirSim.uplugin
+     └─ Drone
+     |  └─ Content
+     |  └─ Resources
+     |    Drone.uplugin
+     └─ &lt;Any additional content-only plugins&gt;
+       ...
+</pre></div>
+</div>
+<p>The package contains the <code class="docutils literal notranslate"><span class="pre">Plugins</span></code> folder that contains the <code class="docutils literal notranslate"><span class="pre">ProjectAirSim</span></code> UE plugin and additional content-only UE plugins, such as the <code class="docutils literal notranslate"><span class="pre">Drone</span></code> plugin that contains some basic drone mesh assets.</p>
+</section>
+<section id="how-to-add-the-project-airsim-plugin-to-a-custom-unreal-environment">
+<h2>How to add the Project AirSim Plugin to a custom Unreal environment<a class="headerlink" href="#how-to-add-the-project-airsim-plugin-to-a-custom-unreal-environment" title="Link to this heading">¶</a></h2>
+<p>Adding the Project AirSim Plugin has just 3 basic steps:</p>
+<ol class="arabic">
+<li><p>Copy the Project AirSim Plugin package’s <code class="docutils literal notranslate"><span class="pre">Plugins</span></code> folder into your UE environment project’s root directory (the folder containing the main <code class="docutils literal notranslate"><span class="pre">.uproject</span></code> file). If your environment already has other plugins in the project’s <code class="docutils literal notranslate"><span class="pre">Plugins</span></code> folder, you can just add the <code class="docutils literal notranslate"><span class="pre">ProjectAirSim</span></code> and additional content-only plugin folders into it.</p></li>
+<li><p>Set the environment’s <code class="docutils literal notranslate"><span class="pre">GameMode</span></code> to <code class="docutils literal notranslate"><span class="pre">ProjectAirSimGameMode</span></code>. There are two places that this should be set:</p>
+<p>A) in the environment’s <code class="docutils literal notranslate"><span class="pre">Config/DefaultEngine.ini</span></code> config file (sets <code class="docutils literal notranslate"><span class="pre">GlobalDefaultGameMode</span></code> base mode for all maps in the environment).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="o">/</span><span class="n">Script</span><span class="o">/</span><span class="n">EngineSettings</span><span class="o">.</span><span class="n">GameMapsSettings</span><span class="p">]</span>
+<span class="n">GlobalDefaultGameMode</span><span class="o">=/</span><span class="n">Script</span><span class="o">/</span><span class="n">ProjectAirSim</span><span class="o">.</span><span class="n">ProjectAirSimGameMode</span>
+</pre></div>
+</div>
+<p>B) in the Editor’s <code class="docutils literal notranslate"><span class="pre">World</span> <span class="pre">Settings</span></code> tab for every game map of the environment (overrides the <code class="docutils literal notranslate"><span class="pre">DefaultEngine.ini</span></code> setting for each specific map). If the <code class="docutils literal notranslate"><span class="pre">World</span> <span class="pre">Settings</span></code> tab is not visible, it can be selected from the <code class="docutils literal notranslate"><span class="pre">Settings</span></code> button in the main Editor toolbar.</p>
+<p><img alt="GameMode Override Setting" src="images/projectairsim_plugin_game_mode_override.jpg" /></p>
+<p>To ensure that <code class="docutils literal notranslate"><span class="pre">ProjectAirSimGameMode</span></code> is activated properly, it’s recommended to set the <code class="docutils literal notranslate"><span class="pre">GameMode</span></code> to <code class="docutils literal notranslate"><span class="pre">ProjectAirSimGameMode</span></code> in both of these places. For more info about this setting, see Unreal’s <strong><a class="reference external" href="https://docs.unrealengine.com/en-US/Gameplay/Framework/GameMode/index.html">Game Mode and Game State</a></strong>.</p>
+</li>
+<li><p>If the environment doesn’t already have a <code class="docutils literal notranslate"><span class="pre">Source</span></code> folder in the root of the project, the project will not be able to build the Project AirSim plugin while packaging into a stand-alone game. You can trigger the generation of the necessary C++ boiler-plate code by adding a dummy C++ class by going to the Editor’s <code class="docutils literal notranslate"><span class="pre">File</span></code> menu -&gt; <code class="docutils literal notranslate"><span class="pre">New</span> <span class="pre">C++</span> <span class="pre">Class...</span></code>. You can accept the <code class="docutils literal notranslate"><span class="pre">None</span></code> empty class with all defaults, and then after Unreal generates the <code class="docutils literal notranslate"><span class="pre">MyClass</span></code> base files and project C++ boiler-plate code, you can delete the dummy <code class="docutils literal notranslate"><span class="pre">MyClass.cpp</span></code> and <code class="docutils literal notranslate"><span class="pre">MyClass.hpp</span></code> that were just created.</p></li>
+</ol>
+<p>That’s it! When you start the game, the Project AirSim sim server should be ready for a client script to connect and load a scene.</p>
+<section id="example-walkthrough-using-unreal-s-suntemple-free-learning-environment">
+<h3>Example walkthrough using Unreal’s SunTemple free learning environment<a class="headerlink" href="#example-walkthrough-using-unreal-s-suntemple-free-learning-environment" title="Link to this heading">¶</a></h3>
+<p>The following is an example of the steps for adding the Project AirSim Plugin to an existing Unreal Editor project.  For illustrative purposes only, this example uses the SunTemple free environment that can be obtained from the Epic Launcher’s <code class="docutils literal notranslate"><span class="pre">Learn</span></code> tab in the <code class="docutils literal notranslate"><span class="pre">Engine</span> <span class="pre">Feature</span> <span class="pre">Samples</span></code> section.</p>
+<p><img alt="Epic Launcher Learn Section" src="_images/epic_learn_suntemple.jpg" /></p>
+<p><img alt="SunTemple Content Details" src="_images/epic_learn_suntemple_create.jpg" /></p>
+<ol class="arabic">
+<li><p>Copy the Project AirSim <code class="docutils literal notranslate"><span class="pre">Plugins</span></code> folder into the SunTemple project’s root folder.</p></li>
+<li><p>With a text editor, edit the <code class="docutils literal notranslate"><span class="pre">Config/DefaultEngine.ini</span></code> file and change the line:</p>
+<p><code class="docutils literal notranslate"><span class="pre">GlobalDefaultGameMode=/Script/Engine.GameMode</span></code></p>
+<p>to</p>
+<p><code class="docutils literal notranslate"><span class="pre">GlobalDefaultGameMode=/Script/ProjectAirSim.ProjectAirSimGameMode</span></code></p>
+</li>
+<li><p>Double-click or open from the Unreal Editor the file <code class="docutils literal notranslate"><span class="pre">SunTemple.uproject</span></code>. As the project file is loaded, the Project AirSim Plugin should be detected and Unreal Editor will prompt to rebuild. Click <strong>Yes</strong>.  If the rebuild is successful, Unreal Editor should load the environment.</p></li>
+<li><p>Set the environment’s <code class="docutils literal notranslate"><span class="pre">GameMode</span></code> to <code class="docutils literal notranslate"><span class="pre">ProjectAirSimGameMode</span></code> as described in <strong><a class="reference internal" href="#how-to-add-the-projectairsim-plugin-to-a-custom-unreal-environment"><span class="xref myst">step 2 of How to add the Project AirSim Plugin</span></a></strong>.</p></li>
+<li><p>Since SunTemple doesn’t come with an existing root <code class="docutils literal notranslate"><span class="pre">Source</span></code> folder for C++ source files, add a dummy C++ class to generate the boilerplate files as described in <strong><a class="reference internal" href="#how-to-add-the-projectairsim-plugin-to-a-custom-unreal-environment"><span class="xref myst">step 3 of How to add the Project AirSim Plugin</span></a></strong>.</p></li>
+<li><p>In the SunTemple environment, spawning at (x=0, y=0) would put the drone on top of a statue.  Move the drone’s spawning point a bit to the left so it will land on the floor by opening the scene config file for the client script you want to run (e.g., <code class="docutils literal notranslate"><span class="pre">sim_config/scene_basic_drone.jsonc</span></code>) and modifying the drone origin’s Y-value to -4.0 meters.</p></li>
+</ol>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;actors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;robot&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Drone1&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;origin&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;xyz&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.0 -4.0 -10.0&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;rpy-deg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0 0 0&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;robot_quadrotor_fastphysics.jsonc&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">],</span>
+</pre></div>
+</div>
+<p>When you press <code class="docutils literal notranslate"><span class="pre">Play</span></code>, the drone should spawn and you’re ready to fly!</p>
+<p><img alt="Drone ready to fly" src="images/projectairsim_plugin_spawn_Yneg4m.jpg" /></p>
+</section>
+</section>
+<section id="forcing-the-project-airsim-and-drone-plugin-content-to-be-cooked-when-packaging-the-environment-as-a-stand-alone-game-binary">
+<h2>Forcing the Project AirSim and Drone Plugin content to be cooked when packaging the environment as a stand-alone game binary<a class="headerlink" href="#forcing-the-project-airsim-and-drone-plugin-content-to-be-cooked-when-packaging-the-environment-as-a-stand-alone-game-binary" title="Link to this heading">¶</a></h2>
+<p>The Project AirSim Plugin includes a content-only <code class="docutils literal notranslate"><span class="pre">Drone</span></code> plugin with the drone mesh assets that are used at runtime to spawn the drone. During play in the Editor, this content is accessible, but since the content is not directly referenced in the environment’s code, it may not get <strong><a class="reference external" href="https://docs.unrealengine.com/en-US/Engine/Deployment/Cooking/index.html">cooked</a></strong> during binary packaging of the environement.</p>
+<p>To ensure the <code class="docutils literal notranslate"><span class="pre">Drone</span></code>, <code class="docutils literal notranslate"><span class="pre">Rover</span></code> and <code class="docutils literal notranslate"><span class="pre">Project</span> <span class="pre">AirSim</span></code> Plugin content is always cooked during environment packaging to a stand-alone game binary, you can add the following modifications to your environment’s <code class="docutils literal notranslate"><span class="pre">Config/DefaultGame.ini</span></code> file:</p>
+<p>To force Project AirSim plugin content (e.g., Drone assets) to get cooked:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="o">/</span><span class="n">Script</span><span class="o">/</span><span class="n">UnrealEd</span><span class="o">.</span><span class="n">ProjectPackagingSettings</span><span class="p">]</span>
+<span class="o">+</span><span class="n">DirectoriesToAlwaysCook</span><span class="o">=</span><span class="p">(</span><span class="n">Path</span><span class="o">=</span><span class="s2">&quot;/ProjectAirSim&quot;</span><span class="p">)</span>
+<span class="o">+</span><span class="n">DirectoriesToAlwaysCook</span><span class="o">=</span><span class="p">(</span><span class="n">Path</span><span class="o">=</span><span class="s2">&quot;/Drone&quot;</span><span class="p">)</span>
+<span class="o">+</span><span class="n">DirectoriesToAlwaysCook</span><span class="o">=</span><span class="p">(</span><span class="n">Path</span><span class="o">=</span><span class="s2">&quot;/Rover&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>or to force <strong>all</strong> content in the environment to always get cooked:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="o">/</span><span class="n">Script</span><span class="o">/</span><span class="n">UnrealEd</span><span class="o">.</span><span class="n">ProjectPackagingSettings</span><span class="p">]</span>
+<span class="n">bCookAll</span><span class="o">=</span><span class="kc">True</span>
+</pre></div>
+</div>
+</section>
+<section id="how-to-add-multiple-drones">
+<h2>How to add multiple drones<a class="headerlink" href="#how-to-add-multiple-drones" title="Link to this heading">¶</a></h2>
+<p>You can also add more drones to the scene. See <strong><a class="reference internal" href="multiple_robots.html"><span class="std std-doc">Multiple Robots in a Simulation</span></a></strong> for more details.</p>
+</section>
+<section id="how-to-modify-the-drone">
+<h2>How to modify the drone<a class="headerlink" href="#how-to-modify-the-drone" title="Link to this heading">¶</a></h2>
+<p>See <strong><a class="reference internal" href="modify_drone_physical.html"><span class="std std-doc">How to Modify a Drone’s Physical Geometry</span></a></strong> for more details about how a drone’s physical geometry can be modified through the <strong><a class="reference internal" href="config_robot.html"><span class="std std-doc">Robot Configuration Settings</span></a></strong>.</p>
+<p>See <strong><a class="reference internal" href="modify_drone_visual.html"><span class="std std-doc">How to Modify a Drone’s Visual Appearance</span></a></strong> for more details about how to customize a drone’s visual appearance.</p>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI Consulting Corp.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

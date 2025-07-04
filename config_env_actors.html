@@ -1,0 +1,717 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Environment Actors Configuration Settings &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/documentation_options.js?v=2709fde1"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Environment Actors Configuration Settings</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/config_env_actors.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="environment-actors-configuration-settings">
+<h1>Environment Actors Configuration Settings<a class="headerlink" href="#environment-actors-configuration-settings" title="Link to this heading">¶</a></h1>
+<p>Environment actors in Project AirSim are elements within the simulation environment that enhance its realism and complexity. These actors are not directly involved in primary simulation tasks but contribute to the overall immersive and authentic experience. They include a variety of entities designed to replicate real-world surroundings, which help in creating a comprehensive testing scenario for autonomous systems.</p>
+<p>The environment actors have the capacity of having a defined trajectory to follow. It can be configured in the same settings file <strong><a class="reference internal" href="#trajectory-settings"><span class="xref myst">Trajectory settings</span></a></strong>, inside the script or using a path file.</p>
+<p>There are different types of environment actors:
+- Generic Environment Actors: <strong><a class="reference internal" href="#generic-environment-actors-configuration-overview"><span class="xref myst">Generic Environment Actors configuration overview settings</span></a></strong>
+- Cars: <strong><a class="reference internal" href="#car-configuration-overview"><span class="xref myst">Car configuration overview overview settings</span></a></strong>
+- Humans: <strong><a class="reference internal" href="#human-configuration-overview"><span class="xref myst">Human configuration overview settings</span></a></strong></p>
+<p>The Generic Actors and Cars are configured as tree structures of <strong>links</strong> (components with shape) and <strong>joints</strong> (connections and constraints between links).</p>
+<p>The Humans are only configured by a <strong>link</strong>.</p>
+<section id="trajectory-settings">
+<h2>Trajectory settings<a class="headerlink" href="#trajectory-settings" title="Link to this heading">¶</a></h2>
+<p>The environment actors’ settings can also include the trajectory they will follow. In order to confifure this, a series of parameter have to be set in <code class="docutils literal notranslate"><span class="pre">script</span></code>.</p>
+<p>For example:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;script&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;loop&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;auto_start&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;trajectory&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;right_and_descend_config&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;time_sec&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="mi">12</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;pose_x&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;pose_y&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;pose_z&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">-5</span><span class="p">,</span><span class="w"> </span><span class="mi">-4</span><span class="p">,</span><span class="w"> </span><span class="mi">-4</span><span class="p">,</span><span class="w"> </span><span class="mi">-4</span><span class="p">,</span><span class="w"> </span><span class="mi">-4</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;pose_roll&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;pose_pitch&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;pose_yaw&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;velocity_linear_x&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;velocity_linear_y&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;velocity_linear_z&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="err">...</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">loop</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>Whether the movement of the actor should loop.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">auto_start</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>Whether the movement of the actor should begin automatically.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">trajectory</span></code></p></td>
+<td><p>object</p></td>
+<td><p>The path that the actor will follow.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">trajectory</span></code>: <code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p>string</p></td>
+<td><p>The name of the trajectory to follow.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">trajectory</span></code>: <code class="docutils literal notranslate"><span class="pre">time_sec</span></code></p></td>
+<td><p>array</p></td>
+<td><p>The times, in seconds, of each point on the trajectory.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">trajectory</span></code>: <code class="docutils literal notranslate"><span class="pre">pose_x</span></code></p></td>
+<td><p>array of numbers</p></td>
+<td><p>The x pose at each point on the trajectory.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">trajectory</span></code>: <code class="docutils literal notranslate"><span class="pre">pose_y</span></code></p></td>
+<td><p>array of numbers</p></td>
+<td><p>The y pose at each point on the trajectory.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">trajectory</span></code>: <code class="docutils literal notranslate"><span class="pre">pose_z</span></code></p></td>
+<td><p>array of numbers</p></td>
+<td><p>The z pose at each point on the trajectory.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">trajectory</span></code>: <code class="docutils literal notranslate"><span class="pre">pose_roll</span></code></p></td>
+<td><p>array of numbers</p></td>
+<td><p>The roll at each point on the trajectory.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">trajectory</span></code>: <code class="docutils literal notranslate"><span class="pre">pose_pitch</span></code></p></td>
+<td><p>array of numbers</p></td>
+<td><p>The pitch pose at each point on the trajectory.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">trajectory</span></code>: <code class="docutils literal notranslate"><span class="pre">pose_yaw</span></code></p></td>
+<td><p>array of numbers</p></td>
+<td><p>The yaw pose at each point on the trajectory.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">trajectory</span></code>: <code class="docutils literal notranslate"><span class="pre">velocity_linear_x</span></code></p></td>
+<td><p>array of numbers</p></td>
+<td><p>The x velocities at each point on the trajectory.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">trajectory</span></code>: <code class="docutils literal notranslate"><span class="pre">velocity_linear_y</span></code></p></td>
+<td><p>array of numbers</p></td>
+<td><p>The y velocities at each point on the trajectory.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">trajectory</span></code>: <code class="docutils literal notranslate"><span class="pre">velocity_linear_z</span></code></p></td>
+<td><p>array of numbers</p></td>
+<td><p>The z velocities at each point on the trajectory.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="generic-environment-actors-configuration-overview">
+<h2>Generic Environment Actors configuration overview<a class="headerlink" href="#generic-environment-actors-configuration-overview" title="Link to this heading">¶</a></h2>
+<p>Versatile entities that can be added to the scene.</p>
+<p>Project AirSim currently comes with some base configurations for environment actors to demonstrate how to configure them for simulation.</p>
+<p><code class="docutils literal notranslate"><span class="pre">env_actor_quadrotor.jsonc</span></code></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;links&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;joints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">links</span></code></p></td>
+<td><p>Array of <strong><a class="reference internal" href="#link-settings-actors"><span class="xref myst">Link settings</span></a></strong></p></td>
+<td><p>Link settings for each link component of the actors.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">joints</span></code></p></td>
+<td><p>Array of <strong><a class="reference internal" href="#joint-settings-actors"><span class="xref myst">Joint settings</span></a></strong></p></td>
+<td><p>Joint settings for connecting links together.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="link-settings-actors">
+<h2>Link settings actors<a class="headerlink" href="#link-settings-actors" title="Link to this heading">¶</a></h2>
+<p>A link is a component with shape. The link settings consist of collision and visual elements.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;links&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Frame&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;collision&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;revolutions-per-sec&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;axis&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0 0 1&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;parent-link&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Frame&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;visual&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="err">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name identifier for the link.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">collision</span></code></p></td>
+<td><p><strong><a class="reference internal" href="#collision-settings"><span class="xref myst">Collision settings</span></a></strong></p></td>
+<td><p>Collision settings for collision detection and response.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">revolutions-per-sec</span></code></p></td>
+<td><p>number</p></td>
+<td><p>The ammount of revolutions per second that the link will have. Use only if the link is a rotating component.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">axis</span></code></p></td>
+<td><p>string of 3 numbers</p></td>
+<td><p>The axis around which the link will rotate. Use only if the link is a rotating component.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">parent-link</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name identifier for the parent link. Use only in child links.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">visual</span></code></p></td>
+<td><p><strong><a class="reference internal" href="#visual-settings"><span class="xref myst">Visual settings</span></a></strong></p></td>
+<td><p>Visual settings for the link’s rendered mesh.</p></td>
+</tr>
+</tbody>
+</table>
+<section id="collision-settings">
+<h3>Collision settings<a class="headerlink" href="#collision-settings" title="Link to this heading">¶</a></h3>
+<p>The link’s collision settings consist of an enabled flag and parameters for restitution and friction coefficients used in calculating its collision response. For environment actors, it must be set to false.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;collision&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">enabled</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>Flag to enable/disable collision detection for this link’s <strong><a class="reference internal" href="#visual-settings"><span class="xref myst">visual mesh</span></a></strong>. Disabling collision may be useful for non-physics “computer vision” mode while still being able to see the car’s mesh visually. This defaults to <code class="docutils literal notranslate"><span class="pre">true</span></code> if omitted. <strong>Note:</strong> For environment actors the collision must be set to FALSE.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="visual-settings">
+<h3>Visual settings<a class="headerlink" href="#visual-settings" title="Link to this heading">¶</a></h3>
+<p>The link’s visual settings consist of what visual element will be rendered for the link. For generic environment actors, only <code class="docutils literal notranslate"><span class="pre">unreal_mesh</span></code> (static mesh) geometry types are supported.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;visual&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;geometry&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;unreal_mesh&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/Drone/Quadrotor1&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;scale&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0 1.0 1.0&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">geometry</span></code>: <code class="docutils literal notranslate"><span class="pre">type</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unreal_mesh</span></code></p></td>
+<td><p>The type of mesh geometry to use (currently only <code class="docutils literal notranslate"><span class="pre">unreal_mesh</span></code> is supported for generic environment actors). The mesh must be imported into the Unreal environment as a .uasset to be available at runtime.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">geometry</span></code>: <code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p>string</p></td>
+<td><p>For <code class="docutils literal notranslate"><span class="pre">unreal_mesh</span></code>, this should be the Unreal content path to the mesh in the environment. <strong>Note:</strong> The PIVOT in the Frame of the Static Mesh has to be set in the base of the Z axis of the chassis’ wheel axle, and in the center of the X and Y axis.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">geometry</span></code>: <code class="docutils literal notranslate"><span class="pre">scale</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Adjust the mesh’s scale. Defaults to all 1.0 if not specified. <strong>Note:</strong> A link’s scale will also be inherited by any child links to maintain relative size, so their scales may also need adjustment to compensate.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="joint-settings">
+<h2>Joint settings<a class="headerlink" href="#joint-settings" title="Link to this heading">¶</a></h2>
+<p>A joint is a connection between two links (a single parent link and a single child link) in order to define a relationship for relative motion. Constraints for the joint type can specify the type of joint motion to allow.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;joints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Frame_Prop_FL&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;origin&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;xyz&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.253 -0.253 -0.01&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;rpy-deg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0 0 0&quot;</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fixed&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;parent-link&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Frame&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;child-link&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Prop_FL&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;axis&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0 0 1&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="err">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">id</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name identifier for the joint.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">origin</span></code>: <code class="docutils literal notranslate"><span class="pre">xyz</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Position “X Y Z” of the joint’s child link relative to the joint’s parent link in <strong>meter</strong> units. Defaults to all zero if no <code class="docutils literal notranslate"><span class="pre">origin</span></code> is specified.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">origin</span></code>: <code class="docutils literal notranslate"><span class="pre">rpy</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Rotation “Roll Pitch Yaw” of the joint’s child link relative to the joint’s parent link in <strong>radian</strong> units. Defaults to all zero if no <code class="docutils literal notranslate"><span class="pre">origin</span></code> is specified.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">type</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">fixed</span></code>, <code class="docutils literal notranslate"><span class="pre">continuous</span></code>, <code class="docutils literal notranslate"><span class="pre">revolute</span></code></p></td>
+<td><p>Type of joint constraint. <code class="docutils literal notranslate"><span class="pre">fixed</span></code> means the pose of the <code class="docutils literal notranslate"><span class="pre">child-link</span></code> should stay fixed relative to the <code class="docutils literal notranslate"><span class="pre">parent-link</span></code>. <code class="docutils literal notranslate"><span class="pre">continuous</span></code> means the <code class="docutils literal notranslate"><span class="pre">child-link</span></code> can rotate continously around the <code class="docutils literal notranslate"><span class="pre">axis</span></code> normal. <code class="docutils literal notranslate"><span class="pre">revolute</span></code> means the <code class="docutils literal notranslate"><span class="pre">child-link</span></code> can rotate like a hinge around the <code class="docutils literal notranslate"><span class="pre">axis</span></code> up to an angle <code class="docutils literal notranslate"><span class="pre">limit</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">parent-link</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name identifier for the joint’s parent link.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">child-link</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name identifier for the joint’s child link.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">axis</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;1</span> <span class="pre">0</span> <span class="pre">0&quot;</span></code> for X axis, <code class="docutils literal notranslate"><span class="pre">&quot;0</span> <span class="pre">1</span> <span class="pre">0&quot;</span></code> for Y axis, <code class="docutils literal notranslate"><span class="pre">&quot;0</span> <span class="pre">0</span> <span class="pre">1&quot;</span></code> for Z axis</p></td>
+<td><p>Rotation axis for joint motion.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="car-configuration-overview">
+<h2>Car configuration overview<a class="headerlink" href="#car-configuration-overview" title="Link to this heading">¶</a></h2>
+<p>Ground vehicles designed to simulate real-world traffic and driving conditions. This is a grounded environment actor since it is affected by gravity. It also has wheels that follow the trajectory given.</p>
+<p>Project AirSim currently comes with some base configurations for environment cars to demonstrate how to configure them for simulation.</p>
+<p><code class="docutils literal notranslate"><span class="pre">env_actor_car.jsonc</span></code></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;links&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;joints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">links</span></code></p></td>
+<td><p>Array of <strong><a class="reference internal" href="#link-settings-cars"><span class="xref myst">Link settings</span></a></strong></p></td>
+<td><p>Link settings for each link component of the car. <strong>Note:</strong> For Skeletal Meshes there is only one link necessary.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">joints</span></code></p></td>
+<td><p>Array of <strong><a class="reference internal" href="#joint-settings-cars"><span class="xref myst">Joint settings</span></a></strong></p></td>
+<td><p>Joint settings for connecting links together. <strong>Note:</strong> Skeletal Meshes don’t use joints.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="link-settings-cars">
+<h2>Link settings cars<a class="headerlink" href="#link-settings-cars" title="Link to this heading">¶</a></h2>
+<p>For environment cars, the links settings are similar to actors setting but it only includes <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">collision</span></code> and <code class="docutils literal notranslate"><span class="pre">visual</span></code></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;links&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Frame&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;collision&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;visual&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="err">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name identifier for the link.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">collision</span></code></p></td>
+<td><p><strong><a class="reference internal" href="#collision-settings"><span class="xref myst">Collision settings</span></a></strong></p></td>
+<td><p>Collision settings for collision detection and response. <strong>Note:</strong> The same as actors collision settings.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">visual</span></code></p></td>
+<td><p><strong><a class="reference internal" href="#visual-settings-cars"><span class="xref myst">Visual settings</span></a></strong></p></td>
+<td><p>Visual settings for the link’s rendered mesh for cars.</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note:</strong> If the cars are using static meshes, the settings must include a “Normal” link to allow yaw rotation independently of the rotation in x and y. For example:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;FL_Normal&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;collision&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;visual&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;origin&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;xyz&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.2 -0.7 0.0&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;rpy-deg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0 0 0&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;geometry&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;unreal_mesh&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;no_frame_file&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<section id="visual-settings-cars">
+<h3>Visual settings cars<a class="headerlink" href="#visual-settings-cars" title="Link to this heading">¶</a></h3>
+<p>The link’s visual settings consist of what visual element will be rendered for the link. For environment cars, only <code class="docutils literal notranslate"><span class="pre">unreal_mesh</span></code> (static mesh) geometry types are supported.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;visual&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;origin&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;xyz&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.2 -0.7 0.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;rpy-deg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0 0 0&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;geometry&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;unreal_mesh&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/ProjectAirSim/SUV/SUV_Chassis&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;scale&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0 1.0 1.0&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;material&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;colored-texture&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/ProjectAirSim/SUV/AutomotiveMaterials/Materials/CarPaint/M_Carpaint_violet&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">origin</span></code>: <code class="docutils literal notranslate"><span class="pre">xyz</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Position “X Y Z” of the joint’s child link relative to the joint’s parent link in <strong>meter</strong> units. Defaults to all zero if no <code class="docutils literal notranslate"><span class="pre">origin</span></code> is specified.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">origin</span></code>: <code class="docutils literal notranslate"><span class="pre">rpy-deg</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Rotation “Roll Pitch Yaw” of the joint’s child link relative to the joint’s parent link in <strong>degree</strong> units. Defaults to all zero if no <code class="docutils literal notranslate"><span class="pre">origin</span></code> is specified.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">geometry</span></code>: <code class="docutils literal notranslate"><span class="pre">type</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unreal_mesh</span></code>, <code class="docutils literal notranslate"><span class="pre">skeletal_mesh</span></code></p></td>
+<td><p>The type of mesh geometry to use. The mesh must be imported into the Unreal environment as a .uasset to be available at runtime. Skeletal ans static mesh are currently supported.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">geometry</span></code>: <code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p>string</p></td>
+<td><p>This should be the Unreal content path to the mesh in the environment.  <strong>Note:</strong> For the <code class="docutils literal notranslate"><span class="pre">unreal_mesh</span></code>, the PIVOT in the Frame of the Static Mesh has to be set in the base of the Z axis of the chassis’ wheel axle, and in the center of the X and Y axis. While for the <code class="docutils literal notranslate"><span class="pre">skeletal_mesh</span></code> the PIVOT has to be set in the base of the Z axis of the whole car.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">geometry</span></code>: <code class="docutils literal notranslate"><span class="pre">scale</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Adjust the mesh’s scale. Defaults to all 1.0 if not specified. <strong>Note:</strong> A link’s scale will also be inherited by any child links to maintain relative size, so their scales may also need adjustment to compensate.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">material</span></code>: <code class="docutils literal notranslate"><span class="pre">colored-texture</span></code></p></td>
+<td><p>string</p></td>
+<td><p>This should be the Unreal Material or Material Instance content path to change the color of the chassis. <strong>Note:</strong> In the Static Mesh search for the chassis element that needs to be changed, and in the Slot Name make sure the word “Carpaint” is included, otherwise the new material will not show up.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="joint-settings-cars">
+<h2>Joint settings cars<a class="headerlink" href="#joint-settings-cars" title="Link to this heading">¶</a></h2>
+<p>A joint is a connection between two links (a single parent link and a single child link) in order to define a relationship for relative motion. Constraints for the joint type can specify the type of joint motion to allow.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;joints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Frame_FL_Normal&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fixed&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;parent-link&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Frame&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;child-link&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;FL_Normal&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;axis&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0 0 1&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="err">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">id</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name identifier for the joint.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">type</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">fixed</span></code>, <code class="docutils literal notranslate"><span class="pre">continuous</span></code>, <code class="docutils literal notranslate"><span class="pre">revolute</span></code></p></td>
+<td><p>Type of joint constraint. <code class="docutils literal notranslate"><span class="pre">fixed</span></code> means the pose of the <code class="docutils literal notranslate"><span class="pre">child-link</span></code> should stay fixed relative to the <code class="docutils literal notranslate"><span class="pre">parent-link</span></code>. <code class="docutils literal notranslate"><span class="pre">continuous</span></code> means the <code class="docutils literal notranslate"><span class="pre">child-link</span></code> can rotate continously around the <code class="docutils literal notranslate"><span class="pre">axis</span></code> normal. <code class="docutils literal notranslate"><span class="pre">revolute</span></code> means the <code class="docutils literal notranslate"><span class="pre">child-link</span></code> can rotate like a hinge around the <code class="docutils literal notranslate"><span class="pre">axis</span></code> up to an angle <code class="docutils literal notranslate"><span class="pre">limit</span></code>. <strong>Note:</strong> Cars currently only use the <code class="docutils literal notranslate"><span class="pre">fixed</span></code> type.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">parent-link</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name identifier for the joint’s parent link.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">child-link</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name identifier for the joint’s child link.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">axis</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;1</span> <span class="pre">0</span> <span class="pre">0&quot;</span></code> for X axis, <code class="docutils literal notranslate"><span class="pre">&quot;0</span> <span class="pre">1</span> <span class="pre">0&quot;</span></code> for Y axis, <code class="docutils literal notranslate"><span class="pre">&quot;0</span> <span class="pre">0</span> <span class="pre">1&quot;</span></code> for Z axis</p></td>
+<td><p>Rotation axis for joint motion.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="human-configuration-overview">
+<h2>Human configuration overview<a class="headerlink" href="#human-configuration-overview" title="Link to this heading">¶</a></h2>
+<p>Representations of pedestrians within the simulation. This is a grounded environment actor since it is affected by gravity, that uses an skeletal mesh for refined movement.</p>
+<p><code class="docutils literal notranslate"><span class="pre">env_actor_human.jsonc</span></code></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;links&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">links</span></code></p></td>
+<td><p>Array of <strong><a class="reference internal" href="#link-settings-humans"><span class="xref myst">Link settings</span></a></strong></p></td>
+<td><p>Link settings for each link component of the human. <strong>Note:</strong> The humans only need one link for the skeletal mesh</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="link-settings-humans">
+<h2>Link settings humans<a class="headerlink" href="#link-settings-humans" title="Link to this heading">¶</a></h2>
+<p>A link is a physical component with shape. The link settings consist of collision and visual elements.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;links&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Frame&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;collision&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;visual&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="err">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name identifier for the link.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">collision</span></code></p></td>
+<td><p><strong><a class="reference internal" href="#collision-settings"><span class="xref myst">Collision settings</span></a></strong></p></td>
+<td><p>Collision settings for collision detection and response. <strong>Note:</strong> The same as actors collision settings.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">visual</span></code></p></td>
+<td><p><strong><a class="reference internal" href="#visual-settings-humans"><span class="xref myst">Visual settings</span></a></strong></p></td>
+<td><p>Visual settings for the link’s rendered mesh.</p></td>
+</tr>
+</tbody>
+</table>
+<section id="visual-settings-humans">
+<h3>Visual settings humans<a class="headerlink" href="#visual-settings-humans" title="Link to this heading">¶</a></h3>
+<p>The link’s visual settings consist of what visual element will be rendered for the link. For environment humans, only <code class="docutils literal notranslate"><span class="pre">skeletal_mesh</span></code> geometry types are supported.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;visual&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;geometry&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;skeletal_mesh&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/ProjectAirSim/Scanned3DPeoplePack/RP_Character/rp_carla_rigged_001_ue4/rp_carla_rigged_001_ue4&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;scale&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0 1.0 1.0&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">geometry</span></code>: <code class="docutils literal notranslate"><span class="pre">type</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">skeletal_mesh</span></code></p></td>
+<td><p>The type of mesh geometry to use (currently only <code class="docutils literal notranslate"><span class="pre">skeletal_mesh</span></code> is supported). The mesh must be imported into the Unreal environment as a .uasset to be available at runtime.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">geometry</span></code>: <code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p>string</p></td>
+<td><p>For <code class="docutils literal notranslate"><span class="pre">skeletal_mesh</span></code>, this should be the Unreal content path to the mesh in the environment. <strong>Note:</strong> Make sure this is a skeletal mesh uasset, otherwise it will not show on the screen.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">geometry</span></code>: <code class="docutils literal notranslate"><span class="pre">scale</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Adjust the mesh’s scale. Defaults to all 1.0 if not specified.</p></td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.  All rights reserved</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

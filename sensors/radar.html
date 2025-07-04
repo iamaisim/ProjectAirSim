@@ -1,0 +1,391 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Radar sensor overview &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Battery sensor" href="battery.html" />
+    <link rel="prev" title="Lidar sensor" href="lidar.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Radar sensor overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#radar-detections">Radar detections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#radar-tracks">Radar tracks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#radar-sensor-settings">Radar sensor settings</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#sample-config">Sample config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fov-settings">FOV settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mask-settings">Mask settings</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Radar sensor overview</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/sensors/radar.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="radar-sensor-overview">
+<h1>Radar sensor overview<a class="headerlink" href="#radar-sensor-overview" title="Link to this heading">¶</a></h1>
+<p>The radar sensor is currently implemented as an ideal ground-truth based radar that does line-traces for each beam over a set rectangular field of view (FOV). One full frame of FOV beam line-traces is done at every sim time interval specified in the sensor’s settings.</p>
+<section id="radar-detections">
+<h2>Radar detections<a class="headerlink" href="#radar-detections" title="Link to this heading">¶</a></h2>
+<p>For any beam line-trace intersections with an object’s mesh, a radar detection is generated with the value of the range, azimuth, elevation, relative velocity along the beam direction, and radar cross-section (RCS) in square meters. The range, azimuth, and elevation are determined by the position of the intersection point relative to the sensor. The relative velocity is determined by the ground-truth kinematics of the object relative to the ground-truth kinematics of what the sensor is attached to. The RCS value is determined by the size of a bounding sphere of the detected object’s mesh to roughly approximate the overall scale of the object, and currently doesn’t account for any material or reflectivity effects.</p>
+</section>
+<section id="radar-tracks">
+<h2>Radar tracks<a class="headerlink" href="#radar-tracks" title="Link to this heading">¶</a></h2>
+<p>The radar sensor also does track processing at a separate sim time interval from the detections, generally at a lower frequency. At each track update, the accumulated detections since the last track update are processed and each detection is associated to an object based on the ground-truth name of the object. Since the detections are based on ground-truth, every detection for the same object will have the same values and only one detection is needed to update each object’s track. For each detected object, a track ID number is assigned and the detection’s ground-truth values are used to output the track data with the value of the ID, azimuth, elevation, range, relative position, relative velocity, relative acceleration, and RCS. Since the values are based on ground-truth, no EKF or state estimation is done and the values are just passed through directly. Before a track is created for a newly detected object, 3 of the last 5 track updates have to have associated detections to the object. An existing track that hasn’t had an associated detection in the last 3 updates will then be deleted.</p>
+</section>
+</section>
+<section id="radar-sensor-settings">
+<h1>Radar sensor settings<a class="headerlink" href="#radar-sensor-settings" title="Link to this heading">¶</a></h1>
+<section id="sample-config">
+<h2>Sample config<a class="headerlink" href="#sample-config" title="Link to this heading">¶</a></h2>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="nt">&quot;sensors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;radar1&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;radar&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;parent-link&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;RadarMountPoint&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;fov&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;range-max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">500.0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;range-resolution&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;velocity-max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;velocity-resolution&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;detection-interval&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.02</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;track-interval&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.2</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;rcs-adjust-factor&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;draw-debug-points&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;origin&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;xyz&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.6 0 0&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;rpy-deg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0 0 0&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;masks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">id</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name of radar sensor.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">type</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">radar</span></code></p></td>
+<td><p>Sensor type specifying this as a radar sensor.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">enabled</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>Whether sensor is enabled or not.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">parent-link</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name of the link that the sensor is attached to.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">fov</span></code></p></td>
+<td><p><a class="reference internal" href="#fov-settings"><span class="xref myst">FOV settings</span></a></p></td>
+<td><p>Field of view settings. See below for details.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">range-max</span></code></p></td>
+<td><p>float (&gt;0)</p></td>
+<td><p>Max range for the radar beams in meters.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">range-resolution</span></code></p></td>
+<td><p>float (&gt;0)</p></td>
+<td><p>Resolution of the measured range values in meters.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">velocity-max</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Max amplitude of measured relative velocity in m/s. Negative values are if the object is moving toward the sensor, and positive values are moving away.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">velocity-resolution</span></code></p></td>
+<td><p>float (&gt;0)</p></td>
+<td><p>Resolution of the measured velocity values in m/s.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">detection-interval</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Time interval between each set of detections in seconds. Each set is a full FOV frame of beams.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">track-interval</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Time interval between each track update in seconds. Each track update is based on the accumulated detections since the last update.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rcs-adjust-factor</span></code></p></td>
+<td><p>float (&gt;0)</p></td>
+<td><p>Global multiplier to adjust every measured RCS value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">draw-debug-points</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>If true, green dots will be rendered at the beam hit points on the detected objects. This is not supported in Unreal’s Shipping configuration.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">origin</span></code>: <code class="docutils literal notranslate"><span class="pre">xyz</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Position offset “X Y Z” of the sensor relative to the parent link’s origin in <strong>meter</strong> units. Defaults to all zero if no <code class="docutils literal notranslate"><span class="pre">origin</span></code> is specified.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">origin</span></code>: <code class="docutils literal notranslate"><span class="pre">rpy</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Rotation offset “Roll Pitch Yaw” of the sensor relative to the parent link’s origin in <strong>radian</strong> units. Defaults to all zero if no <code class="docutils literal notranslate"><span class="pre">origin</span></code> is specified.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">masks</span></code></p></td>
+<td><p><a class="reference internal" href="#mask-settings"><span class="xref myst">Mask settings</span></a></p></td>
+<td><p>Array of mask settings. See below for details.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="fov-settings">
+<h2>FOV settings<a class="headerlink" href="#fov-settings" title="Link to this heading">¶</a></h2>
+<p>Field of view settings define the area that the beams will be sweeped across as a rectangular frame.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="nt">&quot;fov&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;azimuth-max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.785</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;azimuth-min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.785</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;elevation-max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.524</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;elevation-min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.524</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;azimuth-resolution&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0175</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;elevation-resolution&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0175</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">azimuth-max</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Max azimuth angle in radians. Positive azimuth is in the rightward rotation direction from the centerline normal to the sensor’s face.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">azimuth-min</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Min azimuth angle in radians. Negative azimuth is in the leftward rotation direction from the centerline normal to the sensor’s face.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">elevation-max</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Max elevation angle in radians. Positive elevation is in the upward rotation direction from the centerline normal to the sensor’s face.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">elevation-min</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Min elevation angle in radians. Negative elevation is in the downward rotation direction from the centerline normal to the sensor’s face.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">azimuth-resolution</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Angular resolution between each beam in the azimuth sweep direction in radians.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">elevation-resolution</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Angular resolution between each beam in the elevation sweep direction in radians.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="mask-settings">
+<h2>Mask settings<a class="headerlink" href="#mask-settings" title="Link to this heading">¶</a></h2>
+<p>Mask settings define sections of the FOV that should NOT be included in the radar’s output detections. Any detection that fits within all of the mask’s windows for FOV area, range, velocity, and RCS will be filtered out. Any number of masks can be applied to a single radar sensor.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="nt">&quot;masks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;azimuth-min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.8</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;azimuth-max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.8</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;elevation-min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.8</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;elevation-max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.2</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;range-min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">10.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;range-max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">200.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;velocity-min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-15.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;velocity-max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;rcs-sqm-min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.01</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;rcs-sqm-max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">azimuth-min</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Min azimuth angle of the masked window in radians.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">azimuth-max</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Max azimuth angle of the masked window in radians.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">elevation-min</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Min elevation angle of the masked window in radians.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">elevation-max</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Max elevation angle of the masked window in radians.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">range-min</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Min range of the masked window in meters.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">range-max</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Max range of the masked window in meters.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">velocity-min</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Min relative velocity of the masked window in m/s.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">velocity-max</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Max relative velocity of the masked window in m/s.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rcs-sqm-min</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Min RCS of the masked window in m^2.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rcs-sqm-max</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Max RCS of the masked window in m^2.</p></td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI Consulting Corp.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="lidar.html" class="btn btn-neutral float-left" title="Lidar sensor" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="battery.html" class="btn btn-neutral float-right" title="Battery sensor" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

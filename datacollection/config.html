@@ -1,0 +1,251 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Collection Config &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Data Collection Config</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/datacollection/config.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="data-collection-config">
+<h1>Data Collection Config<a class="headerlink" href="#data-collection-config" title="Link to this heading">¶</a></h1>
+<p>This document serves to provide context on the configuration file that defines the data generation run and what the different components and parameters within it mean. This configuration file is intended to be the single file that a user has to modify in order to collect the desired data from the sim.</p>
+<p>A sample config - <a class="reference internal" href="#../../client%5Cpython%5Cexample_user_scripts%5Cdatacollection%5Cconfigs%5Cdatacollector_config.jsonc"><span class="xref myst">datacollection_config.jsonc</span></a> is available for reference. Note - the datacollection API’s only reads <code class="docutils literal notranslate"><span class="pre">this</span></code> file so please make all modifications to this file only.</p>
+<p>The config file is broken into three main sections:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#environment-spec"><span class="xref myst">Environments Spec</span></a></p></li>
+<li><p><a class="reference internal" href="#collection-spec"><span class="xref myst">Collection Spec</span></a></p></li>
+<li><p><a class="reference internal" href="#augmentation-spec"><span class="xref myst">Augmentation Spec</span></a></p></li>
+<li><p><a class="reference internal" href="#output-spec"><span class="xref myst">Output Spec</span></a></p></li>
+</ul>
+<section id="environment-spec">
+<h2>Environment Spec<a class="headerlink" href="#environment-spec" title="Link to this heading">¶</a></h2>
+<p>Referred to as <code class="docutils literal notranslate"><span class="pre">env-spec</span></code> in config, these set of params define the sim environment that the data collection will take place in. The following are the environment spec params:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">assets</span></code> - defines the various assets that the user wants to spawn in the sim scene. Each individual <code class="docutils literal notranslate"><span class="pre">asset</span></code> is defined with the following params:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">source</span></code> - Choose between <code class="docutils literal notranslate"><span class="pre">GLTF</span></code> (runtime asset spawned from a local gltf/glb file), <code class="docutils literal notranslate"><span class="pre">UnrealProject</span></code> (asset baked into the project)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">file-name</span></code> - Name of the asset file (full path for local GLTF’s)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">scale</span></code> - Array with asset scale in x,y and z (e.g. [10,2,5])</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rotation</span></code> - Array defining quaternion rotation of the asset</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">seg-id</span></code> - Segmentation ID to be assigned to the asset (If not specified, a random ID will be assigned at spwan)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">origin_xyz</span></code> - The lat-lon spawn position of the asset</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">randomizations</span></code> - A list of randomizations to be applied to the asset during data collection. For more information, please refer to <a class="reference internal" href="randomizations.html"><span class="std std-doc">randomizations.md</span></a></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">weather</span></code>: Array containing desired weather variations in the data. The dataset is multiplied by the number of weather variations (for e.g. if the dataset length is 500 and the 5 weather variations are configured, the output dataset length will be 2500 data points). Each <code class="docutils literal notranslate"><span class="pre">dict</span></code> object in the list contains the following params:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">type</span></code>: The desired weather type (See <code class="docutils literal notranslate"><span class="pre">projectairsim.types.WeatherParameter</span></code> for available types)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">intensity</span></code>: A list of intensity values to sweep over - [start, end, step]. Weather intensity values are in the range (0 - 1.0)</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">time-of-day</span></code>: A list input is accepted.</p>
+<ul>
+<li><p>The elements of the list give range for parametrization.</p></li>
+<li><p>The generated date-time values are equally distributed over all poses.</p></li>
+<li><p>There are two accepted input formats:</p></li>
+<li><p>“time-of-day”: [“2022-06-20”,”7:15 AM”,”3:15 PM”, “0:15:00” (indicates 15 mins of step size)]</p></li>
+<li><p>“time-of-day”: [“2022-06-20”,”07:15:00”, “15:15:00”,”0:15:00”]</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">scene-configs</span></code>: Reference to the sim-scene configs for different scenes</p></li>
+</ul>
+</section>
+<section id="collection-spec">
+<h2>Collection Spec<a class="headerlink" href="#collection-spec" title="Link to this heading">¶</a></h2>
+<p>Referred to as <code class="docutils literal notranslate"><span class="pre">collection-spec</span></code> in the config, these params define the kind of data that will be collected in the above defined sim scene. The following are the collection spec params:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">trajectory-spec</span></code>: This param contains trajectory presets that can be used later in the config. These presets can be composed of any combination of the supported trajectories. For more details on the supported trajectory types and their defining param check out <a class="reference internal" href="trajectory.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">trajectory.md</span></code></span></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">geo-locations</span></code>: defines the locations within the sim scene the drone trajectory will be centered around and where the above assets could be spawned. Each <code class="docutils literal notranslate"><span class="pre">geo-location</span></code> is defined by:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">latitude</span></code>: Global latitude for location</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">longitude</span></code>: Global longitude for location</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">altitude</span></code>: Altitude at location in <code class="docutils literal notranslate"><span class="pre">m</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trajectory</span></code>: Name of the trajectory preset to be used at this location</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">scene-name</span></code>: Name of the scene at this location (e.g. DFW, Redmond etc)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">scene-config</span></code>: Sim scene config to be used at this location</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">asset</span></code>: Name of the asset (from those defined in <code class="docutils literal notranslate"><span class="pre">env-spec</span></code>) to be spawned at this location</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">object-id</span></code>: Sim name of asset to be spawned. <code class="docutils literal notranslate"><span class="pre">Note</span></code> - this <code class="docutils literal notranslate"><span class="pre">object-id</span></code> should also be specified in the robot config’s <code class="docutils literal notranslate"><span class="pre">annotation-setting</span></code> section for the sensor you are collecting data from</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">env-actor-name</span></code>: Name of env actor configured in corresponding scene config</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">env-actor-trajectory</span></code>: Defines trajectory the env actor will follow</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: name of trajectory preset or <code class="docutils literal notranslate"><span class="pre">pre-defined</span></code> if defined in config</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">loop</span></code>: Wether the env actor keeps looping above trajectory</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">time-offset</span></code>: Delay for starting trajectory</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">duration</span></code>: Time taken to complete each loop</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data-spec</span></code>: Defines the modality/annotations to be collected. Currently, the following are supported:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">modalities</span></code>:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">RGB</span></code> - Saves RGB image from the scene camera for each pose</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">annotations</span></code>:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">2DBBox</span></code> - Collects and saves 2D bbox data for spawned assets</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">3DBBox</span></code> - Collects and saves 3D bbox data for spawned assets</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">segmentation</span></code>: Collects and saves data from the segmentation camera</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="augmentation-spec">
+<h2>Augmentation Spec<a class="headerlink" href="#augmentation-spec" title="Link to this heading">¶</a></h2>
+<p>Referred to as <code class="docutils literal notranslate"><span class="pre">augmentation-spec</span></code> in the config, these params define the augmentations that will be applied to images collected through the module.</p>
+<p>Note: These augmentations can be applied as a part of the data collection pipeline by adding the corresponding API to your script or separately on a directory of data by running <a class="reference internal" href="#../../client%5Cpython%5Cprojectairsim%5Csrc%5Cprojectairsim%5Cdatacollection%5Caugmentation%5Cdataaug.py"><span class="xref myst">dataaug.py</span></a>. In each case, the config file needs to configured with the desired augmentations.</p>
+<p>The following augmentations are currently supported:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>* `horizontal-flip` - Flip horizontally around the y-axis
+- `vertical-flip` - Flip horizontally around the x-axis
+</pre></div>
+</div>
+<p>Each augmentation type has the following configurable params:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>- `enabled` - If given augmentation type is applied to the data
+- `p` - Probability of applying given augmentation to a data point. Range: (0-1)
+</pre></div>
+</div>
+</section>
+<section id="output-spec">
+<h2>Output Spec<a class="headerlink" href="#output-spec" title="Link to this heading">¶</a></h2>
+<p>Referred to as <code class="docutils literal notranslate"><span class="pre">output-spec</span></code> in the config, these params define how and where the data from the pipeline is stored. THese params also define some of the static data associated with the dataset being collected through the pipeline. Following are the params that define output spec:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">description</span></code>: Overall description of the collected dataset</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">operation-description</span></code>: Describe the mission the drone is flying in the scene</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data-description</span></code>: Description of the data being collected</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data-source</span></code>: Source of the data being generation (<code class="docutils literal notranslate"><span class="pre">projectairsim</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">error-sources</span></code>: Sources of error in the collected dataset</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dataset-name</span></code>: Name of the dataset to be collected, <code class="docutils literal notranslate"><span class="pre">Note</span></code> - if enabled, the Pixie dataset will be under this name</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">image-spec</span></code>: Properties of individual images in the dataset</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

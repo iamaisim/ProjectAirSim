@@ -1,0 +1,241 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Using a PX4 Controller as Hardware-In-The-Loop (HITL) &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="PX4 Lockstep Mode" href="px4_lockstep.html" />
+    <link rel="prev" title="Building PX4" href="px4_build.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4_build.html">Building PX4</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#supported-airframes">Supported airframes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#supported-hardware">Supported hardware</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-up-px4-hardware-in-the-loop">Setting up PX4 Hardware-In-The-Loop</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/controllers/px4/px4_hitl.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="using-a-px4-controller-as-hardware-in-the-loop-hitl">
+<h1>Using a PX4 Controller as Hardware-In-The-Loop (HITL)<a class="headerlink" href="#using-a-px4-controller-as-hardware-in-the-loop-hitl" title="Link to this heading">¶</a></h1>
+<p>In HITL, the PX4 flight controller software is running on a dedicated hardware controller board (frequently the same as would be used in a physical remote control (RC) vehicle) connected via USB to the PC running Project AirSim.</p>
+<section id="supported-airframes">
+<h2>Supported airframes<a class="headerlink" href="#supported-airframes" title="Link to this heading">¶</a></h2>
+<p>When using PX4 HITL, Project AirSim only supports the Quadrotor airframe which corresponds to PX4’s “HIL Quadcopter X” airframe.  The VTOL Fixed-Wing Tailsitter airframe is not supported in simulation by PX4 HITL (but is supported by <a class="reference internal" href="px4_sitl.html"><span class="std std-doc">PX4 SITL</span></a>).</p>
+</section>
+<section id="supported-hardware">
+<h2>Supported hardware<a class="headerlink" href="#supported-hardware" title="Link to this heading">¶</a></h2>
+<p>Project AirSim has been tested with the following devices:</p>
+<ul class="simple">
+<li><p>Pixhawk 1 (2.4.6)</p></li>
+<li><p>Pixhawk 4 mini from Holybro</p></li>
+</ul>
+</section>
+<section id="setting-up-px4-hardware-in-the-loop">
+<h2>Setting up PX4 Hardware-In-The-Loop<a class="headerlink" href="#setting-up-px4-hardware-in-the-loop" title="Link to this heading">¶</a></h2>
+<p>You must have one of the supported devices listed above. For manual flight simulation, you will also need a ground-based RC radio unit (aka. <em>RC transmitter</em>) and a vehicle-based RC radio unit (aka. <em>RC receiver</em>).</p>
+<ol class="arabic">
+<li><p>For manual flight simulation:</p>
+<ol class="arabic simple">
+<li><p>Make sure your RC receiver and RC transmitter are bound to each other.</p></li>
+<li><p>Connect the receiver (the vehicle-based radio unit) to the PX4 flight controller’s RC port.</p></li>
+</ol>
+<p>Refer to your RC manual and <a class="reference external" href="https://docs.px4.io/en/getting_started/rc_transmitter_receiver.html">PX4 docs</a> for more information.</p>
+</li>
+<li><p>Do not plug the PX4 flight controller device into your computer yet.</p></li>
+<li><p>Download and install <a class="reference external" href="http://qgroundcontrol.com/">QGroundControl</a>.</p></li>
+<li><p>Launch <em>QGroundControl</em> and go to the Vehicle Firmware Setup panel (click on the Ground Control logo, select the “Vehicle Setup” tool, then “Firmware” tab.)</p></li>
+<li><p>Connect the PX4 flight controller device to a USB port on your computer.</p></li>
+<li><p><em>QGroundControl</em> should detect the PX4 hardware and offer to setup the firmware on the device.  Select the “PX4 Pro Stable Release vx.xx.x” flight stack.
+See also the <a class="reference external" href="https://docs.px4.io/master/en/config/">initial firmware setup video</a>.</p></li>
+<li><p>In <em>QGroundControl</em>, configure your PX4 flight controller device for HIL simulation by selecting under “Simulation (Copter)” the “HIL Quadrocopter X” airframe, then click “Apply and Restart” at the top.  After the PX4 device reboots and <em>QGroundControl</em> reconnects to it, verify that “HIL Quadrocopter X” is still selected.</p></li>
+</ol>
+<p>For manual flight simulation, perform these additional steps:</p>
+<ol class="arabic" start="8">
+<li><p>In <em>QGroundControl</em>, go to Radio tab and calibrate (make sure the transmitter is on and that the receiver indicates it is bound to it).</p></li>
+<li><p>Go to the Flight Mode tab and chose one of the remote control switches as the “Mode Channel”. Then set (for example) Stabilized and Attitude flight modes for two positions of the switch.</p></li>
+<li><p>Go to the Tuning section of <em>QGroundControl</em> and set appropriate values. For example, for Fly Sky’s FS-TH9X remote control, the following settings give a more realistic feel:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Setting</p></th>
+<th class="head"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Hover throttle</p></td>
+<td><p>mid+1 mark</p></td>
+</tr>
+<tr class="row-odd"><td><p>Roll and pitch sensitivity</p></td>
+<td><p>mid-3 mark</p></td>
+</tr>
+<tr class="row-even"><td><p>Altitude and position control sensitivity</p></td>
+<td><p>mid-2 mark</p></td>
+</tr>
+</tbody>
+</table>
+</li>
+<li><p>In the <a class="reference internal" href="../../config_robot.html"><span class="std std-doc">robot configuration file</span></a>, specify PX4 for your vehicle controller like this:</p></li>
+</ol>
+<div class="highlight-jsonc notranslate"><div class="highlight"><pre><span></span>    {
+        ...
+        &quot;controller&quot;: {
+            &quot;id&quot;: &quot;PX4_Controller&quot;,
+            &quot;type&quot;: &quot;px4-api&quot;,
+            &quot;px4-settings&quot;: {
+                &quot;use-serial&quot;: true,
+                &quot;serial-port&quot;: &quot;serial device name&quot;,
+                &quot;qgc-host-ip&quot;: &quot;127.0.0.1&quot;,
+                &quot;qgc-port&quot;: 14550,
+                &quot;parameters&quot;: {
+                    &quot;NAV_RCL_ACT&quot;: 0,
+                    &quot;NAV_DLL_ACT&quot;: 0,
+                    &quot;COM_OBL_ACT&quot;: 1,
+                    &quot;LPE_LAT&quot;: 47.641468,
+                    &quot;LPE_LON&quot;: -122.140165
+                }
+            }
+        },
+        ...
+    }
+</pre></div>
+</div>
+<p>The “use-serial” value indicates that Project AirSim will find the PX4 device on a serial port with the device name specified by “serial-port”.  The “qgc-host-ip” and “qgc-port” configure Project AirSim to communicate with <em>QGroundControl</em>.  The “parameters” values configure PX4 to set the vehicle’s local origin and set failsafe actions appropriate for Project AirSim.</p>
+<p>You’ll need to replace the “serial-port” entry’s value of “serial device name” with the actual device name of the serial port to the PX4 device.</p>
+<ul class="simple">
+<li><p>On Windows the device name will be of the form “COM<em>x</em>” such as “COM10” which you can determine by using the Device Manager and locating the PX4 device under “Ports (COM &amp; LPT)”.</p></li>
+<li><p>On Linux the device name will be of the form “/dev/tty<em>x</em>”; for example, “/dev/ttyS1”, “/dev/ttyUSB2”, or “/dev/ttyACM3”.  If the PX4 device is connected by USB, the “lsusb” command may help determine the correct device name.</p></li>
+</ul>
+<p>After completing the above setup you should now be able to use <em>QGroundControl</em> to fly the vehicle in Project AirSim.  If an RC transmitter and receiver are connected and configured through the additional setup steps for manual flight simulation, you can manually fly using the RC transmitter. With manual flight you don’t need <em>QGroundControl</em> after the initial setup. You can usually arm the vehicle by lowering and bringing the two sticks of the RC transmitter together down and inwards. Typically the Stabilized flight mode (instead of Manual) gives a better experience for beginners.  For more information see the <a class="reference external" href="https://docs.px4.io/master/en/flying/basic_flying.html">PX4 Basic Flying Guide</a>.</p>
+<p>You can also control the drone with a Python script using <a class="reference internal" href="#/apis.md"><span class="xref myst">the Python APIs</span></a>.</p>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI Consulting Corp.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="px4_build.html" class="btn btn-neutral float-left" title="Building PX4" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="px4_lockstep.html" class="btn btn-neutral float-right" title="PX4 Lockstep Mode" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,283 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project AirSim Client Setup &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/documentation_options.js?v=2709fde1"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Project AirSim Client Setup</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/client_setup.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="project-airsim-client-setup">
+<h1>Project AirSim Client Setup<a class="headerlink" href="#project-airsim-client-setup" title="Link to this heading">¶</a></h1>
+<section id="python-client">
+<h2>Python Client<a class="headerlink" href="#python-client" title="Link to this heading">¶</a></h2>
+<p>A Python client uses the following to communicate with the Project AirSim simulation server:</p>
+<ul class="simple">
+<li><p>Python 3.10, 64-bit</p></li>
+<li><p><strong><a class="reference external" href="https://github.com/codypiersall/pynng">pynng</a></strong> nanomsg-next-gen wrapper pip package</p></li>
+</ul>
+<section id="setting-up-the-client-on-windows">
+<h3>Setting Up the Client on <strong>Windows</strong><a class="headerlink" href="#setting-up-the-client-on-windows" title="Link to this heading">¶</a></h3>
+<ol class="arabic">
+<li><p>Install Python 3.10 for Windows. There are many options for installing Python, but one recommended way is to:</p>
+<ul class="simple">
+<li><p>Download the official <strong><a class="reference external" href="https://www.python.org/downloads/windows/">Windows installer for Python</a></strong>.  Please note that the 64-bit version is required.</p></li>
+<li><p>Install using these <strong>custom</strong> options:</p>
+<ul>
+<li><p>Install for all users</p></li>
+<li><p>Install pip</p></li>
+<li><p>Do not add Python to environment variables to prevent version conflicts (instead use virtual environments to manage Python paths and packages)</p></li>
+<li><p>Precompile standard library</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Activate the Python environment to use with Project AirSim.</p>
+<p>If you don’t have a suitable Python environment yet, do the following.  Here, we assume we’re using Python 3.10 installed in the directory <code class="docutils literal notranslate"><span class="pre">C:\Python310</span></code>, but use the version and directory of your installation of Python:</p>
+<p>A) Install <code class="docutils literal notranslate"><span class="pre">virtualenv</span></code> and create a new environment (here named <code class="docutils literal notranslate"><span class="pre">airsim-venv</span></code> but you may choose any convenient name):</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> C:\Python310\python -m pip install virtualenv
+ C:\Python310\python -m venv C:\path\to\airsim-venv
+</pre></div>
+</div>
+<p>B) Activate your environment:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> C:\path\to\airsim-venv\Scripts\activate
+</pre></div>
+</div>
+<p>C) Verify the version of Python in your environment.</p>
+<p>Run this command:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> python --version
+</pre></div>
+</div>
+<p>to display the version of Python.</p>
+<p>Run the “python” command to enter the Python console and enter the following:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> import struct
+ print(struct.calcsize(&quot;P&quot;) * 8)
+</pre></div>
+</div>
+<p>A 64-bit build of Python will print “64” while a 32-bit build of Python will print “32”.</p>
+<p>If the environment is using a wrong version or the 32-bit build of Python, you’ll need to exit the environment, delete the environment, and return to step A to recreate the environment with the correct version of Python.  If the installed Python is 32-bit, you’ll also need to uninstall the 32-bit build and install the 64-bit build instead.</p>
+<p>D) Install basic tools for setting up other pip packages in the activated environment:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> python -m pip install --upgrade pip
+ python -m pip install setuptools wheel
+</pre></div>
+</div>
+<p>Developers must also install the cmake package:
+python -m pip install cmake</p>
+</li>
+<li><p>Install the Project AirSim Python client library:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> cd path\to\repo
+ python -m pip install -e client\python\projectairsim
+</pre></div>
+</div>
+<p>If you get this error:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> Error: Could not find a version that satisfies the requirement open3d
+</pre></div>
+</div>
+<p>most likely your virtual environment is using a 32-bit build or an unsupported version of Python. In either case, delete and rebuild the virtual environment (see step 2A) using a supported 64-bit version of Python.</p>
+</li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="setting-up-the-client-on-linux">
+<h3>Setting Up the Client on <strong>Linux</strong><a class="headerlink" href="#setting-up-the-client-on-linux" title="Link to this heading">¶</a></h3>
+<ol class="arabic">
+<li><p>Install Python 3.10 to your system:</p>
+<p>Ubuntu 22.04 comes with Python 3.10, but Project AirSim requires additional packages:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> sudo apt install python3-dev python3-venv
+</pre></div>
+</div>
+<p><em>Note: In Ubuntu 22.04, the system-installed Python (v3.10) can be launched by running <code class="docutils literal notranslate"><span class="pre">python3</span></code> instead of <code class="docutils literal notranslate"><span class="pre">python3.10</span></code>.</em></p>
+</li>
+<li><p>Activate the Python environment to use with Project AirSim.</p>
+<p>If you don’t have a suitable Python environment yet, do the following:</p>
+<p>A) Create a new <code class="docutils literal notranslate"><span class="pre">virtualenv</span></code> environment (here named <code class="docutils literal notranslate"><span class="pre">airsim-venv</span></code> but you may choose any convenient name):</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> python3 -m venv /path/to/airsim-venv
+</pre></div>
+</div>
+<p>B) Activate your environment:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> source /path/to/airsim-venv/bin/activate
+</pre></div>
+</div>
+<p>C) Verify the version of Python in your environment.</p>
+<p>Run this command:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> python --version
+</pre></div>
+</div>
+<p>to display the version of Python.</p>
+<p>Run the “python” command to enter the Python console and enter the following:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> import struct
+ print(struct.calcsize(&quot;P&quot;) * 8)
+</pre></div>
+</div>
+<p>A 64-bit build of Python will print “64” while a 32-bit build of Python will print “32”.</p>
+<p>If the environment is using the wrong version or the 32-bit build of Python, you’ll need to exit the environment, delete the environment, and return to step A) to recreate the environment with the correct version of Python.  If the installed Python is 32-bit, you’ll also need to uninstall the 32-bit build and install the 64-bit build instead.</p>
+<p>D) Install basic tools for setting up other pip packages in the activated environment:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> python -m pip install --upgrade pip
+ python -m pip install setuptools wheel
+</pre></div>
+</div>
+<p>Developers must also install the cmake package:
+python -m pip install cmake</p>
+</li>
+<li><p>Install the Project AirSim Python client library:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> cd path\to\repo
+ python -m pip install -e client\python\projectairsim
+</pre></div>
+</div>
+<p>If you get this error:
+Error: Could not find a version that satisfies the requirement open3d</p>
+<p>most likely your virtual environment is using a 32-bit build or an unsupported version of Python. In either case, delete and rebuild the virtual environment (see step 2A) using a supported 64-bit version of Python.</p>
+</li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="checking-client-operation">
+<h3>Checking Client Operation<a class="headerlink" href="#checking-client-operation" title="Link to this heading">¶</a></h3>
+<p>After installation, you can check if the client works by launching Project AirSim and running one of the client demo scripts such as <code class="docutils literal notranslate"><span class="pre">hello_drone.py</span></code> with the Project AirSim Python environment activated:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="kn">from</span><span class="w"> </span><span class="nn">activated</span> <span class="n">Python</span> <span class="n">environment</span> <span class="k">with</span> <span class="n">Project</span> <span class="n">AirSim</span> <span class="n">running</span><span class="o">&gt;</span>
+
+<span class="n">python</span> <span class="n">hello_drone</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>In your own custom client scripts, just import the client for your robot type (ex. Drone) from the Project AirSim Python client library:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">projectairsim</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProjectAirSimClient</span><span class="p">,</span> <span class="n">Drone</span><span class="p">,</span> <span class="n">World</span>
+</pre></div>
+</div>
+<p>For more details about using the client to connect, send/receive signals, etc, see the <code class="docutils literal notranslate"><span class="pre">hello_drone.py</span></code> example script contents or the specific <strong><a class="reference internal" href="api.html"><span class="std std-doc">API documentation</span></a></strong> for your simulation scenario.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="c-client">
+<h2>C++ Client<a class="headerlink" href="#c-client" title="Link to this heading">¶</a></h2>
+<p>Currently, only Python clients are supported.</p>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI Consulting Corp.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

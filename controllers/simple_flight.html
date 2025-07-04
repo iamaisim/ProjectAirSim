@@ -1,0 +1,500 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simple Flight Controller for Drones &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="PX4 Autopilot Flight Controller" href="px4/px4.html" />
+    <link rel="prev" title="Flight Controllers" href="controllers.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Simple Flight Controller for Drones</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-an-xbox-controller">Using an Xbox controller</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#command-line-arguments">Command-line arguments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#xbox-controller-configuration">Xbox controller configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#simple-flight-specific-configuration">Simple Flight-specific configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#using-other-game-controllers">Using other game controllers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#simple-flight-api">Simple Flight API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#subscribed-topics">Subscribed topics:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#message-types">Message types</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#flightcontrolrcinputmessage">FlightControlRCInputMessage</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#rc-input-channels">RC input channels</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Simple Flight Controller for Drones</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/controllers/simple_flight.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="simple-flight-controller-for-drones">
+<h1>Simple Flight Controller for Drones<a class="headerlink" href="#simple-flight-controller-for-drones" title="Link to this heading">¶</a></h1>
+<p>The Simple Flight flight controller built into Project AirSim enables you to get your drone flying quickly and easily.</p>
+<p>Simple Flight currently supports quadrotor, hexarotor, VTOL quad-x tailsitter, and VTOL quad tiltrotor airframes.</p>
+<section id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading">¶</a></h2>
+<p>To use Simple Flight as the flight controller for a robot, in the robot config file under the <code class="docutils literal notranslate"><span class="pre">controller</span></code> section set the <code class="docutils literal notranslate"><span class="pre">type</span></code> parameter to <code class="docutils literal notranslate"><span class="pre">simple-flight-api</span></code>.</p>
+<p>For additional Simple Flight settings, see <a class="reference internal" href="../config_robot.html#simple-flight-settings"><span class="std std-ref">Simple Flight settings in Robot config</span></a>.</p>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
+<p>To use Simple Flight to fly a robot programmatically with a Python mission script:</p>
+<ol class="arabic simple">
+<li><p>Enable API control by calling <code class="docutils literal notranslate"><span class="pre">projectairsim.Drone.enable_api_control()</span></code>.  This enables Client API functions to command the vehicle through Simple Flight.</p></li>
+<li><p>Call <code class="docutils literal notranslate"><span class="pre">projectairsim.Drone.arm()</span></code> to ready the vehicle for take-off.</p></li>
+<li><p>Call <code class="docutils literal notranslate"><span class="pre">projectairsim.Drone.takeoff_async()</span></code> to launch the vehicle from the ground.</p></li>
+<li><p>Call Client API functions such as <code class="docutils literal notranslate"><span class="pre">projectairsim.Drone.move_by_velocity_async()</span></code> to fly the vehicle.</p></li>
+<li><p>To land, call <code class="docutils literal notranslate"><span class="pre">projectairsim.Drone.land_async()</span></code>.</p></li>
+<li><p>(Optional) Disarm the vehicle with <code class="docutils literal notranslate"><span class="pre">projectairsim.Drone.disarm()</span></code></p></li>
+<li><p>(Optional) Disable API control with <code class="docutils literal notranslate"><span class="pre">projectairsim.Drone.disable_api_control()</span></code></p></li>
+</ol>
+<p>To use Simple Flight to fly a robot manually with a manual controller like an Xbox game controller, see <a class="reference internal" href="#using-an-xbox-game-controller"><span class="xref myst">Using an Xbox controller</span></a>, below.</p>
+</section>
+<section id="using-an-xbox-controller">
+<h2>Using an Xbox controller<a class="headerlink" href="#using-an-xbox-controller" title="Link to this heading">¶</a></h2>
+<p>Simple Flight supports using a PC game controller as a manual remote control input device as if it were a remote control transmitter in a radio link to the flight controller on the vehicle.  Run the example script <code class="docutils literal notranslate"><span class="pre">client\python\example_user_scripts\xbox_rc.py</span></code> to use an Xbox game controller connected to the PC as an RC controller for Simple Flight.  By default, the Xbox controls are mapped to the following Simple Flight functions:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Xbox Control</p></th>
+<th class="head"><p>Simple Flight Function</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Left joystick vertical</p></td>
+<td><p>Throttle</p></td>
+<td><p>Fully down is no throttle, fully up is full throttle.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Left joystick horizontal</p></td>
+<td><p>X-roll axis</p></td>
+<td><p>Vehicle roll level or rate</p></td>
+</tr>
+<tr class="row-even"><td><p>Right joystick vertical</p></td>
+<td><p>Y-pitch axis</p></td>
+<td><p>Vehicle pitch level or rate</p></td>
+</tr>
+<tr class="row-odd"><td><p>Right joystick horizontal</p></td>
+<td><p>Z-yaw axis</p></td>
+<td><p>Vehicle yaw level or rate</p></td>
+</tr>
+<tr class="row-even"><td><p>Start button</p></td>
+<td><p>Arm vehicle</p></td>
+<td><p>Throttle must be fully down and button pressed for at least 100 ms</p></td>
+</tr>
+<tr class="row-odd"><td><p>Back button</p></td>
+<td><p>Disarm vehicle</p></td>
+<td><p>Throttle must be fully down and button pressed for at least 100 ms</p></td>
+</tr>
+<tr class="row-even"><td><p>X button</p></td>
+<td><p>Toggle API control enable</p></td>
+<td><p>Enables or disables programmatic control of the vehicle through the Client API</p></td>
+</tr>
+<tr class="row-odd"><td><p>Y button</p></td>
+<td><p>Toggle between angle level and rate control</p></td>
+<td><p>With angle level control (the default), the axis controls set the axis angles.  With angle rate control, the axis controls set the axis rotation rates.</p></td>
+</tr>
+</tbody>
+</table>
+<section id="command-line-arguments">
+<h3>Command-line arguments<a class="headerlink" href="#command-line-arguments" title="Link to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">xbox_rc.py</span></code> script takes the following arguments:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Switch</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code>‑‑address</code></p></td>
+<td><p>string</p></td>
+<td><p>127.0.0.1</p></td>
+<td><p>The IP address of the host running Project AirSim (e.g., <code>‑‑address=127.0.0.1</code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code>‑‑rcconfigfile</code></p></td>
+<td><p>string</p></td>
+<td><p>“xbox_rc_config.jsonc”</p></td>
+<td><p>The name of the RC  config file loaded to setup the mapping from the PC controller to the Simple Flight RC input.  The file is relative to the current directory.</p></td>
+</tr>
+<tr class="row-even"><td><p><code>‑‑sceneconfigfile</code></p></td>
+<td><p>string</p></td>
+<td><p>“scene_basic_drone.jsonc”</p></td>
+<td><p>The name of the Project AirSim scene config file loaded to setup the simulation.  This file is loaded from the sim config path directory.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code>‑‑simconfigpath</code></p></td>
+<td><p>string</p></td>
+<td><p>“sim_config/”</p></td>
+<td><p>The path to the directory containing the Project AirSim config files.  The path is relative to the current working directory.</p></td>
+</tr>
+<tr class="row-even"><td><p><code>‑‑servicesport</code></p></td>
+<td><p>integer</p></td>
+<td><p>8990</p></td>
+<td><p>The Project AirSim services TCP/IP port.  This can be changed by the <a class="reference internal" href="../command_line_switches.html#command_line_switches"><span class="std std-ref">-servicesport</span></a> command-line switch to Project AirSim.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code>‑‑topicsport</code></p></td>
+<td><p>integer</p></td>
+<td><p>8989</p></td>
+<td><p>The Project AirSim pub-sub TCP/IP port.  This can be changed by the <a class="reference internal" href="../command_line_switches.html#command_line_switches"><span class="std std-ref">-topicsport</span></a> command-line switch to Project AirSim.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="xbox-controller-configuration">
+<h3>Xbox controller configuration<a class="headerlink" href="#xbox-controller-configuration" title="Link to this heading">¶</a></h3>
+<p>The RC configuration file has the following overall structure:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;channel_map&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;0&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;1&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+<span class="w">    </span><span class="err">...</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;channel_map_oob&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;arm_vehicle&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+<span class="w">    </span><span class="err">...</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">channel_map</span></code> section contains a channel entry for each RC input channel to the flight controller, labeled “0”, “1”, etc.  The <code class="docutils literal notranslate"><span class="pre">channel_map_oob</span></code> section is similar but each channel entry is labeled with the name of out-of-band (OOB) function.  See <a class="reference internal" href="#simple-flight-specific-configuration"><span class="xref myst">Simple Flight-specific configuration</span></a>, below, for the function of each RC input channel and the OOB functions supported by Simple Flight.</p>
+<p>Each channel entry has the following structure:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;input_channel&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;xLeft&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;input_range&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-27500.0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">27500.0</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;input_dead_range&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-5000.0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5000.0</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;output_range&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-1.0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>with the following parameters:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">input_channel</span></code></p></td>
+<td><p>string</p></td>
+<td><p>The name of input controller channel from which to get the value for this RC channel.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">input_range</span></code></p></td>
+<td><p>range</p></td>
+<td><p>Expected range of native values from the input controller channel.  They correspond to the <code class="docutils literal notranslate"><span class="pre">output_range</span></code> values.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">input_dead_range</span></code></p></td>
+<td><p>range</p></td>
+<td><p>The range of native values from the input controller channel that are mapped to 0.0.  This compensates for controls resting at a non-zero value when released.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">output_range</span></code></p></td>
+<td><p>range</p></td>
+<td><p>The range of values output to the flight controller or OOB function.  They correspond to the <code class="docutils literal notranslate"><span class="pre">input_range</span></code> values.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max</span></code></p></td>
+<td><p>float</p></td>
+<td><p>The maximum value of the range.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">min</span></code></p></td>
+<td><p>float</p></td>
+<td><p>The minimum value of the range.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Most RC input channels use the range [-1..+1], but there are exceptions such as the Simple Flight throttle channel which uses the range [0..+1].</p>
+<p>Note that the output to the flight controller can be inverted with respect to the input from the input controller by swapping the <code class="docutils literal notranslate"><span class="pre">output_range</span></code> <code class="docutils literal notranslate"><span class="pre">min</span></code> and <code class="docutils literal notranslate"><span class="pre">max</span></code> values.  For instance, the sample <code class="docutils literal notranslate"><span class="pre">xbox_rc_config.jsonc</span></code> file has for channel 3 (the Y-pitch axis) set <code class="docutils literal notranslate"><span class="pre">output_range.min</span></code> to <code class="docutils literal notranslate"><span class="pre">1.0</span></code> and <code class="docutils literal notranslate"><span class="pre">output_range.max</span></code> to <code class="docutils literal notranslate"><span class="pre">-1.0</span></code>, opposite of the norm.  This causes channel 3 to be +1.0 when the right joystick is pull all the way down and reporting a value of -32768, and channel 3 to be -1.0 when the right joystick is pushed all the way up and reporting a value of 32767.</p>
+</section>
+<section id="simple-flight-specific-configuration">
+<h3>Simple Flight-specific configuration<a class="headerlink" href="#simple-flight-specific-configuration" title="Link to this heading">¶</a></h3>
+<p>Simple Flight’s RC input channel assigments are detailed in the <a class="reference internal" href="#rc-input-channels"><span class="xref myst">RC input channels</span></a> section, below.  The <code class="docutils literal notranslate"><span class="pre">SimpleFlightRC</span></code> class (see <a class="reference internal" href="#using-other-game-controllers"><span class="xref myst">Using other game controllers</span></a>, below) also supports the following OOB functions.  The OOB function name is used as the label for a channel entry in the <code class="docutils literal notranslate"><span class="pre">channel_map_oob</span></code> section.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>OOB Function</p></th>
+<th class="head text-center"><p>Values</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code>arm_vehicle</code></p></td>
+<td class="text-center"><p>0.0, 1.0</p></td>
+<td><p>Request to arm the vehicle.  This is a convenience feature so that the user need not put the PC input controls in just the right positions to satisfy the special pattern (see <a class="reference internal" href="#rc-input-channels"><span class="xref myst">RC input channels</span></a>, below.)  Must be asserted for at least 100 ms and the throttle channel must be less than 0.1.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code>disarm_vehicle</code></p></td>
+<td class="text-center"><p>0.0, 1.0</p></td>
+<td><p>Request to disarm the vehicle.  This is a convenience feature so that the user need not put the PC input controls in just the right positions to satisfy the special pattern (see <a class="reference internal" href="#rc-input-channels"><span class="xref myst">RC input channels</span></a>, below.)  Must be asserted for at least 100 ms and the throttle channel must be less than 0.1.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="using-other-game-controllers">
+<h2>Using other game controllers<a class="headerlink" href="#using-other-game-controllers" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">xbox_rc.py</span></code> Python script uses the <code class="docutils literal notranslate"><span class="pre">projectairsim.rc.XboxInputControllerSF</span></code> class to read the state of the Xbox game controller.  This class uses the <a class="reference external" href="https://pypi.org/project/inputs/">inputs library</a> to read input controllers in a platform-agnostic way.  The input controller state is then passed to the <code class="docutils literal notranslate"><span class="pre">projectairsim.rc.SimpleFlightRC</span></code> class which, based on the RC config data, retrieves the individual control values assigned to each channel, converts the values, and pushes them to the Simple Flight flight controller in Project AirSim.  See the comments within each class for more detailed information.</p>
+<p>The minimum steps to adapt a different PC controller are as follows:</p>
+<ol class="arabic simple">
+<li><p>Create a new class inheriting from <code class="docutils literal notranslate"><span class="pre">projectairsim.rc.BaseInputController</span></code> and implement the <code class="docutils literal notranslate"><span class="pre">read()</span></code> method.</p></li>
+<li><p>Create a configuration file that maps the controls from the input controller class to the Simple Flight RC channels.</p></li>
+<li><p>Create a copy of <code class="docutils literal notranslate"><span class="pre">xbox_rc.py</span></code> that instantiates your input controller class instead of <code class="docutils literal notranslate"><span class="pre">XBoxInputControllerSF</span></code>.</p></li>
+</ol>
+<p>The <code class="docutils literal notranslate"><span class="pre">BaseInputController.read()</span></code> method returns a dictionary of control names and their numeric values.  See <code class="docutils literal notranslate"><span class="pre">projectairsim.rc.XboxInputController</span></code> for how this is done for the Xbox game controller using the <code class="docutils literal notranslate"><span class="pre">inputs</span></code> library.  The control names should clearly identify the control but can be anything appropriate since they are only used in the RC config to map the control values from the input controller to the RC input channels.</p>
+<p>Some flight controller channels prefer to stay “on” or “off” like a switch and not temporarily “on” like a button, but the typical PC input controller may not have any switches.  The <code class="docutils literal notranslate"><span class="pre">projectairsim.rc.VirtualToggleSwitch</span></code> class can be used to turn a button into a toggle switch control that toggles between “on” and “off” each time the button is pressed.  The <code class="docutils literal notranslate"><span class="pre">projectairsim.rc.XboxInputControllerSF</span></code> class extends the <code class="docutils literal notranslate"><span class="pre">projectairsim.rc.XboxInputController</span></code> class by using the <code class="docutils literal notranslate"><span class="pre">VirtualToggleSwitch</span></code> class to add two virtual toggle switch controls.</p>
+</section>
+<section id="simple-flight-api">
+<h2>Simple Flight API<a class="headerlink" href="#simple-flight-api" title="Link to this heading">¶</a></h2>
+<p>Simple Flight supports the following Project AirSim topics via the pub-sub client API.</p>
+<section id="subscribed-topics">
+<h3>Subscribed topics:<a class="headerlink" href="#subscribed-topics" title="Link to this heading">¶</a></h3>
+<p><code>/Sim/<em>&lt;scene_name&gt;</em>/robots/<em>&lt;robot_name&gt;</em>/simple_flight/rc_input</code>
+<a class="reference internal" href="#flightcontrolrcinputmessage"><span class="xref myst">(FlightControlRCInputMessage)</span></a></p>
+<ul><li style="list-style-type: none;">A client publishes messages to this topic to act like a standard remote control radio link.  The message contains an array of "channels" which control various functions of Simple Flight.  See <a href="#rc-input-channels">RC input channels</a> for more information.  When the message contains fewer channels than expected, Simple Flight leaves the missing channels with their previous values (initially 0.0).  If the message has more channels than expected, the excess channels are ignored.  Messages must be published to this channel periodically.  When a message is received, Simple Flight marks the controller as "connected".  If a subsequent message is not received within the RC connection update timeout (defaulting to 500 ms), Simple Flight marks the controller as "disconnected".</li></ul>
+</section>
+<section id="message-types">
+<h3>Message types<a class="headerlink" href="#message-types" title="Link to this heading">¶</a></h3>
+<section id="flightcontrolrcinputmessage">
+<h4>FlightControlRCInputMessage<a class="headerlink" href="#flightcontrolrcinputmessage" title="Link to this heading">¶</a></h4>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">float</span><span class="w"> </span><span class="n">channels</span><span class="p">[]</span>
+</pre></div>
+</div>
+<ul><li style="list-style-type: none;">`channels` is a variable-length array of floating-point values.  The first entry in the array is the value of channel #0, the second is channel #1, etc.</li></ul>
+</section>
+</section>
+<section id="rc-input-channels">
+<h3>RC input channels<a class="headerlink" href="#rc-input-channels" title="Link to this heading">¶</a></h3>
+<p>Simple flight assigns the RC input channels to following functions:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-center"><p>Channel #</p></th>
+<th class="head text-center"><p>Values</p></th>
+<th class="head"><p>Function</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p>0</p></td>
+<td class="text-center"><p>-1.0 .. +1.0</p></td>
+<td><p>X-roll axis angle or angle rate</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>1</p></td>
+<td class="text-center"><p>-1.0 .. +1.0</p></td>
+<td><p>Z-yaw axis angle or angle rate</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>2</p></td>
+<td class="text-center"><p>0.0 .. +1.0</p></td>
+<td><p>Throttle</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>3</p></td>
+<td class="text-center"><p>-1.0 .. +1.0</p></td>
+<td><p>Y-pitch axis angle or angle rate</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>4</p></td>
+<td class="text-center"><p>0.0, 1.0</p></td>
+<td><p>Select whether the axis channels specify the angle (0.0) or angle rate of change (1.0)</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>5</p></td>
+<td class="text-center"><p>0.0, 1.0</p></td>
+<td><p>Client API control disabled (0.0) or enabled (1.0)</p></td>
+</tr>
+</tbody>
+</table>
+<p>RC input channels 0, 1, and 3 specify a control value for their respective axes.  The state of channel 4 determines whether Simple Flight interprets the axis control value as an angle or as a rate of change of the angle.</p>
+<p>Simple Flight recognizes two special RC channel value patterns to arm or disarm the vehicle which must be held continuously for at least 100 ms.  This allows the user to arm or disarm the vehicle by putting the input controls in a specific arrangement.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">xbox_rc.py</span></code> script (specifically the <code class="docutils literal notranslate"><span class="pre">XboxInputControllerSF</span></code> class) also enables the Back and Start buttons to generate these patterns to make it more convenient to arm and disarm the vehicle.  See <a class="reference internal" href="#using-an-xbox-controller"><span class="xref myst">Using an Xbox controller</span></a>, above.</p>
+<p>To arm the vehicle, the following RC input channels must have these values for at least 100 ms:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-center"><p>Channel</p></th>
+<th class="head"><p>Function</p></th>
+<th class="head text-center"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p>0</p></td>
+<td><p>X-roll</p></td>
+<td class="text-center"><p>≤ -0.9</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>1</p></td>
+<td><p>Z-yaw</p></td>
+<td class="text-center"><p>≥ 0.9</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>2</p></td>
+<td><p>Throttle</p></td>
+<td class="text-center"><p>≤ 0.1</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>3</p></td>
+<td><p>Y-pitch</p></td>
+<td class="text-center"><p>≥ 0.9</p></td>
+</tr>
+</tbody>
+</table>
+<p>To disarm the vehicle, the following RC input channels must have these values for at least 100 ms:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-center"><p>Channel</p></th>
+<th class="head"><p>Function</p></th>
+<th class="head text-center"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p>0</p></td>
+<td><p>X-roll</p></td>
+<td class="text-center"><p>≥ 0.9</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>1</p></td>
+<td><p>Z-yaw</p></td>
+<td class="text-center"><p>≤ -0.9</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>2</p></td>
+<td><p>Throttle</p></td>
+<td class="text-center"><p>≤ 0.1</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>3</p></td>
+<td><p>Y-pitch</p></td>
+<td class="text-center"><p>≥ 0.9</p></td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI Consulting Corp.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="controllers.html" class="btn btn-neutral float-left" title="Flight Controllers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="px4/px4.html" class="btn btn-neutral float-right" title="PX4 Autopilot Flight Controller" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

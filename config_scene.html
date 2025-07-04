@@ -1,0 +1,522 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scene Configuration Settings &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/documentation_options.js?v=2709fde1"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Scene Configuration Settings</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/config_scene.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="scene-configuration-settings">
+<h1>Scene Configuration Settings<a class="headerlink" href="#scene-configuration-settings" title="Link to this heading">¶</a></h1>
+<p>The scene config JSONC file specifies the settings for the scene’s actors, clock, and other scene-level settings.</p>
+<p>The scene is loaded from the JSONC file that is specified when the <code class="docutils literal notranslate"><span class="pre">World</span></code> object is initialized in the client script. The client can also reload a specified scene config file through an API call while the simulation is running.</p>
+<section id="main-scene-configuration">
+<h2>Main scene configuration<a class="headerlink" href="#main-scene-configuration" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">scene_basic_drone.jsonc</span></code></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SceneBasicDrone&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;actors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;environment-actors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;environment-objects&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;clock&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;home-geo-point&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;segmentation&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;scene-type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;UnrealNative&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">id</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name identifier for the scene (simulation world).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">actors</span></code></p></td>
+<td><p>array of <strong><a class="reference internal" href="#actor-settings"><span class="xref myst">Actor settings</span></a></strong></p></td>
+<td><p>Actor settings for each actor to spawn in the scene.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">environment</span> <span class="pre">actors</span></code></p></td>
+<td><p>array of <strong><a class="reference internal" href="#environment-actor-settings"><span class="xref myst">Environment actor settings</span></a></strong></p></td>
+<td><p>Environment actor settings for each actor to spawn in the scene.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">environment</span> <span class="pre">objects</span></code></p></td>
+<td><p>array of <strong><a class="reference internal" href="#environment-object-settings"><span class="xref myst">Environment object settings</span></a></strong></p></td>
+<td><p>Environment object settings for each object to spawn in the scene.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">clock</span></code></p></td>
+<td><p><strong><a class="reference internal" href="#clock-settings"><span class="xref myst">Clock settings</span></a></strong></p></td>
+<td><p>Simulation clock settings.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">home-geo-point</span></code></p></td>
+<td><p><strong><a class="reference internal" href="#home-geopoint-settings"><span class="xref myst">Home GeoPoint settings</span></a></strong></p></td>
+<td><p>GeoPoint coordinates (latitude, longitude, altitude) corresponding to the scene origin.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">segmentation</span></code></p></td>
+<td><p><strong><a class="reference internal" href="#segmentation-settings"><span class="xref myst">Segmentation ID settings</span></a></strong></p></td>
+<td><p>Segmentation ID settings for automatically assigning segmentation IDs to objects in the scene.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">scene-type</span></code></p></td>
+<td><p>string</p></td>
+<td><p>(Optional) Use ‘CustomGIS’ if you are running a geospecific GIS scenario. Defaults to ‘UnrealNative’ for non-GIS scenes.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tiles-dir</span></code></p></td>
+<td><p>string</p></td>
+<td><p>(Optional) Local path containing the GIS tiles used when <code class="docutils literal notranslate"><span class="pre">scene-type</span></code> is set as <code class="docutils literal notranslate"><span class="pre">CustomGIS</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tiles-altitude-offset</span></code></p></td>
+<td><p>float</p></td>
+<td><p>(Optional) Our tiles have altitude values of WGS84 ellipsoidal height. Sometimes other altitude models are preferred, so you can use this setting to offset the tiles by the provided value in meters. Most GIS software use a geoid relative altitude, so you can query the geoid height at some coord and enter it here: https://geographiclib.sourceforge.io/cgi-bin/GeoidEval</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tiles-lod-max</span></code></p></td>
+<td><p>integer</p></td>
+<td><p>(Optional) Maximum level of detail for tiles. Default is 19. Maximum allowed is 23.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tiles-lod-min</span></code></p></td>
+<td><p>integer</p></td>
+<td><p>(Optional) Minimum level of detail for tiles. Default is 13. Minimum allowed is 13.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="actor-settings">
+<h2>Actor settings<a class="headerlink" href="#actor-settings" title="Link to this heading">¶</a></h2>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;actors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;robot&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Drone1&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;origin&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;xyz&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;109.05 -7.5 -19.42&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// or &quot;geo-point&quot;: &quot;33.047329 -97.292618 4.5&quot;</span>
+<span class="w">      </span><span class="nt">&quot;rpy-deg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0 0 0&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;robot-config&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;robot_quadrotor_fastphysics.jsonc&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;start-landed&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="err">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">type</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">robot</span></code></p></td>
+<td><p>Type of actor, currently only <code class="docutils literal notranslate"><span class="pre">robot</span></code> is supported.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name identifier for the actor.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">origin</span></code>: <code class="docutils literal notranslate"><span class="pre">xyz</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Spawning origin position “X Y Z” coordinates with units of SI <strong>meters</strong> in the <strong>NED</strong> frame (up = negative z). <strong>Note:</strong> “0 0 0” is at the global UE origin, not relative to <code class="docutils literal notranslate"><span class="pre">PlayerStart</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">origin</span></code>: <code class="docutils literal notranslate"><span class="pre">geo-point</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Alternative to <code class="docutils literal notranslate"><span class="pre">xyz</span></code>. Spawning origin position at “lat lon alt” coordinates.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">origin</span></code>: <code class="docutils literal notranslate"><span class="pre">rpy</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Spawning origin orientation “Roll Pitch Yaw” angles with units of SI <strong>radians</strong> with right-hand rotation around the NED frame X Y Z axes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">robot-config</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Filename for JSONC config file for this actor’s <strong><a class="reference internal" href="config_robot.html"><span class="std std-doc">Robot Configuration Settings</span></a></strong>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">start-landed</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>(Optional) Start from a manually-set landed state at the spawned origin (without needing to drop onto a mesh with collision). For FastPhysics, a landed state means that the position is locked until a net vertical force up exceeds the weight of the body (to counter gravity forces) such as from rotors during takeoff, or there is already an upward velocity. Defaults to false if omitted.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="environment-actor-settings">
+<h2>Environment actor settings<a class="headerlink" href="#environment-actor-settings" title="Link to this heading">¶</a></h2>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;environment-actors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;env_car&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;car1&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;origin&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;xyz&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;3.0 0.0 -5.0&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;rpy-deg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0 0 0&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;env-actor-config&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;env_actor_car.jsonc&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="err">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">type</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">env_actor</span></code>, <code class="docutils literal notranslate"><span class="pre">env_car</span></code>, <code class="docutils literal notranslate"><span class="pre">env_human</span></code></p></td>
+<td><p>Types of environment actors: <code class="docutils literal notranslate"><span class="pre">env_actor</span></code> is for generic environment actors, <code class="docutils literal notranslate"><span class="pre">env_car</span></code> for cars, <code class="docutils literal notranslate"><span class="pre">env_human</span></code> for humans.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name identifier for the actor.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">origin</span></code>: <code class="docutils literal notranslate"><span class="pre">xyz</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Spawning origin position “X Y Z” coordinates with units of SI <strong>meters</strong> in the <strong>NED</strong> frame (up = negative z). <strong>Note:</strong> “0 0 0” is at the global UE origin, not relative to <code class="docutils literal notranslate"><span class="pre">PlayerStart</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">origin</span></code>: <code class="docutils literal notranslate"><span class="pre">geo-point</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Alternative to <code class="docutils literal notranslate"><span class="pre">xyz</span></code>. Spawning origin position at “lat lon alt” coordinates.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">origin</span></code>: <code class="docutils literal notranslate"><span class="pre">rpy</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Spawning origin orientation “Roll Pitch Yaw” angles with units of SI <strong>radians</strong> with right-hand rotation around the NED frame X Y Z axes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">env-actor-config</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Filename for JSONC config file for this actor’s <strong><a class="reference internal" href="config_env_actors.html"><span class="std std-doc">Environment Actor Configuration Settings</span></a></strong>.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="environment-object-settings">
+<h2>Environment object settings<a class="headerlink" href="#environment-object-settings" title="Link to this heading">¶</a></h2>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;environment-objects&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;env_particle_effect&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fire1&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;origin&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;xyz&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;3.0 0.0 -5.0&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;rpy-deg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0 0 0&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;env-object-config&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;env_particle_effect_nfire_02.jsonc&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="err">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">type</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">env_particle_effect</span></code></p></td>
+<td><p>Types of environment objects: <code class="docutils literal notranslate"><span class="pre">env_particle_effect</span></code> like fire and smoke assets.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Name identifier for the environment object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">origin</span></code>: <code class="docutils literal notranslate"><span class="pre">xyz</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Spawning origin position “X Y Z” coordinates with units of SI <strong>meters</strong> in the <strong>NED</strong> frame (up = negative z). <strong>Note:</strong> “0 0 0” is at the global UE origin, not relative to <code class="docutils literal notranslate"><span class="pre">PlayerStart</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">origin</span></code>: <code class="docutils literal notranslate"><span class="pre">geo-point</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Alternative to <code class="docutils literal notranslate"><span class="pre">xyz</span></code>. Spawning origin position at “lat lon alt” coordinates.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">origin</span></code>: <code class="docutils literal notranslate"><span class="pre">rpy</span></code></p></td>
+<td><p>string of 3 floats</p></td>
+<td><p>Spawning origin orientation “Roll Pitch Yaw” angles with units of SI <strong>radians</strong> with right-hand rotation around the NED frame X Y Z axes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">env-object-config</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Filename for JSONC config file for this object’s <strong><a class="reference internal" href="config_env_objects.html"><span class="std std-doc">Environment Object Configuration Settings</span></a></strong>.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="clock-settings">
+<h2>Clock settings<a class="headerlink" href="#clock-settings" title="Link to this heading">¶</a></h2>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;clock&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;steppable&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;step-ns&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3000000</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;real-time-update-rate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3000000</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;pause-on-start&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">type</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">steppable</span></code>, <code class="docutils literal notranslate"><span class="pre">real-time</span></code></p></td>
+<td><p>Type of simulation clock. Defaults to <code class="docutils literal notranslate"><span class="pre">steppable</span></code> if omitted.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">step-ns</span></code></p></td>
+<td><p>integer</p></td>
+<td><p>Step size in <strong>nanosec</strong> for <code class="docutils literal notranslate"><span class="pre">steppable</span></code> clock. Defaults to 20000000 (20 ms) if omitted.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">real-time-update-rate</span></code></p></td>
+<td><p>integer</p></td>
+<td><p>Real-time execution period in <strong>nanosec</strong> between each simulation loop and clock update for all clock types. Defaults to 3000000 (3 ms) if omitted.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pause-on-start</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>Flag to start with simulation paused for <code class="docutils literal notranslate"><span class="pre">steppable</span></code> clock. Defaults to false if omitted.</p></td>
+</tr>
+</tbody>
+</table>
+<p>There are 2 supported simulation clock types:</p>
+<ol class="arabic simple">
+<li><p>Steppable clock</p></li>
+<li><p>Real-time clock</p></li>
+</ol>
+<p>See below for example of how to configure each type of simulation clock.</p>
+<section id="steppable-clock">
+<h3>Steppable clock<a class="headerlink" href="#steppable-clock" title="Link to this heading">¶</a></h3>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;clock&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;steppable&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;step-ns&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3000000</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;real-time-update-rate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3000000</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;pause-on-start&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Steppable clock is a <strong>fixed-step clock</strong> with sim time step = <code class="docutils literal notranslate"><span class="pre">step-ns</span></code> nanosecs that is stepped every execution period set by <code class="docutils literal notranslate"><span class="pre">real-time-update-rate</span></code> real-time nanosecs.</p>
+<p>For example, with <code class="docutils literal notranslate"><span class="pre">step-ns</span></code> = 3 ms and <code class="docutils literal notranslate"><span class="pre">real-time-update-rate</span></code> = 3 ms, the sim clock will advance by exactly 3 ms every execution period, which is also every ~3 ms so the simulation will appear to move at ~1x real-time but with deterministic fixed time steps.</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">step-ns</span></code> = 6 ms and <code class="docutils literal notranslate"><span class="pre">real-time-update-rate</span></code> = 3 ms, the sim clock will advance by exactly 6 ms every execution period, which is still 3 ms so the simulation will appear to move at ~2x faster than real-time.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">pause-on-start</span></code> option allows the simulation to start paused to allow full-manual control of the time step advancement through the clock APIs.</p>
+</section>
+<section id="real-time-clock">
+<h3>Real-time clock<a class="headerlink" href="#real-time-clock" title="Link to this heading">¶</a></h3>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;clock&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;real-time&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;real-time-update-rate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3000000</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Real-time clock is a <strong>variable-step clock</strong> with sim time step = real-time step between each execution period set by <code class="docutils literal notranslate"><span class="pre">real-time-update-rate</span></code> real-time nanosecs. Since the real-time step between each execution period varies slightly by the system clock, the sim time step will also have variations.</p>
+<p><strong>Note:</strong> Since <code class="docutils literal notranslate"><span class="pre">real-time</span></code> clock follows real-time advancement, it can not be paused and is not deterministic or repeatable. In order to do the simulation at a scaled multiple of real-time, use a steppable clock with the desired ratio set between <code class="docutils literal notranslate"><span class="pre">step-ns</span></code> and <code class="docutils literal notranslate"><span class="pre">real-time-update-rate</span></code> as described in the <a class="reference internal" href="#steppable-clock"><span class="xref myst">Steppable clock</span></a> section.</p>
+</section>
+</section>
+<section id="home-geopoint-settings">
+<h2>Home GeoPoint settings<a class="headerlink" href="#home-geopoint-settings" title="Link to this heading">¶</a></h2>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;home-geo-point&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;latitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">47.641468</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;longitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-122.140165</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;altitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">122.0</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">latitude</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Latitude coordinate of the scene origin.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">longitude</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Longitude coordinate of the scene origin.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">altitude</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Altitude value of the scene origin in SI <strong>meters</strong> (positive values are higher, not NED).</p></td>
+</tr>
+</tbody>
+</table>
+<p>The home GeoPoint is used to correlate the simulation scene origin to a position on Earth to use as a reference point for GPS sensor values and for physics calculations such as air temperature, pressure, etc.</p>
+<p>The default value is set for the Microsoft Building 99 parking garage in Redmond, WA, but a new desired location’s latitude/longitude values can be easily looked up by right-clicking anywhere on <strong><a class="reference external" href="https://www.bing.com/maps/">Bing maps</a></strong>.</p>
+</section>
+<section id="segmentation-settings">
+<h2>Segmentation settings<a class="headerlink" href="#segmentation-settings" title="Link to this heading">¶</a></h2>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;segmentation&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;initialize-ids&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;ignore-existing&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;use-owner-name&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">initialize-ids</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>Flag to initialize the segmentation ID for the scene objects at simulation start. Defaults to <code class="docutils literal notranslate"><span class="pre">false</span></code> if omitted to reduce sim startup time.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ignore-existing</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>Flag to ignore any existing segmentation IDs already set and initialize them for everything. Defaults to <code class="docutils literal notranslate"><span class="pre">false</span></code> if omitted.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use-owner-name</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>Flag to use each mesh component’s owner’s name (usually the actor name) instead of the mesh component’s name for hashing the segmentation ID. Defaults to <code class="docutils literal notranslate"><span class="pre">true</span></code> if omitted.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The segmentation IDs can be set on scene objects of class <code class="docutils literal notranslate"><span class="pre">UStaticMeshComponent</span></code>, <code class="docutils literal notranslate"><span class="pre">USkinnedMeshComponent</span></code>, and <code class="docutils literal notranslate"><span class="pre">ALandscapeProxy</span></code>, including any derived classes (instanced static meshes, etc). The IDs are set using Unreal’s CustomDepth Stencil parameter so that the object can be rendered with all pixels set to the RGB color that is mapped to the <strong><a class="reference internal" href="sensors/segmentation.html#segmentation-pallet"><span class="std std-ref">segmentation pallet</span></a></strong> based on its segmentation ID.</p>
+<p>The segmentation ID (CustomDepth Stencil value) can be <strong><a class="reference internal" href="sensors/segmentation.html#assigning-segmentation-ids-in-unreal-editor"><span class="std std-ref">set manually on objects using the Unreal Editor</span></a></strong>, or using the client’s world API <code class="docutils literal notranslate"><span class="pre">SetSegmentationIDByName</span></code>. To get the existing segmentation ID of an object, you can use the client’s world API <code class="docutils literal notranslate"><span class="pre">GetSegmentationIDByName</span></code>.</p>
+<p>To have the segmentation IDs automatically assigned at the start of simulation, set <code class="docutils literal notranslate"><span class="pre">initialize-ids</span></code> to <code class="docutils literal notranslate"><span class="pre">true</span></code>. If <code class="docutils literal notranslate"><span class="pre">ignore-existing</span></code> is set <code class="docutils literal notranslate"><span class="pre">false</span></code>, then any object that has already been manually assigned an ID (the CustomDepth Stencil rendering is already enabled on the object) will keep its original value. Otherwise, all objects will get reassigned segmentation IDs that are calculated by a hash method based on the sum of the chars in the name (lowercased and ignoring number/symbol chars) and then modulo 256 to get an ID in the allowed range of 0~255. If <code class="docutils literal notranslate"><span class="pre">use-owner-name</span></code> is <code class="docutils literal notranslate"><span class="pre">true</span></code>, the name used for this hash will be the mesh object’s owner’s name (ex. the StaticMeshActor’s name that contains the StaticMeshComponent that will be assigned the ID). Using the owner’s name may provide better grouping of the IDs and uses the names that are readable in the Editor’s object tree.</p>
+<p>To find out what object names were assigned what segmentation ID, check the simulation server log’s output for <code class="docutils literal notranslate"><span class="pre">InitSegmentationID</span></code> lines, such as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="mf">2020.08.13</span><span class="o">-</span><span class="mf">15.20.45</span><span class="p">:</span><span class="mi">719</span><span class="p">]</span> <span class="p">[</span><span class="n">InitSegmentationID</span><span class="p">]</span> <span class="n">seg_id</span><span class="p">:</span>  <span class="mi">95</span><span class="p">,</span> <span class="n">seg_name</span><span class="p">:</span> <span class="s1">&#39;cylinder8&#39;</span>
+<span class="p">[</span><span class="mf">2020.08.13</span><span class="o">-</span><span class="mf">15.20.45</span><span class="p">:</span><span class="mi">720</span><span class="p">]</span> <span class="p">[</span><span class="n">InitSegmentationID</span><span class="p">]</span> <span class="n">seg_id</span><span class="p">:</span>  <span class="mi">95</span><span class="p">,</span> <span class="n">seg_name</span><span class="p">:</span> <span class="s1">&#39;cylinder_2&#39;</span>
+<span class="p">[</span><span class="mf">2020.08.13</span><span class="o">-</span><span class="mf">15.20.45</span><span class="p">:</span><span class="mi">720</span><span class="p">]</span> <span class="p">[</span><span class="n">InitSegmentationID</span><span class="p">]</span> <span class="n">seg_id</span><span class="p">:</span> <span class="mi">148</span><span class="p">,</span> <span class="n">seg_name</span><span class="p">:</span> <span class="s1">&#39;ground&#39;</span>
+<span class="p">[</span><span class="mf">2020.08.13</span><span class="o">-</span><span class="mf">15.20.45</span><span class="p">:</span><span class="mi">720</span><span class="p">]</span> <span class="p">[</span><span class="n">InitSegmentationID</span><span class="p">]</span> <span class="n">seg_id</span><span class="p">:</span>   <span class="mi">0</span><span class="p">,</span> <span class="n">seg_name</span><span class="p">:</span> <span class="s1">&#39;templatecube_48&#39;</span>
+<span class="p">[</span><span class="mf">2020.08.13</span><span class="o">-</span><span class="mf">15.20.45</span><span class="p">:</span><span class="mi">720</span><span class="p">]</span> <span class="p">[</span><span class="n">InitSegmentationID</span><span class="p">]</span> <span class="n">seg_id</span><span class="p">:</span> <span class="mi">241</span><span class="p">,</span> <span class="n">seg_name</span><span class="p">:</span> <span class="s1">&#39;templatecube_rounded_1&#39;</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI Consulting Corp.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

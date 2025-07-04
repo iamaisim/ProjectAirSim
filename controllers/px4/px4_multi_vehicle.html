@@ -1,0 +1,283 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PX4 with Multiple Robots &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Using a PX4 Controller as Software-In-The-Loop (SITL)" href="px4_sitl.html" />
+    <link rel="prev" title="PX4 Lockstep Mode" href="px4_lockstep.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">PX4 with Multiple Robots</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#setting-up-multiple-instances-of-px4-software-in-loop">Setting up multiple instances of PX4 Software-in-Loop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#starting-sitl-instances-with-px4-console">Starting SITL instances with PX4 console</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">PX4 with Multiple Robots</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/controllers/px4/px4_multi_vehicle.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="px4-with-multiple-robots">
+<h1>PX4 with Multiple Robots<a class="headerlink" href="#px4-with-multiple-robots" title="Link to this heading">¶</a></h1>
+<p>The <a class="reference internal" href="px4_sitl.html"><span class="std std-doc">PX4 SITL stack</span></a> comes with a <code class="docutils literal notranslate"><span class="pre">sitl_multiple_run.sh</span></code> shell script that runs multiple instances of the PX4 binary. This  allows the SITL stack to listen to connections from multiple Project AirSim vehicles on multiple TCP ports starting from 4560.
+However, the provided script does not let us view the PX4 console. If you want to run the instances manually while being able to view each instance’s console (<strong>recommended</strong>) see <a class="reference internal" href="#starting-sitl-instances-with-px4-console"><span class="std std-ref">this section</span></a></p>
+<section id="setting-up-multiple-instances-of-px4-software-in-loop">
+<h2>Setting up multiple instances of PX4 Software-in-Loop<a class="headerlink" href="#setting-up-multiple-instances-of-px4-software-in-loop" title="Link to this heading">¶</a></h2>
+<p><strong>Note</strong>: You must build PX4 with <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">px4_sitl_default</span> <span class="pre">none_iris</span></code> as shown <a class="reference internal" href="px4_sitl.html#setting-up-px4-software-in-loop"><span class="std std-ref">here</span></a> before trying to run multiple PX4 instances.</p>
+<ol class="arabic">
+<li><p>From your bash (or Cygwin) terminal go to the PX4 Firmware directory and run the <code class="docutils literal notranslate"><span class="pre">sitl_multiple_run.sh</span></code> script while specifying the number of vehicles you need:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> cd PX4-Autopilot
+ ./Tools/sitl_multiple_run.sh 2    # 2 here is the number of vehicles/instances
+</pre></div>
+</div>
+<p>This starts multiple instances that listen to TCP ports 4560 through 4560+<i>i</i>-1 where <i>i</i> is the number of vehicles/instances specified.</p>
+</li>
+<li><p>You should get a confirmation message that says that old instances have been stopped and new instances have been started:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> killing running instances
+ starting instance 0 in /cygdrive/c/PX4/home/PX4/Firmware/build/px4_sitl_default/instance_0
+ starting instance 1 in /cygdrive/c/PX4/home/PX4/Firmware/build/px4_sitl_default/instance_1
+</pre></div>
+</div>
+</li>
+<li><p>Now edit each <a class="reference internal" href="../../config_robot.html"><span class="std std-doc">robot config</span></a> file to make sure you have matching TCP port settings and to make sure that both vehicles do not spawn on the same point.</p>
+<p>For example, these settings would spawn two PX4Multirotors where one of them would try to connect to PX4 SITL at port <code class="docutils literal notranslate"><span class="pre">4560</span></code> and the other at port <code class="docutils literal notranslate"><span class="pre">4561</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">robot1.jsonc</span></code>:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> {
+     ...
+     &quot;controller&quot;: {
+         &quot;id&quot;: &quot;PX4_Controller&quot;,
+         &quot;type&quot;: &quot;px4-api&quot;,
+         &quot;px4-settings&quot;: {
+             &quot;lock-step&quot;: true,
+             &quot;use-tcp&quot;: true,
+             &quot;tcp-port&quot;: 4560,
+             &quot;control-ip-address&quot;: &quot;127.0.0.1&quot;,
+             &quot;control-port&quot;: 14540,
+             &quot;parameters&quot;: {
+                 &quot;NAV_RCL_ACT&quot;: 0,
+                 &quot;NAV_DLL_ACT&quot;: 0,
+                 &quot;COM_OBL_ACT&quot;: 1,
+             }
+         }
+     },
+     ...
+ }
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">robot2.jsonc</span></code>:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> {
+     ...
+     &quot;controller&quot;: {
+         &quot;id&quot;: &quot;PX4_Controller&quot;,
+         &quot;type&quot;: &quot;px4-api&quot;,
+         &quot;px4-settings&quot;: {
+             &quot;lock-step&quot;: true,
+             &quot;use-tcp&quot;: true,
+             &quot;tcp-port&quot;: 4561,
+             &quot;control-ip-address&quot;: &quot;127.0.0.1&quot;,
+             &quot;control-port&quot;: 14541,
+             &quot;parameters&quot;: {
+                 &quot;NAV_RCL_ACT&quot;: 0,
+                 &quot;NAV_DLL_ACT&quot;: 0,
+                 &quot;COM_OBL_ACT&quot;: 1,
+             }
+         }
+     },
+     ...
+ }
+</pre></div>
+</div>
+<p>You can add more than two vehicles but you will need to make sure you adjust the TCP port for each (ie: vehicle 3’s port would be <code class="docutils literal notranslate"><span class="pre">4562</span></code> and so on..) and adjust the spawn point.</p>
+</li>
+<li><p>Now run your client script loading the simulation scene and Project AirSim should connect to PX4 SITL instances via TCP.  If you are running the instances with the <a class="reference internal" href="#Starting-sitl-instances-with-px4-console"><span class="std std-ref">PX4 console visible</span></a>, you should see a bunch of messages from each PX4 SITL window.  Specifically, the following messages tell you that AirSim is connected properly and GPS fusion is stable:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> INFO  [simulator] Simulator connected on UDP port 14560
+ INFO  [mavlink] partner IP: 127.0.0.1
+ INFO  [ecl/EKF] EKF GPS checks passed (WGS-84 origin set)
+ INFO  [ecl/EKF] EKF commencing GPS fusion
+</pre></div>
+</div>
+<p>If you do not see these messages then check your port settings.</p>
+</li>
+<li><p>You should also be able to use QGroundControl with SITL mode.  Make sure there is no Pixhawk hardware plugged in, otherwise QGroundControl will connect to that instead.  Note that as we don’t have a physical board, a remote control cannot be connected directly to it. So the alternatives are either use XBox 360 Controller or connect your remote control using USB (for example, in case of FrSky Taranis X9D Plus) or  a trainer USB cable to your PC. This makes your remote control look like a joystick. You will need to do extra set up in QGroundControl to use a virtual joystick for RC control.  You do not need to do this unless you plan to fly a drone manually in Project AirSim.  Autonomous flight using the Python API does not require RC, see <a class="reference internal" href="px4_sitl.html#No-Remote-Control"><span class="std std-ref"><code class="docutils literal notranslate"><span class="pre">no</span> <span class="pre">remote</span> <span class="pre">control</span></code></span></a> in <a class="reference internal" href="px4_sitl.html"><span class="std std-doc">Using a PX4 Controller as Software-In-The-Loop (SITL)</span></a>.</p></li>
+</ol>
+</section>
+<section id="starting-sitl-instances-with-px4-console">
+<h2>Starting SITL instances with PX4 console<a class="headerlink" href="#starting-sitl-instances-with-px4-console" title="Link to this heading">¶</a></h2>
+<p>If you want to start your SITL instances while being able to view the PX4 console, you will need to run the shell scripts found <a class="reference external" href="https://github.com/microsoft/AirSim/tree/master/PX4Scripts">here</a> rather than <code class="docutils literal notranslate"><span class="pre">sitl_multiple_run.sh</span></code>.
+Here is how you would do so:</p>
+<p><strong>Note</strong>: This script also assumes PX4 is built with <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">px4_sitl_default</span> <span class="pre">none_iris</span></code> as shown <a class="reference internal" href="px4_sitl.html#setting-up-px4-software-in-loop"><span class="std std-ref">here</span></a> before trying to run multiple PX4 instances.</p>
+<ol class="arabic">
+<li><p>From your bash (or Cygwin) terminal go to the PX4 directory and get the scripts (place them in a subdirectory called Scripts win the PX4 directory as shown)</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> cd PX4
+ mkdir -p Scripts
+ cd Scripts
+ wget https://github.com/microsoft/AirSim/raw/master/PX4Scripts/sitl_kill.sh
+ wget https://github.com/microsoft/AirSim/raw/master/PX4Scripts/run_airsim_sitl.sh
+</pre></div>
+</div>
+<p><strong>Note</strong> the shell scripts expect the <code class="docutils literal notranslate"><span class="pre">Scripts</span></code> and <code class="docutils literal notranslate"><span class="pre">Firmware</span></code> directories to be within the same parent directory. Also, you may need to make the scripts executable by running <code class="docutils literal notranslate"><span class="pre">chmod</span> <span class="pre">+x</span> <span class="pre">sitl_kill.sh</span></code> and <code class="docutils literal notranslate"><span class="pre">chmod</span> <span class="pre">+x</span> <span class="pre">run_airsim_sitl.sh</span></code>.</p>
+</li>
+<li><p>Run the <code class="docutils literal notranslate"><span class="pre">sitl_kill.sh</span></code> script to kill all active PX4 SITL instances</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> ./sitl_kill.sh
+</pre></div>
+</div>
+</li>
+<li><p>Run the <code class="docutils literal notranslate"><span class="pre">run_airsim_sitl.sh</span></code> script while specifying which instance you would like to run in the current terminal window (the first instance would be numbered 0)</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> ./run_airsim_sitl.sh 0 # first instance = 0
+</pre></div>
+</div>
+<p>You should see the PX4 instance starting and waiting for AirSim’s connection as it would with a single instance.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> ______  __   __    ___
+ | ___ \ \ \ / /   /   |
+ | |_/ /  \ V /   / /| |
+ |  __/   /   \  / /_| |
+ | |     / /^\ \ \___  |
+ \_|     \/   \/     |_/
+
+ px4 starting.
+ INFO  [px4] Calling startup script: /bin/sh /cygdrive/c/PX4/home/PX4/Firmware/etc/init.d-posix/rcS 0
+ INFO  [dataman] Unknown restart, data manager file &#39;./dataman&#39; size is 11798680 bytes
+ INFO  [simulator] Waiting for simulator to connect on TCP port 4560
+</pre></div>
+</div>
+</li>
+<li><p>Open a new terminal and go to the Scripts directory and start the next instance</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> cd PX4
+ cd Scripts
+ ./run_airsim_sitl.sh 1  # ,2,3,4,..,etc
+</pre></div>
+</div>
+</li>
+<li><p>Repeat step 4 for as many instances as you would like to start</p></li>
+<li><p>Run your client script to load the simulation scene and Project AirSim should connect to PX4 SITL via TCP (assuming your robot config files have the correct ports.)</p></li>
+</ol>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI Consulting Corp.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="px4_lockstep.html" class="btn btn-neutral float-left" title="PX4 Lockstep Mode" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="px4_sitl.html" class="btn btn-neutral float-right" title="Using a PX4 Controller as Software-In-The-Loop (SITL)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

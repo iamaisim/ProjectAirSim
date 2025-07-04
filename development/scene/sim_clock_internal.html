@@ -1,0 +1,206 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulation Clock &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Simulation Clock</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/development/scene/sim_clock_internal.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="simulation-clock">
+<h1>Simulation Clock<a class="headerlink" href="#simulation-clock" title="Link to this heading">¶</a></h1>
+<p>The simulation clock is a core component of the simulation scene configuration and execution.</p>
+<p><em>Note: When using the Unreal Editor’s play-in-editor mode, there are buttons to <strong>Pause/Resume/SingleStep</strong> the game, <strong>but these buttons are NOT supported</strong> by Project AirSim since they are linked directly to the internals of the Unreal Engine ticks. To perform sim clock control functions, please use the SimClock client API instead.</em></p>
+<section id="sim-clock-config">
+<h2>Sim clock config<a class="headerlink" href="#sim-clock-config" title="Link to this heading">¶</a></h2>
+<p>For details on the configuration options, see <strong><a class="reference internal" href="../../config_scene.html#clock-settings"><span class="std std-ref">clock settings</span></a></strong>.</p>
+</section>
+<section id="sim-clock-api">
+<h2>Sim clock API<a class="headerlink" href="#sim-clock-api" title="Link to this heading">¶</a></h2>
+<p>For details on the API, see <strong><a class="reference internal" href="../../api.html#sim-clock-api"><span class="std std-ref">Sim Clock API</span></a></strong>.</p>
+</section>
+<section id="example-usage-scenarios">
+<h2>Example usage scenarios<a class="headerlink" href="#example-usage-scenarios" title="Link to this heading">¶</a></h2>
+<section id="standard-simulation-with-the-option-to-pause-resume-do-manual-step-control-scale-faster-slower-than-real-time-execution">
+<h3>#1 - Standard simulation with the option to pause/resume, do manual step control, scale faster/slower than real-time execution<a class="headerlink" href="#standard-simulation-with-the-option-to-pause-resume-do-manual-step-control-scale-faster-slower-than-real-time-execution" title="Link to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">steppable</span></code> clock is recommended for most scenarios since it uses deterministic fixed-delta sim-time steps for each iteration of the simulation loop (set by <code class="docutils literal notranslate"><span class="pre">step-ns</span></code> in nanoseconds), and enables pause/resume and manual control of the clock via the SimClock APIs.</p>
+<p><code class="docutils literal notranslate"><span class="pre">real-time-update-rate</span></code> sets the real-time period in nanoseconds between each iteration of the simulation loop. The simulation will advance faster or slower than real-time according to the ratio of <code class="docutils literal notranslate"><span class="pre">step-ns</span></code> to <code class="docutils literal notranslate"><span class="pre">real-time-update-rate</span></code>. If <code class="docutils literal notranslate"><span class="pre">step-ns</span></code> is larger than <code class="docutils literal notranslate"><span class="pre">real-time-update-rate</span></code>, then sim time will advance faster than real-time, and vice-versa.</p>
+<p><em>Note: When using physics that are external to Unreal, such as FastPhysics for drones, the rendering loop runs separately from the sim loop (as fast as the GPU can handle, but generally at a slower rate) so that the simulation can advance with higher fidelity time steps without requiring a rendered image for every step.</em></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;clock&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;steppable&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;step-ns&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3000000</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;real-time-update-rate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3000000</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;pause-on-start&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="err">|</span><span class="kc">false</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="full-manual-clock-step-control-by-client-api-calls-only">
+<h3>#2 - Full manual clock step control by client API calls only<a class="headerlink" href="#full-manual-clock-step-control-by-client-api-calls-only" title="Link to this heading">¶</a></h3>
+<p>When you want the simulation to advance only when commanded to do so via a call to the SimClock API, set <code class="docutils literal notranslate"><span class="pre">step-ns</span></code> to zero so that sim-time will not advance automatically (whether paused or unpaused.) This “lock-step” behavior is useful, for example, when using Project AirSim in a perception-action loop.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;clock&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;steppable&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;step-ns&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;real-time-update-rate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3000000</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;pause-on-start&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="use-unreal-physics-with-the-option-to-pause-resume-do-manual-step-control-but-can-t-scale-with-real-time">
+<h3>#3 - Use Unreal Physics with the option to pause/resume, do manual step control (but can’t scale with real-time)<a class="headerlink" href="#use-unreal-physics-with-the-option-to-pause-resume-do-manual-step-control-but-can-t-scale-with-real-time" title="Link to this heading">¶</a></h3>
+<p>If any robot actors in a scene are configured to use the <strong><a class="reference internal" href="#../physics/unreal_physics.md"><span class="xref myst">Unreal’s Physics</span></a></strong> system, the physics update will be done in step with rendering the scene and each iteration of the simulation loop (and each advance of sim-time) will take longer.</p>
+<p>The <strong>same <code class="docutils literal notranslate"><span class="pre">steppable</span></code> clock settings can be used</strong> as in non-Unreal Physics scenarios, but if <code class="docutils literal notranslate"><span class="pre">step-ns</span></code> is left set to a very small time step, such as 3 ms, the simulation will advance much slower than real-time due to the rendering occuring at each 3 ms sim-time step.</p>
+<p>Generally, if Unreal Physics is used, <strong>setting a larger <code class="docutils literal notranslate"><span class="pre">step-ns</span></code> such as 20 ms (=50 FPS)</strong> will allow the simulation to advance closer to real-time on a typical GPU, but at the cost of lower fidelity physics and larger control time steps.</p>
+<p><code class="docutils literal notranslate"><span class="pre">real-time-update-rate</span></code> can still remain small for a fast update rate, such as 3 ms, because the sim update loop will just be checking for the next physics/rendering calculation on each loop and will not actually advance the sim-time until physics/rendering has completed its step.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;clock&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;steppable&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;step-ns&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20000000</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;real-time-update-rate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3000000</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;pause-on-start&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="err">|</span><span class="kc">false</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="real-time-simulation-to-run-everything-in-actual-time-can-t-pause-resume-scale-such-as-for-non-physics-mode">
+<h3>#4 - Real-time simulation to run everything in actual time (can’t pause/resume/scale), such as for non-physics mode<a class="headerlink" href="#real-time-simulation-to-run-everything-in-actual-time-can-t-pause-resume-scale-such-as-for-non-physics-mode" title="Link to this heading">¶</a></h3>
+<p>For running the simulation in a non-deterministic way where the sim clock is stepped by the amount of actual time passed between each execution loop, use the <code class="docutils literal notranslate"><span class="pre">real-time</span></code> clock type.</p>
+<p>This is useful, for example, when running in a <strong>non-physics “computer vision” mode</strong> where the robot is moved arbitrarily around the scene with no physical meaning to sim-time except as a timestamp on sensor data. Another example would be where a human operator or hardware component is interacting with the simulation just like they would with a physical robot in the real world.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;clock&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;real-time&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;real-time-update-rate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3000000</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI Consulting Corp.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

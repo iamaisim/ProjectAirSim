@@ -1,0 +1,211 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PX4 Software-in-the-Loop with WSL 2 &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="prev" title="Using a PX4 Controller as Software-In-The-Loop (SITL)" href="px4_sitl.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">PX4 Software-in-the-Loop with WSL 2</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#using-a-ground-control-station">Using a ground control station</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">PX4 Software-in-the-Loop with WSL 2</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/controllers/px4/px4_sitl_wsl2.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="px4-software-in-the-loop-with-wsl-2">
+<h1>PX4 Software-in-the-Loop with WSL 2<a class="headerlink" href="#px4-software-in-the-loop-with-wsl-2" title="Link to this heading">¶</a></h1>
+<p>The <a class="reference external" href="https://docs.microsoft.com/en-us/windows/wsl/install-win10">Windows Subsystem for Linux version 2</a> uses a virtual machine with its own IP address separate from that of your Windows host machine. This means PX4 will not find Project AirSim on the “localhost” which is the default behavior for PX4.</p>
+<p>You will notice that the Windows command <code class="docutils literal notranslate"><span class="pre">ipconfig</span></code> returns a new Ethernet adapter for WSL like this (notice that the Ethernet adapter has <code class="docutils literal notranslate"><span class="pre">(WSL)</span></code> in the name):</p>
+<div class="highlight-plain notranslate"><div class="highlight"><pre><span></span>Ethernet adapter vEthernet (WSL):
+
+   Connection-specific DNS Suffix  . :
+   Link-local IPv6 Address . . . . . : aaaa::bbbb:cccc:cccc:eeee%ff
+   IPv4 Address. . . . . . . . . . . : www.xxx.yyy.zzz
+   Subnet Mask . . . . . . . . . . . : mmm.nnn.ooo.ppp
+   Default Gateway . . . . . . . . . :
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">www.xxx.yyy.zzz</span></code> is the address of the Windows host machine on the virtual network also connected to WSL 2, and WSL 2 can reach your Windows host machine through this address.</p>
+<p><strong>Note</strong>:  If Windows has been rebooted this virtual Ethernet adapter may not be created until the first run of WSL 2 terminal and the IP address may change.</p>
+<p>Beginning with this <a class="reference external" href="https://github.com/PX4/PX4-Autopilot/commit/1719ff9892f3c3d034f2b44e94d15527ab09cec6">PX4 change request</a> (which correlates to version v1.12.0-beta1 or newer) PX4 in SITL mode can now connect to Project AirSim at a remote IP address.  To use this feature, make sure you have a version of PX4 containing this fix and set the following environment variable in the WSL 2 Linux instance running  PX4:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">PX4_SIM_HOST_ADDR</span><span class="o">=</span>www.xxx.yyy.zzz
+</pre></div>
+</div>
+<p><strong>Note:</strong> Be sure to change <code class="docutils literal notranslate"><span class="pre">www.xxx.yyy.zzz</span></code> to match the IP address reported by the <code class="docutils literal notranslate"><span class="pre">ipconfig</span></code> command.</p>
+<p>In your network firewall configuration, allow incoming TCP/IP port 4560 and incoming UDP/IP port 14540.</p>
+<p>Edit your <a class="reference internal" href="../../config_robot.html#px4_settings"><span class="std std-ref">robot config</span></a> file and add the <code class="docutils literal notranslate"><span class="pre">local-host-ip</span></code> setting to tell Project AirSim to use the WSL ethernet adapter address instead of the default <code class="docutils literal notranslate"><span class="pre">localhost</span></code>.  Project AirSim will then listen on a TCP port on that adapter through which PX4 will connect.  Set <code class="docutils literal notranslate"><span class="pre">control-ip-address</span></code> to the special value <code class="docutils literal notranslate"><span class="pre">remote</span></code> so that Project AirSim will automatically connect the API/Offboard communication channel to PX4 at the WSL 2 remote IP address obtained when PX4 connects via the TCP/IP socket.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;px4-settings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;lock-step&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;use-serial&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;use-tcp&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;tcp-port&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4560</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;local-host-ip&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;www.xxx.yyy.zzz&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;control-ip-address&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;remote&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;control-port-remote&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">14580</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;qgc-host-ip&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">//Set only when enabling GCS proxy</span>
+<span class="w">  </span><span class="nt">&quot;qgc-port&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">14550</span><span class="p">,</span><span class="w"> </span><span class="c1">//Set only when enabling GCS proxy</span>
+<span class="w">  </span><span class="nt">&quot;parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;NAV_RCL_ACT&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;NAV_DLL_ACT&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;COM_OBL_ACT&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;LPE_LAT&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">47.641468</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;LPE_LON&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-122.140165</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="err">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Usually Lockstep mode is enabled for PX4 SITL.  See <a class="reference internal" href="px4_lockstep.html"><span class="std std-doc">PX4 Lockstep Mode</span></a> for more information.</p>
+<p>If your local repo does not include <a class="reference external" href="https://github.com/PX4/PX4-Autopilot/commit/292a66ce417c9769e1a7845fbc9b8d5e68e1cf0b">this PX4 commit</a>, please edit the Linux file in <code class="docutils literal notranslate"><span class="pre">ROMFS/px4fmu_common/init.d-posix/rcS</span></code>.  Make sure it is looking for the <code class="docutils literal notranslate"><span class="pre">PX4_SIM_HOST_ADDR</span></code> environment variable and passing that through to the PX4 simulator like this:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># If PX4_SIM_HOST_ADDR environment variable is empty use localhost.</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-z<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PX4_SIM_HOST_ADDR</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;PX4 SIM HOST: localhost&quot;</span>
+<span class="w">    </span>simulator<span class="w"> </span>start<span class="w"> </span>-c<span class="w"> </span><span class="nv">$simulator_tcp_port</span>
+<span class="k">else</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;PX4 SIM HOST: </span><span class="nv">$PX4_SIM_HOST_ADDR</span><span class="s2">&quot;</span>
+<span class="w">    </span>simulator<span class="w"> </span>start<span class="w"> </span>-t<span class="w"> </span><span class="nv">$PX4_SIM_HOST_ADDR</span><span class="w"> </span><span class="nv">$simulator_tcp_port</span>
+<span class="k">fi</span>
+</pre></div>
+</div>
+<p><strong>Note:</strong> This code might already be there depending on the version of PX4 you are using.</p>
+<p><strong>Note:</strong> Please be patient waiting for the message:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">INFO</span>  <span class="p">[</span><span class="n">simulator</span><span class="p">]</span> <span class="n">Simulator</span> <span class="n">connected</span> <span class="n">on</span> <span class="n">TCP</span> <span class="n">port</span> <span class="mf">4560.</span>
+</pre></div>
+</div>
+<p>It can take a little longer to establish the remote connection than it does when PX4 and Project AirSim connect via <code class="docutils literal notranslate"><span class="pre">localhost</span></code>.</p>
+<p>To complete setting up PX4 SITL, perform the steps given in <a class="reference internal" href="px4_sitl.html#setting_up_px4_software_in_the_loop"><span class="std std-ref">Setting up PX4 Software-in-Loop</span></a>.</p>
+<section id="using-a-ground-control-station">
+<h2>Using a ground control station<a class="headerlink" href="#using-a-ground-control-station" title="Link to this heading">¶</a></h2>
+<p>Normally when using ground control station software with PX4 (like <a class="reference external" href="http://qgroundcontrol.com/"><em>QGroundControl</em></a>) the ground control station software will connect to PX4 directly.  In this configuration, ground control station software running in Windows can’t connnect to PX4 directly since PX4 is running in WSL 2.  To connect the ground control station software to PX4, enable Project AirSim’s ground control proxy by setting <code class="docutils literal notranslate"><span class="pre">qgc-host-ip</span></code> to <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code>.  The ground control station software can then communicate with PX4 via Project AirSim.</p>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI Consulting Corp.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="px4_sitl.html" class="btn btn-neutral float-left" title="Using a PX4 Controller as Software-In-The-Loop (SITL)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

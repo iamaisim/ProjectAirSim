@@ -1,0 +1,515 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Overview &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/documentation_options.js?v=2709fde1"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">API Overview</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/api.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="api-overview">
+<h1>API Overview<a class="headerlink" href="#api-overview" title="Link to this heading">¶</a></h1>
+<hr class="docutils" />
+<section id="api-notes">
+<h2>API Notes<a class="headerlink" href="#api-notes" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Stability: APIs are evolving at this stage and could change based on the feedback. So please do provide feedback.</p></li>
+<li><p>AirSim Compatibility: It is NOT a goal to maintain strict backward compatibility with GitHub AirSim project APIs. Wherever appropriate, learnings from AirSim project are used to update the APIs in this version. At the same time, a lot of familiar concepts have been carried over to enable smooth transition for users who are familiar with GitHub AirSim.</p></li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="api-concepts">
+<h2>API Concepts<a class="headerlink" href="#api-concepts" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Entities: The user code interacts with the simulation backend via these 3 objects:</p>
+<ul class="simple">
+<li><p>Client: provides APIs for connection management between user code (a.k.a. simulation client) and simulation backend.</p></li>
+<li><p>World:  provides APIs for simulation environment management (loading of scene, clock management, weather management, etc.)</p></li>
+<li><p>Robot specific entities, e.g. Drone: provides APIs for robot control as well as sensor data.</p></li>
+</ul>
+</li>
+<li><p>Controls and Sensor data channels: The user code will typically send the control commands to the simulation backend using request-response model while it would subscribe to sensor data via the publish-subscribe model.</p></li>
+<li><p>Async APIs: APIs that end with *Async return the control back to the user code immediately after invoking the call. It is expected that the users will use language specific async models to interact with these APIs, e.g., for Python clients, the user code would use asyncio package to interact with the *Async APIs.</p></li>
+<li><p>Units: Unless specified otherwise, the API inputs and outputs are assumed to be in SI units (meters and radians) and in NED convention.</p></li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="client-authorization">
+<h2>Client Authorization<a class="headerlink" href="#client-authorization" title="Link to this heading">¶</a></h2>
+<p>The Project AirSim server may optionally enable client authorization verification (to enable this, see the <a class="reference internal" href="command_line_switches.html"><span class="std std-doc">“-clientauthpubkey” command line option</span></a>).  When client authorization verification is enabled, clients must present a valid client authorization token immediately after connecting and before calling other API methods (include creating a <code class="docutils literal notranslate"><span class="pre">World</span></code> object).  If a valid unexpired token is not set or the token expires, API calls return a “client not authorized” error and the client won’t received updates to subscribed topics.</p>
+<p>To present a client authorization token, call the <a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">set_authorization_token()</span></code></span></a> method.  This method returns a <code class="docutils literal notranslate"><span class="pre">datetime</span></code> object for when the authorization expires (or expired.)  The client must present a new token before the current token expires to continue using the client API.</p>
+</section>
+<hr class="docutils" />
+<section id="api-example">
+<h2>API Example<a class="headerlink" href="#api-example" title="Link to this heading">¶</a></h2>
+<section id="python">
+<h3>Python<a class="headerlink" href="#python" title="Link to this heading">¶</a></h3>
+<p>(please see hello_drone.py for complete code)</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+    <span class="c1"># Import ProjectAirSim client libraries</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">projectairsim</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProjectAirSimClient</span><span class="p">,</span> <span class="n">World</span><span class="p">,</span> <span class="n">Drone</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+        <span class="c1"># Create client object</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="n">ProjectAirSimClient</span><span class="p">()</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+
+        <span class="c1"># Create world object and load the scene from its config</span>
+        <span class="n">world</span> <span class="o">=</span> <span class="n">World</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="s2">&quot;scene_basic_drone.jsonc&quot;</span><span class="p">,</span> <span class="n">delay_after_load_sec</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># Create drone object</span>
+        <span class="n">drone</span> <span class="o">=</span> <span class="n">Drone</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">world</span><span class="p">,</span> <span class="s2">&quot;Drone1&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Control drone</span>
+        <span class="n">move_up</span> <span class="o">=</span> <span class="k">await</span> <span class="n">drone</span><span class="o">.</span><span class="n">move_by_velocity_async</span><span class="p">(</span>
+            <span class="n">v_north</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">v_east</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">v_down</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mf">4.0</span>
+        <span class="p">)</span>
+        <span class="k">await</span> <span class="n">move_up</span>
+
+        <span class="n">client</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="client">
+<h2>Client<a class="headerlink" href="#client" title="Link to this heading">¶</a></h2>
+<section id="client-object">
+<h3>Client Object<a class="headerlink" href="#client-object" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">ProjectAirSimClient(address,</span> <span class="pre">port_topics,</span> <span class="pre">port_services)</span></code></span></a></p></li>
+</ul>
+</section>
+<section id="connection-api">
+<h3>Connection API<a class="headerlink" href="#connection-api" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">connect()</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">disconnect()</span></code></span></a></p></li>
+</ul>
+</section>
+<section id="authorization-api">
+<h3>Authorization API<a class="headerlink" href="#authorization-api" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">set_authorization_token(token)</span></code></span></a></p></li>
+</ul>
+</section>
+<section id="low-level-communication-api">
+<h3>Low Level Communication API<a class="headerlink" href="#low-level-communication-api" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">get_topic_info()</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">subscribe(topic,</span> <span class="pre">callback)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">publish(topic,</span> <span class="pre">message)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">unsubscribe(topic)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">unsubscribe_all()</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">request(request_data)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">request_async(request_data,</span> <span class="pre">callback)</span></code></span></a></p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="world">
+<h2>World<a class="headerlink" href="#world" title="Link to this heading">¶</a></h2>
+<section id="world-object">
+<h3>World Object<a class="headerlink" href="#world-object" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">World(client,</span> <span class="pre">scene_config,</span> <span class="pre">delay_after_load_sec,</span> <span class="pre">sim_config_path)</span></code></span></a></p></li>
+</ul>
+</section>
+<section id="scene-control-api">
+<h3>Scene Control API<a class="headerlink" href="#scene-control-api" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">load_scene(scene_config,</span> <span class="pre">delay_after_load_sec)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">set_time_of_day(status,</span> <span class="pre">datetime,</span> <span class="pre">is_dst,</span> <span class="pre">clock_speed,</span> <span class="pre">update_interval,</span> <span class="pre">move_sun)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">set_sun_angle_from_date_time(datetime,</span> <span class="pre">is_dst)</span></code></span></a> - Uses the date and time to set the position of the sun in the sky</p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">set_sunlight_intensity(intensity)</span></code></span></a> - Sets the sun light intensity in the scene. Default is 2.75. Range of intensity is 0-75000. However, beyond 10 it’s too bright to observe objects in the scene.</p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">get_sunlight_intensity()</span></code></span></a> - Returns the value of Sun light intensity in the scene.</p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">set_cloud_shadow_strength(strength)</span></code></span></a> - Sets the strength of clouds shadows onto the scene. Disabled by default. Range varies from 0.0 to 1.0.</p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">get_cloud_shadow_strength()</span></code></span></a> - Gets the cloud shadow strength value.</p></li>
+</ul>
+</section>
+<section id="scene-object-api">
+<h3>Scene Object API<a class="headerlink" href="#scene-object-api" title="Link to this heading">¶</a></h3>
+<p>For Unreal objects, the <code class="docutils literal notranslate"><span class="pre">object_name</span></code> refers to the object ID which can be found in the Outliner panel in the Unreal Editor. You can toggle visibility of <code class="docutils literal notranslate"><span class="pre">ID</span> <span class="pre">Name</span></code> by right clicking the the Item Label header and selecting it.</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">list_actors()</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">list_objects(name_regex)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">get_object_pose(object_id)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">set_object_pose(object_name,</span> <span class="pre">object_pose,</span> <span class="pre">teleport)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">get_object_scale(object_id)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">set_object_scale(object_name,</span> <span class="pre">object_scale)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">spawn_object(object_name,</span> <span class="pre">asset_path,</span> <span class="pre">object_pose,</span> <span class="pre">object_scale,</span> <span class="pre">enable_physics)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">spawn_object_at_geo(object_name,</span> <span class="pre">asset_path,</span> <span class="pre">latitude,</span> <span class="pre">longitude,</span> <span class="pre">altitude,</span> <span class="pre">rotation,</span> <span class="pre">object_scale,</span> <span class="pre">enable_physics)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">destroy_object(object_name)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">set_object_texture_from_url(object_name,</span> <span class="pre">url)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">swap_object_texture(tag,</span> <span class="pre">tex_id)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">set_segmentation_id_by_name(mesh_name,</span> <span class="pre">segmentation_id,</span> <span class="pre">is_name_regex,</span> <span class="pre">use_owner_name)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">get_segmentation_id_by_name(mesh_name,</span> <span class="pre">use_owner_name)</span></code></span></a></p></li>
+</ul>
+</section>
+<section id="sim-clock-api">
+<h3>Sim Clock API<a class="headerlink" href="#sim-clock-api" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">get_sim_clock_type()</span></code></span></a> - Get the current sim clock’s type (<strong>steppable</strong> or <strong>real-time</strong>).</p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">get_sim_time()</span></code></span></a> - Get the sim clock’s current sim time in nanosec.</p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">pause()</span></code></span></a> - Pause the advancement of sim time.</p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">resume()</span></code></span></a> - Resume the advancement of sim time.</p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">is_paused()</span></code></span></a> - Check whether the sim clock is currently paused or not.</p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">continue_for_sim_time(delta_time_nanos,</span> <span class="pre">wait_until_complete)</span></code></span></a> - Allow sim time to advance until <strong>delta_time_nanos</strong> has passed and then pause.</p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">continue_until_sim_time(target_time_nanos,</span> <span class="pre">wait_until_complete)</span></code></span></a> - Allow sim time to advance until reaching <strong>target_time_nanos</strong> and then pause.</p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">continue_for_n_steps(n_steps,</span> <span class="pre">wait_until_complete)</span></code></span></a> - Allow sim time to advance for <strong>n_steps</strong> number of time steps and then pause.</p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">continue_for_single_step(wait_until_complete)</span></code></span></a> - Allow sim time to advance for a single time step and then pause.</p></li>
+</ul>
+</section>
+<section id="weather-visual-effects">
+<h3>Weather Visual Effects<a class="headerlink" href="#weather-visual-effects" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">enable_weather_visual_effects()</span></code></span></a> - Enable weather effects in the scene.</p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">disable_weather_visual_effects()</span></code></span></a> - Disable weather effects in the scene.</p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">reset_weather_effects()</span></code></span></a> - Clear scene of weather effects.</p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">set_weather_visual_effects_param(param,</span> <span class="pre">value)</span></code></span></a> - Add weather effects based on a parameter type which includes both falling and fallen (ground cover) leaves, rain, and snow as well as dust and fog for a given density value ranging from 0 to 1.</p></li>
+</ul>
+</section>
+<section id="mapping-api">
+<h3>Mapping API<a class="headerlink" href="#mapping-api" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">create_voxel_grid(position,</span> <span class="pre">x_size,</span> <span class="pre">y_size,</span> <span class="pre">z_size,</span> <span class="pre">res,</span> <span class="pre">n_z_resolution,</span> <span class="pre">use_segmentation,</span> <span class="pre">write_file,</span> <span class="pre">file_path)</span></code></span></a> - Creates a voxel grid for the current scene. Can Output a <code class="docutils literal notranslate"><span class="pre">.binvox</span></code> file that represets the grid and returns a 1D occupancy array.</p></li>
+</ul>
+<p>The index in the occupancy array for a particular point (needs to be within the bounds determined through the params) in the scene can be calculated as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Center</span> <span class="n">Coords</span><span class="p">:</span> <span class="n">x_c</span><span class="p">,</span> <span class="n">y_c</span><span class="p">,</span> <span class="n">z_c</span> <span class="o">//</span> <span class="ow">in</span> <span class="n">m</span>
+<span class="n">Desired</span> <span class="n">Point</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">//</span> <span class="ow">in</span> <span class="n">m</span>
+
+<span class="n">array</span><span class="o">-</span><span class="n">index</span> <span class="o">=</span> <span class="n">x_idx</span> <span class="o">+</span> <span class="n">x_cells</span> <span class="o">*</span> <span class="p">(</span><span class="n">z_idx</span> <span class="o">+</span> <span class="n">z_cells</span> <span class="o">*</span> <span class="n">y_idx</span><span class="p">)</span>
+
+<span class="n">Here</span><span class="p">,</span>
+<span class="n">x_cells</span> <span class="o">=</span> <span class="n">x_size</span><span class="o">/</span><span class="n">resolution</span> <span class="p">(</span><span class="n">similar</span> <span class="k">for</span> <span class="n">y_cells</span><span class="p">)</span>
+<span class="n">z_cells</span> <span class="o">=</span> <span class="n">z_size</span><span class="o">/</span><span class="p">(</span><span class="n">resolution</span> <span class="o">*</span> <span class="n">n_z_resolution</span><span class="p">)</span>
+<span class="n">x_idx</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">x_cells</span><span class="o">/</span><span class="mi">2</span> <span class="o">-</span> <span class="n">x_c</span> <span class="p">(</span><span class="n">similar</span> <span class="k">for</span> <span class="n">y_idx</span> <span class="ow">and</span> <span class="n">z_idx</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Value of the the array at this index (True or False) determines the occupancy of that cell.</p>
+</section>
+<section id="new-feature-voxel-grid-segmentation-use-segmentation-true">
+<h3>New Feature: Voxel Grid Segmentation (<code class="docutils literal notranslate"><span class="pre">use_segmentation=True</span></code>)<a class="headerlink" href="#new-feature-voxel-grid-segmentation-use-segmentation-true" title="Link to this heading">¶</a></h3>
+<p>When <code class="docutils literal notranslate"><span class="pre">use_segmentation</span></code> is set to <strong>True</strong>, the voxel grid will store the <strong>segmentation ID</strong> of objects, rather than a simple binary representation (1 or 0). In this case, the voxel grid array will contain the segmentation ID for each voxel, which corresponds to the object occupying that space.</p>
+<section id="key-behavior">
+<h4>Key Behavior:<a class="headerlink" href="#key-behavior" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><strong>Multiple Objects in a Voxel</strong>: If more than one object occupies the same voxel grid volume, the object with the <strong>largest segmentation ID</strong> will be stored in that voxel.</p></li>
+<li><p><strong>Segmentation ID 0</strong>: If any object has a segmentation ID of <strong>0</strong>, it could be mistaken for an unoccupied space (since the default is often 0 for empty voxels). To resolve this ambiguity, see next section.</p></li>
+</ul>
+</section>
+<section id="solutions-for-segmentation-id-0">
+<h4>Solutions for Segmentation ID 0:<a class="headerlink" href="#solutions-for-segmentation-id-0" title="Link to this heading">¶</a></h4>
+<ol class="arabic simple">
+<li><p><strong>Cross-reference with a Non-Segmented Grid</strong>: To accurately interpret voxel data when <code class="docutils literal notranslate"><span class="pre">use_segmentation=True</span></code>, consider performing an additional check using a voxel grid generated with <code class="docutils literal notranslate"><span class="pre">use_segmentation=False</span></code>. This will help you differentiate between empty space and an object with ID 0.</p></li>
+<li><p><strong>Avoid Using Segmentation ID 0</strong>: A simpler solution is to avoid setting segmentation ID 0 for objects you want to include in the segmentation. By assigning a non-zero segmentation ID to these objects, you prevent any confusion with unoccupied space.</p></li>
+</ol>
+</section>
+</section>
+<section id="visual-debugging-tools">
+<h3>Visual Debugging Tools<a class="headerlink" href="#visual-debugging-tools" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">flush_persistent_markers()</span></code></span></a> - Clears the world of any debugging traces.</p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">plot_debug_points(points,</span> <span class="pre">color_rgba,</span> <span class="pre">size,</span> <span class="pre">duration,</span> <span class="pre">is_persistent)</span></code></span></a> - Plots debugging points in the world.</p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">plot_debug_solid_line(points,</span> <span class="pre">color_rgba,</span> <span class="pre">thickness,</span> <span class="pre">duration,</span> <span class="pre">is_persistent)</span></code></span></a> - Renders a solid debug line in the world.</p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">plot_debug_dashed_line(points,</span> <span class="pre">color_rgba,</span> <span class="pre">thickness,</span> <span class="pre">duration,</span> <span class="pre">is_persistent)</span></code></span></a> - Renders a dashed debug line in the world. Works only with an even number of points.</p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">plot_debug_arrows(points_start,</span> <span class="pre">points_end,</span> <span class="pre">color_rgba,</span> <span class="pre">thickness,</span> <span class="pre">arrow_size,</span> <span class="pre">duration,</span> <span class="pre">is_persistent)</span></code></span></a> - Renders debug arrows in the world.</p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">plot_debug_strings(strings,</span> <span class="pre">positions,</span> <span class="pre">scale,</span> <span class="pre">color_rgba,</span> <span class="pre">duration)</span></code></span></a> - Creates debug text in the world.</p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">plot_debug_transforms(poses,</span> <span class="pre">scale,</span> <span class="pre">thickness,</span> <span class="pre">duration,</span> <span class="pre">is_persistent)</span></code></span></a> - Renders debug coordinate system indicators in the world.</p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">plot_debug_transforms_with_names(poses,</span> <span class="pre">names,</span> <span class="pre">tf_scale,</span> <span class="pre">tf_thickness,</span> <span class="pre">text_scale,</span> <span class="pre">text_color_rgba,</span> <span class="pre">duration)</span></code></span></a> - Renders debug coordinate system indicators with text in the world.</p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">toggle_trace()</span></code></span></a> - Toggle displaying the trace of the drone’s path. Pressing ‘T’ while focused on the Unreal window also toggles displaying the trace.</p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">set_trace_line(color_rgba,</span> <span class="pre">thickness)</span></code></span></a> - Configure parameters for the trace line.</p></li>
+</ul>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>color_rgba</p></td>
+<td><p>List of red, green, blue, alpha values in that specific order (each normalized to 1.0)</p></td>
+</tr>
+<tr class="row-odd"><td><p>duration</p></td>
+<td><p>(seconds)</p></td>
+</tr>
+<tr class="row-even"><td><p>is_persistent</p></td>
+<td><p>If True, ‘duration’ is ignored and markers are displayed until removed by flush_persistent_markers()</p></td>
+</tr>
+<tr class="row-odd"><td><p>names/strings</p></td>
+<td><p>List of strings</p></td>
+</tr>
+<tr class="row-even"><td><p>points/points_start/points_end/positions</p></td>
+<td><p>List of list of floats, list of floats refers to [x, y, z]</p></td>
+</tr>
+<tr class="row-odd"><td><p>poses</p></td>
+<td><p>List of Pose objects, each pose has a translation and rotation component</p></td>
+</tr>
+<tr class="row-even"><td><p>scale</p></td>
+<td><p>Scaling factor for text or transform</p></td>
+</tr>
+<tr class="row-odd"><td><p>size</p></td>
+<td><p>Scale of the point or arrow</p></td>
+</tr>
+<tr class="row-even"><td><p>thickness</p></td>
+<td><p>Thickness of line or transform</p></td>
+</tr>
+</tbody>
+</table>
+<p>Refer to the example user script “hello_debug_utils.py” for more details on how to use this visual debugging API.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="drone">
+<h2>Drone<a class="headerlink" href="#drone" title="Link to this heading">¶</a></h2>
+<section id="drone-object">
+<h3>Drone Object<a class="headerlink" href="#drone-object" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">Drone(client,</span> <span class="pre">world,</span> <span class="pre">name)</span></code></span></a></p></li>
+</ul>
+</section>
+<section id="control-api">
+<h3>Control API<a class="headerlink" href="#control-api" title="Link to this heading">¶</a></h3>
+<section id="prerequisites">
+<h4>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">enable_api_control(),</span> <span class="pre">disable_api_control()</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">arm(),</span> <span class="pre">disarm()</span></code></span></a></p></li>
+</ul>
+</section>
+<section id="control-commands">
+<h4>Control commands<a class="headerlink" href="#control-commands" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">cancel_last_task()</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">takeoff_async(timeout_sec,</span> <span class="pre">callback)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">land_async(timeout_sec,</span> <span class="pre">callback)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">go_home_async(timeout_sec,</span> <span class="pre">callback)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">hover_async(callback)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">move_by_velocity_async(v_north,</span> <span class="pre">v_east,</span> <span class="pre">v_down,</span> <span class="pre">duration,</span> <span class="pre">yaw_control_mode,</span> <span class="pre">yaw_is_rate,</span> <span class="pre">yaw,</span> <span class="pre">callback)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">move_by_velocity_z_async(v_north,</span> <span class="pre">v_east,</span> <span class="pre">z,</span> <span class="pre">duration,</span> <span class="pre">yaw_control_mode,</span> <span class="pre">yaw_is_rate,</span> <span class="pre">yaw,</span> <span class="pre">callback)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">move_to_position_async(north,</span> <span class="pre">east,</span> <span class="pre">down,</span> <span class="pre">velocity,</span> <span class="pre">timeout_sec,</span>&#160; <span class="pre">yaw_control_mode,</span> <span class="pre">yaw_is_rate,</span> <span class="pre">yaw,</span> <span class="pre">lookahead,</span> <span class="pre">adaptive_lookahead,</span> <span class="pre">callback)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">move_on_path_async(path,</span> <span class="pre">velocity,</span> <span class="pre">timeout_sec,</span> <span class="pre">yaw_control_mode,</span> <span class="pre">yaw_is_rate,</span> <span class="pre">yaw,</span> <span class="pre">lookahead,</span> <span class="pre">adaptive_lookahead,</span> <span class="pre">callback)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">rotate_to_yaw_async(yaw,</span> <span class="pre">timeout_sec,</span> <span class="pre">margin,</span> <span class="pre">callback)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">rotate_by_yaw_rate_async(yaw_rate,</span> <span class="pre">duration,</span> <span class="pre">callback)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">move_by_heading_async(heading,</span> <span class="pre">speed,</span> <span class="pre">climb_rate,</span> <span class="pre">duration,</span> <span class="pre">heading_margin,</span> <span class="pre">timeout_sec,</span> <span class="pre">callback)</span></code></span></a></p></li>
+</ul>
+<section id="manual-controller-commands">
+<h5>Manual Controller commands<a class="headerlink" href="#manual-controller-commands" title="Link to this heading">¶</a></h5>
+<ul class="simple">
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">set_control_signals(control_signal_map:</span> <span class="pre">Dict)</span></code></span></a> - Manually set the control signal outputs. The parameter <code class="docutils literal notranslate"><span class="pre">control_signal_map</span></code> dictionary has keys as the target actuator ID string (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;Prop_FR_actuator&quot;</span></code>) and values as the control signal output float value (e.g. <code class="docutils literal notranslate"><span class="pre">0.3</span></code>). Multiple control signals can be set in a single call and the values will remain as set until the next call to set them again.</p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="state-api">
+<h3>State API<a class="headerlink" href="#state-api" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">get_ground_truth_kinematics()</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">get_ground_truth_pose()</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">set_pose(pose,</span> <span class="pre">reset_kinematics)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">set_mission_mode(callback)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">set_vtol_mode_async(vtol_mode,</span> <span class="pre">callback)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">set_ground_truth_kinematics(kinematics:</span> <span class="pre">Dict)</span></code></span></a> - Allows the client to set the Kinematic state of the drone. Here the dictionary <code class="docutils literal notranslate"><span class="pre">kinematics</span></code> is in the following format.</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">position</span> <span class="o">=</span> <span class="n">Vector3</span><span class="p">({</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+<span class="n">orientation</span> <span class="o">=</span> <span class="n">Quaternion</span><span class="p">({</span><span class="s2">&quot;w&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+<span class="n">linear_twist</span> <span class="o">=</span> <span class="n">Vector3</span><span class="p">({</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+<span class="n">angular_twist</span> <span class="o">=</span> <span class="n">Vector3</span><span class="p">({</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+<span class="n">linear_accn</span> <span class="o">=</span> <span class="n">Vector3</span><span class="p">({</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+<span class="n">angular_accn</span> <span class="o">=</span> <span class="n">Vector3</span><span class="p">({</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+
+<span class="n">accn</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;angular&quot;</span><span class="p">:</span> <span class="n">angular_accn</span><span class="p">,</span> <span class="s2">&quot;linear&quot;</span><span class="p">:</span> <span class="n">linear_accn</span><span class="p">}</span>
+<span class="n">pose</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;orientation&quot;</span><span class="p">:</span> <span class="n">orientation</span><span class="p">,</span> <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="n">position</span><span class="p">}</span>
+<span class="n">twist</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;angular&quot;</span><span class="p">:</span> <span class="n">angular_twist</span><span class="p">,</span> <span class="s2">&quot;linear&quot;</span><span class="p">:</span> <span class="n">linear_twist</span><span class="p">}</span>
+
+<span class="n">kinematic</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;time_stamp&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;pose&quot;</span><span class="p">:</span> <span class="n">pose</span><span class="p">,</span> <span class="s2">&quot;twist&quot;</span><span class="p">:</span> <span class="n">twist</span><span class="p">,</span> <span class="s2">&quot;accels&quot;</span><span class="p">:</span> <span class="n">accn</span><span class="p">}</span>
+
+<span class="n">drone</span><span class="o">.</span><span class="n">set_ground_truth_kinematics</span><span class="p">(</span><span class="n">kinematic</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note: <code class="docutils literal notranslate"><span class="pre">linear_twist[&quot;z&quot;]</span></code> needs to have a -ve value (upwards direction) for the drone to move with the specified kinematics</p>
+</section>
+<section id="sensors-api">
+<h3>Sensors API<a class="headerlink" href="#sensors-api" title="Link to this heading">¶</a></h3>
+<section id="camera-api">
+<h4>Camera API<a class="headerlink" href="#camera-api" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">get_images(camera_id,</span> <span class="pre">image_type_ids)</span></code></span></a> - if annotations are enabled, this will also output bounding boxes. See <a class="reference internal" href="sensors/camera_capture_settings.html#annotation-settings"><span class="std std-ref">Annotations Settings</span></a></p></li>
+</ul>
+</section>
+<section id="imu-api">
+<h4>IMU API<a class="headerlink" href="#imu-api" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">get_imu_data(sensor_name)</span></code></span></a></p></li>
+</ul>
+</section>
+<section id="gps-api">
+<h4>GPS API<a class="headerlink" href="#gps-api" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">get_gps_data(sensor_name)</span></code></span></a></p></li>
+</ul>
+</section>
+<section id="barometer-api">
+<h4>Barometer API<a class="headerlink" href="#barometer-api" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">get_barometer_data(sensor_name)</span></code></span></a></p></li>
+</ul>
+</section>
+<section id="magnetometer-api">
+<h4>Magnetometer API<a class="headerlink" href="#magnetometer-api" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">get_magnetometer_data(sensor_name)</span></code></span></a></p></li>
+</ul>
+</section>
+</section>
+<section id="airspeed-api">
+<h3>Airspeed API<a class="headerlink" href="#airspeed-api" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">get_airspeed_data(sensor_name)</span></code></span></a></p></li>
+</ul>
+<section id="battery-api">
+<h4>Battery API<a class="headerlink" href="#battery-api" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">get_battery_state(sensor_name)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">set_battery_remaining()</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">get_battery_drain_rate(sensor_name)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">set_battery_drain_rate(desired_drain_rate)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">set_battery_remaining(desired_battery_remaining)</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">set_battery_health_status(is_desired_state_healthy)</span></code></span></a></p></li>
+</ul>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI Consulting Corp.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

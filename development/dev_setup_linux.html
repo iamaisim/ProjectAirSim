@@ -1,0 +1,235 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Developer Initial Setup for Linux &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Developer Initial Setup for Linux</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/development/dev_setup_linux.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="developer-initial-setup-for-linux">
+<h1>Developer Initial Setup for Linux<a class="headerlink" href="#developer-initial-setup-for-linux" title="Link to this heading">¶</a></h1>
+<p>On Linux, Project AirSim can be developed with VS Code which provides a light-weight, cross-platform common experience between Linux and Windows.</p>
+<ol class="arabic">
+<li><p>Clone the Project AirSim repo</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">iamaisim</span><span class="o">/</span><span class="n">ProjectAirSim</span><span class="o">.</span><span class="n">git</span>
+</pre></div>
+</div>
+</li>
+<li><p>From the <code class="docutils literal notranslate"><span class="pre">projectairsim/</span></code> folder, install the prerequisites:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">setup_linux_dev_tools</span><span class="o">.</span><span class="n">sh</span>
+</pre></div>
+</div>
+<p>This will install:</p>
+<ul class="simple">
+<li><p><strong>make</strong> - used by build scripts to drive CMake commands</p></li>
+<li><p><strong>cmake</strong> - used to build sim lib components</p></li>
+<li><p><strong>clang 13, libc++ 13</strong> - used to build sim lib components and match the bundled toolchain of Unreal Engine 5.2</p></li>
+<li><p><strong>ninja</strong> - used as the preferred CMake generator/build tool</p></li>
+<li><p><strong>vulkan loader library</strong> - for UE rendering on Linux (OpenGL has been deprecated)</p></li>
+<li><p><strong>vulkan utils</strong> - utilities like <code class="docutils literal notranslate"><span class="pre">vulkaninfo</span></code> for checking for graphics support</p></li>
+</ul>
+<p>You may also need to install the latest drivers for your GPU to support the Vulkan interface.</p>
+</li>
+<li><p>Install <strong><a class="reference external" href="https://code.visualstudio.com/">VS Code</a></strong> and the following extensions:</p>
+<p><em>Note: If not manually installed, these extensions will be recommended for automatic install on opening the Project AirSim project workspace</em></p>
+<ul class="simple">
+<li><p><strong><a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools">CMake Tools</a></strong></p></li>
+<li><p><strong><a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools">C/C++</a></strong> (includes clang-format functionality, use <strong>Alt-Shift-F</strong> to auto-format the current code file using the repo’s .clang-format settings)</p></li>
+<li><p><strong><a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb">CodeLLDB</a></strong></p></li>
+<li><p><strong><a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp">C#</a></strong></p></li>
+<li><p><strong><a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=ms-vscode.mono-debug">Mono Debug</a></strong></p></li>
+<li><p><strong><a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=matepek.vscode-catch2-test-adapter">C++ TestMate</a></strong> (also automatically installs <strong><a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer">Test Explorer UI</a></strong>)</p></li>
+<li><p><strong><a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=ms-python.python">Python</a></strong></p></li>
+<li><p><strong><a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance">Pylance</a></strong></p></li>
+</ul>
+<p>The above can also be done by the following bash command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">code</span> <span class="o">--</span><span class="n">install</span><span class="o">-</span><span class="n">extension</span> <span class="n">ms</span><span class="o">-</span><span class="n">vscode</span><span class="o">.</span><span class="n">cmake</span><span class="o">-</span><span class="n">tools</span>
+<span class="n">code</span> <span class="o">--</span><span class="n">install</span><span class="o">-</span><span class="n">extension</span> <span class="n">ms</span><span class="o">-</span><span class="n">vscode</span><span class="o">.</span><span class="n">cpptools</span>
+<span class="n">code</span> <span class="o">--</span><span class="n">install</span><span class="o">-</span><span class="n">extension</span> <span class="n">vadimcn</span><span class="o">.</span><span class="n">vscode</span><span class="o">-</span><span class="n">lldb</span>
+<span class="n">code</span> <span class="o">--</span><span class="n">install</span><span class="o">-</span><span class="n">extension</span> <span class="n">ms</span><span class="o">-</span><span class="n">dotnettools</span><span class="o">.</span><span class="n">csharp</span>
+<span class="n">code</span> <span class="o">--</span><span class="n">install</span><span class="o">-</span><span class="n">extension</span> <span class="n">ms</span><span class="o">-</span><span class="n">vscode</span><span class="o">.</span><span class="n">mono</span><span class="o">-</span><span class="n">debug</span>
+<span class="n">code</span> <span class="o">--</span><span class="n">install</span><span class="o">-</span><span class="n">extension</span> <span class="n">matepek</span><span class="o">.</span><span class="n">vscode</span><span class="o">-</span><span class="n">catch2</span><span class="o">-</span><span class="n">test</span><span class="o">-</span><span class="n">adapter</span>
+<span class="n">code</span> <span class="o">--</span><span class="n">install</span><span class="o">-</span><span class="n">extension</span> <span class="n">ms</span><span class="o">-</span><span class="n">python</span><span class="o">.</span><span class="n">python</span>
+<span class="n">code</span> <span class="o">--</span><span class="n">install</span><span class="o">-</span><span class="n">extension</span> <span class="n">ms</span><span class="o">-</span><span class="n">python</span><span class="o">.</span><span class="n">vscode</span><span class="o">-</span><span class="n">pylance</span>
+</pre></div>
+</div>
+</li>
+<li><p><em>(Optional)</em> Customize VS Code User settings</p>
+<p>See <strong><a class="reference internal" href="vscode_user_settings.html"><span class="std std-doc">Optional VS Code User Settings</span></a></strong> for some example customized user settings that can help with Project AirSim development.</p>
+</li>
+<li><p>Install Unreal Engine 5.2</p>
+<ul>
+<li><p>Get UE source from <strong><a class="reference external" href="https://github.com/EpicGames/UnrealEngine">Unreal Engine’s private GitHub repo</a></strong> (requires <strong><a class="reference external" href="https://docs.unrealengine.com/en-US/GettingStarted/DownloadingUnrealEngine/index.html">registering with Epic</a></strong>)</p></li>
+<li><p>You can run the engine as built from source following <strong><a class="reference external" href="https://github.com/EpicGames/UnrealEngine/blob/release/Engine/Build/BatchFiles/Linux/README.md">Unreal’s Linux native build process</a></strong>, but to prevent the engine from recompiling itself during Project AirSim development, <strong>it is recommended to make an <a class="reference external" href="https://docs.unrealengine.com/en-US/Programming/Deployment/UsinganInstalledBuild/index.html">installed build</a> of the engine instead</strong>. To make an installed build, run these steps:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">&lt;</span><span class="n">UE</span> <span class="n">source</span> <span class="n">path</span><span class="o">&gt;</span>
+
+<span class="o">./</span><span class="n">Setup</span><span class="o">.</span><span class="n">sh</span>
+
+<span class="n">rm</span> <span class="o">-</span><span class="n">rf</span> <span class="n">Engine</span><span class="o">/</span><span class="n">Platforms</span><span class="o">/</span><span class="n">XXX</span>
+
+<span class="o">./</span><span class="n">Engine</span><span class="o">/</span><span class="n">Build</span><span class="o">/</span><span class="n">BatchFiles</span><span class="o">/</span><span class="n">RunUAT</span><span class="o">.</span><span class="n">sh</span> <span class="n">BuildGraph</span> \
+    <span class="o">-</span><span class="n">target</span><span class="o">=</span><span class="s2">&quot;Make Installed Build Linux&quot;</span> \
+    <span class="o">-</span><span class="n">script</span><span class="o">=</span><span class="n">Engine</span><span class="o">/</span><span class="n">Build</span><span class="o">/</span><span class="n">InstalledEngineBuild</span><span class="o">.</span><span class="n">xml</span> \
+    <span class="o">-</span><span class="nb">set</span><span class="p">:</span><span class="n">HostPlatformOnly</span><span class="o">=</span><span class="n">true</span> \
+    <span class="o">-</span><span class="nb">set</span><span class="p">:</span><span class="n">WithLinuxAArch64</span><span class="o">=</span><span class="n">false</span> \
+    <span class="o">-</span><span class="nb">set</span><span class="p">:</span><span class="n">WithFullDebugInfo</span><span class="o">=</span><span class="n">false</span> \
+    <span class="o">-</span><span class="nb">set</span><span class="p">:</span><span class="n">WithDDC</span><span class="o">=</span><span class="n">true</span> \
+    <span class="o">-</span><span class="nb">set</span><span class="p">:</span><span class="n">GameConfigurations</span><span class="o">=</span><span class="s2">&quot;DebugGame;Development&quot;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p><strong>Note:</strong> Making an installed build will take a <strong>lot of disk space (~200 GB)</strong> and a <strong>lot of time (~4+ hours)</strong> because it will build the engine and precompile the engine’s <strong><a class="reference external" href="https://docs.unrealengine.com/en-US/Engine/Basics/DerivedDataCache/index.html">DDC</a></strong> content. However, using the installed build for Project AirSim development can save a lot of developer iteration time since the engine will never recompile and the bulk of the initial shader compilation will already be complete. This is similar to using a Windows binary engine downloaded from Epic’s Launcher. Most of the original source package and build files can also be deleted to just keep the installed build version which is ~40 GB.</p>
+<ul>
+<li><p>After the installed build completes, the binary version of the engine will be located in <code class="docutils literal notranslate"><span class="pre">&lt;UE</span> <span class="pre">source</span> <span class="pre">path&gt;/LocalBuilds/Engine/Linux/</span></code> and the contents of this folder can be moved to wherever you plan to use the engine from. The other contents of the <code class="docutils literal notranslate"><span class="pre">&lt;UE</span> <span class="pre">source</span> <span class="pre">path&gt;</span></code> can be deleted since the installed build engine will not need to rebuild again.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mv</span> <span class="o">./</span><span class="n">LocalBuilds</span><span class="o">/</span><span class="n">Engine</span><span class="o">/</span><span class="n">Linux</span> <span class="o">~/</span><span class="n">UE_installed_build</span>
+<span class="n">cd</span> <span class="o">~/</span><span class="n">UE_installed_build</span>
+<span class="n">rm</span> <span class="o">-</span><span class="n">rf</span> <span class="o">&lt;</span><span class="n">UE</span> <span class="n">source</span> <span class="n">path</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+<li><p>Set a <code class="docutils literal notranslate"><span class="pre">UE_ROOT</span></code> environment variable to wherever you put the built Unreal Engine (you can add this to <code class="docutils literal notranslate"><span class="pre">~/.bashrc</span></code> to persist)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">UE_ROOT</span><span class="o">=/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">UE_installed_build</span>
+</pre></div>
+</div>
+<p><strong>Note:</strong> When using the installed build engine for VS Code debugging, it will look for the source files in the original <code class="docutils literal notranslate"><span class="pre">&lt;UE</span> <span class="pre">source</span> <span class="pre">path&gt;</span></code> location that it was built from, so you can either put the installed build engine in place of the original source package, or you can add a source mapping configuration to the VS Code project’s <code class="docutils literal notranslate"><span class="pre">launch.json</span></code> after the project is generated, like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;sourceFileMap&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="s2">&quot;&lt;UE source path&gt;&quot;</span><span class="p">:</span> <span class="s2">&quot;${env:UE_ROOT}&quot;</span> <span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p>Do the <strong><a class="reference internal" href="../client_setup.html#setting-up-the-client-on-linux"><span class="std std-ref">Project AirSim Client Setup</span></a></strong>.</p></li>
+</ol>
+<p>Now you’re ready to start <strong><a class="reference internal" href="use_source.html#developing-projectairsim-libs"><span class="std std-ref">Developing Project AirSim Libs</span></a></strong></p>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI Consulting Corp.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

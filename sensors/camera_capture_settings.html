@@ -1,0 +1,415 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Supported imaging/capture camera customizations &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Camera Images Post processing using Neural Network models" href="camera_post_processing_with_nn.html" />
+    <link rel="prev" title="Project AirSim" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Supported imaging/capture camera customizations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#camera-level-parameters">Camera-level parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#annotation-settings">Annotation settings</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#annotations-output">Annotations output</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#explanation-of-fields">Explanation of Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#capture-level-parameters">Capture-level parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Supported imaging/capture camera customizations</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/sensors/camera_capture_settings.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="supported-imaging-capture-camera-customizations">
+<h1>Supported imaging/capture camera customizations<a class="headerlink" href="#supported-imaging-capture-camera-customizations" title="Link to this heading">¶</a></h1>
+<section id="camera-level-parameters">
+<h2>Camera-level parameters<a class="headerlink" href="#camera-level-parameters" title="Link to this heading">¶</a></h2>
+<p>Other than the parameters common to all sensors, the following apply to all capture types in a camera.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value-range</p></th>
+<th class="head"><p>Description &amp; notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>capture-interval</p></td>
+<td><p>&gt; 0</p></td>
+<td><p>Interval in seconds in between subsequent captures</p></td>
+</tr>
+<tr class="row-odd"><td><p>annotation-settings</p></td>
+<td><p>json</p></td>
+<td><p>(Optional) See Annotation Settings section below. Off by default.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="annotation-settings">
+<h2>Annotation settings<a class="headerlink" href="#annotation-settings" title="Link to this heading">¶</a></h2>
+<p>You can enable 2D and 3D bounding box annotations on the images by including <code class="docutils literal notranslate"><span class="pre">annotation-settings</span></code> object as part of your camera settings.</p>
+<p>For example, the example below will produce bounding boxes whenever the objects <code class="docutils literal notranslate"><span class="pre">Cone_5</span></code> and <code class="docutils literal notranslate"><span class="pre">OrangeBall</span></code> are in the camera’s view.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="w">      </span><span class="nt">&quot;annotation-settings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;object-ids&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="s2">&quot;Cone_5&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">&quot;OrangeBall&quot;</span>
+<span class="w">        </span><span class="p">],</span>
+<span class="w">        </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;bbox2D-settings&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;alignment&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;axis&quot;</span><span class="w"> </span><span class="c1">// axis or oriented</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;bbox3D-settings&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;alignment&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;oriented&quot;</span><span class="w"> </span><span class="c1">// axis or oriented</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">alignment</span></code> of each kind of bounding box will determine whether they should be aligned to the axis of the coordinate system they exist on (world-axis for 3D bboxes, image-axis for 2D bboxes) or whether they should have an orientation (object-oriented for 3D bboxes, or [not yet supported:] tightest possible box for 2D bbox).</p>
+<section id="annotations-output">
+<h3>Annotations output<a class="headerlink" href="#annotations-output" title="Link to this heading">¶</a></h3>
+<p>If annotations output is enabled, as part of the <em>image message</em> there will be an <code class="docutils literal notranslate"><span class="pre">annotations</span></code> list. For example:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="err">...</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;time_stamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="err">...</span><span class="p">,</span>
+<span class="w">  </span><span class="err">...</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;annotations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="nt">&quot;object_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Cone_5&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;bbox2d&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;center&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">475.5</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">239</span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;size&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">43</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">40</span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;bbox3d&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;center&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">91.1500015258789</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">32.099998474121094</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;z&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-5.704560279846191</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;size&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;z&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;quaternion&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;w&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;z&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;bbox3d_in_image_space&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">456</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">259</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">454</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">219</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">497</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">259</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">495</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">219</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">457</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">258</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">455</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">219</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">495</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">257</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">493</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">219</span><span class="p">}</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;bbox3d_in_projection_space&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.28647470474243164</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.2785084545612335</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;z&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.000618825142737478</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.2900407612323761</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.39113759994506836</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;z&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0006265283445827663</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.22319214046001434</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.27976569533348083</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;z&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0006093247793614864</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.22592729330062866</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.39065995812416077</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;z&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0006167918909341097</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.2856419086456299</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.28304246068000793</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;z&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0005845636478625238</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.28899842500686646</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.38941583037376404</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;z&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0005914327339269221</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.225824236869812</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.28416526317596436</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;z&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0005760789499618113</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.22843889892101288</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.3889898359775543</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;z&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0005827489658258855</span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>If annotations are disabled, this list will be empty.</p>
+</section>
+</section>
+<section id="explanation-of-fields">
+<h2>Explanation of Fields<a class="headerlink" href="#explanation-of-fields" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p><strong>pos_x, pos_y, pos_z and rot_w, rot_x, rot_y, rot_z</strong>:</p>
+<ul class="simple">
+<li><p>These fields represent the position and rotation of the camera at the time the image is taken.</p></li>
+<li><p>The frame of reference used is NED (North-East-Down).</p></li>
+</ul>
+</li>
+<li><p><strong>bbox2d and bbox3d_in_image_space</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bbox2d</span></code> is the rectangle where the segmented object is located in the image.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bbox3d_in_image_space</span></code> is a 3D bounding box projected onto the image plane, so you can draw it on the image. It’s made up of 8 2D points representing the corners of the 3D bbox.</p></li>
+<li><p>To visualize these in the image, use the <code class="docutils literal notranslate"><span class="pre">image_utils.py</span></code> script (specifically the <code class="docutils literal notranslate"><span class="pre">draw_bbox3D</span></code> function). These drawings are in the same image space.</p></li>
+</ul>
+</li>
+<li><p><strong>bbox3d</strong>:</p>
+<ul class="simple">
+<li><p>This represents the center, size and rotation of the object in the world-axis, independent of the camera’s position when the frame is captured.</p></li>
+</ul>
+</li>
+<li><p><strong>bbox3d_in_projection_space</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bbox3d_in_projection_space</span></code> stores the coordinates of the 3D bounding box vertices projected into the camera’s projection space. These coordinates represent how the 3D bounding box is seen in the camera’s projection space, after applying the camera’s projection matrix. This projection space has normalized coordinates:</p>
+<ul>
+<li><p>x and y range from -1 to 1 (covering the entire camera’s field of view).</p></li>
+<li><p>z ranges from 0 to 1 (where 1 is the near plane and 0 is the far plane of the camera).</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="capture-level-parameters">
+<h2>Capture-level parameters<a class="headerlink" href="#capture-level-parameters" title="Link to this heading">¶</a></h2>
+<p>A single camera can output multiple capture types. The following parameters describe a specific capture in a camera.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value-range</p></th>
+<th class="head"><p>Description &amp; notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>image-type</p></td>
+<td><p>index 0~6</p></td>
+<td><p>Index for camera type: 0 = RGB Scene, 1 = Depth Planar, 2 = Depth Perspective, 3 = Segmentation, 4 = Depth Visualization, 5 = DisparityNormalized, 6 = SurfaceNormals</p></td>
+</tr>
+<tr class="row-odd"><td><p>width</p></td>
+<td><p>&gt; 0</p></td>
+<td><p>Width of the camera image</p></td>
+</tr>
+<tr class="row-even"><td><p>height</p></td>
+<td><p>&gt; 0</p></td>
+<td><p>Height of the camera image</p></td>
+</tr>
+<tr class="row-odd"><td><p>fov-degrees</p></td>
+<td><p>[5, 170]</p></td>
+<td><p>Field of View of the camera</p></td>
+</tr>
+<tr class="row-even"><td><p>capture-enabled</p></td>
+<td><p>True/False</p></td>
+<td><p>Enable capturing and sending the full raw images to the client through pub/sub topics and/or req/resp APIs.</p></td>
+</tr>
+<tr class="row-odd"><td><p>streaming-enabled</p></td>
+<td><p>True/False</p></td>
+<td><p>Enable streaming a real-time video feed of this camera capture. See the <a class="reference internal" href="camera_streaming.html"><span class="std std-doc">Camera Streaming</span></a> page for more details.</p></td>
+</tr>
+<tr class="row-even"><td><p>pixels-as-float</p></td>
+<td><p>True/False</p></td>
+<td><p>Use float for pixel data</p></td>
+</tr>
+<tr class="row-odd"><td><p>compress</p></td>
+<td><p>True/False</p></td>
+<td><p>Apply PNG lossless compression to the captured image data sent to the client with <code class="docutils literal notranslate"><span class="pre">capture-enabled</span></code> set to True. <em>Note: Compressing/decompressing adds processing time that may slow down the image transfer rate.</em></p></td>
+</tr>
+<tr class="row-even"><td><p>auto-exposure-method</p></td>
+<td><p>0: histogram, 1: basic, 3: manual</p></td>
+<td><p><strong>Auto Exposure Histogram</strong> constructs a 64 bin histogram enabling finer control over auto exposure with advanced settings.  <strong>Auto Exposure Basic</strong> is a faster method that computes single values by down sampling. <strong>Manual</strong> enables the use of <strong>Camera</strong> settings within the Post Process Volume to control exposure rather than the Exposure settings.</p></td>
+</tr>
+<tr class="row-odd"><td><p>auto-exposure-speed</p></td>
+<td><p></p></td>
+<td><p>The speed at which the adaptation occurs from a dark environment to a bright environment.</p></td>
+</tr>
+<tr class="row-even"><td><p>auto-exposure-max-brightness</p></td>
+<td><p>x &gt; 1.0 &amp;&amp; x &gt;= min-brightness</p></td>
+<td><p>The maximum brightness for auto exposure that limits the upper brightness the eye can adapt within. <strong>NOTE</strong>: If Min Brightness = Max Brightness, auto exposure is disabled</p></td>
+</tr>
+<tr class="row-odd"><td><p>auto-exposure-min-brightness</p></td>
+<td><p>0.0 &lt; x &lt; max-brightness</p></td>
+<td><p>The minimum brightness for auto exposure that limits the lower brightness the eye can adapt within. <strong>NOTE:</strong> If Min Brightness = Max Brightness, auto exposure is disabled</p></td>
+</tr>
+<tr class="row-even"><td><p>auto-exposure-low-percent</p></td>
+<td><p>[0, 100]</p></td>
+<td><p>The eye adaptation will adapt to a value extracted from the luminance histogram of the scene color. The value defines the lower percentage of the histogram that is used to find the average scene luminance. <strong>NOTE:</strong> Values in the range 70-80 give the best results.</p></td>
+</tr>
+<tr class="row-odd"><td><p>auto-exposoure-high-percent</p></td>
+<td><p>[0, 100]</p></td>
+<td><p>The eye adaptation will adapt to a value extracted from the luminance histogram of the scene color. The value defines the upper percentage of the histogram that is used to find the average scene luminance. <em><strong>NOTE:</strong></em> Values in the range 70-80 give the best results.</p></td>
+</tr>
+<tr class="row-even"><td><p>auto-exposure-histogram-log-min</p></td>
+<td><p></p></td>
+<td><p>Defines the lower bounds for the brightness range of the generated histogram when using the  HDR (Eye Adaptation) visualization mode;log-min value for histogram of scene colors; E.g.:0.8 ==&gt; 80% of the screen pixels are darker than the luminance value A</p></td>
+</tr>
+<tr class="row-odd"><td><p>auto-exposure-histogram-log-max</p></td>
+<td><p></p></td>
+<td><p>log-max value for histogram of scene colors; E.g.:0.95 ==&gt;  95% of the screen pixels are darker than the luminance value B. Current luminance value (C) = avg(A, B)</p></td>
+</tr>
+<tr class="row-even"><td><p>motion-blur-amount</p></td>
+<td><p>[0, 1]</p></td>
+<td><p>Blurs objects based on it’s motion determined using velocity maps. A value of 0.25 - 0.5 looks reasonable. Avoid 1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>target-gamma</p></td>
+<td><p></p></td>
+<td><p>Target gamma to be used by the render target (UTextureRenderTarget2D)</p></td>
+</tr>
+<tr class="row-even"><td><p>max-depth-meters</p></td>
+<td><p>&gt; 0.0</p></td>
+<td><p>Maximum depth for Depth Visualization. Objects beyond the maximum depth will be true white, while close objects will be completely black.</p></td>
+</tr>
+</tbody>
+</table>
+<p>| Image Type | Description |
+| Scene | The regular camera image. |
+| Depth Planar | Depth measured from the camera plane, in meters. |
+| Depth Perspective | Depth measured in a line from the camera point, in meters. |
+| Segmentation | The ground truth segmentation of the scene, i.e. each object is a different color.|
+| Depth Visualization | Image that helps visualize depth. |
+| DisparityNormalized | Uses the ground truth depth to simulate a stereo disparity image with a single camera. The baseline distance is assumed to be 0.25m. Values are normalized to a 0-1 scale. |
+| SurfaceNormals | Surfaces are colored according to their normals. RGB corresponds to XYZ, and values are normalized to a 0-1 scale. |</p>
+</section>
+</section>
+<section id="sample-config">
+<h1>Sample config<a class="headerlink" href="#sample-config" title="Link to this heading">¶</a></h1>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="nt">&quot;sensors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Down&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;camera&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;parent-link&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Frame&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;capture-interval&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;capture-settings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;image-type&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;width&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">640</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;height&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">480</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;fov-degrees&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">90</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;capture-enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;streaming-enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;pixels-as-float&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;compress&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;target-gamma&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">2.5</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;auto-exposure-speed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;auto-exposure-bias&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;auto-exposure-max-brightness&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.00</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;auto-exposure-min-brightness&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.7</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;auto-exposure-low-percent&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.7</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;auto-exposure-high-percent&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.9</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;auto-exposure-histogram-log-min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">-8</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;auto-exposure-histogram-log-max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;motion-blur-amount&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.3</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI Consulting Corp.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="Project AirSim" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="camera_post_processing_with_nn.html" class="btn btn-neutral float-right" title="Camera Images Post processing using Neural Network models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,208 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Running Headless (Docker) &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Running Headless (Docker)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/development/headless_cloud.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="running-headless-docker">
+<h1>Running Headless (Docker)<a class="headerlink" href="#running-headless-docker" title="Link to this heading">¶</a></h1>
+<section id="using-headless-mode-with-vs-code-debugging">
+<h2>Using headless mode with VS Code Debugging<a class="headerlink" href="#using-headless-mode-with-vs-code-debugging" title="Link to this heading">¶</a></h2>
+<p>To use the <code class="docutils literal notranslate"><span class="pre">-RenderOffScreen</span></code> or <code class="docutils literal notranslate"><span class="pre">-nullrhi</span></code> headless arguments for debugging in VS Code, edit the <code class="docutils literal notranslate"><span class="pre">launch.json</span></code> section for your debugging run target and add them to the <code class="docutils literal notranslate"><span class="pre">&quot;args&quot;</span></code> array:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Blocks (DebugGame)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;request&quot;</span><span class="p">:</span> <span class="s2">&quot;launch&quot;</span><span class="p">,</span>
+    <span class="o">...</span>
+    <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="s2">&quot;-RenderOffScreen&quot;</span> <span class="p">],</span>
+    <span class="o">...</span>
+<span class="p">},</span>
+</pre></div>
+</div>
+<p>For an <strong>Editor</strong> target, you can also add the <code class="docutils literal notranslate"><span class="pre">-game</span></code> argument to automatically start the simulation Play on launch:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;BlocksEditor (DebugGame)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;request&quot;</span><span class="p">:</span> <span class="s2">&quot;launch&quot;</span><span class="p">,</span>
+    <span class="o">...</span>
+    <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="s2">&quot;C:</span><span class="se">\\</span><span class="s2">dev</span><span class="se">\\</span><span class="s2">projectairsim</span><span class="se">\\</span><span class="s2">unreal</span><span class="se">\\</span><span class="s2">Blocks</span><span class="se">\\</span><span class="s2">Blocks.uproject&quot;</span><span class="p">,</span> <span class="s2">&quot;-game&quot;</span><span class="p">,</span> <span class="s2">&quot;-RenderOffScreen&quot;</span>
+    <span class="p">],</span>
+    <span class="o">...</span>
+<span class="p">},</span>
+</pre></div>
+</div>
+</section>
+<section id="using-headless-mode-with-visual-studio-2019-debugging">
+<h2>Using headless mode with Visual Studio 2019 Debugging<a class="headerlink" href="#using-headless-mode-with-visual-studio-2019-debugging" title="Link to this heading">¶</a></h2>
+<p>To use the <code class="docutils literal notranslate"><span class="pre">-RenderOffScreen</span></code> or <code class="docutils literal notranslate"><span class="pre">-nullrhi</span></code> headless arguments for debugging in Visual Studio 2019, right-click on the Blocks project in the Solution Explorer and open the <strong>Properties</strong> window, then add the arguments to <code class="docutils literal notranslate"><span class="pre">Configuration</span> <span class="pre">Properties</span> <span class="pre">-&gt;</span> <span class="pre">Debugging</span> <span class="pre">-&gt;</span> <span class="pre">Command</span> <span class="pre">Arguments</span></code>:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>DebugGame</p></th>
+<th class="head"><p></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Command Arguments</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-RenderOffScreen</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>For an <strong>Editor</strong> target, you can also add the <code class="docutils literal notranslate"><span class="pre">-game</span></code> argument to automatically start the simulation Play on launch:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>DebugGame Editor</p></th>
+<th class="head"><p></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Command Arguments</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;$(SolutionDir)Blocks.uproject&quot;</span> <span class="pre">-skipcompile</span> <span class="pre">-game</span> <span class="pre">-RenderOffScreen</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>This can also be done by directly modifying the <code class="docutils literal notranslate"><span class="pre">Blocks/Intermediate/ProjectFiles/Blocks.vcxproj.user</span></code> file to add the arguments:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">PropertyGroup</span> <span class="n">Condition</span><span class="o">=</span><span class="s2">&quot;&#39;$(Configuration)|$(Platform)&#39;==&#39;DebugGame|x64&#39;&quot;</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">DebuggerFlavor</span><span class="o">&gt;</span><span class="n">WindowsLocalDebugger</span><span class="o">&lt;/</span><span class="n">DebuggerFlavor</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">LocalDebuggerCommandArguments</span><span class="o">&gt;-</span><span class="n">RenderOffScreen</span><span class="o">&lt;/</span><span class="n">LocalDebuggerCommandArguments</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">PropertyGroup</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">PropertyGroup</span> <span class="n">Condition</span><span class="o">=</span><span class="s2">&quot;&#39;$(Configuration)|$(Platform)&#39;==&#39;DebugGame_Editor|x64&#39;&quot;</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">LocalDebuggerCommandArguments</span><span class="o">&gt;</span><span class="s2">&quot;$(SolutionDir)Blocks.uproject&quot;</span> <span class="o">-</span><span class="n">skipcompile</span> <span class="o">-</span><span class="n">game</span> <span class="o">-</span><span class="n">RenderOffScreen</span><span class="o">&lt;/</span><span class="n">LocalDebuggerCommandArguments</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">DebuggerFlavor</span><span class="o">&gt;</span><span class="n">WindowsLocalDebugger</span><span class="o">&lt;/</span><span class="n">DebuggerFlavor</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">PropertyGroup</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI Consulting Corp.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

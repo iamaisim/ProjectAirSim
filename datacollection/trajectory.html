@@ -1,0 +1,246 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trajectory Generation &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Trajectory Generation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/datacollection/trajectory.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="trajectory-generation">
+<h1>Trajectory Generation<a class="headerlink" href="#trajectory-generation" title="Link to this heading">¶</a></h1>
+<p>This documents serves to provide a detailed overview of the trajectory generation pieces available as part of the data collection module. During the data generation run, the drone moves along the <code class="docutils literal notranslate"><span class="pre">WayPoint</span></code> objects defined during trajectory generation which makes this step crucial in terms of the quantity, quality and variety of data generated through the module.</p>
+<p>At present, we support the following kinds of trajectories:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#takeoff-landing"><span class="xref myst">Takeoff-Landing</span></a></p></li>
+<li><p><a class="reference internal" href="#port2port"><span class="xref myst">Port-2-Port</span></a></p></li>
+<li><p><a class="reference internal" href="#conic"><span class="xref myst">Conic</span></a></p></li>
+<li><p><a class="reference internal" href="#cylindrical"><span class="xref myst">Cylindrical</span></a></p></li>
+</ul>
+<p>These trajectories can either be defined through the <a class="reference internal" href="config.html#collection-spec"><span class="std std-ref"><code class="docutils literal notranslate"><span class="pre">config</span></code></span></a> or through <a class="reference internal" href="api.html#pre-trajectory-generation-apis"><span class="std std-ref"><code class="docutils literal notranslate"><span class="pre">API's</span></code></span></a></p>
+<section id="takeoff-landing">
+<h2>Takeoff-Landing<a class="headerlink" href="#takeoff-landing" title="Link to this heading">¶</a></h2>
+<p>Imagine a circular plane in x-y around the specified <code class="docutils literal notranslate"><span class="pre">geo-location</span></code>. Trajectories of this pattern move the drone vertically up from points on this circular plane. At each height, the drone rotates through <code class="docutils literal notranslate"><span class="pre">n</span></code> yaw positions as defined through the config. In the diagram below, the blue circle is the circular plane. This pattern can be used to collect data above an object of interest. E.g. Get images of a landing pad below the sim agent from varying angles/heights</p>
+<!-- ![Takeoff-Landing](../images/datacollection/Takeoff_Landing.png) -->
+<p>The following parameters define the trajectory:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">trajectory-len</span></code>: Desired number of waypoints</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">altitude-change</span></code>: delta between starting and max altitude in <code class="docutils literal notranslate"><span class="pre">m</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">radius</span></code>: Radius of the circular plane in <code class="docutils literal notranslate"><span class="pre">m</span></code></p></li>
+</ul>
+<p>An example of this trajectory being defined in the config can be found <a class="reference internal" href="#../../client%5Cpython%5Cexample_user_scripts%5Cdatacollection%5Cconfigs%5Cdatacollector_config.jsonc#L123"><span class="xref myst">here</span></a></p>
+<p>Programmatically, this trajectory can be defined as:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">projectairsim.datacollection.trajectory.takeoff_landing_trajectory</span><span class="w"> </span><span class="kn">import</span> <span class="n">TakeoffLandingTrajectory</span>
+
+<span class="n">takeoff_landing</span> <span class="o">=</span> <span class="n">TakeoffLandingTrajectory</span><span class="p">(</span><span class="n">trajectory_len</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">altitude_change</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="conic">
+<h2>Conic<a class="headerlink" href="#conic" title="Link to this heading">¶</a></h2>
+<p>For this pattern, the drone moves up vertically in a conic path w.r.t the <code class="docutils literal notranslate"><span class="pre">geo-location</span></code>. The shape on the cone is defined through its params. This pattern can be used to collect data above an object of interest. E.g. Get images of a landing pad below the sim agent from varying angles/heights</p>
+<!-- ![Conic](../images/datacollection/Conic.png) -->
+<p>The following parameters define the trajectory:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">trajectory-len</span></code>: Desired number of waypoints</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">altitude-change</span></code>: delta between starting and max altitude in <code class="docutils literal notranslate"><span class="pre">m</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FOV</span></code>: Field Of View w.r.t to the <code class="docutils literal notranslate"><span class="pre">geo-location</span></code> in <code class="docutils literal notranslate"><span class="pre">deg</span></code>. Defines the shape of the cone</p></li>
+</ul>
+<p>An example of this trajectory being defined in the config can be found <a class="reference internal" href="#../../client%5Cpython%5Cexample_user_scripts%5Cdatacollection%5Cconfigs%5Cdatacollector_config.jsonc#L128"><span class="xref myst">here</span></a></p>
+<p>Programmatically, this trajectory can be defined as:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">projectairsim.datacollection.trajectory.conical_trajectory</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConicalTrajectory</span>
+
+<span class="n">conic</span> <span class="o">=</span> <span class="n">ConicalTrajectory</span><span class="p">(</span><span class="n">trajectory_len</span><span class="o">=</span><span class="mi">450</span><span class="p">,</span> <span class="n">altitude_change</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">field_of_view</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="port2port">
+<h2>Port2Port<a class="headerlink" href="#port2port" title="Link to this heading">¶</a></h2>
+<p>This pattern allows the user to generate trajectories between two points in space. This pattern allows for the generation of either random trajectories between those points or a planned one. This pattern can be used to collect data around an area of interest. E.g. Get images from different positions between Downtown and Cap Hill in Seattle</p>
+<p>The random trajectories are generated through an implementation of the RRT planning algorithm with <code class="docutils literal notranslate"><span class="pre">euclidean-distance-to-goal</span></code> being hte only heuristic for progression through space. Given the random nature, we allow users to specify <code class="docutils literal notranslate"><span class="pre">n</span></code> number of these to be generated for a given pair of points</p>
+<p>The planned trajectory is generated through the A* planning algorithm with the heuristic again being <code class="docutils literal notranslate"><span class="pre">euclidean-distance-to-goal</span></code>. Since we are aiming for a planned path, optimality is looked for when progressing through space. Given the planned nature of this trajectory, only <code class="docutils literal notranslate"><span class="pre">one</span></code> of these can be generated between a pair of points</p>
+<!-- ![Port2Port](../images/datacollection/Port2Port.png) -->
+<p>The following parameters define the trajectory:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">trajectory-len</span></code>: Desired number of waypoints</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trajectory-type</span></code>: Enum[“random”, “optimal”]</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num-trajectories</span></code>: [Only applicable if <code class="docutils literal notranslate"><span class="pre">type</span></code> is <code class="docutils literal notranslate"><span class="pre">random</span></code>] Number of <code class="docutils literal notranslate"><span class="pre">random</span></code> trajectories to be generated</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">start-geo</span></code>: [lat, lon, alt] for start location</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">end-geo</span></code>: [lat, lon, alt] for goal location</p></li>
+</ul>
+<p>An example of this trajectory being defined in the config can be found <a class="reference internal" href="#../../client%5Cpython%5Cexample_user_scripts%5Cdatacollection%5Cconfigs%5Cdatacollector_config.jsonc#L135"><span class="xref myst">here</span></a></p>
+<p>Programmatically, this trajectory can be defined as:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">projectairsim.datacollection.trajectory.port2port_trajectory</span><span class="w"> </span><span class="kn">import</span> <span class="n">Port2PortTrajectory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">projectairsim.datacollection.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeoCoordinates</span>
+
+<span class="n">port2port</span> <span class="o">=</span> <span class="n">port2port</span> <span class="o">=</span> <span class="n">Port2PortTrajectory</span><span class="p">(</span>
+    <span class="n">config_dir</span><span class="o">=</span><span class="s2">&quot;path/to/config&quot;</span><span class="p">,</span>
+    <span class="n">trajectory_len</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+    <span class="n">trajectory_type</span><span class="o">=</span><span class="s2">&quot;optimal&quot;</span><span class="p">,</span>
+    <span class="n">start_geo</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">GeoCoordinates</span><span class="p">(</span><span class="mf">33.047</span><span class="p">,</span> <span class="o">-</span><span class="mf">97.2919</span><span class="p">,</span> <span class="mi">250</span><span class="p">)),</span>
+    <span class="n">end_geo</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">GeoCoordinates</span><span class="p">(</span><span class="mf">34.589</span><span class="p">,</span> <span class="o">-</span><span class="mf">96.235</span><span class="p">,</span> <span class="mi">50</span><span class="p">)),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="cylindrical">
+<h2>Cylindrical<a class="headerlink" href="#cylindrical" title="Link to this heading">¶</a></h2>
+<p>This pattern allows the user to move the sim agent along the surface of a hypothetical cylinder in space. Port-2-port <code class="docutils literal notranslate"><span class="pre">optimal</span></code> trajectories are generated from the points on the outer surface to corresponding points on the inner surface. The cylinder is centered around the <code class="docutils literal notranslate"><span class="pre">geo-location</span></code> this trajectory is assigned to. This pattern can be used to collect data around an object of interest. E.g. Get images from all angles of an AirTaxi in the scene</p>
+<!-- ![Cylindrical](../images/datacollection/Cylindrical.png) -->
+<p>The following parameters define the trajectory :</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">trajectory-len</span></code>: Desired number of waypoints</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">altitude-change</span></code>: Change in altitude +/- the initial altitude in <code class="docutils literal notranslate"><span class="pre">m</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">outer-radius</span></code>: Outer radius of the hypothetical cylinder in <code class="docutils literal notranslate"><span class="pre">m</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inner-radius</span></code>: Inner radius of the hypothetical cylinder in <code class="docutils literal notranslate"><span class="pre">m</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">angular-variations</span></code>: Number of points along each circular face from which port-2-port trajectories are generated (<code class="docutils literal notranslate"><span class="pre">int</span></code>)</p></li>
+</ul>
+<p>An example of this trajectory being defined in the config can be found <a class="reference internal" href="#../../client%5Cpython%5Cexample_user_scripts%5Cdatacollection%5Cconfigs%5Cdatacollector_config.jsonc#L114"><span class="xref myst">here</span></a></p>
+<p>Programmatically, this trajectory can be defined as:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">projectairsim.datacollection.trajectory.cylindrical_trajectory</span><span class="w"> </span><span class="kn">import</span> <span class="n">CylindricalTrajectory</span>
+
+<span class="n">cylindrical</span> <span class="o">=</span> <span class="n">CylindricalTrajectory</span><span class="p">(</span>
+        <span class="n">trajectory_len</span><span class="o">=</span><span class="mi">250</span><span class="p">,</span>
+        <span class="n">altitude_change</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">outer_radius</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="n">inner_radius</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">angular_variation</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="note">
+<h2>Note:<a class="headerlink" href="#note" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>The output trajectory length can be off by about +5% (always on the positive side)</p></li>
+<li><p>This error is due to the trajectory script estimating every other factor than the shape of the trajectory itself (shape is determined by the config params)</p></li>
+<li><p>Despite the estimation, the process is fully deterministic - you will generate the same trajectory for the same input params</p></li>
+<li><p>Each trajectory generation scripts outputs a modified <a class="reference internal" href="#../../client%5Cpython%5Cprojectairsim%5Csrc%5Cprojectairsim%5Cdatacollection%5Ctypes.py#L198"><span class="xref myst">datacollection.types.GeoLocation</span></a> object. Here, the script adds a list of <a class="reference internal" href="#../../client%5Cpython%5Cprojectairsim%5Csrc%5Cprojectairsim%5Cdatacollection%5Ctypes.py#L150"><span class="xref myst">datacollection.types.Waypoint</span></a> objects to the <code class="docutils literal notranslate"><span class="pre">trajectory</span></code> param of the <code class="docutils literal notranslate"><span class="pre">geo-location</span></code>. So, if you want to add your own trajectory gen script, make sure its output is in the correct format</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

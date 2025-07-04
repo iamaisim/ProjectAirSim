@@ -1,0 +1,270 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Camera Streaming &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Segmentation" href="segmentation.html" />
+    <link rel="prev" title="Camera Images Post processing using Neural Network models" href="camera_post_processing_with_nn.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Camera Streaming</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuring-streaming-cameras">Configuring streaming cameras</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#launching-the-sim-with-camera-streaming-on-a-local-machine">Launching the sim with camera streaming on a local machine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-the-maximum-fps-for-pixel-streaming">Setting the Maximum FPS for Pixel Streaming</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#windows">Windows</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#linux">Linux</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#launching-the-sim-with-camera-streaming-on-a-vm-or-a-remote-compute-machine">Launching the sim with camera streaming on a VM or a remote compute machine</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Camera Streaming</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/sensors/camera_streaming.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="camera-streaming">
+<h1>Camera Streaming<a class="headerlink" href="#camera-streaming" title="Link to this heading">¶</a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
+<p>Project AirSim’s camera sensors that are used as inputs to autonomous algorithms provide the full set of pixel data for every image. However, there are also use cases for using cameras to provide continuous high resolution video streams for people to watch in real time. Trying to do this by capturing and transporting every pixel of every frame is inefficient and quickly hits performance/bandwidth limits.</p>
+<p>To enable camera streaming for live viewing in real-time as a more efficient h.264 compressed video stream sent by WebRTC protocol, Unreal provides the <a class="reference external" href="https://docs.unrealengine.com/4.27/en-US/SharingAndReleasing/PixelStreaming/">PixelStreaming</a> plugin. Project AirSim leverages PixelStreaming through camera sensors that can be configured as streaming cameras.</p>
+<p>To view the streams, a Node.js signalling web server is run to connect to the sim server’s PixelStreaming plugin and display the stream in a web browser. A web browser is used to display the stream because modern web browsers already have many optimizations for decoding h.264 WebRTC streams as a video player including hardware acceleration. This web stream player also captures the user’s keyboard and mouse inputs to proxy back to the sim server, so it can function as a remote interface to the sim’s viewport.</p>
+</section>
+<section id="configuring-streaming-cameras">
+<h2>Configuring streaming cameras<a class="headerlink" href="#configuring-streaming-cameras" title="Link to this heading">¶</a></h2>
+<p>Any camera sensor capture can enable streaming its view by setting <code class="docutils literal notranslate"><span class="pre">&quot;streaming-enabled&quot;:</span> <span class="pre">true</span></code> in the <code class="docutils literal notranslate"><span class="pre">capture-settings</span></code> for its image type:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;capture-settings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;image-type&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;width&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1920</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;height&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1080</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;fov-degrees&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">90</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;capture-enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;streaming-enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;pixels-as-float&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;compress&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;target-gamma&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">2.5</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">],</span>
+</pre></div>
+</div>
+<p>Enabling streaming is independent of enabling capture of the raw image pixels that are sent to the client through the pub/sub or req/rep camera APIs. For example, a chase camera can be set to have streaming enabled and capture disabled for more efficient encoding/transport of the continuous feed for live viewing without needing to copy all the pixels of every frame back from GPU to CPU to pack and transport them as individual images to the client script, while a drone’s downward-facing camera sensor can be set to have streaming disabled but capture enabled to only consume the images by the client script for autonomous algorithm usage.</p>
+<p>Currently, only a single streaming camera view can be rendered and viewed at a time for any sim instance, so there is no additional cost to enable multiple streaming cameras in the scene to have them available to cycle the view through, but the FPS of the sim may vary based on the resolution of the currently active streaming camera due to its corresponding rendering load.</p>
+</section>
+<section id="launching-the-sim-with-camera-streaming-on-a-local-machine">
+<h2>Launching the sim with camera streaming on a local machine<a class="headerlink" href="#launching-the-sim-with-camera-streaming-on-a-local-machine" title="Link to this heading">¶</a></h2>
+<p>When running on a local machine, the <code class="docutils literal notranslate"><span class="pre">streaming-enabled</span></code> cameras can be viewed through the native viewport window of the sim process, but the web viewer can also be used to see how the stream would work if the sim server was running remotely from the user/client interface.</p>
+<ol class="arabic">
+<li><p>Get a packaged sim binary (Unreal includes the PixelStreaming SignallingWebServer code with packaged binaries under the <code class="docutils literal notranslate"><span class="pre">{packaged</span> <span class="pre">folder}/Samples/PixelStreaming</span></code> folder).</p>
+<p><em>Note: PixelStreaming does not support running in the Unreal Editor.</em></p>
+</li>
+<li><p>Launch the sim binary and the signalling web server on the same machine.</p>
+<p><strong>2a. Windows</strong></p>
+<p>Start the signalling web server by running the <code class="docutils literal notranslate"><span class="pre">Start_SignallingServer.ps1</span></code> PowerShell script. The first time running, it requires an <strong>Administrator-elevated PowerShell</strong> because it will automatically install the prerequisites (Chocolatey, Node.js, and npm):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">cd</span> <span class="p">{</span><span class="n">Packaged</span> <span class="n">binary</span> <span class="n">folder</span><span class="p">}</span>\<span class="n">Samples</span>\<span class="n">PixelStreaming</span>\<span class="n">WebServers</span>\<span class="n">SignallingWebServer</span>\<span class="n">platform_scripts</span>\<span class="n">cmd</span>
+
+<span class="o">&gt;</span> <span class="o">.</span>\<span class="n">Start_SignallingServer</span><span class="o">.</span><span class="n">ps1</span> <span class="o">--</span><span class="n">streamerPort</span> <span class="mi">8888</span>
+</pre></div>
+</div>
+<p>Start the sim binary with command line arguments to enable the PixelStreaming server with a matching port number (e.g. 8888):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="p">{</span><span class="n">Packaged</span> <span class="n">binary</span> <span class="n">exe</span><span class="p">}</span> <span class="o">-</span><span class="n">PixelStreamingURL</span><span class="o">=</span><span class="n">ws</span><span class="p">:</span><span class="o">//</span><span class="mf">127.0.0.1</span><span class="p">:</span><span class="mi">8888</span> <span class="o">-</span><span class="n">RenderOffScreen</span> <span class="o">-</span><span class="n">Log</span>
+</pre></div>
+</div>
+<p><strong>2b. Linux</strong></p>
+<p>Start the signalling web server by running the <code class="docutils literal notranslate"><span class="pre">Start_SignallingServer.sh</span></code> script. The first time running, it will prompt for sudo access because it will automatically install the prerequisites (Node.js from NodeSource APT repo, npm, express framework, cirrus-webserver STUN server, coturn TURN server, jq, vulkan-utils, pulseaudio):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">cd</span> <span class="p">{</span><span class="n">Packaged</span> <span class="n">binary</span> <span class="n">folder</span><span class="p">}</span><span class="o">/</span><span class="n">Samples</span><span class="o">/</span><span class="n">PixelStreaming</span><span class="o">/</span><span class="n">WebServers</span><span class="o">/</span><span class="n">SignallingWebServer</span><span class="o">/</span><span class="n">platform_scripts</span><span class="o">/</span><span class="n">bash</span>
+
+<span class="o">&gt;</span> <span class="o">./</span><span class="n">Start_SignallingServer</span><span class="o">.</span><span class="n">sh</span> <span class="o">--</span><span class="n">streamerPort</span> <span class="mi">8888</span>
+</pre></div>
+</div>
+<p>Start the sim binary with command line arguments to enable the PixelStreaming server with a matching port number (e.g. 8888):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">Packaged</span> <span class="n">binary</span> <span class="o">.</span><span class="n">sh</span> <span class="n">launcher</span> <span class="n">script</span><span class="p">}</span> <span class="o">-</span><span class="n">PixelStreamingURL</span><span class="o">=</span><span class="n">ws</span><span class="p">:</span><span class="o">//</span><span class="mf">127.0.0.1</span><span class="p">:</span><span class="mi">8888</span> <span class="o">-</span><span class="n">RenderOffScreen</span> <span class="o">-</span><span class="n">Log</span>
+</pre></div>
+</div>
+<p>For more command line options when launching the signalling web server, see Unreal’s <a class="reference external" href="https://docs.unrealengine.com/4.27/en-US/SharingAndReleasing/PixelStreaming/PixelStreamingReference/">Pixel Streaming Reference</a> page.</p>
+</li>
+<li><p>Open a web browser and go to 127.0.0.1 to connect to the signalling web server and start the streaming view from the sim.</p></li>
+<li><p>Click on the streaming view to start capturing the mouse and keyboard inputs to be proxied to the sim server. While captured, use the <code class="docutils literal notranslate"><span class="pre">Tab</span></code> key to cycle through the streaming-enabled cameras for each robot in the scene. Press the <code class="docutils literal notranslate"><span class="pre">Esc</span></code> key to release the mouse/keyboard capturing.</p></li>
+</ol>
+</section>
+<section id="setting-the-maximum-fps-for-pixel-streaming">
+<h2>Setting the Maximum FPS for Pixel Streaming<a class="headerlink" href="#setting-the-maximum-fps-for-pixel-streaming" title="Link to this heading">¶</a></h2>
+<p>To control the maximum frames per second (FPS) transmitted via Pixel Streaming, use the <code class="docutils literal notranslate"><span class="pre">PixelStreamingWebRTCMaxFps</span></code> parameter when launching the packaged binary. This allows limiting the FPS for performance optimization and bandwidth management.</p>
+<section id="windows">
+<h3>Windows<a class="headerlink" href="#windows" title="Link to this heading">¶</a></h3>
+<p>Launch the packaged binary with the following command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">Packaged</span> <span class="n">binary</span> <span class="n">exe</span><span class="p">}</span> <span class="o">-</span><span class="n">PixelStreamingWebRTCMaxFps</span><span class="o">=</span><span class="mi">60</span> <span class="o">-</span><span class="n">PixelStreamingURL</span><span class="o">=</span><span class="n">ws</span><span class="p">:</span><span class="o">//</span><span class="mf">127.0.0.1</span><span class="p">:</span><span class="mi">8888</span> <span class="o">-</span><span class="n">RenderOffScreen</span> <span class="o">-</span><span class="n">Log</span>
+</pre></div>
+</div>
+</section>
+<section id="linux">
+<h3>Linux<a class="headerlink" href="#linux" title="Link to this heading">¶</a></h3>
+<p>Launch the packaged binary with the following command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">Packaged</span> <span class="n">binary</span> <span class="o">.</span><span class="n">sh</span> <span class="n">launcher</span> <span class="n">script</span><span class="p">}</span> <span class="o">-</span><span class="n">PixelStreamingWebRTCMaxFps</span><span class="o">=</span><span class="mi">60</span> <span class="o">-</span><span class="n">PixelStreamingURL</span><span class="o">=</span><span class="n">ws</span><span class="p">:</span><span class="o">//</span><span class="mf">127.0.0.1</span><span class="p">:</span><span class="mi">8888</span> <span class="o">-</span><span class="n">RenderOffScreen</span> <span class="o">-</span><span class="n">Log</span>
+</pre></div>
+</div>
+<p>Adjust the <code class="docutils literal notranslate"><span class="pre">60</span></code> value to the desired maximum FPS for your use case.</p>
+</section>
+</section>
+<section id="launching-the-sim-with-camera-streaming-on-a-vm-or-a-remote-compute-machine">
+<h2>Launching the sim with camera streaming on a VM or a remote compute machine<a class="headerlink" href="#launching-the-sim-with-camera-streaming-on-a-vm-or-a-remote-compute-machine" title="Link to this heading">¶</a></h2>
+<p>To connect to a remote PixelStreaming view, such as running the sim server on VM, the following is needed:</p>
+<ol class="arabic">
+<li><p>Ensure port 80 is open for TCP and UDP on the sim server compute machine (including through any OS firewall settings) to allow the stream viewer web browser to connect to the Signalling Web Server and proxy user inputs back to the server.</p></li>
+<li><p>The Signalling Web Server launching scripts need to detect the server’s public IP for the STUN server to connect the client to the server over the internet. As of UE 5.2, there are some bugs in the launching scripts that prevent the public IP from being detected correctly. To fix these bugs, manually modify the scripts as follows:</p>
+<p><strong>(Linux) Start_Common.sh</strong></p>
+<p>Change</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>publicip=$(curl -s https://api.ipify.org &gt; /dev/null)
+</pre></div>
+</div>
+<p>to</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>publicip=$(curl -s https://api.ipify.org)
+</pre></div>
+</div>
+<p><strong>(Windows) Start_Common.ps1</strong></p>
+<p>Change</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$global:publicip = Invoke-WebRequest -Uri &quot;https://api.ipify.org&quot; -UseBasicParsing
+if ($global:PublicIP -ne $null -Or $global:PublicIP.length -eq 0) {
+</pre></div>
+</div>
+<p>to</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$global:PublicIP = Invoke-WebRequest -Uri &quot;https://api.ipify.org&quot; -UseBasicParsing
+if ($global:PublicIP -eq $null -Or $global:PublicIP.length -eq 0) {
+</pre></div>
+</div>
+<p>When launching the Signalling Web Server, you should see the public IP detected in the script’s print out instead of the default 127.0.0.1 local IP.</p>
+</li>
+<li><p>Connect a web browser to the public IP address of the sim server and if everything is configured correctly, you should see the stream view player web page that is hosted by the Signalling Web Server.</p></li>
+</ol>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI Consulting Corp.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="camera_post_processing_with_nn.html" class="btn btn-neutral float-left" title="Camera Images Post processing using Neural Network models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="segmentation.html" class="btn btn-neutral float-right" title="Segmentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

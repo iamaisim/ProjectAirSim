@@ -1,0 +1,206 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Generation On Azure &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Data Generation On Azure</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/datacollection/azure.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="data-generation-on-azure">
+<h1>Data Generation On Azure<a class="headerlink" href="#data-generation-on-azure" title="Link to this heading">¶</a></h1>
+<p>This document serves as a guide to run the data generation module scripts on a scalable Azure infrastructure that allows the data gen job to be parallelized across multiple AKS instances. This functionality is integrated into the Project Airsim (<code class="docutils literal notranslate"><span class="pre">PAS</span></code>) Managed App and can be easily configured through the same.</p>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">¶</a></h2>
+<p>The following pieces are required for you to successfully run the data generation module on Azure:</p>
+<ul class="simple">
+<li><p>An Azure subscription with access to the PAS Azure Offering</p></li>
+<li><p>A PAS Managed App deployment on your Azure subscription</p></li>
+<li><p>A blob container inside a storage account on your Azure subscription</p></li>
+<li><p>Configured Data Generation PAS client script and subsequent data generation/scene and robot configs. Please refer to the <a class="reference internal" href="data_generation.html"><span class="std std-doc">Data Generation</span></a> document for more information on how to configure these scripts and configs.</p></li>
+</ul>
+<p>This guide will walk you through the following steps:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#upload-data"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">Uploading</span> <span class="pre">data</span> <span class="pre">to</span> <span class="pre">the</span> <span class="pre">blob</span> <span class="pre">container</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#configure-job"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">Configuring</span> <span class="pre">the</span> <span class="pre">data</span> <span class="pre">generation</span> <span class="pre">job</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">Managed</span> <span class="pre">App</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#access-logs"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">Accessing</span> <span class="pre">client</span> <span class="pre">logs</span> <span class="pre">to</span> <span class="pre">monitor</span> <span class="pre">the</span> <span class="pre">job</span></code></span></a></p></li>
+</ul>
+</section>
+<section id="upload-data">
+<h2>Upload Data<a class="headerlink" href="#upload-data" title="Link to this heading">¶</a></h2>
+<p>An <a class="reference download internal" download="" href="../_downloads/bed1c8cff284f91302ef2c7319dab085/setup_blob_container.py"><span class="xref download myst"><code class="docutils literal notranslate"><span class="pre">Upload</span> <span class="pre">Script</span></code></span></a> is provided to help you upload the data to the blob container. This script would be run from your local machine. The script requires the following parameters to be passed in:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--sas-url</span></code>: SAS-URL of the blob container. Please provide <code class="docutils literal notranslate"><span class="pre">Read</span></code>, <code class="docutils literal notranslate"><span class="pre">Write</span></code>, <code class="docutils literal notranslate"><span class="pre">List</span></code>, <code class="docutils literal notranslate"><span class="pre">Create</span></code>, and <code class="docutils literal notranslate"><span class="pre">Add</span></code> permissions to the URL.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--config-dir</span></code>: Directory that holds <code class="docutils literal notranslate"><span class="pre">datacollector_config.jsonc</span></code> and the scene/robot configs. The structure of the directory should be as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>config-dir
+├── datacollector_config.jsonc
+├── sim_config
+│   ├── scene_config.jsonc
+│   ├── robot_config.jsonc
+├── schemas
+│   ├── datacollector_config_schema.jsonc
+</pre></div>
+</div>
+</li>
+</ul>
+<p>A sample config directory is provided <a class="reference internal" href="#../../client/python/example_user_scripts/datacollection/configs"><span class="xref myst">here</span></a>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--script</span></code>: Path to the PAS client script. <a class="reference download internal" download="" href="../_downloads/47ef6ad67c9abe8ac750d2010e063278/basic_datacollection_azure.py"><span class="xref download myst"><code class="docutils literal notranslate"><span class="pre">basic_datacollection_azure.py</span></code></span></a> is provided as a sample script.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--asset-dir</span></code>: Directory that holds the assets to be used during the data gen job.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--pas-whl</span></code>: Path to the PAS client <code class="docutils literal notranslate"><span class="pre">.whl</span></code> file</p></li>
+</ul>
+</section>
+<section id="configure-job">
+<h2>Configure Job<a class="headerlink" href="#configure-job" title="Link to this heading">¶</a></h2>
+<p>Once the data is uploaded to the blob container, you can configure the data generation job on the PAS Managed App. Follow the steps below to configure the job:</p>
+<ul class="simple">
+<li><p>Navigate to the <code class="docutils literal notranslate"><span class="pre">Data</span> <span class="pre">Collection</span> <span class="pre">Workspaces</span></code> tab on the PAS Managed App and click on <code class="docutils literal notranslate"><span class="pre">Setup</span> <span class="pre">Data</span> <span class="pre">Collection</span></code>.
+<img alt="Data Plane" src="../_images/data-plane.png" /></p></li>
+<li><p>Provide the relevant information in the subsequent tabs to point the downstream aks instances to the correct PAS binary and the data in your blob container.
+<img alt="Data Plane" src="../_images/setup.png" /></p></li>
+<li><p>Submit the job</p></li>
+</ul>
+</section>
+<section id="access-logs">
+<h2>Access Logs<a class="headerlink" href="#access-logs" title="Link to this heading">¶</a></h2>
+<p>You can access logs from all associated AKS instances to monitor the state of your data collection job. Follow the steps below to access the logs:</p>
+<ul class="simple">
+<li><p>Go to the <code class="docutils literal notranslate"><span class="pre">Managed</span> <span class="pre">resource</span> <span class="pre">group</span></code> associated to your managed app deployment.
+<img alt="MRG" src="../_images/mrg.png" /></p></li>
+<li><p>Select the AKS cluster
+<img alt="AKSCLuster" src="../_images/cluster.png" /></p></li>
+<li><p>Navigate to the <code class="docutils literal notranslate"><span class="pre">Access</span> <span class="pre">Control</span> <span class="pre">(IAM)</span></code> tab and click on <code class="docutils literal notranslate"><span class="pre">Add</span> <span class="pre">Role</span> <span class="pre">Assignment</span></code>. Give yourself/any relevant entities the <code class="docutils literal notranslate"><span class="pre">Azure</span> <span class="pre">Kubernetes</span> <span class="pre">Service</span> <span class="pre">RBAC</span> <span class="pre">Cluster</span> <span class="pre">Admin</span></code> role
+<img alt="Role" src="../_images/access.png" /></p></li>
+<li><p>Navigate to the <code class="docutils literal notranslate"><span class="pre">Cluster</span> <span class="pre">Configuration</span></code> tab and set the following values. You now have the required permissions to access the logs.
+<img alt="ClusterConfig" src="../_images/rbac.png" /></p></li>
+<li><p>Under the <code class="docutils literal notranslate"><span class="pre">Workloads</span></code> tab, select the <code class="docutils literal notranslate"><span class="pre">Stateful</span> <span class="pre">Sets</span></code> tab. Here, select `airsimvnext-dc-stateful-set’
+<img alt="StatefulSet" src="../_images/stateful_set.png" /></p></li>
+<li><p>Click on <code class="docutils literal notranslate"><span class="pre">Live</span> <span class="pre">Logs</span></code> to access the logs from the AKS instances.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

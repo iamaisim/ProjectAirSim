@@ -1,0 +1,512 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project AirSim - Test Bench Framework &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/documentation_options.js?v=2709fde1"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Project AirSim - Test Bench Framework</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/testbench_readme.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="project-airsim-test-bench-framework">
+<h1>Project AirSim - Test Bench Framework<a class="headerlink" href="#project-airsim-test-bench-framework" title="Link to this heading">¶</a></h1>
+<p>The <strong>Test Bench</strong> system is a component of Project AirSim designed to automate the process of testing drone behavior in simulation under a wide variety of environmental and operational conditions.</p>
+<p>It allows users to:</p>
+<ul class="simple">
+<li><p>Create combinations of scenes and environmental settings (e.g. time of day, weather, wind)</p></li>
+<li><p>Inject faults to test robustness</p></li>
+<li><p>Run a user-defined mission function</p></li>
+<li><p>Validate the mission using predefined criteria</p></li>
+<li><p>Export results and measure test coverage</p></li>
+</ul>
+<hr class="docutils" />
+<section id="core-components-and-concepts">
+<h2>Core Components and Concepts<a class="headerlink" href="#core-components-and-concepts" title="Link to this heading">¶</a></h2>
+<section id="testbench">
+<h3><code class="docutils literal notranslate"><span class="pre">TestBench</span></code><a class="headerlink" href="#testbench" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">TestBench</span></code> is the orchestrator of simulation-based testing. It manages:</p>
+<ul class="simple">
+<li><p><strong>Validation Modules</strong>: These are custom Python modules that define validation tasks (e.g., checking that the drone reaches its goal).</p></li>
+<li><p><strong>Fault Injection Modules</strong>: Optional modules that simulate failures or disturbances (e.g., wind gusts, sensor noise).</p></li>
+<li><p><strong>Scenarios</strong>: Each scenario includes a scene (e.g., a <code class="docutils literal notranslate"><span class="pre">.jsonc</span></code> file in AirSim) and an <code class="docutils literal notranslate"><span class="pre">EnvProfile</span></code> describing environmental parameters.</p></li>
+</ul>
+<p>It provides methods to run all scenarios, validate outcomes, retry failed tests, save/load test definitions, and export results.</p>
+</section>
+<hr class="docutils" />
+<section id="envprofile">
+<h3><code class="docutils literal notranslate"><span class="pre">EnvProfile</span></code><a class="headerlink" href="#envprofile" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">EnvProfile</span></code> defines the environmental conditions for each scenario. It can include:</p>
+<ul class="simple">
+<li><p><strong>Weather</strong>: Type and intensity (rain, snow, dust)</p></li>
+<li><p><strong>Wind Velocity</strong>: As a 3D vector</p></li>
+<li><p><strong>Sunlight Intensity</strong>: Simulates daylight changes</p></li>
+<li><p><strong>Cloud Shadow Strength</strong>: Affects scene lighting</p></li>
+<li><p><strong>Time of Day</strong>: Affects sun position</p></li>
+</ul>
+<p>These settings are applied before running a test to simulate real-world conditions.</p>
+</section>
+<hr class="docutils" />
+<section id="scenerandomizationspec">
+<h3><code class="docutils literal notranslate"><span class="pre">SceneRandomizationSpec</span></code><a class="headerlink" href="#scenerandomizationspec" title="Link to this heading">¶</a></h3>
+<p>This class allows users to:</p>
+<ul class="simple">
+<li><p>Define a list of scenes to use</p></li>
+<li><p>Specify the range and granularity of environmental variations</p></li>
+<li><p>Generate the full list of scenario combinations automatically</p></li>
+</ul>
+<p>For example, if you specify 3 times of day and 2 weather types, this will generate 6 scenarios (3 x 2 combinations).</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="file-descriptions">
+<h2>File Descriptions<a class="headerlink" href="#file-descriptions" title="Link to this heading">¶</a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>File</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">testbench_generate_new.py</span></code></p></td>
+<td><p>Automatically generates a test bench based on a variation spec (<code class="docutils literal notranslate"><span class="pre">.jsonc</span></code> file).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">testbench_create_custom.py</span></code></p></td>
+<td><p>Manually defines a few specific test scenarios and appends them to the test bench.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">testbench_example.csv</span></code></p></td>
+<td><p>CSV file listing the generated test scenarios. Each row is a unique environmental configuration.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">testbench_execute.py</span></code></p></td>
+<td><p>Loads a test bench, connects to the simulation, and runs the mission function over each scenario.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">testbench_estimate_coverage.py</span></code></p></td>
+<td><p>Computes how many scenarios from a full spec were covered by the current test bench.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">testbench_variaton_spec.jsonc</span></code></p></td>
+<td><p>A JSONC file with ranges for parameters like time-of-day, wind, and weather used for randomization.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">testbench_complete_variations.jsonc</span></code></p></td>
+<td><p>A superset spec used to measure test coverage against all possible environment combinations.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<hr class="docutils" />
+<section id="step-by-step-usage">
+<h2>⚙️ Step-by-Step Usage<a class="headerlink" href="#step-by-step-usage" title="Link to this heading">¶</a></h2>
+<section id="generate-a-test-bench">
+<h3>1. Generate a Test Bench<a class="headerlink" href="#generate-a-test-bench" title="Link to this heading">¶</a></h3>
+<p>This creates a CSV file with all combinations of environmental parameters:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>testbench_generate_new.py<span class="w">     </span>--output-filename<span class="w"> </span>testbench_example.csv<span class="w">     </span>--scenes<span class="w"> </span>scene_basic_drone.jsonc<span class="w">     </span>--variation-spec<span class="w"> </span>testbench_variaton_spec.jsonc
+</pre></div>
+</div>
+<p>This will combine the selected scenes and the environmental variations into a test matrix.</p>
+</section>
+<hr class="docutils" />
+<section id="add-custom-scenarios-optional">
+<h3>2. Add Custom Scenarios (Optional)<a class="headerlink" href="#add-custom-scenarios-optional" title="Link to this heading">¶</a></h3>
+<p>You can manually define and add specific scenarios, for example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>testbench_create_custom.py
+</pre></div>
+</div>
+<p>This adds hand-picked test cases, like a windy rainy noon, into the existing bench.</p>
+</section>
+<hr class="docutils" />
+<section id="run-the-tests">
+<h3>3. Run the Tests<a class="headerlink" href="#run-the-tests" title="Link to this heading">¶</a></h3>
+<p>Execute each scenario using a mission function:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>testbench_execute.py<span class="w">     </span>--test-bench<span class="w"> </span>testbench_example.csv<span class="w">     </span>--mission-script<span class="w"> </span>mission_testing_example.py<span class="w">     </span>--drone-id<span class="w"> </span>Drone1
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--failed-only</span></code> runs only scenarios that previously failed.</p></li>
+<li><p>Results are saved automatically in CSV format.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="estimate-coverage">
+<h3>4. Estimate Coverage<a class="headerlink" href="#estimate-coverage" title="Link to this heading">¶</a></h3>
+<p>This tells you how much of your total intended scenario space is covered by the current test bench:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>testbench_estimate_coverage.py
+</pre></div>
+</div>
+<p>This compares your test bench against <code class="docutils literal notranslate"><span class="pre">testbench_complete_variations.jsonc</span></code>.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="example-mission-script">
+<h2>Example Mission Script<a class="headerlink" href="#example-mission-script" title="Link to this heading">¶</a></h2>
+<p>Each mission script must define a coroutine like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">mission_script</span><span class="p">(</span><span class="n">drone</span><span class="p">,</span> <span class="n">world</span><span class="p">,</span> <span class="n">client</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">drone</span><span class="o">.</span><span class="n">takeoff</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">drone</span><span class="o">.</span><span class="n">fly_to</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">))</span>
+    <span class="k">await</span> <span class="n">drone</span><span class="o">.</span><span class="n">land</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This is executed for every test scenario. The validation module then checks if the mission succeeded.</p>
+</section>
+<hr class="docutils" />
+<section id="csv-output-format">
+<h2>CSV Output Format<a class="headerlink" href="#csv-output-format" title="Link to this heading">¶</a></h2>
+<p>The test bench CSV (<code class="docutils literal notranslate"><span class="pre">testbench_example.csv</span></code>) looks like:</p>
+<div class="highlight-csv notranslate"><div class="highlight"><pre><span></span>Id,scene_name,weather,light_intensity,cloud_shadow_strength,wind_velocity,time_of_day
+scenario-0,scene_basic_drone.jsonc,[&lt;WeatherParameter.RAIN: 0&gt;,0.3],30000,0.5,[2,0,0],10:00:00
+</pre></div>
+</div>
+<p>Each row defines one test configuration.</p>
+</section>
+<hr class="docutils" />
+<section id="extra-notes">
+<h2>Extra Notes<a class="headerlink" href="#extra-notes" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">TestBench</span></code> supports resuming from where it left off.</p></li>
+<li><p>You can retry only failed scenarios.</p></li>
+<li><p>Results are stored in summary CSV files.</p></li>
+<li><p>All scenarios are reproducible and serializable.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading">¶</a></h2>
+<p>This system allows automated, repeatable, and systematic testing of drone missions across diverse conditions. You can generate tests programmatically, execute them in simulation, and validate results—all in a reproducible pipeline.</p>
+</section>
+<hr class="docutils" />
+<section id="what-happens-during-a-rerun-with-failed-only">
+<h2>What Happens During a Rerun with <code class="docutils literal notranslate"><span class="pre">--failed-only</span></code><a class="headerlink" href="#what-happens-during-a-rerun-with-failed-only" title="Link to this heading">¶</a></h2>
+<p>When you execute the test bench with the <code class="docutils literal notranslate"><span class="pre">--failed-only</span></code> flag, it behaves as follows:</p>
+<section id="step-by-step-behavior">
+<h3>Step-by-Step Behavior<a class="headerlink" href="#step-by-step-behavior" title="Link to this heading">¶</a></h3>
+<ol class="arabic">
+<li><p><strong>Loads the existing test result CSV file</strong>, typically named:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Hello</span> <span class="n">Drone</span> <span class="n">Test</span> <span class="n">Bench</span><span class="o">-</span><span class="n">mission_script</span><span class="o">-</span><span class="n">test</span><span class="o">-</span><span class="n">report</span><span class="o">.</span><span class="n">csv</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Identifies all failed scenarios</strong>:</p>
+<ul class="simple">
+<li><p>Any scenario with at least one validation condition returning <code class="docutils literal notranslate"><span class="pre">False</span></code> is marked as failed.</p></li>
+<li><p>Scenarios that passed all conditions are skipped.</p></li>
+</ul>
+</li>
+<li><p><strong>Reruns only the failed scenarios</strong>:</p>
+<ul class="simple">
+<li><p>Loads the scene again</p></li>
+<li><p>Applies the environmental profile</p></li>
+<li><p>Re-runs the mission script</p></li>
+<li><p>Re-applies the validation logic</p></li>
+</ul>
+</li>
+<li><p><strong>Saves the rerun results to a new file</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Hello</span> <span class="n">Drone</span> <span class="n">Test</span> <span class="n">Bench</span><span class="o">-</span><span class="n">mission_script</span><span class="o">-</span><span class="n">rerun</span><span class="o">-</span><span class="n">results</span><span class="o">.</span><span class="n">csv</span>
+</pre></div>
+</div>
+<p>This ensures that original results remain unchanged for traceability and comparison.</p>
+</li>
+<li><p><strong>Optionally updates scenario-specific XML reports</strong>:
+Each scenario rerun generates a fresh XML file with validation summary, e.g.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">scenario</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="n">validation</span><span class="o">-</span><span class="n">report</span><span class="o">-</span><span class="n">retry</span><span class="o">.</span><span class="n">xml</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="advantages-of-this-approach">
+<h3>Advantages of This Approach<a class="headerlink" href="#advantages-of-this-approach" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Keeps the original test results intact</p></li>
+<li><p>Allows iterative testing without data loss</p></li>
+<li><p>Helps in identifying improvements or regressions in mission logic</p></li>
+<li><p>Enables targeted debugging on failed cases only</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="mission-scripts-structure-and-integration">
+<h2>Mission Scripts – Structure and Integration<a class="headerlink" href="#mission-scripts-structure-and-integration" title="Link to this heading">¶</a></h2>
+<p>Mission scripts define the autonomous behavior the drone should execute in each test scenario.</p>
+<section id="required-structure">
+<h3>Required Structure<a class="headerlink" href="#required-structure" title="Link to this heading">¶</a></h3>
+<p>Each script must include:</p>
+<ul class="simple">
+<li><p>An <code class="docutils literal notranslate"><span class="pre">async</span> <span class="pre">def</span> <span class="pre">mission_script(drone,</span> <span class="pre">world,</span> <span class="pre">client)</span></code> function.</p></li>
+<li><p>No top-level execution code unless it is protected with:</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">mission_script</span><span class="p">(</span><span class="o">...</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>This prevents unintended execution when the mission script is imported dynamically by <code class="docutils literal notranslate"><span class="pre">testbench_execute.py</span></code>.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="validation-module-mission-validation-module-py">
+<h2>Validation Module (<code class="docutils literal notranslate"><span class="pre">mission_validation_module.py</span></code>)<a class="headerlink" href="#validation-module-mission-validation-module-py" title="Link to this heading">¶</a></h2>
+<p>This module defines what constitutes a successful mission by adding validation tasks to a <code class="docutils literal notranslate"><span class="pre">ValidationTaskModule</span></code>.</p>
+<section id="example-tasks-added">
+<h3>Example tasks added:<a class="headerlink" href="#example-tasks-added" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Altitude limits</strong>: Drone must stay within ±100 meters of its spawn altitude.</p></li>
+<li><p><strong>Proximity constraints</strong>:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">NEVER</span></code> get closer than 10m to a wind turbine object.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ATLEAST_ONCE</span></code> reach within 50m of a GPS-defined target.</p></li>
+</ul>
+</li>
+</ul>
+<p>These are injected using:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">inject_validation_tasks</span><span class="p">(</span><span class="n">validation_task_module</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>After the mission, results are summarized and saved with:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">summarize_validation_tasks</span><span class="p">(</span><span class="s2">&quot;validation-output.xml&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="output-validation-file-xml">
+<h2>Output Validation File (<code class="docutils literal notranslate"><span class="pre">*.xml</span></code>)<a class="headerlink" href="#output-validation-file-xml" title="Link to this heading">¶</a></h2>
+<p>Each mission run produces a validation report XML file (e.g., <code class="docutils literal notranslate"><span class="pre">scenario-0-validation-report.xml</span></code>). It contains:</p>
+<ul class="simple">
+<li><p>Number of tests run</p></li>
+<li><p>Names of each validation task</p></li>
+<li><p>Pass/fail status</p></li>
+<li><p>Failure messages explaining why a condition was violated</p></li>
+</ul>
+<section id="example-excerpt">
+<h3>Example excerpt:<a class="headerlink" href="#example-excerpt" title="Link to this heading">¶</a></h3>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;testcase</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;Never be closer than 10m of Wind Turbine object&quot;</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;failure</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;failure&quot;</span><span class="w"> </span><span class="na">message=</span><span class="s">&quot;...2286 occurences...&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/testcase&gt;</span>
+</pre></div>
+</div>
+<p>These outputs are compatible with CI tools or can be manually reviewed for debugging or safety verification.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="how-validation-works-internally">
+<h2>How Validation Works Internally<a class="headerlink" href="#how-validation-works-internally" title="Link to this heading">¶</a></h2>
+<p>Project AirSim includes a flexible validation framework via the <code class="docutils literal notranslate"><span class="pre">ValidationTaskModule</span></code> class. This module allows test developers to define constraints that the drone must follow during a mission and receive pass/fail results after execution.</p>
+<hr class="docutils" />
+<section id="task-types">
+<h3>Task Types<a class="headerlink" href="#task-types" title="Link to this heading">¶</a></h3>
+<p>There are two main types of validation tasks:</p>
+<section id="range-tasks">
+<h4>1. Range Tasks<a class="headerlink" href="#range-tasks" title="Link to this heading">¶</a></h4>
+<p>These validate whether a numeric parameter stays within a defined range.</p>
+<p>Examples:</p>
+<ul class="simple">
+<li><p>Altitude between 10m and 100m</p></li>
+<li><p>Battery percentage always above 30%</p></li>
+<li><p>Pose Z value must stay above ground level</p></li>
+</ul>
+<p>Created via:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">add_range_validation_task</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">min_val</span><span class="p">,</span> <span class="n">max_val</span><span class="p">,</span> <span class="n">strictness</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Where <code class="docutils literal notranslate"><span class="pre">strictness</span></code> can be:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ALWAYS</span></code>: must always be within range</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NEVER</span></code>: must never be within range</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ATLEAST_ONCE</span></code>: must meet range at least once</p></li>
+</ul>
+<p>Parameters come from:</p>
+<ul class="simple">
+<li><p>Sensor topics: using <code class="docutils literal notranslate"><span class="pre">create_sensor_validation_param</span></code></p></li>
+<li><p>Robot info topics: using <code class="docutils literal notranslate"><span class="pre">create_robot_info_validation_param</span></code></p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="reach-tasks">
+<h4>2. Reach Tasks<a class="headerlink" href="#reach-tasks" title="Link to this heading">¶</a></h4>
+<p>These validate whether the drone gets close to or stays away from a specific spatial target.</p>
+<p>Examples:</p>
+<ul class="simple">
+<li><p>Never go farther than 100m from home</p></li>
+<li><p>Must get within 10m of a GPS waypoint at least once</p></li>
+<li><p>Never be closer than 5m to a wind turbine object</p></li>
+</ul>
+<p>Created via:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">add_reach_validation_task</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">target_type</span><span class="p">,</span> <span class="n">target_value</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">strictness</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Target types (<code class="docutils literal notranslate"><span class="pre">ReachTargetType</span></code>):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">GPS_DICT</span></code>, <code class="docutils literal notranslate"><span class="pre">GPS_LIST</span></code>: standard lat/lon/alt targets</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">STATIC_SCENE_OBJECT</span></code>: named object in the scene</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NED_LIST</span></code>: fixed NED position</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="evaluation-process">
+<h3>Evaluation Process<a class="headerlink" href="#evaluation-process" title="Link to this heading">¶</a></h3>
+<p>Each validation task continuously evaluates conditions as the simulation progresses:</p>
+<ul class="simple">
+<li><p>Subscribes to relevant data (pose, sensor values, etc.)</p></li>
+<li><p>Logs:</p>
+<ul>
+<li><p>Total number of checks</p></li>
+<li><p>Number of successful or failed checks</p></li>
+<li><p>Recent violations or successes</p></li>
+</ul>
+</li>
+</ul>
+<p>Upon completion, results are summarized in:</p>
+<ul class="simple">
+<li><p>Console logs</p></li>
+<li><p>JUnit-compatible XML files (e.g., <code class="docutils literal notranslate"><span class="pre">scenario-0-validation-report.xml</span></code>)</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="xml-report-format">
+<h3>XML Report Format<a class="headerlink" href="#xml-report-format" title="Link to this heading">¶</a></h3>
+<p>Validation results are exported using the <code class="docutils literal notranslate"><span class="pre">junit_xml</span></code> format. This includes:</p>
+<ul class="simple">
+<li><p>A test suite per script/module</p></li>
+<li><p>A test case per validation task</p></li>
+<li><p>If a task fails, a <code class="docutils literal notranslate"><span class="pre">&lt;failure&gt;</span></code> entry with the reason is included</p></li>
+</ul>
+<p>These reports are compatible with CI pipelines or can be manually reviewed.</p>
+</section>
+<hr class="docutils" />
+<section id="fault-injection-support">
+<h3>Fault Injection Support<a class="headerlink" href="#fault-injection-support" title="Link to this heading">¶</a></h3>
+<p>The same module also defines a <code class="docutils literal notranslate"><span class="pre">FaultInjectionModule</span></code>, allowing:</p>
+<ul class="simple">
+<li><p>Injection of programmable “faults” (functions) at specific timestamps</p></li>
+<li><p>Subscribes to the simulation time (e.g., from <code class="docutils literal notranslate"><span class="pre">actual_pose</span></code>)</p></li>
+<li><p>Triggers user-defined faults when the simulation reaches those timestamps</p></li>
+</ul>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">fault_module</span><span class="o">.</span><span class="n">add_fault_injection_at_simtime</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">drone</span><span class="o">.</span><span class="n">kill_motor</span><span class="p">(),</span> <span class="n">simtime</span><span class="o">=</span><span class="mf">12.5</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This allows precise testing of mission robustness against disturbances.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

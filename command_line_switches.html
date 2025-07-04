@@ -1,0 +1,226 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Command Line Switches &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/documentation_options.js?v=2709fde1"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Command Line Switches</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/command_line_switches.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="command-line-switches">
+<h1>Command Line Switches<a class="headerlink" href="#command-line-switches" title="Link to this heading">¶</a></h1>
+<p>Project AirSim supports the following command line switches.  Since Project AirSim environments are built as Unreal executables, there are some Unreal command line switch options that can be useful:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Switch</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code>‑RenderOffScreen</code></p></td>
+<td><p>Enable headless rendering (same for both Windows and Linux)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code>‑nullrhi</code></p></td>
+<td><p>Disable rendering completely</p></td>
+</tr>
+<tr class="row-even"><td><p><code>‑log</code></p></td>
+<td><p>For Windows, this switch will launch an additional command prompt that displays the log output as stdout (default behavior in Linux)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code>‑vulkan</code></p></td>
+<td><p>Force Vulkan rendering instead of DirectX for Windows (Vulkan is already default for Linux)</p></td>
+</tr>
+<tr class="row-even"><td><p><code>‑ResX=</code>640 <code>‑ResY=</code>480</p></td>
+<td><p>Set the main viewport rendering resolution (ex. 640x480)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code>‑windowed</code></p></td>
+<td><p>Run in windowed mode</p></td>
+</tr>
+<tr class="row-even"><td><p><code>‑fullscreen</code></p></td>
+<td><p>Run in full-screen mode</p></td>
+</tr>
+<tr class="row-odd"><td><p><code>‑NoVSync</code></p></td>
+<td><p>Disable VSync to prevent capping FPS at the monitor’s refresh rate</p></td>
+</tr>
+<tr class="row-even"><td><p><code>‑nosound</code></p></td>
+<td><p>Disable any sound output</p></td>
+</tr>
+<tr class="row-odd"><td><p><code>‑benchmark</code></p></td>
+<td><p>Enabled Unreal’s benchmark mode that seems to remove any sleeps in between rendering/tick loops to run without limiting to any real-time execution rate FPS target (this mode needs further testing to confirm any side-effects and how it could be used properly)</p></td>
+</tr>
+<tr class="row-even"><td><p><code>‑gltfDir=</code><i>dir/containing/tiles/</i></p></td>
+<td><p>If you’ll be using a GIS scene, you can specify the directory to read the tiles from. Alternatively, if you’re trying CesiumForUnreal you can provide the root tileset json file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code>‑clientauthpubkey=</code><i>public_key</i></p></td>
+<td><p>Specify a client authorization public key to require clients to present a client authorization token before being allowed to use the client API.  Overrides the key set by the <a class="reference internal" href="#environment_variables"><span class="xref myst">PROJECTAIRSIM_CLIENT_AUTH_PUBKEY</span></a> environment variable.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The below simulation parameters can also be changed through the comand line:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Switch</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code>‑topicsport</code></p></td>
+<td><p>integer</p></td>
+<td><p>8989</p></td>
+<td><p>TCP port for pub-sub client connection (e.g. <code>‑topicsport=8989</code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code>‑servicesport</code></p></td>
+<td><p>integer</p></td>
+<td><p>8990</p></td>
+<td><p>TCP port for req-resp client connection (e.g. <code>‑servicesport=8990</code>)</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note</strong>: The port values must be different from one another.</p>
+</section>
+<section id="environment-variables">
+<h1>Environment Variables<a class="headerlink" href="#environment-variables" title="Link to this heading">¶</a></h1>
+<p>Project AirSim supports the following environment variables:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Environment Variable</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code>PROJECTAIRSIM_CLIENT_AUTH_PUBKEY</code></p></td>
+<td><p>Client authorization token public key</p></td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI Consulting Corp.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

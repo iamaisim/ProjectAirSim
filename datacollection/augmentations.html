@@ -1,0 +1,263 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image Level Augmentations &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Image Level Augmentations</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/datacollection/augmentations.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="image-level-augmentations">
+<h1>Image Level Augmentations<a class="headerlink" href="#image-level-augmentations" title="Link to this heading">¶</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">Data</span> <span class="pre">Generation</span></code> module allows developers to introduce augmentations to the collected images. That is, enriching base dataset with operations like vertical and horizontal flipping. This allows for more variety in the collected data and leads to a more rounded dataset at the end. These augmentations can also be used to induce edge-case scenarios to the dataset; again for obtaining datasets that more closely represents the real-world scenarios.</p>
+<p>The augmentation module can be enabled using the following param:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;augmentation-spec&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;2DBBox&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Currently, the following properties can be augmented through the module:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#horizontal-flipping"><span class="xref myst">Horizontal Flipping</span></a></p></li>
+<li><p><a class="reference internal" href="#vertical-flipping"><span class="xref myst">Vertical Flipping</span></a></p></li>
+<li><p><a class="reference internal" href="#random-rotation"><span class="xref myst">Random Rotation</span></a></p></li>
+<li><p><a class="reference internal" href="#random-cropping"><span class="xref myst">Random Cropping</span></a></p></li>
+<li><p><a class="reference internal" href="#affine-transformation"><span class="xref myst">Affine Transformation</span></a></p></li>
+<li><p><a class="reference internal" href="#brightness-contrast"><span class="xref myst">Brightness-Contrast</span></a></p></li>
+<li><p><a class="reference internal" href="#hue-saturation-value"><span class="xref myst">Hue-Saturation-Value</span></a></p></li>
+<li><p><a class="reference internal" href="#motion-blur"><span class="xref myst">Motion Blur</span></a></p></li>
+<li><p><a class="reference internal" href="#gaussian-noise"><span class="xref myst">Gaussian Noise</span></a></p></li>
+</ul>
+<p>An example for configuring these augmentations at an asset level can be found in <a class="reference download internal" download="" href="../_downloads/1d9e55b697d1a3360a9803721d5f9965/datacollector_config.jsonc"><span class="xref download myst"><code class="docutils literal notranslate"><span class="pre">datacollector_config.jsonc</span></code></span></a></p>
+<p>Refer to <a class="reference internal" href="api.html#augmentation-apis"><span class="std std-ref"><code class="docutils literal notranslate"><span class="pre">augmentation</span> <span class="pre">APIs</span></code></span></a> section from <code class="docutils literal notranslate"><span class="pre">api.md</span></code> for the API reference for the augmentation module.</p>
+<section id="horizontal-flipping">
+<h2>Horizontal Flipping<a class="headerlink" href="#horizontal-flipping" title="Link to this heading">¶</a></h2>
+<p>Allows for the flipping of the input horizontally around the y-axis. This feature can be configured using the following param:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;horizontal-flip&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">//Flip horizontally around the y-axis.</span>
+<span class="w">    </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;p&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="c1">//probability of applying the transform. Default: 1.</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="vertical-flipping">
+<h2>Vertical Flipping<a class="headerlink" href="#vertical-flipping" title="Link to this heading">¶</a></h2>
+<p>Allows for the flipping of the input horizontally around the y-axis. This feature can be configured using the following param:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;vertical-flip&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">//Flip horizontally around the y-axis.</span>
+<span class="w">    </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;p&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="c1">//probability of applying the transform. Default: 1.</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="random-cropping">
+<h2>Random Cropping<a class="headerlink" href="#random-cropping" title="Link to this heading">¶</a></h2>
+<p>Crops a random part of the input. This feature can be configured using the following param:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;crop&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">//Crop a random part of the input</span>
+<span class="w">    </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;crop-height&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">224</span><span class="p">,</span><span class="w"> </span><span class="c1">//Height of cropped image</span>
+<span class="w">    </span><span class="nt">&quot;crop-width&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">224</span><span class="p">,</span><span class="w"> </span><span class="c1">//Width of cropped image</span>
+<span class="w">    </span><span class="nt">&quot;p&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="c1">//probability of applying the transform. Default: 1.</span>
+<span class="p">},</span>
+</pre></div>
+</div>
+</section>
+<section id="random-rotation">
+<h2>Random Rotation<a class="headerlink" href="#random-rotation" title="Link to this heading">¶</a></h2>
+<p>Rotate the input by an angle selected randomly from the uniform distribution. This feature can be configured using the following param:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;rotate&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">//Rotate the input by an angle selected randomly from the uniform distribution</span>
+<span class="w">    </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;angular-limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">180</span><span class="p">,</span><span class="w"> </span><span class="c1">//Rotation angle randomly selected from range(-limit, limit)</span>
+<span class="w">    </span><span class="nt">&quot;p&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="c1">//probability of applying the transform. Default: 1.</span>
+<span class="p">},</span><span class="w"> </span>
+</pre></div>
+</div>
+</section>
+<section id="affine-transformation">
+<h2>Affine Transformation<a class="headerlink" href="#affine-transformation" title="Link to this heading">¶</a></h2>
+<p>Apply an affine transformation to the input image. This feature can be configured using the following param:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;affine-transform&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">//Apply affine transformations to image</span>
+<span class="w">    </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;translate-percent&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="c1">//Translation as a fraction of the image height/width</span>
+<span class="w">    </span><span class="nt">&quot;scale&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="c1">//Scaling factor in. Param Range - (0,1)</span>
+<span class="w">    </span><span class="nt">&quot;shear&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="c1">//Shear image along x-axis with angle in range(-angle, angle)</span>
+<span class="w">    </span><span class="nt">&quot;p&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="p">},</span>
+</pre></div>
+</div>
+</section>
+<section id="brightness-contrast">
+<h2>Brightness-Contrast<a class="headerlink" href="#brightness-contrast" title="Link to this heading">¶</a></h2>
+<p>Randomly change brightness and contrast of the input image. This feature can be configured using the following param:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;brightness-contrast&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">//Randomly change brightness and contrast of the input image</span>
+<span class="w">    </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;brightness-limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="c1">//factor range for changing brightness. Select value from (0,1)</span>
+<span class="w">    </span><span class="nt">&quot;contrast-limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="c1">//factor range for changing contrast. Select value from (0,1)</span>
+<span class="w">    </span><span class="nt">&quot;p&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="p">},</span>
+</pre></div>
+</div>
+</section>
+<section id="hue-saturation-value">
+<h2>Hue-Saturation-Value<a class="headerlink" href="#hue-saturation-value" title="Link to this heading">¶</a></h2>
+<p>Randomly change hue, saturation and value of the input image. This feature can be configured using the following param:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;hue-saturation-value&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">//Randomly change hue, saturation and value of the input image</span>
+<span class="w">    </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;hue-shift-limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="c1">//hue shift randomly selected from range(-limit, limit)</span>
+<span class="w">    </span><span class="nt">&quot;saturation-shift-limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="c1">//sat shift randomly selected from range(-limit, limit)</span>
+<span class="w">    </span><span class="nt">&quot;value-shift-limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="c1">//value shift randomly selected from range(-limit, limit)</span>
+<span class="w">    </span><span class="nt">&quot;p&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="p">},</span>
+</pre></div>
+</div>
+</section>
+<section id="motion-blur">
+<h2>Motion Blur<a class="headerlink" href="#motion-blur" title="Link to this heading">¶</a></h2>
+<p>Apply motion blur to the input image using a random-sized kernel. This feature can be configured using the following param:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;motion-blur&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">//Apply motion blur to the input image using a random-sized kernel</span>
+<span class="w">    </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;blur-limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">21</span><span class="p">,</span><span class="w"> </span><span class="c1">//maximum kernel size for blurring the input image. Must be a odd number</span>
+<span class="w">    </span><span class="nt">&quot;p&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="p">},</span>
+</pre></div>
+</div>
+</section>
+<section id="gaussian-noise">
+<h2>Gaussian Noise<a class="headerlink" href="#gaussian-noise" title="Link to this heading">¶</a></h2>
+<p>Apply gaussian noise to the input image. This feature can be configured using the following param:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;gaussian-noise&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">//Apply gaussian noise to the input image</span>
+<span class="w">    </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;variance-limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="c1">//variance range for noise </span>
+<span class="w">    </span><span class="nt">&quot;p&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

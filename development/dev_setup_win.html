@@ -1,0 +1,191 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Developer Initial Setup for Windows &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Developer Initial Setup for Windows</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/development/dev_setup_win.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="developer-initial-setup-for-windows">
+<h1>Developer Initial Setup for Windows<a class="headerlink" href="#developer-initial-setup-for-windows" title="Link to this heading">¶</a></h1>
+<p>{# include enable_internal_docs.tpp #}</p>
+<p>On Windows, Project AirSim can be developed with either Visual Studio 2019 or VS Code. VS Code is convenient because it provides a lighter-weight, cross-platform common experience between Windows and Linux.</p>
+<section id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading">¶</a></h2>
+<ol class="arabic">
+<li><p>A) To develop with <strong>VS Code</strong>:</p>
+<p>First, install the <strong><a class="reference external" href="https://visualstudio.microsoft.com/visual-cpp-build-tools/">VS 2022 C++ build tools</a></strong> with:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Desktop</span> <span class="pre">development</span> <span class="pre">with</span> <span class="pre">C++</span></code> workload</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.NET</span> <span class="pre">Framework</span> <span class="pre">4.8</span> <span class="pre">SDK</span></code> individual component</p></li>
+<li><p>(no)<code class="docutils literal notranslate"><span class="pre">.NET</span> <span class="pre">Core</span> <span class="pre">SDK</span></code> individual component</p></li>
+</ul>
+<p>Second, install <strong><a class="reference external" href="https://code.visualstudio.com/">VS Code</a></strong> with the following extensions:</p>
+<p><em>Note: If not manually installed, these extensions will be recommended for automatic install on opening the Project AirSim project workspace</em></p>
+<ul class="simple">
+<li><p><strong><a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools">CMake Tools</a></strong></p></li>
+<li><p><strong><a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools">C/C++</a></strong> (includes clang-format functionality, use <strong>Alt-Shift-F</strong> to auto-format the current code file using the repo’s .clang-format settings)</p></li>
+<li><p><strong><a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb">CodeLLDB</a></strong></p></li>
+<li><p><strong><a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp">C#</a></strong></p></li>
+<li><p><strong><a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=ms-vscode.mono-debug">Mono Debug</a></strong></p></li>
+<li><p><strong><a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=matepek.vscode-catch2-test-adapter">C++ TestMate</a></strong> (also automatically installs <strong><a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer">Test Explorer UI</a></strong>)</p></li>
+<li><p><strong><a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=ms-python.python">Python</a></strong></p></li>
+<li><p><strong><a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance">Pylance</a></strong></p></li>
+</ul>
+<p>Third, see <strong><a class="reference internal" href="vscode_user_settings.html"><span class="std std-doc">Optional VS Code User Settings</span></a></strong> for some example customized user settings that can help with Project AirSim development.</p>
+<p>B) To develop with <strong>Visual Studio 2019</strong>:</p>
+<p>Install <strong><a class="reference external" href="https://visualstudio.microsoft.com/vs/">Visual Studio 2019</a></strong> with:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Desktop</span> <span class="pre">development</span> <span class="pre">with</span> <span class="pre">C++</span></code> workload</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.NET</span> <span class="pre">Framework</span> <span class="pre">4.8</span> <span class="pre">SDK</span></code> individual component</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.NET</span> <span class="pre">Core</span> <span class="pre">SDK</span></code> individual component</p></li>
+</ul>
+</li>
+<li><p>Install the <strong><a class="reference external" href="https://www.unrealengine.com/en-US/">Epic Games Launcher</a></strong> and install Unreal Engine 5.2 binary (requires Epic account log-in). While selecting the engine version to install, there is also an <code class="docutils literal notranslate"><span class="pre">Options</span></code> section where you can enable downloading <code class="docutils literal notranslate"><span class="pre">Editor</span> <span class="pre">symbols</span> <span class="pre">for</span> <span class="pre">debugging</span></code> (~30 GB) if desired. <strong>Note</strong>: Installing the engine can take a long time <strong>(~1 hour)</strong>.</p></li>
+<li><p>Set a Windows environment variable for <code class="docutils literal notranslate"><span class="pre">UE_ROOT</span></code> to the installed folder, either through the Control Panel section <code class="docutils literal notranslate"><span class="pre">Edit</span> <span class="pre">environment</span> <span class="pre">variables</span> <span class="pre">for</span> <span class="pre">your</span> <span class="pre">account</span></code>, or by using the command line:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">setx</span> <span class="n">UE_ROOT</span> <span class="s2">&quot;C:\Program Files\Epic Games\UE_5.2&quot;</span>
+
+<span class="o">&lt;</span><span class="n">restart</span> <span class="n">the</span> <span class="n">command</span> <span class="n">prompt</span> <span class="n">to</span> <span class="n">refresh</span> <span class="n">environment</span> <span class="n">variables</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><p>Unreal Engine on Windows defaults to using DirectX 11 for rendering, so you may need to install the latest GPU driver and DirectX updates. However, if you want to use Vulkan for rendering instead, you may need to install the <strong><a class="reference external" href="https://www.lunarg.com/vulkan-sdk/">Vulkan SDK</a></strong>.</p></li>
+<li><p>Install <strong><a class="reference external" href="https://gitforwindows.org/">Git for Windows</a></strong> (including Git Credential Manager).</p></li>
+<li><p>Clone the Project AirSim repo (HTTPS authentication is recommended for using Git Credential Manager):</p>
+<p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/microsoft/ProjectAirSim.git</span></code></p>
+</li>
+<li><p>Do the <strong><a class="reference internal" href="../client_setup.html#setting-up-the-client-on-windows"><span class="std std-ref">Project AirSim Client Setup</span></a></strong>.</p></li>
+</ol>
+<p>Now you’re ready to start <strong><a class="reference internal" href="use_source.html#developing-projectairsim-libs"><span class="std std-ref">Developing Project AirSim Sim Libs</span></a></strong></p>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI Consulting Corp.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

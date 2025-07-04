@@ -1,0 +1,194 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Using Pre-built Binary Environments &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Using Pre-built Binary Environments</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/development/use_prebuilt.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="using-pre-built-binary-environments">
+<h1>Using Pre-built Binary Environments<a class="headerlink" href="#using-pre-built-binary-environments" title="Link to this heading">¶</a></h1>
+<p>The quickest way to jump in and see what Project AirSim can do is to download and run a pre-built binary environment.</p>
+<p>Currently, only the classic Blocks environment is available. To download it, visit the <a class="reference external" href="https://github.com/ProjectAirSim/releases">GitHub releases section</a>. If you require another environment (e.g., urban, geo-specific, etc.), you can sponsor its maintenance by contacting <a class="reference external" href="mailto:envs&#37;&#52;&#48;iamaisim&#46;com">envs<span>&#64;</span>iamaisim<span>&#46;</span>com</a>.</p>
+<p><a class="reference external" href="https://iamaisim.com">IAMAI</a> also provides Docker-packaged environments with customized configurations.</p>
+<section id="how-to-launch-the-environment">
+<h2>How to launch the environment<a class="headerlink" href="#how-to-launch-the-environment" title="Link to this heading">¶</a></h2>
+<p>To run the environment, just launch the <code class="docutils literal notranslate"><span class="pre">.exe</span></code> file for Windows or run the <code class="docutils literal notranslate"><span class="pre">.sh</span></code> script for Linux.</p>
+<p><em>Note: If you see a blue Windows SmartScreen Filter prompt on launch with a big <strong>Don’t run</strong> button, click the <strong>More info</strong> text link to expose the <strong>Run anyway</strong> button to allow the executable to launch.</em></p>
+<p><img alt="Windows SmartScreen filter" src="../_images/windows_smartscreen.jpg" /></p>
+<p>The simulation will start with an empty Blocks environment without any vehicles.</p>
+<p>To configure the environment and add vehicles to the simulation, a client must connect to Project AirSim and create a world by passing a description of the world as a string of JSON-formatted data.  For example, the sample Python client script <code class="docutils literal notranslate"><span class="pre">projectairsim_client\ProjectAirSim_Example_User_Scripts\hello_drone.py</span></code> does the following:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">projectairsim</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProjectAirSimClient</span><span class="p">,</span> <span class="n">World</span>
+<span class="o">...</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">ProjectAirSimClient</span><span class="p">()</span>
+<span class="n">world</span> <span class="o">=</span> <span class="n">World</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="s2">&quot;scene_basic_drone.jsonc&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The Project AirSim Python client API library loads the JSONC (JSON with Comments) string from the scene configuration file <code class="docutils literal notranslate"><span class="pre">client\python\example_User_Scripts\sim_config\scene_basic_drone.jsonc</span></code>.  The scene configuration file specifies a single robot with a reference to the robot configuration file <code class="docutils literal notranslate"><span class="pre">robot_quadrotor_fastphysics.json</span></code> which resides in the same directory as the scene configuration file.  The contents of the files are assembled into a single string of JSON-formatted data and sent to Project AirSim.  Project AirSim then constructs the specified environment and robot(s).</p>
+<p>A set of example JSONC configuration files are provided so that the simulation can be launched out-of-the-box. If you wish to customize the configuration, please see <strong><a class="reference internal" href="../config.html"><span class="std std-doc">Configuration Settings</span></a></strong> for more details.</p>
+<p><img alt="Drone spawned in the center of SoccerField" src="../_images/soccer_field_spawn_center.jpg" /></p>
+<blockquote>
+<div><p>How can I move the spawn location?</p>
+</div></blockquote>
+<p>The robot can be spawned in another place by simply changing the <code class="docutils literal notranslate"><span class="pre">origin</span></code>: <code class="docutils literal notranslate"><span class="pre">xyz</span></code> coordinate in <code class="docutils literal notranslate"><span class="pre">scene_basic_drone.json</span></code>. For example, changing it to the values below will spawn the drone over by the soccer goal 18 m forward and 22 m to the right:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;origin&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;xyz&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;18.0 22.0 -10.0&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;rpy-deg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0 0 0&quot;</span>
+<span class="p">},</span>
+</pre></div>
+</div>
+<p><img alt="Drone spawned by the goal in SoccerField" src="../_images/soccer_field_spawn_goal.jpg" /></p>
+</section>
+<section id="how-to-interact-with-the-drone">
+<h2>How to interact with the drone<a class="headerlink" href="#how-to-interact-with-the-drone" title="Link to this heading">¶</a></h2>
+<p><em>To manually fly the drone, keyboard input commands will be added in the future.</em></p>
+<p>To send control commands or get sensor data from the drone, a Python client is provided.</p>
+<p>To set up the Python client, see <strong><a class="reference internal" href="../client_setup.html"><span class="std std-doc">Project AirSim Client Setup</span></a></strong>.</p>
+<p>There are some example client scripts already provided, so to start you can just run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">hello_drone</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>This script will connect to the simulation and send commands for the <code class="docutils literal notranslate"><span class="pre">Drone1</span></code> quadrotor to take off and then land. During the flight, the client should receive downward-facing <strong>RGB camera images</strong> and <strong>depth camera images</strong> as OpenCV image pop-up windows.</p>
+<p>After the script ends, the drone will continue to wait for further client connections. To end the simulation, just close the the environment application window.</p>
+</section>
+<section id="how-to-add-multiple-drones">
+<h2>How to add multiple drones<a class="headerlink" href="#how-to-add-multiple-drones" title="Link to this heading">¶</a></h2>
+<p>You can also add more drones to the scene. See <strong><a class="reference internal" href="../multiple_robots.html"><span class="std std-doc">Multiple Robots in a Simulation</span></a></strong> for more details.</p>
+</section>
+<section id="how-to-modify-the-drone">
+<h2>How to modify the drone<a class="headerlink" href="#how-to-modify-the-drone" title="Link to this heading">¶</a></h2>
+<p>There are many parameters of the drone’s configuration that can be modified in the <strong><a class="reference internal" href="../config_robot.html"><span class="std std-doc">Robot Configuration Settings</span></a></strong> so the physical behavior of the drone can be customized at run-time even for a pre-built binary environment.</p>
+<p>However, the visual meshes used for the robot links can only be chosen based on content that was included during the environment packaging.</p>
+<p>To be able to use new meshes and fully customize the drone and environment, see <strong><a class="reference internal" href="../use_plugin.html"><span class="std std-doc">Using Project AirSim Plugin in Custom Environments</span></a></strong>.</p>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI Consulting Corp.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

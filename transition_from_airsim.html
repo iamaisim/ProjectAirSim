@@ -1,0 +1,1156 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transitioning from AirSim &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/documentation_options.js?v=2709fde1"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Transitioning from AirSim</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/transition_from_airsim.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="transitioning-from-airsim">
+<h1>Transitioning from AirSim<a class="headerlink" href="#transitioning-from-airsim" title="Link to this heading">¶</a></h1>
+<section id="converting-an-airsim-unreal-environment-to-airsim-vnext">
+<h2>Converting an AirSim Unreal environment to AirSim vNext<a class="headerlink" href="#converting-an-airsim-unreal-environment-to-airsim-vnext" title="Link to this heading">¶</a></h2>
+<p>To convert an existing AirSim Unreal environment to AirSim vNext, you can perform the following steps:</p>
+<ol class="arabic">
+<li><p>Delete the AirSim plugin folder in <code class="docutils literal notranslate"><span class="pre">&lt;environment&gt;/Plugins/AirSim</span></code></p></li>
+<li><p>Edit the environment project’s <code class="docutils literal notranslate"><span class="pre">&lt;environment&gt;.uproject</span></code> file:</p>
+<p>In “Modules”, delete:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> &quot;AdditionalDependencies&quot;: [
+     &quot;AirSim&quot;
+ ]
+</pre></div>
+</div>
+<p>In “Plugins”, delete:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> {
+ &quot;Name&quot;: &quot;AirSim&quot;,
+ &quot;Enabled&quot;: true
+ },
+</pre></div>
+</div>
+</li>
+<li><p>Add AirSim vNext to the environment following <strong><a class="reference internal" href="use_plugin.html#how-to-add-the-airsim-v-next-plugin-to-a-custom-unreal-environment"><span class="std std-ref">How to add the AirSim vNext Plugin to a custom Unreal environment</span></a></strong>, including the part about setting the <code class="docutils literal notranslate"><span class="pre">GameMode</span></code> to <code class="docutils literal notranslate"><span class="pre">AirSimVNextGameMode</span></code> since <code class="docutils literal notranslate"><span class="pre">AirSimGameMode</span></code> is no longer valid.</p></li>
+<li><p>On first opening of the <code class="docutils literal notranslate"><span class="pre">&lt;environment&gt;.uproject</span></code> file with Unreal Engine 5.2, there may be some warnings about failing to load some AirSim content such as:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> Failed to load /AirSim/StarterContent/Materials/M_Tech_Hex_Tile_Pulse.M_Tech_Hex_Tile_Pulse Referenced by StaticMeshComponent0
+ Failed to load /AirSim/VehicleAdv/SUV/AutomotiveMaterials/Materials/Glass/M_Glass.M_Glass Referenced by StaticMeshComponent0
+ ...
+</pre></div>
+</div>
+<p>These warnings can be cleared by simply re-saving the environment’s levels after AirSim has been deleted from it.</p>
+</li>
+<li><p>Check the environment’s config ini files in <code class="docutils literal notranslate"><span class="pre">&lt;environment&gt;/Config</span></code> to remove any AirSim-specific paths or settings.</p></li>
+</ol>
+</section>
+<section id="major-changes">
+<h2>Major changes<a class="headerlink" href="#major-changes" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p>The Sky system has been upgraded to take advantage of latest UE Sky Atmosphere and Volumetric clouds.</p>
+<ul class="simple">
+<li><p>The lighting itself is the same. However, there are new API to fine tune the lighting in the scene. Checkout SetSunLightIntesity(), SetCloudShadowStrength() in the API Overview.</p></li>
+<li><p>If you currently use your own scene/environment and work with AirsimVnext by dropping it into the scene as a plugin. This might break existing TimeOfDay APIs. See the “Trasition your scene from SkySphere to SunSky” section below for dealing with this properly.</p></li>
+</ul>
+</li>
+<li><p>SetSunAngle(pitch, yaw) is discontinued and has been replaced by SetSunAngleFromDateTime(datetime, is_dst) which is more intuitive and supports more realistic sun positions depending on the location of the scene.</p></li>
+</ol>
+</section>
+<section id="transition-from-skysphere-to-sunsky">
+<h2>Transition from SkySphere to SunSky<a class="headerlink" href="#transition-from-skysphere-to-sunsky" title="Link to this heading">¶</a></h2>
+<p>SunSky is the new Unreal environment that provides a more natural and integrated lighting conditions. See https://docs.unrealengine.com/4.27/en-US/BuildingWorlds/LightingAndShadows/SunSky/ for more details.</p>
+<p>General guidelines to update your environment to SunSky:</p>
+<ol class="arabic simple">
+<li><p>First enable the “Sun Position Calculator” plugin using the Unreal Editor.</p></li>
+<li><p>Delete any existing “DirectionalLight”, “SkyLight”, “SkyAtmosphere”, “ExpoenntialHeightFog” actors from your scene.</p></li>
+<li><p>Add the SunSky Actor using the “Place Actors” widget.</p></li>
+<li><p>The initial scene might be very bright since the default lighting are configured to be very bright. To correct this, select the SunSky actor from the World Outliner and goto the inherited DirectionalLight actor inside the components of the SunSky.</p></li>
+<li><p>There is a ‘Intensity’ field inside this directionalLight actor that can adjusted to your needs.</p></li>
+<li><p>Make sure the ID Name of the SunSky actor  is “SunSky_2” (you can see this by hovering the mouse over the actor label in the World Outliner actor liss). The “SunSky_2” is the default unless there are other SunSky actors in your scene.</p></li>
+<li><p>You can also add “Volumetric Clouds” actor to the scene to make the sky dome more realistic.</p></li>
+</ol>
+</section>
+<section id="converting-an-airsim-oss-configuration-to-airsim-vnext">
+<h2>Converting an AirSim OSS configuration to AirSim vNext<a class="headerlink" href="#converting-an-airsim-oss-configuration-to-airsim-vnext" title="Link to this heading">¶</a></h2>
+<p>Refer to the <a class="reference internal" href="config.html"><span class="std std-doc">documentation on configuration</span></a> for information about Project AirSim’s configuration files and what settings are available.</p>
+<p>The following is a rough guide on how to handle each element from the AirSim OSS configuration in Project AirSim. Some items are introduced without highlighting their position in the Project AirSim configuration hierarchy. Refer to the <a class="reference internal" href="config.html"><span class="std std-doc">documentation</span></a> to know the exact positions of each configuration item.</p>
+<p><strong>“SimMode”:</strong></p>
+<p>Project Airsim assumes that a Multirotor vehicle is in use. There is no Car support. For ComputerVision, follow the <a class="reference internal" href="#tbd"><span class="xref myst">computer vision guide</span></a>.</p>
+<p><strong>“ViewMode”, “CameraDirector”:</strong></p>
+<p>In the Robot Config, the first listed camera with <code class="docutils literal notranslate"><span class="pre">&quot;streaming-enabled:</span> <span class="pre">true&quot;</span></code> is the viewpoint camera for that robot. Configure the <code class="docutils literal notranslate"><span class="pre">&quot;origin&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;gimbal&quot;</span></code> to obtain the desired view.</p>
+<p><strong>“TimeOfDay”:</strong></p>
+<p>Not configurable. Use the <code class="docutils literal notranslate"><span class="pre">world.SetTimeOfDay()</span></code> client API call.</p>
+<p><strong>“OriginGeopoint”:</strong></p>
+<p>Set <code class="docutils literal notranslate"><span class="pre">&quot;home-geo-point&quot;</span></code> in the scene configuration.</p>
+<p><strong>“SubWindows”:</strong></p>
+<p>No longer part of configuration. Use the <code class="docutils literal notranslate"><span class="pre">ImageDisplay</span></code> clientside API to work with subwindows.</p>
+<p><strong>“Recording”:</strong></p>
+<p>Server-side recording is not supported yet. All data should be recorded clientside.</p>
+<p><strong>“ClockSpeed”:</strong></p>
+<p>To control the clock speed, select a <code class="docutils literal notranslate"><span class="pre">&quot;steppable&quot;</span></code> clock in the scene config. The ratio of <code class="docutils literal notranslate"><span class="pre">&quot;step-ns&quot;</span></code> to <code class="docutils literal notranslate"><span class="pre">&quot;real-time-update-rate&quot;</span></code> replaces <code class="docutils literal notranslate"><span class="pre">&quot;ClockSpeed&quot;</span></code>. For example, the following configuration is equivalent to ‘“ClockSpeed”: 0.5`:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;clock&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;steppable&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;step-ns&quot;</span><span class="p">:</span> <span class="mi">1500000</span><span class="p">,</span>
+    <span class="s2">&quot;real-time-update-rate&quot;</span><span class="p">:</span> <span class="mi">3000000</span><span class="p">,</span>
+    <span class="s2">&quot;pause-on-start&quot;</span><span class="p">:</span> <span class="n">false</span>
+  <span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>“Segmentation”:</strong></p>
+<p>Set <code class="docutils literal notranslate"><span class="pre">&quot;segmentation&quot;</span></code> in the Scene Config.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Old Setting Name</p></th>
+<th class="head"><p>New Setting Name</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>“InitMethod”: “” or “InitMethod”: “CommonObjectsRandomIDs”</p></td>
+<td><p>“initialized-ids”: true</p></td>
+</tr>
+<tr class="row-odd"><td><p>“InitMethod”: “None”</p></td>
+<td><p>“initialized-ids”: false</p></td>
+</tr>
+<tr class="row-even"><td><p>“OverrideExisting”</p></td>
+<td><p>ignore-existing</p></td>
+</tr>
+<tr class="row-odd"><td><p>“MeshNamingMethod”</p></td>
+<td><p>use-owner-name</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>“Wind”:</strong></p>
+<p>Not configurable. Use the <code class="docutils literal notranslate"><span class="pre">world.SetWindVelocity()</span></code> client API call.</p>
+<p><strong>“VehicleType”:</strong></p>
+<p>For multirotor vehicles, set up the <code class="docutils literal notranslate"><span class="pre">&quot;controller&quot;</span></code> in the vehicle config e.g.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;controller&quot;</span><span class="p">:</span> <span class="p">{</span>
+  <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;Simple_Flight_Controller&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;airframe-setup&quot;</span><span class="p">:</span> <span class="s2">&quot;quadrotor-x&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;simple-flight-api&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;simple-flight-api-settings&quot;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Set an appropriate name for the id, then specify <code class="docutils literal notranslate"><span class="pre">&quot;simple-flight-api&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;px4-api&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;manual-controller-api&quot;</span></code> as the <code class="docutils literal notranslate"><span class="pre">&quot;type&quot;</span></code> and fill in the <code class="docutils literal notranslate"><span class="pre">&quot;simple-flight-api-settings&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;px4-settings&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;manual-controller-api-setttings&quot;</span></code> as appropriate.
+PhysXCar and ArduRover have no equivalents, as cars are unimplemented in Project AirSim.
+For ComputerVision, follow the <a class="reference internal" href="#tbd"><span class="xref myst">computer vision guide</span></a>.</p>
+<p><strong>“PawnPath”:</strong></p>
+<p>Set the <code class="docutils literal notranslate"><span class="pre">&quot;visual&quot;</span></code> in the vehicle config. E.g:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;visual&quot;</span><span class="p">:</span> <span class="p">{</span>
+  <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;unreal_mesh&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;/Drone/Quadrotor1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="s2">&quot;1.0 1.0 1.0&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>“DefaultVehicleState”:</strong></p>
+<p>Not configurable. The drone always starts disarmed.</p>
+<p><strong>“AutoCreate”:</strong></p>
+<p>Not needed.</p>
+<p><strong>“RC”:</strong></p>
+<p>Not selected through config. See the <a class="reference internal" href="#controllers/simple_flight#using-an-xbox-controller"><span class="xref myst">remote control guide</span></a> for information on how to set up a remote controller with Project Airsim.</p>
+<p><strong>“X”, “Y”, “Z”, “Yaw”, “Roll”, “Pitch”:</strong></p>
+<p>In the scene settings, set <code class="docutils literal notranslate"><span class="pre">&quot;origin&quot;</span></code> to</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;xyz&quot;</span><span class="p">:</span> <span class="s2">&quot;x, y, z&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;rpy&quot;</span><span class="p">:</span> <span class="s2">&quot;r, p, y&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Project AirSim uses radians for roll, pitch, and yaw. You will need to convert your values from degrees to radians.</p>
+<p><strong>“IsFpvVehicle”:</strong></p>
+<p>Any vehicle with <code class="docutils literal notranslate"><span class="pre">&quot;IsFpvVehicle&quot;:</span> <span class="pre">true</span></code> should be listed first in the config instead. In general, the vehicle camera will follow the first vehicle listed.</p>
+<p><strong>“Px4 Settings”:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Old Setting Name</p></th>
+<th class="head"><p>New Setting Name</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Lockstep</p></td>
+<td><p>lock-step</p></td>
+</tr>
+<tr class="row-odd"><td><p>ControlIp</p></td>
+<td><p>control-ip-address</p></td>
+</tr>
+<tr class="row-even"><td><p>ControlPortLocal</p></td>
+<td><p>control-port</p></td>
+</tr>
+<tr class="row-odd"><td><p>ControlPortRemote</p></td>
+<td><p>control-port</p></td>
+</tr>
+<tr class="row-even"><td><p>QgcHostIp</p></td>
+<td><p>qgc-host-ip</p></td>
+</tr>
+<tr class="row-odd"><td><p>QgcPort</p></td>
+<td><p>qgc-port</p></td>
+</tr>
+<tr class="row-even"><td><p>TcpPort</p></td>
+<td><p>tcp-port</p></td>
+</tr>
+<tr class="row-odd"><td><p>SerialPort</p></td>
+<td><p>serial-port</p></td>
+</tr>
+<tr class="row-even"><td><p>UseSerial</p></td>
+<td><p>use-serial</p></td>
+</tr>
+<tr class="row-odd"><td><p>UseTcp</p></td>
+<td><p>use-tcp</p></td>
+</tr>
+<tr class="row-even"><td><p>Parameters</p></td>
+<td><p>parameters</p></td>
+</tr>
+<tr class="row-odd"><td><p>Other settings</p></td>
+<td><p>Not present.</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>“Sensors”:</strong></p>
+<p>SensorTypes are now denoted with string values instead of enum values:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Old Type</p></th>
+<th class="head"><p>New Type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td><p>camera</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>barometer</p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>imu</p></td>
+</tr>
+<tr class="row-odd"><td><p>3</p></td>
+<td><p>gps</p></td>
+</tr>
+<tr class="row-even"><td><p>4</p></td>
+<td><p>magnetometer</p></td>
+</tr>
+<tr class="row-odd"><td><p>5</p></td>
+<td><p>(distance sensor isn’t implemented yet)</p></td>
+</tr>
+<tr class="row-even"><td><p>6</p></td>
+<td><p>lidar</p></td>
+</tr>
+</tbody>
+</table>
+<p>Make sure to add: <code class="docutils literal notranslate"><span class="pre">&quot;parent-link&quot;:</span> <span class="pre">&quot;Frame&quot;</span></code> to all sensor configurations.</p>
+<p><strong>“Cameras”:</strong></p>
+<p>Note that the new <code class="docutils literal notranslate"><span class="pre">&quot;compress&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;pixels-as-float&quot;</span></code> settings  in <code class="docutils literal notranslate"><span class="pre">&quot;capture-settings&quot;</span></code> are required, as is <code class="docutils literal notranslate"><span class="pre">&quot;capture-enabled&quot;</span></code>.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Old Setting Name</p></th>
+<th class="head"><p>New Setting Name</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Enabled</p></td>
+<td><p>enabled</p></td>
+</tr>
+<tr class="row-odd"><td><p>CaptureSettings</p></td>
+<td><p>capture-settings</p></td>
+</tr>
+<tr class="row-even"><td><p>ImageType</p></td>
+<td><p>image-type (some image types are not yet implemented)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Width</p></td>
+<td><p>width</p></td>
+</tr>
+<tr class="row-even"><td><p>Height</p></td>
+<td><p>height</p></td>
+</tr>
+<tr class="row-odd"><td><p>FOV_Degrees</p></td>
+<td><p>fov-degrees</p></td>
+</tr>
+<tr class="row-even"><td><p>TargetGamma</p></td>
+<td><p>target-gamma</p></td>
+</tr>
+<tr class="row-odd"><td><p>AutoExposureSpeed</p></td>
+<td><p>Not implemented.</p></td>
+</tr>
+<tr class="row-even"><td><p>AutoExposureBias</p></td>
+<td><p>Not implemented.</p></td>
+</tr>
+<tr class="row-odd"><td><p>AutoExposureMaxBrightness</p></td>
+<td><p>Not implemented.</p></td>
+</tr>
+<tr class="row-even"><td><p>MotionBlurAmount</p></td>
+<td><p>Not implemented.</p></td>
+</tr>
+<tr class="row-odd"><td><p>ProjectionMode</p></td>
+<td><p>Not implemented.</p></td>
+</tr>
+<tr class="row-even"><td><p>OrthoWidth</p></td>
+<td><p>Not implemented.</p></td>
+</tr>
+<tr class="row-odd"><td><p>RandContrib</p></td>
+<td><p>rand-contrib</p></td>
+</tr>
+<tr class="row-even"><td><p>RandSpeed</p></td>
+<td><p>rand-speed</p></td>
+</tr>
+<tr class="row-odd"><td><p>RandSize</p></td>
+<td><p>rand-size</p></td>
+</tr>
+<tr class="row-even"><td><p>RandDensity</p></td>
+<td><p>rand-density</p></td>
+</tr>
+<tr class="row-odd"><td><p>HorzWaveContrib</p></td>
+<td><p>horz-wave-contrib</p></td>
+</tr>
+<tr class="row-even"><td><p>HorzWaveStrength</p></td>
+<td><p>horz-wave-strength</p></td>
+</tr>
+<tr class="row-odd"><td><p>HorzWaveVertSize</p></td>
+<td><p>horz-wave-vert-size</p></td>
+</tr>
+<tr class="row-even"><td><p>HorzWaveScreenSize</p></td>
+<td><p>horz-wave-screen-size</p></td>
+</tr>
+<tr class="row-odd"><td><p>HorzNoiseLinesContrib</p></td>
+<td><p>horz-noise-lines-contrib</p></td>
+</tr>
+<tr class="row-even"><td><p>HorzNoiseLinesDensityY</p></td>
+<td><p>horz-noise-lines-density-y</p></td>
+</tr>
+<tr class="row-odd"><td><p>HorzNoiseLinesDensityXY</p></td>
+<td><p>horz-noise-lines-density-xy</p></td>
+</tr>
+<tr class="row-even"><td><p>HorzDistortionContrib</p></td>
+<td><p>horz-distortion-contrib</p></td>
+</tr>
+<tr class="row-odd"><td><p>HorzDistortionStrength</p></td>
+<td><p>horz-distortion-strength</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>“Barometer”:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Old Setting Name</p></th>
+<th class="head"><p>New Setting Name</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Enabled</p></td>
+<td><p>enabled</p></td>
+</tr>
+<tr class="row-odd"><td><p>PressureFactorSigma</p></td>
+<td><p>pressure-factor-sigma</p></td>
+</tr>
+<tr class="row-even"><td><p>PressureFactorTau</p></td>
+<td><p>pressure-factor-tau</p></td>
+</tr>
+<tr class="row-odd"><td><p>UncorrelatedNoiseSigma</p></td>
+<td><p>uncorrelated-noise-sigma</p></td>
+</tr>
+<tr class="row-even"><td><p>UpdateLatency</p></td>
+<td><p>update-latency</p></td>
+</tr>
+<tr class="row-odd"><td><p>UpdateFrequency</p></td>
+<td><p>update-frequency</p></td>
+</tr>
+<tr class="row-even"><td><p>StartupDelay</p></td>
+<td><p>startup-delay</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>“Imu”:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Old Setting Name</p></th>
+<th class="head"><p>New Setting Name</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Enabled</p></td>
+<td><p>enabled</p></td>
+</tr>
+<tr class="row-odd"><td><p>AngularRandomWalk</p></td>
+<td><p>gyroscope : { angle-random-walk }</p></td>
+</tr>
+<tr class="row-even"><td><p>GyroBiasStabilityTau</p></td>
+<td><p>gyroscope: { tau }</p></td>
+</tr>
+<tr class="row-odd"><td><p>GyroBiasStability</p></td>
+<td><p>gyroscope: { bias-stability }</p></td>
+</tr>
+<tr class="row-even"><td><p>VelocityRandomWalk</p></td>
+<td><p>accelerometer: { velocity-random-walk }</p></td>
+</tr>
+<tr class="row-odd"><td><p>AccelBiasStabilityTau</p></td>
+<td><p>accelerometer: { tau }</p></td>
+</tr>
+<tr class="row-even"><td><p>AccelBiasStability</p></td>
+<td><p>accelerometer: { bias-stability }</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>“Gps”:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Old Setting Name</p></th>
+<th class="head"><p>New Setting Name</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Enabled</p></td>
+<td><p>enabled</p></td>
+</tr>
+<tr class="row-odd"><td><p>EphTimeConstant</p></td>
+<td><p>eph-time-constant</p></td>
+</tr>
+<tr class="row-even"><td><p>EpvTimeConstant</p></td>
+<td><p>epv-time-constant</p></td>
+</tr>
+<tr class="row-odd"><td><p>EphInitial</p></td>
+<td><p>eph-initial</p></td>
+</tr>
+<tr class="row-even"><td><p>EpvInitial</p></td>
+<td><p>epv-initial</p></td>
+</tr>
+<tr class="row-odd"><td><p>EphFinal</p></td>
+<td><p>eph-final</p></td>
+</tr>
+<tr class="row-even"><td><p>EpvFinal</p></td>
+<td><p>epv-final</p></td>
+</tr>
+<tr class="row-odd"><td><p>EphMin3d</p></td>
+<td><p>eph-min_3d</p></td>
+</tr>
+<tr class="row-even"><td><p>EphMin2d</p></td>
+<td><p>eph-min_2d</p></td>
+</tr>
+<tr class="row-odd"><td><p>UpdateLatency</p></td>
+<td><p>Not implemented.</p></td>
+</tr>
+<tr class="row-even"><td><p>UpdateFrequency</p></td>
+<td><p>Not implemented.</p></td>
+</tr>
+<tr class="row-odd"><td><p>StartupDelay</p></td>
+<td><p>Not implemented.</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>“Magnetometer”:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Old Setting Name</p></th>
+<th class="head"><p>New Setting Name</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Enabled</p></td>
+<td><p>enabled</p></td>
+</tr>
+<tr class="row-odd"><td><p>NoiseSigma</p></td>
+<td><p>noise-sigma</p></td>
+</tr>
+<tr class="row-even"><td><p>ScaleFactor</p></td>
+<td><p>scale-factor</p></td>
+</tr>
+<tr class="row-odd"><td><p>NoiseBias</p></td>
+<td><p>noise-bias</p></td>
+</tr>
+<tr class="row-even"><td><p>UpdateLatency</p></td>
+<td><p>Not implemented.</p></td>
+</tr>
+<tr class="row-odd"><td><p>UpdateFrequency</p></td>
+<td><p>Not implemented.</p></td>
+</tr>
+<tr class="row-even"><td><p>StartupDelay</p></td>
+<td><p>Not implemented.</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>“Lidar”:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Old Setting Name</p></th>
+<th class="head"><p>New Setting Name</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Enabled</p></td>
+<td><p>enabled</p></td>
+</tr>
+<tr class="row-odd"><td><p>NumberOfChannels</p></td>
+<td><p>number-of-channels</p></td>
+</tr>
+<tr class="row-even"><td><p>Range</p></td>
+<td><p>range</p></td>
+</tr>
+<tr class="row-odd"><td><p>PointsPerSecond</p></td>
+<td><p>points-per-second</p></td>
+</tr>
+<tr class="row-even"><td><p>RotationsPerSecond</p></td>
+<td><p>horizontal-rotation-frequency or vertical-rotation-frequency</p></td>
+</tr>
+<tr class="row-odd"><td><p>HorizontalFOVStart</p></td>
+<td><p>horizontal-fov-start-deg</p></td>
+</tr>
+<tr class="row-even"><td><p>HorizontalFOVEnd</p></td>
+<td><p>horizontal-fov-end-deg</p></td>
+</tr>
+<tr class="row-odd"><td><p>VerticalFOVUpper</p></td>
+<td><p>vertical-fov-upper-deg</p></td>
+</tr>
+<tr class="row-even"><td><p>VerticalFOVLower</p></td>
+<td><p>vertical-fov-lower-deg</p></td>
+</tr>
+<tr class="row-odd"><td><p>X, Y, Z</p></td>
+<td><p>origin: { “xyz”: “x, y, z” }</p></td>
+</tr>
+<tr class="row-even"><td><p>Roll, Pitch, Yaw</p></td>
+<td><p>origin: { “rpy”: “r p y” }</p></td>
+</tr>
+<tr class="row-odd"><td><p>DrawDebugPoints</p></td>
+<td><p>draw-debug-points</p></td>
+</tr>
+<tr class="row-even"><td><p>DataFrame</p></td>
+<td><p>Not implemented?</p></td>
+</tr>
+<tr class="row-odd"><td><p>ExternalController</p></td>
+<td><p>Not implemented?</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>“PhysicsEngineName”:</strong></p>
+<p>Set <code class="docutils literal notranslate"><span class="pre">&quot;physics-type&quot;</span></code> in the robot configuration.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Old Engine Name</p></th>
+<th class="head"><p>New Engine Name</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>FastPhysicsEngine</p></td>
+<td><p>fast-physics</p></td>
+</tr>
+<tr class="row-odd"><td><p>ExternalPhysicsEngine</p></td>
+<td><p>non-physics</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>“LocalHostIp”, “ApiServerPort”:</strong></p>
+<p>Not part of configuration. Use the <code class="docutils literal notranslate"><span class="pre">address</span></code>, <code class="docutils literal notranslate"><span class="pre">port_topics</span></code>, and <code class="docutils literal notranslate"><span class="pre">port_services</span></code> parameters when initializing the <code class="docutils literal notranslate"><span class="pre">AirSimVNextClient</span></code>.</p>
+</section>
+<section id="converting-an-airsim-oss-client-code-to-airsim-vnext">
+<h2>Converting an AirSim OSS client code to AirSim vNext<a class="headerlink" href="#converting-an-airsim-oss-client-code-to-airsim-vnext" title="Link to this heading">¶</a></h2>
+<section id="general-considerations">
+<h3>General considerations<a class="headerlink" href="#general-considerations" title="Link to this heading">¶</a></h3>
+<p>You cannot connect to Project AirSim with more than one client script at a time. If a second script connects, the first script will suffer a fatal error.</p>
+<p>Unlike AirSim OSS, Project AirSim’s client does not connect when it is instantiated. To connect to the server, use the <code class="docutils literal notranslate"><span class="pre">client.connect()</span></code> function of the client object.</p>
+<p>While in AirSim OSS all method calls were made through the <code class="docutils literal notranslate"><span class="pre">client</span></code>, in Project AirSim there is a hierarchy of classes such as <code class="docutils literal notranslate"><span class="pre">World</span></code> for accesing methods that apply to the environment and <code class="docutils literal notranslate"><span class="pre">Drone</span></code> for methods that apply to drones.</p>
+<p>Project Airsim has a logging framework which should be used in preference to <code class="docutils literal notranslate"><span class="pre">print()</span></code>. E.g. <code class="docutils literal notranslate"><span class="pre">airsim_vnext_log().info(&quot;&quot;)</span></code>.</p>
+<p>Project Airsim’s client does not automatically set up the environment from a <code class="docutils literal notranslate"><span class="pre">settings.json</span></code> file. One must initialize it manually using a valid scene configuration file.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">world</span> <span class="o">=</span> <span class="n">World</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="s2">&quot;scene_config.jsonc&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that the file path is relative to <code class="docutils literal notranslate"><span class="pre">.\sim_config</span></code> where <code class="docutils literal notranslate"><span class="pre">.</span></code> is the location of the script. For information on writing scene configuration files see the <a class="reference internal" href="config_scene.html"><span class="std std-doc">Scene Configuration Settings documentation</span></a>.</p>
+<p>To take control of a drone, initialize it using the name it has in the config.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">drone</span> <span class="o">=</span> <span class="n">Drone</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">world</span><span class="p">,</span> <span class="s2">&quot;Drone1&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can then call the drone’s method’s to control it. If multiple drones exist in the scene, each one can be initialized and controlled in this fashion. This replaces the <code class="docutils literal notranslate"><span class="pre">vehicle_name</span></code> parameter from AirSim OSS’s functions.</p>
+<p>Project AirSim uses Radians as a standard for all interactions. Make sure that your code does not give commands in Degrees.</p>
+</section>
+<section id="note-on-asynchronous-methods">
+<h3>Note on asynchronous methods<a class="headerlink" href="#note-on-asynchronous-methods" title="Link to this heading">¶</a></h3>
+<p>All asynchronous methods in Project AirSim use the <a class="reference external" href="https://docs.python.org/3/library/asyncio.html">asyncio</a> library for Python, meaning they must be handled with asyncio’s syntax. For example, instead of using</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">client</span><span class="o">.</span><span class="n">takeoffAsync</span><span class="p">()</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>as you would in AirSim OSS, use</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">takeoff_task</span> <span class="o">=</span> <span class="k">await</span> <span class="n">drone</span><span class="o">.</span><span class="n">takeoff_async</span><span class="p">()</span>
+<span class="k">await</span> <span class="n">takeoff_task</span>
+</pre></div>
+</div>
+<p>We <code class="docutils literal notranslate"><span class="pre">await</span></code> takeoff_async, which retrieves an asychronous task. We then execute the task by <code class="docutils literal notranslate"><span class="pre">await</span></code>ing it.</p>
+</section>
+</section>
+<section id="reference-table-for-api-migration">
+<h2>Reference table for api migration<a class="headerlink" href="#reference-table-for-api-migration" title="Link to this heading">¶</a></h2>
+<section id="methods">
+<h3>Methods<a class="headerlink" href="#methods" title="Link to this heading">¶</a></h3>
+<section id="connection-and-api-control">
+<h4>Connection and API Control<a class="headerlink" href="#connection-and-api-control" title="Link to this heading">¶</a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>AirSim OSS</p></th>
+<th class="head"><p>Project AirSim</p></th>
+<th class="head"><p>Observations</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>client.enableApiControl(bool)</p></td>
+<td><p>drone.enable_api_control(), drone.disable_api_control()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>client.isApiControlEnabled()</p></td>
+<td><p>drone.is_api_control_enabled().</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>client.reset()</p></td>
+<td><p>World()</p></td>
+<td><p>To reset the scene, instantiate the same World again.</p></td>
+</tr>
+<tr class="row-odd"><td><p>client.confirmConnection()</p></td>
+<td><p>Not implemented.</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>client.ping()</p></td>
+<td><p>Not implemented.</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>client.simRunConsoleCommand()</p></td>
+<td><p>Not implemented.</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="drone-control">
+<h4>Drone Control<a class="headerlink" href="#drone-control" title="Link to this heading">¶</a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>AirSim OSS</p></th>
+<th class="head"><p>Project AirSim</p></th>
+<th class="head"><p>Observations</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>client.armDisarm(bool)</p></td>
+<td><p>drone.arm(), drone.disarm()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>client.takeoffAsync()</p></td>
+<td><p>drone.takeoff_async()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>client.landAsync()</p></td>
+<td><p>drone.land_async()</p></td>
+<td><p>Default timeout has changed from 60 to 3e38 seconds.</p></td>
+</tr>
+<tr class="row-odd"><td><p>client.hoverAsync()</p></td>
+<td><p>drone.hover_async()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>client.moveByVelocityAsync(vx, vy, vz, duration, drivetrain, yaw_mode)</p></td>
+<td><p>drone.move_by_velocity_async(self,v_north,v_east,v_down,duration,yaw_control_mode,yaw_is_rate,yaw)</p></td>
+<td><p>YawMode struct does not exist. Pass yaw and yaw_is_rate separately.</p></td>
+</tr>
+<tr class="row-odd"><td><p>client.moveByVelocityZAsync(vx, vy, vz, duration, drivetrain, yaw_mode)</p></td>
+<td><p>drone.move_by_velocity_z_async(self,v_north,v_east,v_down,duration,yaw_control_mode,yaw_is_rate,yaw)</p></td>
+<td><p>YawMode struct does not exist. Pass yaw and yaw_is_rate separately.</p></td>
+</tr>
+<tr class="row-even"><td><p>client.moveToPositionAsync(self, x, y, z, velocity, timeout_sec, drivetrain, yaw_mode, lookahead, adaptive_lookahead)</p></td>
+<td><p>drone.move_to_position_async(self, north, east, down, velocity, timeout_sec, yaw_control_mode, yaw_is_rate, yaw, lookahead, adaptive_lookahead)</p></td>
+<td><p>YawMode struct does not exist. Pass yaw and yaw_is_rate separately.</p></td>
+</tr>
+<tr class="row-odd"><td><p>client.moveOnPathAsync()</p></td>
+<td><p>drone.move_on_path_async()</p></td>
+<td><p>Path is now given as a 2D array.</p></td>
+</tr>
+<tr class="row-even"><td><p>client.moveToZAsync()</p></td>
+<td><p>Not implemented.</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>client.simSetVehiclePose()</p></td>
+<td><p>drone.set_pose()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>client.simSetKinematics()</p></td>
+<td><p>drone.get_ground_truth_kinematics()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>client.moveByManualAsync()</p></td>
+<td><p><a class="reference internal" href="#controllers/simple_flight#using-an-xbox-controller"><span class="xref myst">See info on how to set up remote controller.</span></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>client.moveByRc()</p></td>
+<td><p>flight_rc.set()</p></td>
+<td><p>Only needs to be called once.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="images">
+<h4>Images<a class="headerlink" href="#images" title="Link to this heading">¶</a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>AirSim OSS</p></th>
+<th class="head"><p>Project AirSim</p></th>
+<th class="head"><p>Observations</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>client.simGetImage()</p></td>
+<td><p>Not implemented.</p></td>
+<td><p>Use drone.get_images with only one image_type_id to request a single image.</p></td>
+</tr>
+<tr class="row-odd"><td><p>client.simGetImages(requests)</p></td>
+<td><p>drone.get_images(camera_id, image_type_ids)</p></td>
+<td><p>Instead of sending a set of ImageRequests, call requests a set of ImageTypes from a given camera.</p></td>
+</tr>
+<tr class="row-even"><td><p>client.simSetCameraPose()</p></td>
+<td><p>drone.set_camera_pose()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>client.simGetCameraInfo()</p></td>
+<td><p>Not implemented.</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>client.simSetCameraFov()</p></td>
+<td><p>Not implemented.</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>client.simGetDistortionParams()</p></td>
+<td><p>Not implemented.</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>client.simSetDistortionParams()</p></td>
+<td><p>Not implemented.</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>client.simSetDetectionFilterRadius()</p></td>
+<td><p>Not implemented.</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>client.simAddDetectionFilterMeshName()</p></td>
+<td><p>Configurable. Set “object_id” in the “annotations” section of the <a class="reference internal" href="sensors/camera_capture_settings.html"><span class="doc std std-doc">camera config.</span></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>client.simGetDetections()</p></td>
+<td><p>Use drone.get_images on a camera with “annotations” configured. The returned data will include an “annotations” section.</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>client.simClearDetectionMeshNames()</p></td>
+<td><p>Not implemented.</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sensors-and-ground-truth">
+<h4>Sensors and Ground Truth<a class="headerlink" href="#sensors-and-ground-truth" title="Link to this heading">¶</a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>AirSim OSS</p></th>
+<th class="head"><p>Project AirSim</p></th>
+<th class="head"><p>Observations</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>client.getMultirotorState()</p></td>
+<td><p>No equivalent.</p></td>
+<td><p>The API for estimated kinematics is not implemented yet. Use GetGroundTruthKinematics for now; it’s the same unless a flight controller with estimation such as PX4 is in use. Collision info can be obtained by using self.client.subscribe() to subscribe to the collision sensor.</p></td>
+</tr>
+<tr class="row-odd"><td><p>client.getImuData()</p></td>
+<td><p>drone.get_imu_data(sensor_name)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>client.getBarometerData()</p></td>
+<td><p>drone.get_barometer_data(sensor_name)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>client.getMagnetometerData()</p></td>
+<td><p>drone.get_magnetometer_data(sensor_name)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>client.getGpsData()</p></td>
+<td><p>drone.get_gps_data(sensor_name)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>client.getLidarData()</p></td>
+<td><p>Not implemented.</p></td>
+<td><p>Use self.client.subscribe() to subscribe to the LiDAR sensor and handle LiDAR data in the callback.</p></td>
+</tr>
+<tr class="row-even"><td><p>client.simGetVehiclePose()</p></td>
+<td><p>drone.get_ground_truth_pose()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>client.getHomeGeoPoint()</p></td>
+<td><p>Not implemented.</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="simulation">
+<h4>Simulation<a class="headerlink" href="#simulation" title="Link to this heading">¶</a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>AirSim OSS</p></th>
+<th class="head"><p>Project AirSim</p></th>
+<th class="head"><p>Observations</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>client.simSetTraceLine()</p></td>
+<td><p>world.set_trace_line()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>client.simSetWind(wind)</p></td>
+<td><p>world.set_wind_velocity(n, e, d)</p></td>
+<td><p>Wind isn’t implemented in the physics yet, but the API exists.</p></td>
+</tr>
+<tr class="row-even"><td><p>client.simEnableWeather()</p></td>
+<td><p>Run world.enable_weather_visual_effects(), world.disable_weather_visual_effects()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>client.simSetWeatherParameter()</p></td>
+<td><p>world.set_weather_visual_effects_param()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>client.simTestLineOfSightToPoint()</p></td>
+<td><p>Not implemented.</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>client.simTestLineOfSightBetweenPoints()</p></td>
+<td><p>Not implemented.</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>client.simGetWorldExtents()</p></td>
+<td><p>Not implemented.</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>client.simPause()</p></td>
+<td><p>world.pause(), world.resume()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>client.simContinueForTime()</p></td>
+<td><p>world.continue_for_sim_time()</p></td>
+<td><p>Units have changed from seconds to nanoseconds.</p></td>
+</tr>
+<tr class="row-odd"><td><p>client.simAddVehicle()</p></td>
+<td><p>Not supported.</p></td>
+<td><p>ProjectAirsim does not currently support adding new drones while the sim is running. All required drones should be added to the scene configuration.</p></td>
+</tr>
+<tr class="row-even"><td><p>client.simGetSegmentationObjectId()</p></td>
+<td><p>world.get_segmentation_id_by_name()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>client.simSetSegmentationObjectId()</p></td>
+<td><p>world.set_segmentation_id_by_name()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>client.simSetObjectMaterial()</p></td>
+<td><p>Not implemented.</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>client.simSetObjectMaterialFromTexture()</p></td>
+<td><p>world.set_object_material()</p></td>
+<td><p>Use the <code class="docutils literal notranslate"><span class="pre">file:///</span></code> protocol to access local textures.</p></td>
+</tr>
+<tr class="row-even"><td><p>client.simListAssets()</p></td>
+<td><p>world.list_assets()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>client.simSpawnObject()</p></td>
+<td><p>world.spawn_object()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>client.simDestroyObject()</p></td>
+<td><p>world.destroy_object()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>client.simListSceneObjects()</p></td>
+<td><p>world.list_objects()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>client.simGetObjectPose()</p></td>
+<td><p>world.get_object_pose()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>client.simSetObjectPose()</p></td>
+<td><p>world.set_object_pose()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>client.simGetObjectScale()</p></td>
+<td><p>world.get_object_scale()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>client.simSetObjectScale()</p></td>
+<td><p>world.set_object_scale()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>client.simSwapTextures()</p></td>
+<td><p>world.swap_object_texture()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>client.simSetLightIntensity()</p></td>
+<td><p>world.set_light_object_intensity()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>client.simPlotArrows()</p></td>
+<td><p>world.plot_debug_arrows()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>client.simPlotPoints()</p></td>
+<td><p>world.plot_debug_points()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>client.simPlotLineStrip()</p></td>
+<td><p>world.plot_debug_solid_line()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>client.simPlotLineList()</p></td>
+<td><p>world.plot_debug_dashed_line()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>client.simPlotStrings()</p></td>
+<td><p>world.plot_debug_strings()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>client.simPlotTransforms()</p></td>
+<td><p>world.plot_debug_transforms()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>client.simPlotTransformsWithNames()</p></td>
+<td><p>world.plot_debug_transforms_with_names()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>client.simFlushPersistentMarkers()</p></td>
+<td><p>world.flush_persistent_markers()</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="utilities">
+<h4>Utilities<a class="headerlink" href="#utilities" title="Link to this heading">¶</a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>AirSim OSS</p></th>
+<th class="head"><p>Project AirSim</p></th>
+<th class="head"><p>Observations</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>airsim.to_eularian_angles()</p></td>
+<td><p>projectairsim.utils.quaternion_to_rpy()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>airsim.to_quaternion()</p></td>
+<td><p>projectairsim.utils.rpy_to_quaternion()</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="types">
+<h3>Types<a class="headerlink" href="#types" title="Link to this heading">¶</a></h3>
+<section id="id1">
+<h4>Images<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h4>
+</section>
+<section id="image-types">
+<h4>Image Types<a class="headerlink" href="#image-types" title="Link to this heading">¶</a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>AirSim OSS</p></th>
+<th class="head"><p>Project AirSim</p></th>
+<th class="head"><p>Observations</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Scene = 0</p></td>
+<td><p>SCENE = 0</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>DepthPlanar = 1</p></td>
+<td><p>DEPTH_PLANAR = 1</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>DepthPerspective = 2</p></td>
+<td><p>DEPTH_PERSPECTIVE = 2</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>DepthVis = 3</p></td>
+<td><p>DEPTH_VIS = 4</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>DisparityNormalized = 4</p></td>
+<td><p>DISPARITY_NORMALIZED = 5</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>Segmentation = 5</p></td>
+<td><p>SEGMENTATION = 3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>SurfaceNormals = 6</p></td>
+<td><p>SURFACE_NORMALS =6</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>Infrared = 7</p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>OpticalFlow = 8</p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>OpticalFlowVis = 9</p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="classes">
+<h4>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>AirSim OSS</p></th>
+<th class="head"><p>Project AirSim</p></th>
+<th class="head"><p>Observations</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>ImuDataOSS</p></td>
+<td><p>ImuDataPA</p></td>
+<td><p>The orientation parameter for OSS is in Euler and for PA in Quaternions</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="migrated-airsim-v1-scripts-examples">
+<h4>Migrated AirSim v1 Scripts examples<a class="headerlink" href="#migrated-airsim-v1-scripts-examples" title="Link to this heading">¶</a></h4>
+<p>In the “../client/python/airsimv1_scripts_migrated” folder, you will find examples of AirSim scripts that have been translated to work with Project AirSim. These scripts demonstrate how to adapt existing functionalities from AirSim OSS to Project AirSim, serving as a practical reference for migrating your own scripts.</p>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI Consulting Corp.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

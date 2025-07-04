@@ -1,0 +1,392 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Build From Source as a Developer &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Build From Source as a Developer</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/development/use_source.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="build-from-source-as-a-developer">
+<h1>Build From Source as a Developer<a class="headerlink" href="#build-from-source-as-a-developer" title="Link to this heading">¶</a></h1>
+<p>For many usage scenarios, <strong><a class="reference internal" href="use_prebuilt.html"><span class="std std-doc">Using Pre-built Binary Environments</span></a></strong> or <strong><a class="reference internal" href="../use_plugin.html"><span class="std std-doc">Using Project AirSim Plugin in Custom Environments</span></a></strong> is enough to get a simulation up and running. The main development would then be done by setting up the <strong><a class="reference internal" href="../config.html"><span class="std std-doc">Config JSON Settings</span></a></strong> and using the <strong><a class="reference internal" href="../client_setup.html"><span class="std std-doc">Project AirSim Client</span></a></strong> and <strong><a class="reference internal" href="../api.html"><span class="std std-doc">APIs</span></a></strong> to drive the simulation for the particular usage application.</p>
+<p>If deeper customization or extending new features is needed, building the Project AirSim framework from source can be done through the process described below.</p>
+<hr class="docutils" />
+<section id="project-airsim-architecture-overview">
+<h2>Project AirSim architecture overview<a class="headerlink" href="#project-airsim-architecture-overview" title="Link to this heading">¶</a></h2>
+<p>There are 3 layers to the Project AirSim development process:</p>
+<ol class="arabic simple">
+<li><p><strong>Project AirSim Sim Libs</strong> - <code class="docutils literal notranslate"><span class="pre">projectairsim/</span></code> root CMake project</p></li>
+<li><p><strong>Project AirSim Plugin</strong> - <code class="docutils literal notranslate"><span class="pre">projectairsim/unreal/Blocks</span></code> script-generated project requiring Unreal Engine</p></li>
+<li><p><strong>Project AirSim Client Library</strong> - <code class="docutils literal notranslate"><span class="pre">projectairsim/client/python</span></code> Python client files</p></li>
+</ol>
+<p>&lt;<em>TODO Add high-level architecture diagram here.</em>&gt;</p>
+<p>Key parts of the Project AirSim folder structure:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>projectairsim
+  └─ ...
+  └─ client               (Client files)
+  │  └─ python              (Python client files)
+  │     └─ projectairsim       (Project AirSim Client Library)
+  │     └─ sim-config         (Project AirSim config JSONC files)
+  └─ multirotor_api       (Project AirSim component for multirotor controllers)
+  └─ physics              (Project AirSim component for physics)
+  └─ core_sim                  (Project AirSim core sim)
+  └─ unreal
+     └─ Blocks              (Blocks Unreal environment)
+        └─ Plugins
+           └─ ProjectAirSim     (Project AirSim Plugin)
+           └─ Drone           (Drone content-only plugin)
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="initial-developer-setup">
+<h2>Initial developer setup<a class="headerlink" href="#initial-developer-setup" title="Link to this heading">¶</a></h2>
+<p>Project AirSim can be developed using Windows 11 or Ubuntu 22.04 Linux. See <strong><a class="reference internal" href="../system_specs.html"><span class="std std-doc">System Specifications</span></a></strong> for more details.</p>
+<p>For details on getting your dev environment set up, choose your platform:</p>
+<ul class="simple">
+<li><p><strong><a class="reference internal" href="dev_setup_win.html"><span class="std std-doc">Developer Initial Setup for Windows</span></a></strong></p></li>
+<li><p><strong><a class="reference internal" href="dev_setup_linux.html"><span class="std std-doc">Developer Initial Setup for Linux</span></a></strong></p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="developing-project-airsim-sim-libs">
+<h2>Developing Project AirSim Sim Libs<a class="headerlink" href="#developing-project-airsim-sim-libs" title="Link to this heading">¶</a></h2>
+<p>Choose your development tool:</p>
+<ul class="simple">
+<li><p><strong><a class="reference internal" href="#command-line-(windows/linux)"><span class="xref myst">Command Line (Windows/Linux)</span></a></strong></p></li>
+<li><p><strong><a class="reference internal" href="#vs-code-(windows/linux)"><span class="xref myst">VS Code (Windows/Linux)</span></a></strong></p></li>
+<li><p><strong><a class="reference internal" href="#visual-studio-2019-(windows-only)"><span class="xref myst">Visual Studio 2019 (Windows only)</span></a></strong></p></li>
+</ul>
+<p><strong>Note:</strong> Project AirSim sim libs uses CMake which saves build configuration information in a cache, so <strong>if you switch tools</strong> between using command line, VS Code, or Visual Studio 2019 to drive the CMake project in the same folder, you should <strong>clear the cache</strong> by running <code class="docutils literal notranslate"><span class="pre">build</span> <span class="pre">clean</span></code> so the next tool can reset the configuration and build again properly.</p>
+</section>
+<hr class="docutils" />
+<section id="command-line-windows-linux">
+<h2>Command Line (Windows/Linux)<a class="headerlink" href="#command-line-windows-linux" title="Link to this heading">¶</a></h2>
+<p>On Windows, run the <code class="docutils literal notranslate"><span class="pre">build.cmd</span></code> script using the <code class="docutils literal notranslate"><span class="pre">x64</span> <span class="pre">Native</span> <span class="pre">Tools</span> <span class="pre">Command</span> <span class="pre">Prompt</span> <span class="pre">for</span> <span class="pre">VS</span> <span class="pre">2019</span></code>. On Linux, run the <code class="docutils literal notranslate"><span class="pre">build.sh</span></code> shell script.</p>
+<p><code class="docutils literal notranslate"><span class="pre">build{.cmd|.sh}</span> <span class="pre">{target</span> <span class="pre">from</span> <span class="pre">below}</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">all</span> <span class="o">=</span> <span class="n">Clean</span> <span class="o">+</span> <span class="n">Build</span> <span class="o">+</span> <span class="n">Test</span> <span class="o">+</span> <span class="n">Package</span> <span class="n">everything</span>
+<span class="n">clean</span> <span class="o">=</span> <span class="n">Clean</span> <span class="n">sim</span> <span class="n">libs</span> <span class="o">+</span> <span class="n">Blocks</span> <span class="n">build</span> <span class="n">files</span>
+
+<span class="n">simlibs_debug</span> <span class="o">=</span> <span class="n">Build</span> <span class="o">+</span> <span class="n">Package</span> <span class="n">sim</span> <span class="n">libs</span> <span class="k">for</span> <span class="n">Debug</span>
+<span class="n">simlibs_release</span> <span class="o">=</span> <span class="n">Build</span> <span class="o">+</span> <span class="n">Package</span> <span class="n">sim</span> <span class="n">libs</span> <span class="k">for</span> <span class="n">Release</span>
+<span class="n">test_simlibs_debug</span> <span class="o">=</span> <span class="n">Test</span> <span class="n">sim</span> <span class="n">libs</span> <span class="k">for</span> <span class="n">Debug</span>
+<span class="n">test_simlibs_release</span> <span class="o">=</span> <span class="n">Test</span> <span class="n">sim</span> <span class="n">libs</span> <span class="k">for</span> <span class="n">Release</span>
+
+<span class="n">blocks_debuggame</span> <span class="o">=</span> <span class="n">Build</span> <span class="n">Plugin</span> <span class="o">+</span> <span class="n">Blocks</span> <span class="k">for</span> <span class="n">DebugGame</span> <span class="p">(</span><span class="n">uses</span> <span class="n">Debug</span> <span class="n">sim</span> <span class="n">libs</span><span class="p">)</span>
+<span class="n">blocks_development</span> <span class="o">=</span> <span class="n">Build</span> <span class="n">Plugin</span> <span class="o">+</span> <span class="n">Blocks</span> <span class="k">for</span> <span class="n">Development</span> <span class="p">(</span><span class="n">uses</span> <span class="n">Release</span> <span class="n">sim</span> <span class="n">libs</span><span class="p">)</span>
+
+<span class="n">package_plugin</span> <span class="o">=</span> <span class="n">Package</span> <span class="n">Project</span> <span class="n">AirSim</span> <span class="n">UE</span> <span class="n">Plugin</span> <span class="k">for</span> <span class="n">Debug</span> <span class="o">+</span> <span class="n">Release</span>
+<span class="n">package_blocks_debuggame</span> <span class="o">=</span> <span class="n">Package</span> <span class="n">stand</span><span class="o">-</span><span class="n">alone</span> <span class="n">Blocks</span> <span class="n">environment</span> <span class="n">executable</span> <span class="k">for</span> <span class="n">DebugGame</span>
+<span class="n">package_blocks_development</span> <span class="o">=</span> <span class="n">Package</span> <span class="n">stand</span><span class="o">-</span><span class="n">alone</span> <span class="n">Blocks</span> <span class="n">environment</span> <span class="n">executable</span> <span class="k">for</span> <span class="n">Development</span>
+</pre></div>
+</div>
+<p>The sim lib components and unit test executables are built in the <code class="docutils literal notranslate"><span class="pre">projectairsim/build/</span></code> folder using CMake, and are automatically copied to the Unreal Blocks environment folder to be ready for building the plugin.</p>
+<p>The Plugin components are built in the <code class="docutils literal notranslate"><span class="pre">projectairsim/unreal/Blocks/</span></code> folder using the Unreal Engine’s build system.</p>
+<p>The packaged outputs (sim lib components, UE Plugin, Blocks stand-alone executable) are copied to the <code class="docutils literal notranslate"><span class="pre">projectairsim/packages/</span></code> folder, where they can be picked up for external uses.</p>
+<p>The Python client files are in the <code class="docutils literal notranslate"><span class="pre">projectairsim/client/python/</span></code> folder, with the Project AirSim Client Library in the <code class="docutils literal notranslate"><span class="pre">projectairsim/client/python/projectairsim</span></code> sub-folder.</p>
+</section>
+<hr class="docutils" />
+<section id="vs-code-windows-linux">
+<h2>VS Code (Windows/Linux)<a class="headerlink" href="#vs-code-windows-linux" title="Link to this heading">¶</a></h2>
+<p>Although the sim libs CMake project can be opened as a folder in VS Code independently of the Blocks Unreal environment project, it is more convenient to develop the sim libs together with the UE Plugin in the Blocks environment as a multi-root workspace project which has access to all levels of source during debugging.</p>
+<p>To develop using a multi-root workspace project file, follow the steps below:</p>
+<ol class="arabic">
+<li><p><strong>Generate and open the VS Code <code class="docutils literal notranslate"><span class="pre">Blocks.code-workspace</span></code> project file</strong></p>
+<p>Run the following script:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">projectairsim</span><span class="o">/</span><span class="n">unreal</span><span class="o">/</span><span class="n">Blocks</span><span class="o">/</span><span class="n">blocks_genprojfiles_vscode</span><span class="p">{</span><span class="o">.</span><span class="n">bat</span><span class="o">|.</span><span class="n">sh</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Since some parts of the sim libs haven’t been built yet, there may be some warning outputs in yellow text, but it is ok to ignore them.</p>
+<p>After it completes, use VS Code to open the <code class="docutils literal notranslate"><span class="pre">projectairsim/unreal/Blocks/Blocks.code-workspace</span></code> that was generated.</p>
+</li>
+<li><p><strong>Choose CMake Kit toolchain for building sim libs</strong></p>
+<p>After the workspace opens and tap on the CMake extension to configure it:</p>
+<p><img alt="VS Code bottom toolbar sections" src="development/images/vscode_cmake_config.jpg" /></p>
+<p>Select the <strong>CMake Kit</strong> section and choose <code class="docutils literal notranslate"><span class="pre">Visual</span> <span class="pre">Studio</span> <span class="pre">Enterprise</span> <span class="pre">2022</span> <span class="pre">Release</span> <span class="pre">-</span> <span class="pre">amd64</span></code> for Windows or <code class="docutils literal notranslate"><span class="pre">Clang</span> <span class="pre">10.0.0</span></code> for Linux. If no kits are shown, select <code class="docutils literal notranslate"><span class="pre">Scan</span> <span class="pre">for</span> <span class="pre">kits</span></code> to refresh the detected toolchains.</p>
+</li>
+<li><p><strong>Choose CMake build configuration for sim libs</strong></p>
+<p>Select the <strong>CMake Config</strong> section and choose the desired sim libs build configuration for your platform:</p>
+<p><img alt="VS Code bottom toolbar CMake configs" src="../_images/vscode_cmake_configs.jpg" /></p>
+<p>When you select a build config, it will trigger CMake to run its configuration step to generate the cache for setting up the build. The first time this is run for each config, it may take a few minutes because it fetches the sim libs’ dependencies from their repos.</p>
+</li>
+<li><p><strong>Choose Intellisense configuration</strong></p>
+<p>The active Intellisense configuration is shown at the right side of the bottom toolbar:</p>
+<p><img alt="VS Code bottom toolbar Intellisense section" src="../_images/vscode_toolbar_intellisense.jpg" /></p>
+<p>The Intellisense configuration will switch based on which part of the multi-root workspace the last active source file is from.</p>
+<p>When a sim lib source file is active, you can click on the <strong>Intellisense Config</strong> button to select the appropriate config for your platform (defined in <code class="docutils literal notranslate"><span class="pre">projectairsim/.vscode/c_cpp_properties.json</span></code>):</p>
+<p><img alt="VS Code Intellisense configs" src="../_images/vscode_intellisense_config.jpg" /></p>
+<p>When a Blocks Plugin source file is active, it will use Unreal’s automatically generated configuration called <code class="docutils literal notranslate"><span class="pre">UnrealEngine</span></code> (defined in <code class="docutils literal notranslate"><span class="pre">projectairsim/unreal/Blocks/.vscode/c_cpp_properties.json</span></code>).</p>
+<p><strong>Caution:</strong> If you modify the <code class="docutils literal notranslate"><span class="pre">UnrealEngine</span></code> settings, it will get overwritten whenever the <code class="docutils literal notranslate"><span class="pre">blocks_genprojfiles_...</span></code> scripts are run to regenerate the workspace.</p>
+</li>
+<li><p><strong>Build sim libs using the CMake <code class="docutils literal notranslate"><span class="pre">[all]</span></code> target</strong></p>
+<p>Click the <strong>Cmake Build</strong> button in the bottom toolbar to trigger the CMake build of the sim libs for the selected configuration. You should see the results of the build in the <code class="docutils literal notranslate"><span class="pre">Output</span></code> console’s <code class="docutils literal notranslate"><span class="pre">CMake/Build</span></code> section.</p>
+<p><img alt="VS Code bottom toolbar CMake Build button" src="../_images/vscode_cmake_build.jpg" /></p>
+<p><strong>Note:</strong> There is no toolbar button to trigger a <code class="docutils literal notranslate"><span class="pre">clean</span></code> build, so if something goes wrong, you can use the <strong>command line</strong> build scripts to run <code class="docutils literal notranslate"><span class="pre">build</span> <span class="pre">clean</span></code>, and then retry configuring/building the CMake project.</p>
+</li>
+<li><p><strong>Run CTest unit tests for sim libs</strong></p>
+<p>After the sim libs have been built, a <strong>CTest Button</strong> should appear in the bottom toolbar. Clicking this CTest button will trigger CTest to run the unit test executables for the current build configuration.</p>
+<p><img alt="VS Code bottom toolbar CTest button" src="../_images/vscode_toolbar_ctest.jpg" /></p>
+<p>You can also run and debug the unit tests from the Test Explorer sidebar section:</p>
+<p><img alt="VS Code Test Explorer" src="../_images/vscode_test_explorer.jpg" /></p>
+</li>
+<li><p><strong>Launch the main debugger with the sim libs’ matching Unreal Editor configuration</strong></p>
+<p>Once the sim libs have been built, you can switch to the <strong>Run Debugger</strong> sidebar section and choose a debug target from the drop-down menu:</p>
+<p><img alt="VS Code debugger targets" src="../_images/vscode_debug_targets.jpg" /></p>
+<p>The targets shown are automatically generated in the <code class="docutils literal notranslate"><span class="pre">launch.json</span></code> file by Unreal when the <code class="docutils literal notranslate"><span class="pre">blocks_genprojfiles_...</span></code> script generated the workspace. However, some of the targets are not valid.</p>
+<p>The valid targets for primary development are:</p>
+<ul class="simple">
+<li><p>Blocks (DebugGame)</p></li>
+<li><p>Blocks (Development)</p></li>
+<li><p>BlocksEditor (DebugGame)</p></li>
+<li><p>BlocksEditor (Development)</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">BlocksEditor</span></code> targets can be launched as long as the corresponding sim libs configuration has been built (<code class="docutils literal notranslate"><span class="pre">DebugGame</span></code> requires <code class="docutils literal notranslate"><span class="pre">Debug</span></code> sim libs, and <code class="docutils literal notranslate"><span class="pre">Development</span></code> requires <code class="docutils literal notranslate"><span class="pre">Release</span></code> sim libs).</p>
+<p>The stand-alone game <code class="docutils literal notranslate"><span class="pre">Blocks</span></code> targets can’t be launched until the game content has been <strong><a class="reference external" href="https://docs.unrealengine.com/en-US/Engine/Deployment/Cooking/index.html">cooked</a></strong>, as described in the next optional step.</p>
+<p>To start, just click the green <strong>Run</strong> button to launch the <code class="docutils literal notranslate"><span class="pre">BlocksEditor</span></code> target and after building the Plugin and Blocks environement, the Unreal Editor should load up ready to Play and debug.</p>
+<p>When you click on the <strong>Play</strong> button in the Editor toolbar, a drone should spawn and the simulation has started running, ready for a client to connect to it.</p>
+<p><img alt="Blocks with simulation in play" src="../_images/blocks_in_play.jpg" /></p>
+</li>
+<li><p><strong><em>(Optional)</em> Cook stand-alone game content</strong></p>
+<p>One way to cook the game content is to first launch the Editor target and then in the Editor GUI select <code class="docutils literal notranslate"><span class="pre">File</span> <span class="pre">-&gt;</span> <span class="pre">Cook</span> <span class="pre">Content</span> <span class="pre">for</span> <span class="pre">{Windows|Linux}</span></code>.</p>
+<p>Another way to cook the game content is to use the <strong>command line</strong> build script to package the Blocks stand-alone game:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">build</span><span class="o">.</span><span class="p">{</span><span class="n">cmd</span><span class="o">|</span><span class="n">sh</span><span class="p">}</span> <span class="n">package_blocks_</span><span class="p">{</span><span class="n">debuggame</span><span class="o">|</span><span class="n">development</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>It can be cooked with either DebugGame or Development configurations, as the cooked content is the same for both.</p>
+</li>
+<li><p><strong><em>(Optional)</em> Launch the main debugger with the sim libs’ matching stand-alone game configuration</strong></p>
+<p>Once the game content has been cooked, you can use the stand-alone game <code class="docutils literal notranslate"><span class="pre">Blocks</span></code> targets to launch the VS Code debugger.</p>
+<p>Sometimes this is faster to use than the <code class="docutils literal notranslate"><span class="pre">BlocksEditor</span></code> targets for development iteration because it doesn’t load all of the Editor overhead on each launch. However, the Editor can be convenient for repeatedly starting/stopping play of the simulation while debugging the same build.</p>
+</li>
+<li><p><strong>See <strong><a class="reference internal" href="#developing-projectairsim-client-library"><span class="xref myst">Developing Project AirSim Client Library</span></a></strong> for the next steps of interacting with the Blocks simulation through the Python client.</strong></p></li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="visual-studio-2019-windows-only">
+<h2>Visual Studio 2019 (Windows only)<a class="headerlink" href="#visual-studio-2019-windows-only" title="Link to this heading">¶</a></h2>
+<p>Due to Project AirSim’s multi-layer project architecture that combines CMake for the sim libs and Unreal’s build system for the Plugin, there are some quirks to using Visual Studio 2019 to manage both systems.</p>
+<p>One option is to simply use the <strong>command line</strong> build scripts to manage the CMake side for sim libs, and only use the Visual Studio solution to drive the Unreal Plugin and environment.</p>
+<p>However, it is possible to use Visual Studio to do both in a single project by following the steps below.</p>
+<ol class="arabic">
+<li><p><strong>Generate and open the Visual Studio 2019 <code class="docutils literal notranslate"><span class="pre">Blocks.sln</span></code> solution project file</strong></p>
+<p>Run the following script:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">projectairsim</span><span class="o">/</span><span class="n">unreal</span><span class="o">/</span><span class="n">Blocks</span><span class="o">/</span><span class="n">blocks_genprojfiles_vs2019</span><span class="o">.</span><span class="n">bat</span>
+</pre></div>
+</div>
+<p>Since some parts of the sim libs haven’t been built yet, there may be some warning outputs in yellow text, but it is ok to ignore them.</p>
+<p>After it completes, use Visual Studio 2019 to open the <code class="docutils literal notranslate"><span class="pre">projectairsim/unreal/Blocks/Blocks.sln</span></code> that was generated.</p>
+</li>
+<li><p><strong>Switch to the Solution Explorer’s folder tree view</strong></p>
+<p>The solution will load with everything set up for launching the Blocks Unreal environment, but first the sim libs needs to be built with CMake.</p>
+<p>To switch to the CMake side of the project, choose the Solution Explorer’s <code class="docutils literal notranslate"><span class="pre">Folder</span> <span class="pre">View</span></code> for Visual Studio to detect the CMake files in the root <code class="docutils literal notranslate"><span class="pre">projectairsim</span></code> folder.</p>
+<p><img alt="VS 2019 Folder View" src="../_images/vs2019_folder_view.jpg" /></p>
+</li>
+<li><p><strong>Wait for CMake root project to be detected</strong></p>
+<p>After a minute or two, the CMake project should be automatically detected and the <code class="docutils literal notranslate"><span class="pre">Output</span></code> console will start to show CMake running its configure step for the default build configuration. The build configuration drop-down menu should also show up in the top toolbar for switching the active config from the default <code class="docutils literal notranslate"><span class="pre">Debug</span></code> config.</p>
+<p><img alt="VS 2019 CMake Project Detected" src="../_images/vs2019_cmake_detected.jpg" /></p>
+</li>
+<li><p><strong>Switch to CMake Targets view and choose CMake build configuration for sim libs</strong></p>
+<p>The Solution Explorer should now have a <code class="docutils literal notranslate"><span class="pre">CMake</span> <span class="pre">Targets</span> <span class="pre">View</span></code> option in addition to the <code class="docutils literal notranslate"><span class="pre">Folder</span> <span class="pre">View</span></code> and <code class="docutils literal notranslate"><span class="pre">Blocks.sln</span></code> solution.</p>
+<p><img alt="VS 2019 CMake Targets View" src="../_images/vs2019_cmake_targets_view.jpg" /></p>
+<p>Switch to the <code class="docutils literal notranslate"><span class="pre">CMake</span> <span class="pre">Targets</span> <span class="pre">View</span></code> and choose the desired build configuration from the toolbar drop-down menu. CMake will re-configure when the build configuration is changed. After CMake’s configure step is finished, the <code class="docutils literal notranslate"><span class="pre">CMake</span> <span class="pre">Targets</span> <span class="pre">View</span></code> will become a list of the CMake project targets that are available to build.</p>
+</li>
+<li><p><strong>Build sim libs with CMake</strong></p>
+<p>In the <code class="docutils literal notranslate"><span class="pre">CMake</span> <span class="pre">Targets</span> <span class="pre">View</span></code>, right-click on the <code class="docutils literal notranslate"><span class="pre">ProjectAirSimSimLibs</span> <span class="pre">Project</span></code> and select <code class="docutils literal notranslate"><span class="pre">Build</span> <span class="pre">All</span></code>. The <code class="docutils literal notranslate"><span class="pre">Output</span></code> console should start to display the build steps as all of the sim libs components are built.</p>
+<p><img alt="VS 2019 CMake Build All" src="../_images/vs2019_cmake_build.jpg" /></p>
+</li>
+<li><p><strong>Run CTest unit tests for sim libs</strong></p>
+<p>After the build completes, you can run the sim lib unit tests by CTest by right-clicking on the <code class="docutils literal notranslate"><span class="pre">ProjectAirSimSimLibs</span> <span class="pre">Project</span></code> and selecting <code class="docutils literal notranslate"><span class="pre">Run</span> <span class="pre">Tests</span></code>. The test results will be displayed in the <code class="docutils literal notranslate"><span class="pre">Output</span></code> console.</p>
+<p>You can also run and debug the unit tests from Visual Studio’s Test Explorer section that can be activated from the <code class="docutils literal notranslate"><span class="pre">Test</span></code> menu.</p>
+</li>
+<li><p><strong>Switch to Blocks Solution view to launch debugger with matching Unreal configuration</strong></p>
+<p>Once the sim libs have been built, you can switch to the Solution Explorer’s <code class="docutils literal notranslate"><span class="pre">Blocks.sln</span></code> solution view and choose a debug target from the drop-down menu:</p>
+<p><img alt="VS 2019 Debugger Targets" src="../_images/vs2019_unreal_configs.jpg" /></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">DebugGame</span> <span class="pre">Editor</span></code> and <code class="docutils literal notranslate"><span class="pre">Development</span> <span class="pre">Editor</span></code> targets can be launched as long as the corresponding sim libs configuration has been built (<code class="docutils literal notranslate"><span class="pre">DebugGame</span></code> requires <code class="docutils literal notranslate"><span class="pre">Debug</span></code> sim libs, and <code class="docutils literal notranslate"><span class="pre">Development</span></code> requires <code class="docutils literal notranslate"><span class="pre">Release</span></code> sim libs).</p>
+<p>The stand-alone game <code class="docutils literal notranslate"><span class="pre">DebugGame</span></code> and <code class="docutils literal notranslate"><span class="pre">Development</span></code> targets can’t be launched until the game content has been <strong><a class="reference external" href="https://docs.unrealengine.com/en-US/Engine/Deployment/Cooking/index.html">cooked</a></strong>, as described in the next optional step.</p>
+<p>Project AirSim only supports the <code class="docutils literal notranslate"><span class="pre">Win64</span></code> option, which should be selected by default.</p>
+<p>To start, just click the green <strong>Local Windows Debugger</strong> button to launch the <code class="docutils literal notranslate"><span class="pre">DebugGame</span> <span class="pre">Editor</span></code> or <code class="docutils literal notranslate"><span class="pre">Development</span> <span class="pre">Editor</span></code> target and after building the Plugin and Blocks environement, the Unreal Editor should load up ready to Play and debug.</p>
+<p>When you click on the <strong>Play</strong> button in the Editor toolbar, a drone should spawn and the simulation has started running, ready for a client to connect to it.</p>
+<p><img alt="Blocks with simulation in play" src="../_images/blocks_in_play.jpg" /></p>
+</li>
+<li><p><strong><em>(Optional)</em> Cook stand-alone game content</strong></p>
+<p>One way to cook the game content is to first launch the Editor target and then in the Editor GUI select <code class="docutils literal notranslate"><span class="pre">File</span> <span class="pre">-&gt;</span> <span class="pre">Cook</span> <span class="pre">Content</span> <span class="pre">for</span> <span class="pre">Windows</span></code>.</p>
+<p>Another way to cook the game content is to use the <strong>command line</strong> build script to package the Blocks stand-alone game:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">build</span> <span class="n">package_blocks_</span><span class="p">{</span><span class="n">debuggame</span><span class="o">|</span><span class="n">development</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>It can be cooked with either DebugGame or Development configurations, as the cooked content is the same for both.</p>
+</li>
+<li><p><strong><em>(Optional)</em> Launch the main debugger with the sim libs’ matching stand-alone game configuration</strong></p>
+<p>Once the game content has been cooked, you can use the stand-alone game <code class="docutils literal notranslate"><span class="pre">DebugGame</span></code> and <code class="docutils literal notranslate"><span class="pre">Development</span></code> targets to launch the Visual Studio debugger.</p>
+<p>Sometimes this is faster to use than the <code class="docutils literal notranslate"><span class="pre">...Editor</span></code> targets for development iteration because it doesn’t load all of the Editor overhead on each launch. However, the Editor can be convenient for repeatedly starting/stopping play of the simulation while debugging the same build.</p>
+</li>
+<li><p><strong>See <strong><a class="reference internal" href="#developing-projectairsim-client-library"><span class="xref myst">Developing Project AirSim Client Library</span></a></strong> for the next steps of interacting with the Blocks simulation through the Python client.</strong></p></li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="developing-with-the-project-airsim-client-library">
+<h2>Developing with the Project AirSim client library<a class="headerlink" href="#developing-with-the-project-airsim-client-library" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Set up the simulation configuration JSONC files in the <code class="docutils literal notranslate"><span class="pre">projectairsim/client/sim_config</span></code> folder for your purpose.</p></li>
+<li><p>Launch the Blocks simulation and start play.</p></li>
+<li><p>Switch to <code class="docutils literal notranslate"><span class="pre">projectairsim/python</span></code> directory using a command line with an activated Python environment that was set up during the <strong><a class="reference internal" href="../client_setup.html"><span class="std std-doc">Project AirSim Client Setup</span></a></strong>.</p></li>
+<li><p>Start executing a client script to load the simulation configured in step 1 and interact with the simulation.</p></li>
+</ol>
+<section id="run-example-client-scripts">
+<h3>Run example client scripts:<a class="headerlink" href="#run-example-client-scripts" title="Link to this heading">¶</a></h3>
+<p>Some example scripts are provided to use as reference for building your own script:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Example client script</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>hello_drone.py</p></td>
+<td><p>Basic takeoff/landing of a single drone with camera image sensors</p></td>
+</tr>
+<tr class="row-odd"><td><p>hello_nonphysics_drone.py</p></td>
+<td><p>A drone in non-physics “computer vision” mode that can be moved around with keyboard input</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="run-pytest-end-end-tests">
+<h3>Run Pytest end-end tests:<a class="headerlink" href="#run-pytest-end-end-tests" title="Link to this heading">¶</a></h3>
+<p>You can run the Python client end-end tests by running Pytest while the simulation is up and running:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pytest</span> <span class="o">-</span><span class="n">v</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI Consulting Corp.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

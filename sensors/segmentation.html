@@ -1,0 +1,444 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Segmentation &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Lidar sensor" href="lidar.html" />
+    <link rel="prev" title="Camera Streaming" href="camera_streaming.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Segmentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#mesh-names-for-automatically-initializing-ids">Mesh names for automatically initializing IDs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#assigning-segmentation-ids-in-unreal-editor">Assigning segmentation IDs in Unreal Editor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#segmentation-pallet">Segmentation Pallet</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Segmentation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/sensors/segmentation.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="segmentation">
+<h1>Segmentation<a class="headerlink" href="#segmentation" title="Link to this heading">¶</a></h1>
+<section id="mesh-names-for-automatically-initializing-ids">
+<h2>Mesh names for automatically initializing IDs<a class="headerlink" href="#mesh-names-for-automatically-initializing-ids" title="Link to this heading">¶</a></h2>
+<p>If using Project AirSim’s automatic segmentation ID initialization (<strong><a class="reference internal" href="../config_scene.html#segmentation-settings"><span class="std std-ref">segmentation config setting</span></a></strong> <code class="docutils literal notranslate"><span class="pre">initialize-ids</span></code> set to <code class="docutils literal notranslate"><span class="pre">true</span></code>), the mesh names will be used for calculating the hash to set the ID value. There are multiple names at each level of the actor hierarchy that contains the mesh, so an example for viewing the names in the Editor is explained below:</p>
+<p>Example for <code class="docutils literal notranslate"><span class="pre">Ground</span></code> StaticMeshActor:</p>
+<ol class="arabic simple">
+<li><p>The name listed in the <code class="docutils literal notranslate"><span class="pre">World</span> <span class="pre">Outliner</span></code> is the <strong>actor’s label</strong>. This is only a display name used by the Editor, and is <strong>NOT used as a name</strong> for segmentation ID hashing.</p></li>
+<li><p>The name listed if you mouse-over the actor name is the <strong>actor’s name</strong>, which is the <strong>owner’s name</strong> for the mesh (“Ground”).</p></li>
+<li><p>In the <code class="docutils literal notranslate"><span class="pre">Details</span></code> tab component list for the actor, the <code class="docutils literal notranslate"><span class="pre">StaticMeshComponent</span></code> is shown and can be selected to see its details, but the <strong>name of the mesh component is not visible in the Editor</strong> (“StaticMeshComponent0”).</p></li>
+<li><p>In the mesh component’s details, the actual <code class="docutils literal notranslate"><span class="pre">StaticMesh</span></code> is shown with the <strong>mesh’s name</strong> (“TemplateFloor”).</p></li>
+</ol>
+<p><em>Note: Changing the actor’s name using the field at the top of the <code class="docutils literal notranslate"><span class="pre">Detail</span></code> section applies the change to both #1 and #2 names described above.</em></p>
+<p>If the <strong><a class="reference internal" href="../config_scene.html#segmentation-settings"><span class="std std-ref">segmentation config setting</span></a></strong> for <code class="docutils literal notranslate"><span class="pre">use-owner-name</span></code> is <code class="docutils literal notranslate"><span class="pre">true</span></code>, the <strong>#2 owner’s name</strong> will be used for the ID hashing. If <code class="docutils literal notranslate"><span class="pre">false</span></code>, the <strong>#4 mesh’s name</strong> will be used.</p>
+<p><img alt="mesh" src="../_images/segmentation_mesh_names.jpg" /></p>
+</section>
+<section id="assigning-segmentation-ids-in-unreal-editor">
+<h2>Assigning segmentation IDs in Unreal Editor<a class="headerlink" href="#assigning-segmentation-ids-in-unreal-editor" title="Link to this heading">¶</a></h2>
+<p>To set the segmentation IDs manually in the Unreal Editor (and be able to save them to persist in the environment), select the actor to modify in the <code class="docutils literal notranslate"><span class="pre">World</span> <span class="pre">Outliner</span></code> list. Next, select the mesh component in the <code class="docutils literal notranslate"><span class="pre">Details</span></code> tab and scroll down to the <code class="docutils literal notranslate"><span class="pre">Rendering</span></code> setting to enable <code class="docutils literal notranslate"><span class="pre">Render</span> <span class="pre">CustomDepth</span> <span class="pre">Pass</span></code>. Once enabled, the ID value can be set in <code class="docutils literal notranslate"><span class="pre">CustomDepth</span> <span class="pre">Stencil</span> <span class="pre">Value</span></code>.</p>
+<p><img alt="mesh" src="../_images/segmentation_set_customdepth.jpg" /></p>
+<p>A global setting must also be activated to enable all CustomDepth rendering, which can be done by running the console command (open console with tilde key):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">r</span><span class="o">.</span><span class="n">CustomDepth</span> <span class="mi">3</span>
+</pre></div>
+</div>
+<p>Alternatively, this setting can be enabled in <code class="docutils literal notranslate"><span class="pre">Project</span> <span class="pre">Settings</span></code> under <code class="docutils literal notranslate"><span class="pre">Engine</span> <span class="pre">-</span> <span class="pre">Rendering</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">Postprocessing</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">Custom</span> <span class="pre">Depth-Stencil</span> <span class="pre">Pass</span></code> set to <code class="docutils literal notranslate"><span class="pre">Enabled</span> <span class="pre">with</span> <span class="pre">Stencil</span></code>.</p>
+<p>Once this feature is enabled and the objects are assigned IDs, you can visualize the segmentation in the viewport by changing the view from <code class="docutils literal notranslate"><span class="pre">Lit</span></code> to <code class="docutils literal notranslate"><span class="pre">Buffer</span> <span class="pre">Visualization</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">Custom</span> <span class="pre">Stencil</span></code>.</p>
+<p><img alt="mesh" src="../_images/segmentation_stencil_view.jpg" /></p>
+<p>If everything is set properly, the view will be colored by the ID groupings and the ID labels will be visible.</p>
+<p><em>Note: the color pallet Unreal uses is different from the Project AirSim <strong><a class="reference internal" href="#segmentation-pallet"><span class="xref myst">segmentation color pallet</span></a></strong>.</em></p>
+<p><img alt="mesh" src="../_images/segmentation_viewport.jpg" /></p>
+</section>
+<section id="segmentation-pallet">
+<h2>Segmentation Pallet<a class="headerlink" href="#segmentation-pallet" title="Link to this heading">¶</a></h2>
+<p>The segmentation camera’s image has pixels with RGB values specified based on each object’s segmentation ID, using the fixed pallet below.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SegmentationID</span> <span class="p">[</span><span class="n">R</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">B</span><span class="p">]</span>
+
+  <span class="mi">0</span> <span class="p">[</span><span class="mi">55</span><span class="p">,</span> <span class="mi">181</span><span class="p">,</span> <span class="mi">57</span><span class="p">]</span>
+  <span class="mi">1</span> <span class="p">[</span><span class="mi">153</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">6</span><span class="p">]</span>
+  <span class="mi">2</span> <span class="p">[</span><span class="mi">112</span><span class="p">,</span> <span class="mi">105</span><span class="p">,</span> <span class="mi">191</span><span class="p">]</span>
+  <span class="mi">3</span> <span class="p">[</span><span class="mi">89</span><span class="p">,</span> <span class="mi">121</span><span class="p">,</span> <span class="mi">72</span><span class="p">]</span>
+  <span class="mi">4</span> <span class="p">[</span><span class="mi">190</span><span class="p">,</span> <span class="mi">225</span><span class="p">,</span> <span class="mi">64</span><span class="p">]</span>
+  <span class="mi">5</span> <span class="p">[</span><span class="mi">206</span><span class="p">,</span> <span class="mi">190</span><span class="p">,</span> <span class="mi">59</span><span class="p">]</span>
+  <span class="mi">6</span> <span class="p">[</span><span class="mi">81</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">36</span><span class="p">]</span>
+  <span class="mi">7</span> <span class="p">[</span><span class="mi">115</span><span class="p">,</span> <span class="mi">176</span><span class="p">,</span> <span class="mi">195</span><span class="p">]</span>
+  <span class="mi">8</span> <span class="p">[</span><span class="mi">161</span><span class="p">,</span> <span class="mi">171</span><span class="p">,</span> <span class="mi">27</span><span class="p">]</span>
+  <span class="mi">9</span> <span class="p">[</span><span class="mi">135</span><span class="p">,</span> <span class="mi">169</span><span class="p">,</span> <span class="mi">180</span><span class="p">]</span>
+ <span class="mi">10</span> <span class="p">[</span><span class="mi">29</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">199</span><span class="p">]</span>
+ <span class="mi">11</span> <span class="p">[</span><span class="mi">102</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">239</span><span class="p">]</span>
+ <span class="mi">12</span> <span class="p">[</span><span class="mi">242</span><span class="p">,</span> <span class="mi">107</span><span class="p">,</span> <span class="mi">146</span><span class="p">]</span>
+ <span class="mi">13</span> <span class="p">[</span><span class="mi">156</span><span class="p">,</span> <span class="mi">198</span><span class="p">,</span> <span class="mi">23</span><span class="p">]</span>
+ <span class="mi">14</span> <span class="p">[</span><span class="mi">49</span><span class="p">,</span> <span class="mi">89</span><span class="p">,</span> <span class="mi">160</span><span class="p">]</span>
+ <span class="mi">15</span> <span class="p">[</span><span class="mi">68</span><span class="p">,</span> <span class="mi">218</span><span class="p">,</span> <span class="mi">116</span><span class="p">]</span>
+ <span class="mi">16</span> <span class="p">[</span><span class="mi">11</span><span class="p">,</span> <span class="mi">236</span><span class="p">,</span> <span class="mi">9</span><span class="p">]</span>
+ <span class="mi">17</span> <span class="p">[</span><span class="mi">196</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
+ <span class="mi">18</span> <span class="p">[</span><span class="mi">121</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">28</span><span class="p">]</span>
+ <span class="mi">19</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">53</span><span class="p">,</span> <span class="mi">65</span><span class="p">]</span>
+ <span class="mi">20</span> <span class="p">[</span><span class="mi">146</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">70</span><span class="p">]</span>
+ <span class="mi">21</span> <span class="p">[</span><span class="mi">226</span><span class="p">,</span> <span class="mi">149</span><span class="p">,</span> <span class="mi">143</span><span class="p">]</span>
+ <span class="mi">22</span> <span class="p">[</span><span class="mi">151</span><span class="p">,</span> <span class="mi">126</span><span class="p">,</span> <span class="mi">171</span><span class="p">]</span>
+ <span class="mi">23</span> <span class="p">[</span><span class="mi">194</span><span class="p">,</span> <span class="mi">39</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span>
+ <span class="mi">24</span> <span class="p">[</span><span class="mi">205</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">161</span><span class="p">]</span>
+ <span class="mi">25</span> <span class="p">[</span><span class="mi">212</span><span class="p">,</span> <span class="mi">51</span><span class="p">,</span> <span class="mi">60</span><span class="p">]</span>
+ <span class="mi">26</span> <span class="p">[</span><span class="mi">211</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">208</span><span class="p">]</span>
+ <span class="mi">27</span> <span class="p">[</span><span class="mi">189</span><span class="p">,</span> <span class="mi">135</span><span class="p">,</span> <span class="mi">188</span><span class="p">]</span>
+ <span class="mi">28</span> <span class="p">[</span><span class="mi">54</span><span class="p">,</span> <span class="mi">72</span><span class="p">,</span> <span class="mi">205</span><span class="p">]</span>
+ <span class="mi">29</span> <span class="p">[</span><span class="mi">103</span><span class="p">,</span> <span class="mi">252</span><span class="p">,</span> <span class="mi">157</span><span class="p">]</span>
+ <span class="mi">30</span> <span class="p">[</span><span class="mi">124</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">123</span><span class="p">]</span>
+ <span class="mi">31</span> <span class="p">[</span><span class="mi">19</span><span class="p">,</span> <span class="mi">132</span><span class="p">,</span> <span class="mi">69</span><span class="p">]</span>
+ <span class="mi">32</span> <span class="p">[</span><span class="mi">195</span><span class="p">,</span> <span class="mi">237</span><span class="p">,</span> <span class="mi">132</span><span class="p">]</span>
+ <span class="mi">33</span> <span class="p">[</span><span class="mi">94</span><span class="p">,</span> <span class="mi">253</span><span class="p">,</span> <span class="mi">175</span><span class="p">]</span>
+ <span class="mi">34</span> <span class="p">[</span><span class="mi">182</span><span class="p">,</span> <span class="mi">251</span><span class="p">,</span> <span class="mi">87</span><span class="p">]</span>
+ <span class="mi">35</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">162</span><span class="p">,</span> <span class="mi">242</span><span class="p">]</span>
+ <span class="mi">36</span> <span class="p">[</span><span class="mi">199</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+ <span class="mi">37</span> <span class="p">[</span><span class="mi">254</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">229</span><span class="p">]</span>
+ <span class="mi">38</span> <span class="p">[</span><span class="mi">35</span><span class="p">,</span> <span class="mi">196</span><span class="p">,</span> <span class="mi">244</span><span class="p">]</span>
+ <span class="mi">39</span> <span class="p">[</span><span class="mi">220</span><span class="p">,</span> <span class="mi">163</span><span class="p">,</span> <span class="mi">49</span><span class="p">]</span>
+ <span class="mi">40</span> <span class="p">[</span><span class="mi">86</span><span class="p">,</span> <span class="mi">254</span><span class="p">,</span> <span class="mi">214</span><span class="p">]</span>
+ <span class="mi">41</span> <span class="p">[</span><span class="mi">152</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">129</span><span class="p">]</span>
+ <span class="mi">42</span> <span class="p">[</span><span class="mi">92</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">106</span><span class="p">]</span>
+ <span class="mi">43</span> <span class="p">[</span><span class="mi">207</span><span class="p">,</span> <span class="mi">229</span><span class="p">,</span> <span class="mi">90</span><span class="p">]</span>
+ <span class="mi">44</span> <span class="p">[</span><span class="mi">125</span><span class="p">,</span> <span class="mi">75</span><span class="p">,</span> <span class="mi">48</span><span class="p">]</span>
+ <span class="mi">45</span> <span class="p">[</span><span class="mi">98</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">74</span><span class="p">]</span>
+ <span class="mi">46</span> <span class="p">[</span><span class="mi">126</span><span class="p">,</span> <span class="mi">129</span><span class="p">,</span> <span class="mi">238</span><span class="p">]</span>
+ <span class="mi">47</span> <span class="p">[</span><span class="mi">222</span><span class="p">,</span> <span class="mi">153</span><span class="p">,</span> <span class="mi">109</span><span class="p">]</span>
+ <span class="mi">48</span> <span class="p">[</span><span class="mi">85</span><span class="p">,</span> <span class="mi">152</span><span class="p">,</span> <span class="mi">34</span><span class="p">]</span>
+ <span class="mi">49</span> <span class="p">[</span><span class="mi">173</span><span class="p">,</span> <span class="mi">69</span><span class="p">,</span> <span class="mi">31</span><span class="p">]</span>
+ <span class="mi">50</span> <span class="p">[</span><span class="mi">37</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">125</span><span class="p">]</span>
+ <span class="mi">51</span> <span class="p">[</span><span class="mi">58</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="mi">33</span><span class="p">]</span>
+ <span class="mi">52</span> <span class="p">[</span><span class="mi">134</span><span class="p">,</span> <span class="mi">57</span><span class="p">,</span> <span class="mi">119</span><span class="p">]</span>
+ <span class="mi">53</span> <span class="p">[</span><span class="mi">218</span><span class="p">,</span> <span class="mi">124</span><span class="p">,</span> <span class="mi">115</span><span class="p">]</span>
+ <span class="mi">54</span> <span class="p">[</span><span class="mi">120</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">200</span><span class="p">]</span>
+ <span class="mi">55</span> <span class="p">[</span><span class="mi">225</span><span class="p">,</span> <span class="mi">131</span><span class="p">,</span> <span class="mi">92</span><span class="p">]</span>
+ <span class="mi">56</span> <span class="p">[</span><span class="mi">246</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">16</span><span class="p">]</span>
+ <span class="mi">57</span> <span class="p">[</span><span class="mi">51</span><span class="p">,</span> <span class="mi">155</span><span class="p">,</span> <span class="mi">241</span><span class="p">]</span>
+ <span class="mi">58</span> <span class="p">[</span><span class="mi">202</span><span class="p">,</span> <span class="mi">97</span><span class="p">,</span> <span class="mi">155</span><span class="p">]</span>
+ <span class="mi">59</span> <span class="p">[</span><span class="mi">184</span><span class="p">,</span> <span class="mi">145</span><span class="p">,</span> <span class="mi">182</span><span class="p">]</span>
+ <span class="mi">60</span> <span class="p">[</span><span class="mi">96</span><span class="p">,</span> <span class="mi">232</span><span class="p">,</span> <span class="mi">44</span><span class="p">]</span>
+ <span class="mi">61</span> <span class="p">[</span><span class="mi">133</span><span class="p">,</span> <span class="mi">244</span><span class="p">,</span> <span class="mi">133</span><span class="p">]</span>
+ <span class="mi">62</span> <span class="p">[</span><span class="mi">180</span><span class="p">,</span> <span class="mi">191</span><span class="p">,</span> <span class="mi">29</span><span class="p">]</span>
+ <span class="mi">63</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">222</span><span class="p">,</span> <span class="mi">192</span><span class="p">]</span>
+ <span class="mi">64</span> <span class="p">[</span><span class="mi">99</span><span class="p">,</span> <span class="mi">242</span><span class="p">,</span> <span class="mi">104</span><span class="p">]</span>
+ <span class="mi">65</span> <span class="p">[</span><span class="mi">91</span><span class="p">,</span> <span class="mi">168</span><span class="p">,</span> <span class="mi">219</span><span class="p">]</span>
+ <span class="mi">66</span> <span class="p">[</span><span class="mi">65</span><span class="p">,</span> <span class="mi">54</span><span class="p">,</span> <span class="mi">217</span><span class="p">]</span>
+ <span class="mi">67</span> <span class="p">[</span><span class="mi">148</span><span class="p">,</span> <span class="mi">66</span><span class="p">,</span> <span class="mi">130</span><span class="p">]</span>
+ <span class="mi">68</span> <span class="p">[</span><span class="mi">203</span><span class="p">,</span> <span class="mi">102</span><span class="p">,</span> <span class="mi">204</span><span class="p">]</span>
+ <span class="mi">69</span> <span class="p">[</span><span class="mi">216</span><span class="p">,</span> <span class="mi">78</span><span class="p">,</span> <span class="mi">75</span><span class="p">]</span>
+ <span class="mi">70</span> <span class="p">[</span><span class="mi">234</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">250</span><span class="p">]</span>
+ <span class="mi">71</span> <span class="p">[</span><span class="mi">109</span><span class="p">,</span> <span class="mi">206</span><span class="p">,</span> <span class="mi">24</span><span class="p">]</span>
+ <span class="mi">72</span> <span class="p">[</span><span class="mi">164</span><span class="p">,</span> <span class="mi">194</span><span class="p">,</span> <span class="mi">17</span><span class="p">]</span>
+ <span class="mi">73</span> <span class="p">[</span><span class="mi">157</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">236</span><span class="p">]</span>
+ <span class="mi">74</span> <span class="p">[</span><span class="mi">158</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">88</span><span class="p">]</span>
+ <span class="mi">75</span> <span class="p">[</span><span class="mi">245</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">110</span><span class="p">]</span>
+ <span class="mi">76</span> <span class="p">[</span><span class="mi">67</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">35</span><span class="p">]</span>
+ <span class="mi">77</span> <span class="p">[</span><span class="mi">181</span><span class="p">,</span> <span class="mi">213</span><span class="p">,</span> <span class="mi">93</span><span class="p">]</span>
+ <span class="mi">78</span> <span class="p">[</span><span class="mi">170</span><span class="p">,</span> <span class="mi">179</span><span class="p">,</span> <span class="mi">42</span><span class="p">]</span>
+ <span class="mi">79</span> <span class="p">[</span><span class="mi">52</span><span class="p">,</span> <span class="mi">187</span><span class="p">,</span> <span class="mi">148</span><span class="p">]</span>
+ <span class="mi">80</span> <span class="p">[</span><span class="mi">247</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">111</span><span class="p">]</span>
+ <span class="mi">81</span> <span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">174</span><span class="p">]</span>
+ <span class="mi">82</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">240</span><span class="p">]</span>
+ <span class="mi">83</span> <span class="p">[</span><span class="mi">191</span><span class="p">,</span> <span class="mi">195</span><span class="p">,</span> <span class="mi">144</span><span class="p">]</span>
+ <span class="mi">84</span> <span class="p">[</span><span class="mi">252</span><span class="p">,</span> <span class="mi">36</span><span class="p">,</span> <span class="mi">67</span><span class="p">]</span>
+ <span class="mi">85</span> <span class="p">[</span><span class="mi">241</span><span class="p">,</span> <span class="mi">77</span><span class="p">,</span> <span class="mi">149</span><span class="p">]</span>
+ <span class="mi">86</span> <span class="p">[</span><span class="mi">237</span><span class="p">,</span> <span class="mi">33</span><span class="p">,</span> <span class="mi">141</span><span class="p">]</span>
+ <span class="mi">87</span> <span class="p">[</span><span class="mi">119</span><span class="p">,</span> <span class="mi">230</span><span class="p">,</span> <span class="mi">85</span><span class="p">]</span>
+ <span class="mi">88</span> <span class="p">[</span><span class="mi">28</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">108</span><span class="p">]</span>
+ <span class="mi">89</span> <span class="p">[</span><span class="mi">78</span><span class="p">,</span> <span class="mi">98</span><span class="p">,</span> <span class="mi">254</span><span class="p">]</span>
+ <span class="mi">90</span> <span class="p">[</span><span class="mi">114</span><span class="p">,</span> <span class="mi">161</span><span class="p">,</span> <span class="mi">30</span><span class="p">]</span>
+ <span class="mi">91</span> <span class="p">[</span><span class="mi">75</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">243</span><span class="p">]</span>
+ <span class="mi">92</span> <span class="p">[</span><span class="mi">66</span><span class="p">,</span> <span class="mi">226</span><span class="p">,</span> <span class="mi">253</span><span class="p">]</span>
+ <span class="mi">93</span> <span class="p">[</span><span class="mi">46</span><span class="p">,</span> <span class="mi">104</span><span class="p">,</span> <span class="mi">76</span><span class="p">]</span>
+ <span class="mi">94</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">234</span><span class="p">,</span> <span class="mi">216</span><span class="p">]</span>
+ <span class="mi">95</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">241</span><span class="p">,</span> <span class="mi">102</span><span class="p">]</span>
+ <span class="mi">96</span> <span class="p">[</span><span class="mi">93</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">71</span><span class="p">]</span>
+ <span class="mi">97</span> <span class="p">[</span><span class="mi">192</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">193</span><span class="p">]</span>
+ <span class="mi">98</span> <span class="p">[</span><span class="mi">253</span><span class="p">,</span> <span class="mi">41</span><span class="p">,</span> <span class="mi">164</span><span class="p">]</span>
+ <span class="mi">99</span> <span class="p">[</span><span class="mi">24</span><span class="p">,</span> <span class="mi">175</span><span class="p">,</span> <span class="mi">120</span><span class="p">]</span>
+<span class="mi">100</span> <span class="p">[</span><span class="mi">185</span><span class="p">,</span> <span class="mi">243</span><span class="p">,</span> <span class="mi">231</span><span class="p">]</span>
+<span class="mi">101</span> <span class="p">[</span><span class="mi">169</span><span class="p">,</span> <span class="mi">233</span><span class="p">,</span> <span class="mi">97</span><span class="p">]</span>
+<span class="mi">102</span> <span class="p">[</span><span class="mi">243</span><span class="p">,</span> <span class="mi">215</span><span class="p">,</span> <span class="mi">145</span><span class="p">]</span>
+<span class="mi">103</span> <span class="p">[</span><span class="mi">72</span><span class="p">,</span> <span class="mi">137</span><span class="p">,</span> <span class="mi">21</span><span class="p">]</span>
+<span class="mi">104</span> <span class="p">[</span><span class="mi">160</span><span class="p">,</span> <span class="mi">113</span><span class="p">,</span> <span class="mi">101</span><span class="p">]</span>
+<span class="mi">105</span> <span class="p">[</span><span class="mi">214</span><span class="p">,</span> <span class="mi">92</span><span class="p">,</span> <span class="mi">13</span><span class="p">]</span>
+<span class="mi">106</span> <span class="p">[</span><span class="mi">167</span><span class="p">,</span> <span class="mi">140</span><span class="p">,</span> <span class="mi">147</span><span class="p">]</span>
+<span class="mi">107</span> <span class="p">[</span><span class="mi">101</span><span class="p">,</span> <span class="mi">109</span><span class="p">,</span> <span class="mi">181</span><span class="p">]</span>
+<span class="mi">108</span> <span class="p">[</span><span class="mi">53</span><span class="p">,</span> <span class="mi">118</span><span class="p">,</span> <span class="mi">126</span><span class="p">]</span>
+<span class="mi">109</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">177</span><span class="p">,</span> <span class="mi">32</span><span class="p">]</span>
+<span class="mi">110</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">63</span><span class="p">,</span> <span class="mi">99</span><span class="p">]</span>
+<span class="mi">111</span> <span class="p">[</span><span class="mi">186</span><span class="p">,</span> <span class="mi">139</span><span class="p">,</span> <span class="mi">153</span><span class="p">]</span>
+<span class="mi">112</span> <span class="p">[</span><span class="mi">88</span><span class="p">,</span> <span class="mi">207</span><span class="p">,</span> <span class="mi">100</span><span class="p">]</span>
+<span class="mi">113</span> <span class="p">[</span><span class="mi">71</span><span class="p">,</span> <span class="mi">146</span><span class="p">,</span> <span class="mi">227</span><span class="p">]</span>
+<span class="mi">114</span> <span class="p">[</span><span class="mi">236</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">187</span><span class="p">]</span>
+<span class="mi">115</span> <span class="p">[</span><span class="mi">215</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">215</span><span class="p">]</span>
+<span class="mi">116</span> <span class="p">[</span><span class="mi">18</span><span class="p">,</span> <span class="mi">211</span><span class="p">,</span> <span class="mi">66</span><span class="p">]</span>
+<span class="mi">117</span> <span class="p">[</span><span class="mi">113</span><span class="p">,</span> <span class="mi">49</span><span class="p">,</span> <span class="mi">134</span><span class="p">]</span>
+<span class="mi">118</span> <span class="p">[</span><span class="mi">47</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="mi">63</span><span class="p">]</span>
+<span class="mi">119</span> <span class="p">[</span><span class="mi">219</span><span class="p">,</span> <span class="mi">103</span><span class="p">,</span> <span class="mi">127</span><span class="p">]</span>
+<span class="mi">120</span> <span class="p">[</span><span class="mi">57</span><span class="p">,</span> <span class="mi">240</span><span class="p">,</span> <span class="mi">137</span><span class="p">]</span>
+<span class="mi">121</span> <span class="p">[</span><span class="mi">227</span><span class="p">,</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">211</span><span class="p">]</span>
+<span class="mi">122</span> <span class="p">[</span><span class="mi">145</span><span class="p">,</span> <span class="mi">71</span><span class="p">,</span> <span class="mi">201</span><span class="p">]</span>
+<span class="mi">123</span> <span class="p">[</span><span class="mi">217</span><span class="p">,</span> <span class="mi">173</span><span class="p">,</span> <span class="mi">183</span><span class="p">]</span>
+<span class="mi">124</span> <span class="p">[</span><span class="mi">250</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">113</span><span class="p">]</span>
+<span class="mi">125</span> <span class="p">[</span><span class="mi">208</span><span class="p">,</span> <span class="mi">125</span><span class="p">,</span> <span class="mi">68</span><span class="p">]</span>
+<span class="mi">126</span> <span class="p">[</span><span class="mi">224</span><span class="p">,</span> <span class="mi">186</span><span class="p">,</span> <span class="mi">249</span><span class="p">]</span>
+<span class="mi">127</span> <span class="p">[</span><span class="mi">69</span><span class="p">,</span> <span class="mi">148</span><span class="p">,</span> <span class="mi">46</span><span class="p">]</span>
+<span class="mi">128</span> <span class="p">[</span><span class="mi">239</span><span class="p">,</span> <span class="mi">85</span><span class="p">,</span> <span class="mi">20</span><span class="p">]</span>
+<span class="mi">129</span> <span class="p">[</span><span class="mi">108</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">224</span><span class="p">]</span>
+<span class="mi">130</span> <span class="p">[</span><span class="mi">56</span><span class="p">,</span> <span class="mi">214</span><span class="p">,</span> <span class="mi">26</span><span class="p">]</span>
+<span class="mi">131</span> <span class="p">[</span><span class="mi">179</span><span class="p">,</span> <span class="mi">147</span><span class="p">,</span> <span class="mi">43</span><span class="p">]</span>
+<span class="mi">132</span> <span class="p">[</span><span class="mi">48</span><span class="p">,</span> <span class="mi">188</span><span class="p">,</span> <span class="mi">172</span><span class="p">]</span>
+<span class="mi">133</span> <span class="p">[</span><span class="mi">221</span><span class="p">,</span> <span class="mi">83</span><span class="p">,</span> <span class="mi">47</span><span class="p">]</span>
+<span class="mi">134</span> <span class="p">[</span><span class="mi">155</span><span class="p">,</span> <span class="mi">166</span><span class="p">,</span> <span class="mi">218</span><span class="p">]</span>
+<span class="mi">135</span> <span class="p">[</span><span class="mi">62</span><span class="p">,</span> <span class="mi">217</span><span class="p">,</span> <span class="mi">189</span><span class="p">]</span>
+<span class="mi">136</span> <span class="p">[</span><span class="mi">198</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">122</span><span class="p">]</span>
+<span class="mi">137</span> <span class="p">[</span><span class="mi">201</span><span class="p">,</span> <span class="mi">144</span><span class="p">,</span> <span class="mi">169</span><span class="p">]</span>
+<span class="mi">138</span> <span class="p">[</span><span class="mi">132</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">14</span><span class="p">]</span>
+<span class="mi">139</span> <span class="p">[</span><span class="mi">128</span><span class="p">,</span> <span class="mi">189</span><span class="p">,</span> <span class="mi">114</span><span class="p">]</span>
+<span class="mi">140</span> <span class="p">[</span><span class="mi">163</span><span class="p">,</span> <span class="mi">227</span><span class="p">,</span> <span class="mi">112</span><span class="p">]</span>
+<span class="mi">141</span> <span class="p">[</span><span class="mi">45</span><span class="p">,</span> <span class="mi">157</span><span class="p">,</span> <span class="mi">177</span><span class="p">]</span>
+<span class="mi">142</span> <span class="p">[</span><span class="mi">64</span><span class="p">,</span> <span class="mi">86</span><span class="p">,</span> <span class="mi">142</span><span class="p">]</span>
+<span class="mi">143</span> <span class="p">[</span><span class="mi">118</span><span class="p">,</span> <span class="mi">193</span><span class="p">,</span> <span class="mi">163</span><span class="p">]</span>
+<span class="mi">144</span> <span class="p">[</span><span class="mi">14</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">79</span><span class="p">]</span>
+<span class="mi">145</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">170</span><span class="p">]</span>
+<span class="mi">146</span> <span class="p">[</span><span class="mi">74</span><span class="p">,</span> <span class="mi">81</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="mi">147</span> <span class="p">[</span><span class="mi">59</span><span class="p">,</span> <span class="mi">37</span><span class="p">,</span> <span class="mi">212</span><span class="p">]</span>
+<span class="mi">148</span> <span class="p">[</span><span class="mi">73</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">225</span><span class="p">]</span>
+<span class="mi">149</span> <span class="p">[</span><span class="mi">95</span><span class="p">,</span> <span class="mi">224</span><span class="p">,</span> <span class="mi">39</span><span class="p">]</span>
+<span class="mi">150</span> <span class="p">[</span><span class="mi">84</span><span class="p">,</span> <span class="mi">170</span><span class="p">,</span> <span class="mi">220</span><span class="p">]</span>
+<span class="mi">151</span> <span class="p">[</span><span class="mi">159</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">173</span><span class="p">]</span>
+<span class="mi">152</span> <span class="p">[</span><span class="mi">17</span><span class="p">,</span> <span class="mi">91</span><span class="p">,</span> <span class="mi">237</span><span class="p">]</span>
+<span class="mi">153</span> <span class="p">[</span><span class="mi">31</span><span class="p">,</span> <span class="mi">95</span><span class="p">,</span> <span class="mi">84</span><span class="p">]</span>
+<span class="mi">154</span> <span class="p">[</span><span class="mi">34</span><span class="p">,</span> <span class="mi">201</span><span class="p">,</span> <span class="mi">248</span><span class="p">]</span>
+<span class="mi">155</span> <span class="p">[</span><span class="mi">63</span><span class="p">,</span> <span class="mi">73</span><span class="p">,</span> <span class="mi">209</span><span class="p">]</span>
+<span class="mi">156</span> <span class="p">[</span><span class="mi">129</span><span class="p">,</span> <span class="mi">235</span><span class="p">,</span> <span class="mi">107</span><span class="p">]</span>
+<span class="mi">157</span> <span class="p">[</span><span class="mi">231</span><span class="p">,</span> <span class="mi">115</span><span class="p">,</span> <span class="mi">40</span><span class="p">]</span>
+<span class="mi">158</span> <span class="p">[</span><span class="mi">36</span><span class="p">,</span> <span class="mi">74</span><span class="p">,</span> <span class="mi">95</span><span class="p">]</span>
+<span class="mi">159</span> <span class="p">[</span><span class="mi">238</span><span class="p">,</span> <span class="mi">228</span><span class="p">,</span> <span class="mi">154</span><span class="p">]</span>
+<span class="mi">160</span> <span class="p">[</span><span class="mi">61</span><span class="p">,</span> <span class="mi">212</span><span class="p">,</span> <span class="mi">54</span><span class="p">]</span>
+<span class="mi">161</span> <span class="p">[</span><span class="mi">13</span><span class="p">,</span> <span class="mi">94</span><span class="p">,</span> <span class="mi">165</span><span class="p">]</span>
+<span class="mi">162</span> <span class="p">[</span><span class="mi">141</span><span class="p">,</span> <span class="mi">174</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="mi">163</span> <span class="p">[</span><span class="mi">140</span><span class="p">,</span> <span class="mi">167</span><span class="p">,</span> <span class="mi">255</span><span class="p">]</span>
+<span class="mi">164</span> <span class="p">[</span><span class="mi">117</span><span class="p">,</span> <span class="mi">93</span><span class="p">,</span> <span class="mi">91</span><span class="p">]</span>
+<span class="mi">165</span> <span class="p">[</span><span class="mi">183</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">186</span><span class="p">]</span>
+<span class="mi">166</span> <span class="p">[</span><span class="mi">165</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">61</span><span class="p">]</span>
+<span class="mi">167</span> <span class="p">[</span><span class="mi">144</span><span class="p">,</span> <span class="mi">238</span><span class="p">,</span> <span class="mi">194</span><span class="p">]</span>
+<span class="mi">168</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">158</span><span class="p">,</span> <span class="mi">41</span><span class="p">]</span>
+<span class="mi">169</span> <span class="p">[</span><span class="mi">76</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">234</span><span class="p">]</span>
+<span class="mi">170</span> <span class="p">[</span><span class="mi">150</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">121</span><span class="p">]</span>
+<span class="mi">171</span> <span class="p">[</span><span class="mi">142</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">246</span><span class="p">]</span>
+<span class="mi">172</span> <span class="p">[</span><span class="mi">230</span><span class="p">,</span> <span class="mi">136</span><span class="p">,</span> <span class="mi">198</span><span class="p">]</span>
+<span class="mi">173</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">233</span><span class="p">]</span>
+<span class="mi">174</span> <span class="p">[</span><span class="mi">232</span><span class="p">,</span> <span class="mi">250</span><span class="p">,</span> <span class="mi">80</span><span class="p">]</span>
+<span class="mi">175</span> <span class="p">[</span><span class="mi">143</span><span class="p">,</span> <span class="mi">112</span><span class="p">,</span> <span class="mi">56</span><span class="p">]</span>
+<span class="mi">176</span> <span class="p">[</span><span class="mi">187</span><span class="p">,</span> <span class="mi">70</span><span class="p">,</span> <span class="mi">156</span><span class="p">]</span>
+<span class="mi">177</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">185</span><span class="p">,</span> <span class="mi">62</span><span class="p">]</span>
+<span class="mi">178</span> <span class="p">[</span><span class="mi">138</span><span class="p">,</span> <span class="mi">223</span><span class="p">,</span> <span class="mi">226</span><span class="p">]</span>
+<span class="mi">179</span> <span class="p">[</span><span class="mi">122</span><span class="p">,</span> <span class="mi">183</span><span class="p">,</span> <span class="mi">222</span><span class="p">]</span>
+<span class="mi">180</span> <span class="p">[</span><span class="mi">166</span><span class="p">,</span> <span class="mi">245</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="mi">181</span> <span class="p">[</span><span class="mi">175</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">140</span><span class="p">]</span>
+<span class="mi">182</span> <span class="p">[</span><span class="mi">240</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">210</span><span class="p">]</span>
+<span class="mi">183</span> <span class="p">[</span><span class="mi">248</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span>
+<span class="mi">184</span> <span class="p">[</span><span class="mi">83</span><span class="p">,</span> <span class="mi">82</span><span class="p">,</span> <span class="mi">52</span><span class="p">]</span>
+<span class="mi">185</span> <span class="p">[</span><span class="mi">223</span><span class="p">,</span> <span class="mi">248</span><span class="p">,</span> <span class="mi">167</span><span class="p">]</span>
+<span class="mi">186</span> <span class="p">[</span><span class="mi">87</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">150</span><span class="p">]</span>
+<span class="mi">187</span> <span class="p">[</span><span class="mi">111</span><span class="p">,</span> <span class="mi">178</span><span class="p">,</span> <span class="mi">117</span><span class="p">]</span>
+<span class="mi">188</span> <span class="p">[</span><span class="mi">197</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">22</span><span class="p">]</span>
+<span class="mi">189</span> <span class="p">[</span><span class="mi">235</span><span class="p">,</span> <span class="mi">208</span><span class="p">,</span> <span class="mi">124</span><span class="p">]</span>
+<span class="mi">190</span> <span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="mi">76</span><span class="p">,</span> <span class="mi">45</span><span class="p">]</span>
+<span class="mi">191</span> <span class="p">[</span><span class="mi">176</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">50</span><span class="p">]</span>
+<span class="mi">192</span> <span class="p">[</span><span class="mi">154</span><span class="p">,</span> <span class="mi">159</span><span class="p">,</span> <span class="mi">251</span><span class="p">]</span>
+<span class="mi">193</span> <span class="p">[</span><span class="mi">149</span><span class="p">,</span> <span class="mi">111</span><span class="p">,</span> <span class="mi">207</span><span class="p">]</span>
+<span class="mi">194</span> <span class="p">[</span><span class="mi">168</span><span class="p">,</span> <span class="mi">231</span><span class="p">,</span> <span class="mi">15</span><span class="p">]</span>
+<span class="mi">195</span> <span class="p">[</span><span class="mi">209</span><span class="p">,</span> <span class="mi">247</span><span class="p">,</span> <span class="mi">202</span><span class="p">]</span>
+<span class="mi">196</span> <span class="p">[</span><span class="mi">80</span><span class="p">,</span> <span class="mi">205</span><span class="p">,</span> <span class="mi">152</span><span class="p">]</span>
+<span class="mi">197</span> <span class="p">[</span><span class="mi">178</span><span class="p">,</span> <span class="mi">221</span><span class="p">,</span> <span class="mi">213</span><span class="p">]</span>
+<span class="mi">198</span> <span class="p">[</span><span class="mi">27</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">38</span><span class="p">]</span>
+<span class="mi">199</span> <span class="p">[</span><span class="mi">244</span><span class="p">,</span> <span class="mi">117</span><span class="p">,</span> <span class="mi">51</span><span class="p">]</span>
+<span class="mi">200</span> <span class="p">[</span><span class="mi">107</span><span class="p">,</span> <span class="mi">68</span><span class="p">,</span> <span class="mi">190</span><span class="p">]</span>
+<span class="mi">201</span> <span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="mi">199</span><span class="p">,</span> <span class="mi">139</span><span class="p">]</span>
+<span class="mi">202</span> <span class="p">[</span><span class="mi">171</span><span class="p">,</span> <span class="mi">88</span><span class="p">,</span> <span class="mi">168</span><span class="p">]</span>
+<span class="mi">203</span> <span class="p">[</span><span class="mi">136</span><span class="p">,</span> <span class="mi">202</span><span class="p">,</span> <span class="mi">58</span><span class="p">]</span>
+<span class="mi">204</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">86</span><span class="p">]</span>
+<span class="mi">205</span> <span class="p">[</span><span class="mi">105</span><span class="p">,</span> <span class="mi">127</span><span class="p">,</span> <span class="mi">176</span><span class="p">]</span>
+<span class="mi">206</span> <span class="p">[</span><span class="mi">174</span><span class="p">,</span> <span class="mi">249</span><span class="p">,</span> <span class="mi">197</span><span class="p">]</span>
+<span class="mi">207</span> <span class="p">[</span><span class="mi">172</span><span class="p">,</span> <span class="mi">172</span><span class="p">,</span> <span class="mi">138</span><span class="p">]</span>
+<span class="mi">208</span> <span class="p">[</span><span class="mi">228</span><span class="p">,</span> <span class="mi">142</span><span class="p">,</span> <span class="mi">81</span><span class="p">]</span>
+<span class="mi">209</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">204</span><span class="p">,</span> <span class="mi">185</span><span class="p">]</span>
+<span class="mi">210</span> <span class="p">[</span><span class="mi">22</span><span class="p">,</span> <span class="mi">61</span><span class="p">,</span> <span class="mi">247</span><span class="p">]</span>
+<span class="mi">211</span> <span class="p">[</span><span class="mi">233</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">78</span><span class="p">]</span>
+<span class="mi">212</span> <span class="p">[</span><span class="mi">127</span><span class="p">,</span> <span class="mi">65</span><span class="p">,</span> <span class="mi">105</span><span class="p">]</span>
+<span class="mi">213</span> <span class="p">[</span><span class="mi">33</span><span class="p">,</span> <span class="mi">87</span><span class="p">,</span> <span class="mi">158</span><span class="p">]</span>
+<span class="mi">214</span> <span class="p">[</span><span class="mi">139</span><span class="p">,</span> <span class="mi">156</span><span class="p">,</span> <span class="mi">252</span><span class="p">]</span>
+<span class="mi">215</span> <span class="p">[</span><span class="mi">42</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">136</span><span class="p">]</span>
+<span class="mi">216</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">179</span><span class="p">]</span>
+<span class="mi">217</span> <span class="p">[</span><span class="mi">79</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">223</span><span class="p">]</span>
+<span class="mi">218</span> <span class="p">[</span><span class="mi">131</span><span class="p">,</span> <span class="mi">182</span><span class="p">,</span> <span class="mi">184</span><span class="p">]</span>
+<span class="mi">219</span> <span class="p">[</span><span class="mi">110</span><span class="p">,</span> <span class="mi">123</span><span class="p">,</span> <span class="mi">37</span><span class="p">]</span>
+<span class="mi">220</span> <span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">138</span><span class="p">,</span> <span class="mi">96</span><span class="p">]</span>
+<span class="mi">221</span> <span class="p">[</span><span class="mi">210</span><span class="p">,</span> <span class="mi">96</span><span class="p">,</span> <span class="mi">94</span><span class="p">]</span>
+<span class="mi">222</span> <span class="p">[</span><span class="mi">123</span><span class="p">,</span> <span class="mi">48</span><span class="p">,</span> <span class="mi">18</span><span class="p">]</span>
+<span class="mi">223</span> <span class="p">[</span><span class="mi">137</span><span class="p">,</span> <span class="mi">197</span><span class="p">,</span> <span class="mi">162</span><span class="p">]</span>
+<span class="mi">224</span> <span class="p">[</span><span class="mi">188</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+<span class="mi">225</span> <span class="p">[</span><span class="mi">39</span><span class="p">,</span> <span class="mi">219</span><span class="p">,</span> <span class="mi">151</span><span class="p">]</span>
+<span class="mi">226</span> <span class="p">[</span><span class="mi">204</span><span class="p">,</span> <span class="mi">143</span><span class="p">,</span> <span class="mi">135</span><span class="p">]</span>
+<span class="mi">227</span> <span class="p">[</span><span class="mi">249</span><span class="p">,</span> <span class="mi">79</span><span class="p">,</span> <span class="mi">73</span><span class="p">]</span>
+<span class="mi">228</span> <span class="p">[</span><span class="mi">77</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">178</span><span class="p">]</span>
+<span class="mi">229</span> <span class="p">[</span><span class="mi">41</span><span class="p">,</span> <span class="mi">246</span><span class="p">,</span> <span class="mi">77</span><span class="p">]</span>
+<span class="mi">230</span> <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">154</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+<span class="mi">231</span> <span class="p">[</span><span class="mi">116</span><span class="p">,</span> <span class="mi">134</span><span class="p">,</span> <span class="mi">19</span><span class="p">]</span>
+<span class="mi">232</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">122</span><span class="p">,</span> <span class="mi">235</span><span class="p">]</span>
+<span class="mi">233</span> <span class="p">[</span><span class="mi">177</span><span class="p">,</span> <span class="mi">106</span><span class="p">,</span> <span class="mi">230</span><span class="p">]</span>
+<span class="mi">234</span> <span class="p">[</span><span class="mi">21</span><span class="p">,</span> <span class="mi">119</span><span class="p">,</span> <span class="mi">12</span><span class="p">]</span>
+<span class="mi">235</span> <span class="p">[</span><span class="mi">104</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">98</span><span class="p">]</span>
+<span class="mi">236</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">130</span><span class="p">,</span> <span class="mi">53</span><span class="p">]</span>
+<span class="mi">237</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">192</span><span class="p">,</span> <span class="mi">25</span><span class="p">]</span>
+<span class="mi">238</span> <span class="p">[</span><span class="mi">26</span><span class="p">,</span> <span class="mi">165</span><span class="p">,</span> <span class="mi">166</span><span class="p">]</span>
+<span class="mi">239</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">160</span><span class="p">,</span> <span class="mi">82</span><span class="p">]</span>
+<span class="mi">240</span> <span class="p">[</span><span class="mi">106</span><span class="p">,</span> <span class="mi">43</span><span class="p">,</span> <span class="mi">131</span><span class="p">]</span>
+<span class="mi">241</span> <span class="p">[</span><span class="mi">44</span><span class="p">,</span> <span class="mi">216</span><span class="p">,</span> <span class="mi">103</span><span class="p">]</span>
+<span class="mi">242</span> <span class="p">[</span><span class="mi">255</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">221</span><span class="p">]</span>
+<span class="mi">243</span> <span class="p">[</span><span class="mi">32</span><span class="p">,</span> <span class="mi">151</span><span class="p">,</span> <span class="mi">196</span><span class="p">]</span>
+<span class="mi">244</span> <span class="p">[</span><span class="mi">213</span><span class="p">,</span> <span class="mi">220</span><span class="p">,</span> <span class="mi">89</span><span class="p">]</span>
+<span class="mi">245</span> <span class="p">[</span><span class="mi">70</span><span class="p">,</span> <span class="mi">209</span><span class="p">,</span> <span class="mi">228</span><span class="p">]</span>
+<span class="mi">246</span> <span class="p">[</span><span class="mi">97</span><span class="p">,</span> <span class="mi">184</span><span class="p">,</span> <span class="mi">83</span><span class="p">]</span>
+<span class="mi">247</span> <span class="p">[</span><span class="mi">82</span><span class="p">,</span> <span class="mi">239</span><span class="p">,</span> <span class="mi">232</span><span class="p">]</span>
+<span class="mi">248</span> <span class="p">[</span><span class="mi">251</span><span class="p">,</span> <span class="mi">164</span><span class="p">,</span> <span class="mi">128</span><span class="p">]</span>
+<span class="mi">249</span> <span class="p">[</span><span class="mi">193</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">245</span><span class="p">]</span>
+<span class="mi">250</span> <span class="p">[</span><span class="mi">38</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">159</span><span class="p">]</span>
+<span class="mi">251</span> <span class="p">[</span><span class="mi">229</span><span class="p">,</span> <span class="mi">141</span><span class="p">,</span> <span class="mi">203</span><span class="p">]</span>
+<span class="mi">252</span> <span class="p">[</span><span class="mi">130</span><span class="p">,</span> <span class="mi">56</span><span class="p">,</span> <span class="mi">55</span><span class="p">]</span>
+<span class="mi">253</span> <span class="p">[</span><span class="mi">147</span><span class="p">,</span> <span class="mi">210</span><span class="p">,</span> <span class="mi">11</span><span class="p">]</span>
+<span class="mi">254</span> <span class="p">[</span><span class="mi">162</span><span class="p">,</span> <span class="mi">203</span><span class="p">,</span> <span class="mi">118</span><span class="p">]</span>
+<span class="mi">255</span> <span class="p">[</span><span class="mi">43</span><span class="p">,</span> <span class="mi">47</span><span class="p">,</span> <span class="mi">206</span><span class="p">]</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI Consulting Corp.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="camera_streaming.html" class="btn btn-neutral float-left" title="Camera Streaming" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="lidar.html" class="btn btn-neutral float-right" title="Lidar sensor" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

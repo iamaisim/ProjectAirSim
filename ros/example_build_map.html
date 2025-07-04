@@ -1,0 +1,216 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project AirSim ROS Bridge Examples: build_map &mdash; Project Airsim 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics and Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/fast_physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/matlab_physics.html">Matlab Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Settings</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/api_docs/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Project AirSim ROS Bridge Examples: build_map</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/ros/example_build_map.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="project-airsim-ros-bridge-examples-build-map">
+<h1>Project AirSim ROS Bridge Examples: build_map<a class="headerlink" href="#project-airsim-ros-bridge-examples-build-map" title="Link to this heading">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">build_map</span></code> demonstrates using the Project AirSim with the ROS MoveIt! motion package and the RViz visualizer to create a 3D occupancy map.  This map indicates the parts of the world that are already occupied so no part of the robot may also occupy those areas.  MoveIt’s 3D occupancy map uses the ROS OctoMap library which stores voxels in a 3D manner using a eight-way tree structure (an “octree”.)</p>
+<p>In this example, the Project AirSim robot is configured with a LIDAR sensor and the 3D point cloud from the sensor is fed to MoveIt!’s Depth Image Octomap Updater plug-in to update the OctoMap in real time.</p>
+<p>The robot is moved automatically using a “mission script”.  At the end of the movements, the occupancy map is retrieved from MoveIt! and saved to a file.</p>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">build_map</span></code> example requires the following:</p>
+<ul class="simple">
+<li><p>A version of Python supported by the <a class="reference internal" href="../client_setup.html#python-client"><span class="std std-ref">Project AirSim Client API</span></a>.</p></li>
+<li><p>The following Python packages in addition to those required by the Project AirSim ROS Bridge: <a class="reference external" href="http://wiki.ros.org/moveit">moveit</a> and<a class="reference external" href="http://wiki.ros.org/moveit_msgs">moveit_msgs</a>.</p></li>
+</ul>
+</section>
+<section id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading">¶</a></h2>
+<p>See the <a class="reference internal" href="ros_examples.html#setup"><span class="std std-ref">setup for the Project AirSim ROS Bridge Examples</span></a>.</p>
+</section>
+<section id="building">
+<h2>Building<a class="headerlink" href="#building" title="Link to this heading">¶</a></h2>
+<p>See the <a class="reference internal" href="ros_examples.html#building"><span class="std std-ref">building the Project AirSim ROS Bridge Examples</span></a>.</p>
+</section>
+<section id="running">
+<h2>Running<a class="headerlink" href="#running" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Activate the <a class="reference internal" href="../client_setup.html"><span class="std std-doc">Python virtual environment for Project AirSim</span></a>.</p></li>
+<li><p>Run Project AirSim.</p></li>
+<li><p>Run the example with:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w">    </span>roslaunch<span class="w"> </span>projectairsim_ros_examples<span class="w"> </span>build_map.launch
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>RViz will run to show the robot and the OctoMap as it is created.  The robot will automatically launch, fly a path, return, and land.  The example will then save the OctoMap to a file exit.</p></li>
+</ol>
+</section>
+<section id="ros-parameters">
+<h2>ROS parameters<a class="headerlink" href="#ros-parameters" title="Link to this heading">¶</a></h2>
+<p>The main launch file, <code class="docutils literal notranslate"><span class="pre">build_map.launch</span></code>, accepts several ROS arguments to help run the example in your environment.  To pass an argument from the command-line, use the syntax “<i>argument</i><code>:=</code><i>value</i>” in the <code class="docutils literal notranslate"><span class="pre">roslaunch</span></code> command.  For instance, to specify the IP address where AirSim is running:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w">    </span>roslaunch<span class="w"> </span>projectairsim_ros_examples<span class="w"> </span>build_map.launch<span class="w"> </span>airsim_ip_address:<span class="o">=</span><span class="m">192</span>.168.0.1
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Argument</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code>airsim_ip_address</code></p></td>
+<td><p>string</p></td>
+<td><p>127.0.0.1</p></td>
+<td><p>The IP address of the host running Project AirSim (e.g., <code>airsim_ip_address:=127.0.0.1</code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code>sim_config_path</code></p></td>
+<td><p>string</p></td>
+<td><p>(<code class="docutils literal notranslate"><span class="pre">projectairsim_ros_examples</span></code> package dir)../../../client/python/example_user_scripts/sim_config</p></td>
+<td><p>The path to the directory containing the Project AirSim config files.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="technical-description">
+<h2>Technical description<a class="headerlink" href="#technical-description" title="Link to this heading">¶</a></h2>
+<p>This example uses MoveIt!’s Depth Image Octomap Updater plug-in to build the 3D occupancy map.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">build_map.py</span></code> script creates the Project AirSim ROS Bridge node and loads the scene config file “scene_drone_sensors.jsonc” which configures the robot with multiple sensors including LIDAR.  The script also runs a “mission script” to fly the robot around and exits when the drone returns to its launch point.</p>
+<p>The configuration file <code class="docutils literal notranslate"><span class="pre">config/sensors_lidar.yaml</span></code> adds the PointCloud Octomap Updater plug-in to the MoveIt! group and points the plug-in to the robot’s LIDAR sensor data topic published by the Project AirSim ROS Bridge.  This topic publishes PointCloud2 messages supported by the Octomap Updater plug-in.  As the robot flies around, the Updater plug-in processes the LIDAR data and marks voxels in the occupancy map as occupied wherever a LIDAR point is within 100 meters of the vehicle.</p>
+<p>For performance reasons the occupany map is configured with a resolution of 1.0 meter per voxel in <code class="docutils literal notranslate"><span class="pre">sensor_manager.launch.xml</span></code>.</p>
+<p>In the meanwhile, RViz is running with the MoveIt! MotionPlanning plugin to display the drone and the occupancy map as it is updated.</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">build_map.py</span></code> is done flying the vehicle, it uses the OctoHandler class in <code class="docutils literal notranslate"><span class="pre">common/octomap_handler.py</span></code> to retrieve the occupancy map from MoveIt! and save it to a file.  It does this by subscribing to the <code class="docutils literal notranslate"><span class="pre">/move_group/monitored_planning_scene</span></code> topic for one update.  When the update message is received, it serializes the octomap in the message using the Python pickle module and saves it to a file.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">build_map.py</span></code> node is marked “required” in the primary ROS launch file <code class="docutils literal notranslate"><span class="pre">build_map.launch</span></code>.  When <code class="docutils literal notranslate"><span class="pre">build_map.py</span></code> completes the mission script and exits, <code class="docutils literal notranslate"><span class="pre">roslaunch</span></code> automatically shuts down the rest of the nodes.</p>
+</section>
+<section id="rd-party-attributions">
+<h2>3rd party attributions<a class="headerlink" href="#rd-party-attributions" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">example_externals/moveit_simple_controller_manager</span></code> and <code class="docutils literal notranslate"><span class="pre">example_externals/action_controller</span></code> are derived from work by Benoit Courty, Alessio Tonioni, and Wel Selby.  The original work may be found at https://github.com/benoit-cty/ROS-Autonomous-Quadcopter-Flight, and https://github.com/wilselby/ROS_quadrotor_simulator.</p>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI Consulting Corp.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

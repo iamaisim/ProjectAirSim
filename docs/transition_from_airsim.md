@@ -1,8 +1,8 @@
 # Transitioning from AirSim
 
-## Converting an AirSim Unreal environment to AirSim vNext
+## Converting an AirSim Unreal environment to Project AirSim
 
-To convert an existing AirSim Unreal environment to AirSim vNext, you can perform the following steps:
+To convert an existing AirSim Unreal environment to Project AirSim, you can perform the following steps:
 
 1. Delete the AirSim plugin folder in `<environment>/Plugins/AirSim`
 
@@ -21,7 +21,7 @@ To convert an existing AirSim Unreal environment to AirSim vNext, you can perfor
         "Enabled": true
         },
 
-3. Add AirSim vNext to the environment following **[How to add the AirSim vNext Plugin to a custom Unreal environment](use_plugin.md#how-to-add-the-airsim-v-next-plugin-to-a-custom-unreal-environment)**, including the part about setting the `GameMode` to `AirSimVNextGameMode` since `AirSimGameMode` is no longer valid.
+3. Add Project AirSim to the environment following **[How to add the Project AirSim Plugin to a custom Unreal environment](use_plugin.md#how-to-add-the-airsim-v-next-plugin-to-a-custom-unreal-environment)**, including the part about setting the `GameMode` to `AirSimVNextGameMode` since `AirSimGameMode` is no longer valid.
 
 4. On first opening of the `<environment>.uproject` file with Unreal Engine 4.25, there may be some warnings about failing to load some AirSim content such as:
 
@@ -55,7 +55,7 @@ General guidelines to update your environment to SunSky:
 6. Make sure the ID Name of the SunSky actor  is "SunSky_2" (you can see this by hovering the mouse over the actor label in the World Outliner actor liss). The "SunSky_2" is the default unless there are other SunSky actors in your scene.
 7. You can also add "Volumetric Clouds" actor to the scene to make the sky dome more realistic.
 
-## Converting an AirSim OSS configuration to AirSim vNext
+## Converting an AirSim OSS configuration to Project AirSim
 
 Refer to the [documentation on configuration](config.md) for information about Project AirSim's configuration files and what settings are available.
 
@@ -310,7 +310,7 @@ Set `"physics-type"` in the robot configuration.
 
 Not part of configuration. Use the `address`, `port_topics`, and `port_services` parameters when initializing the `AirSimVNextClient`.
 
-## Converting an AirSim OSS client code to AirSim vNext
+## Converting an AirSim OSS client code to Project AirSim
 
 ### General considerations
 

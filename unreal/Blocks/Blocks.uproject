@@ -35,13 +35,6 @@
 		{
 			"Name": "SunPosition",
 			"Enabled": true
-<<<<<<< HEAD
-=======
-		},
-		{
-			"Name": "Niagara",
-			"Enabled": true
->>>>>>> 4fb8ebd (squash all jsbsim_integration branch)
 		}
 	],
 	"TargetPlatforms": [

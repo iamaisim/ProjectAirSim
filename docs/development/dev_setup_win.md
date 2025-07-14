@@ -7,11 +7,11 @@ On Windows, Project AirSim can be developed with either Visual Studio 2019 or VS
 
 1.  A) To develop with **VS Code**:
 
-    First, install the **[VS 2019 C++ build tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)** with:
+    First, install the **[VS 2022 C++ build tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)** with:
 
-    - `C++ build tools` workload
+    - `Desktop development with C++` workload
     - `.NET Framework 4.8 SDK` individual component
-    - `.NET Core SDK` individual component
+    - (no)`.NET Core SDK` individual component
 
     Second, install **[VS Code](https://code.visualstudio.com/)** with the following extensions:
 
@@ -36,12 +36,12 @@ On Windows, Project AirSim can be developed with either Visual Studio 2019 or VS
     - `.NET Framework 4.8 SDK` individual component
     - `.NET Core SDK` individual component
 
-2. Install the **[Epic Games Launcher](https://www.unrealengine.com/en-US/)** and install Unreal Engine 4.25 binary (requires Epic account log-in). While selecting the engine version to install, there is also an `Options` section where you can enable downloading `Editor symbols for debugging` (~30 GB) if desired. **Note**: Installing the engine can take a long time **(~1 hour)**.
+2. Install the **[Epic Games Launcher](https://www.unrealengine.com/en-US/)** and install Unreal Engine 5.2 binary (requires Epic account log-in). While selecting the engine version to install, there is also an `Options` section where you can enable downloading `Editor symbols for debugging` (~30 GB) if desired. **Note**: Installing the engine can take a long time **(~1 hour)**.
 
 3. Set a Windows environment variable for `UE_ROOT` to the installed folder, either through the Control Panel section `Edit environment variables for your account`, or by using the command line:
 
     ```
-    setx UE_ROOT "C:\Program Files\Epic Games\UE_4.25"
+    setx UE_ROOT "C:\Program Files\Epic Games\UE_5.2"
 
     <restart the command prompt to refresh environment variables>
     ```
@@ -52,7 +52,7 @@ On Windows, Project AirSim can be developed with either Visual Studio 2019 or VS
 
 6. Clone the Project AirSim repo (HTTPS authentication is recommended for using Git Credential Manager):
 
-    `git clone https://bizair.visualstudio.com/Project%20AirSim/_git/projectairsim`
+    `git clone https://github.com/iamaisim/ProjectAirSim.git`
 
 7. Do the **[Project AirSim Client Setup](../client_setup.md#setting-up-the-client-on-windows)**.
 

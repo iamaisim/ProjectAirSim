@@ -52,7 +52,7 @@ On Windows, Project AirSim can be developed with either Visual Studio 2019 or VS
 
 6. Clone the Project AirSim repo (HTTPS authentication is recommended for using Git Credential Manager):
 
-    `git clone https://github.com/microsoft/ProjectAirSim.git`
+    `git clone https://github.com/iamaisim/ProjectAirSim.git`
 
 7. Do the **[Project AirSim Client Setup](../client_setup.md#setting-up-the-client-on-windows)**.
 

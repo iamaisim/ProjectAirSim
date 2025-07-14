@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -118,7 +118,8 @@ class IMultirotorApi {
                           float adaptive_lookahead,
                           int64_t command_start_time_nanos) = 0;
 
-  virtual bool RotateToYaw(float yaw, float timeout_sec, float margin, float yaw_rate,
+  virtual bool RotateToYaw(float yaw, float timeout_sec, float margin,
+                           float yaw_rate,
                            int64_t command_start_time_nanos) = 0;
 
   virtual bool RotateByYawRate(float yaw_rate, float duration,

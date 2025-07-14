@@ -181,7 +181,7 @@ class FWXTorqueController : public IAxisController, public IGoal {
     // Get output
     if (fabs(state_estimator_->GetAngles().Pitch()) <
         params_->vtol.pitch_min_fixed_wing)
-      //If the vehicle is pitched vertically too much, don't attempt to yaw
+      // If the vehicle is pitched vertically too much, don't attempt to yaw
       output_ = 0.0f;
     else if (axis_controllers_[IAxisController::kZYaw] != nullptr) {
       output_ = axis_controllers_[IAxisController::kZYaw]->GetOutput();

@@ -4,7 +4,6 @@
 #define ROVER_API_INCLUDE_ILOGGER_HPP_
 
 #include <core_sim/log_level.hpp>
-
 #include <string>
 
 namespace microsoft {

@@ -30,7 +30,8 @@ void ManualControllerApi::SetKinematics(const Kinematics* kinematics) {}
 
 void ManualControllerApi::Update() {}
 
-std::vector<float> ManualControllerApi::GetControlSignals(const std::string& actuator_id) {
+std::vector<float> ManualControllerApi::GetControlSignals(
+    const std::string& actuator_id) {
   std::lock_guard<std::mutex> lock(update_lock_);
 
   auto actuator_map_itr = actuator_id_to_output_idx_map_.find(actuator_id);
@@ -39,7 +40,7 @@ std::vector<float> ManualControllerApi::GetControlSignals(const std::string& act
                            "ManualControllerApi::GetControlSignal() called for "
                            "invalid actuator: %s",
                            actuator_id.c_str());
-    return std::vector<float>(1,0.0f);
+    return std::vector<float>(1, 0.0f);
   }
 
   float output = motor_output_.at(actuator_map_itr->second);

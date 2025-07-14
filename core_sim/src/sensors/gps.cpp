@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -292,10 +292,10 @@ void Gps::Loader::Load(const json& json) {
 void Gps::Loader::LoadGpsSettings(const json& json) {
   impl_.gps_settings_.eph_time_constant =
       JsonUtils::GetNumber<float>(json, Constant::Config::eph_time_constant,
-                           impl_.gps_settings_.eph_time_constant);
+                                  impl_.gps_settings_.eph_time_constant);
   impl_.gps_settings_.epv_time_constant =
       JsonUtils::GetNumber<float>(json, Constant::Config::epv_time_constant,
-                           impl_.gps_settings_.epv_time_constant);
+                                  impl_.gps_settings_.epv_time_constant);
 
   impl_.gps_settings_.eph_initial = JsonUtils::GetNumber<float>(
       json, Constant::Config::eph_initial, impl_.gps_settings_.eph_initial);

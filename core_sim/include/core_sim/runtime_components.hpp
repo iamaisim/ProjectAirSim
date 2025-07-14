@@ -32,12 +32,14 @@ class IController : public IRuntimeComponent {
     float yaw = NAN;
 
     // Angular velocity in rad/s
-    // NAN is default because it's supposed to be ignored until then (different from it being zero).
+    // NAN is default because it's supposed to be ignored until then (different
+    // from it being zero).
     float roll_vel = NAN;
     float pitch_vel = NAN;
     float yaw_vel = NAN;
 
-    // gimbal lock (currently not changeable at runtime since we depend on unreal)
+    // gimbal lock (currently not changeable at runtime since we depend on
+    // unreal)
     bool roll_lock;
     bool pitch_lock;
     bool yaw_lock;
@@ -49,10 +51,10 @@ class IController : public IRuntimeComponent {
   // TODO: Should this be in the base IRuntimeComponent?
   virtual void Update() = 0;
 
-  virtual std::vector<float> GetControlSignals(const std::string& actuator_id) = 0;
+  virtual std::vector<float> GetControlSignals(
+      const std::string& actuator_id) = 0;
 
   virtual const GimbalState& GetGimbalSignal(const std::string& gimbal_id) = 0;
-
 };
 
 }  // namespace projectairsim

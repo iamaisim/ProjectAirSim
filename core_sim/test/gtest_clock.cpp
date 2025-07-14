@@ -358,7 +358,7 @@ TEST(ScheduledExecutor, Combo) {
       projectairsim::ScheduledExecutorTest::TestFuncTrue;
 
   projectairsim::ScheduledExecutor executor(callback,
-                                          10'000'000);  // 10 ms period
+                                            10'000'000);  // 10 ms period
 
   EXPECT_EQ(projectairsim::ScheduledExecutorTest::test_counter, 0);
 

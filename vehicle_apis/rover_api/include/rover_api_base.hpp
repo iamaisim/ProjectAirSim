@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -48,9 +48,9 @@ class RoverApiBase : public IController, public IRoverApi {
                               float lookahead, float adaptive_lookahead,
                               int64_t command_start_time_nanos) = 0;
 
-  virtual bool MoveByHeading(float heading, float speed,
-                             float duration, float heading_margin,
-                             float yaw_rate, float timeout_sec,
+  virtual bool MoveByHeading(float heading, float speed, float duration,
+                             float heading_margin, float yaw_rate,
+                             float timeout_sec,
                              int64_t command_start_time_nanos) = 0;
 
  protected:
@@ -59,7 +59,8 @@ class RoverApiBase : public IController, public IRoverApi {
  protected:  // Usually or must be implemented by subclasses
   virtual bool CanArmServiceMethod(void);
   virtual float GetCommandPeriod()
-      const = 0;  // Time interval between two commands required for drone (seconds)
+      const = 0;  // Time interval between two commands required for drone
+                  // (seconds)
   virtual std::string GetControllerName(void) const = 0;
   virtual Kinematics GetKinematicsEstimated(void) const = 0;
   virtual void LoadParams(
@@ -68,7 +69,7 @@ class RoverApiBase : public IController, public IRoverApi {
 
  protected:
   bool CancelLastTask(void);
-    Logger GetLogger(void) const { return sim_robot_.GetLogger(); }
+  Logger GetLogger(void) const { return sim_robot_.GetLogger(); }
   virtual Vector3 GetPosition() const {
     return GetKinematicsEstimated().pose.position;
   }
@@ -91,8 +92,8 @@ class RoverApiBase : public IController, public IRoverApi {
       int64_t command_start_time_nanos);
 
  protected:
-  CancelToken cancel_token_; //Command cancellation request token
-  Robot sim_robot_;  // Associated robot
+  CancelToken cancel_token_;  // Command cancellation request token
+  Robot sim_robot_;           // Associated robot
   TransformTree*
       psim_transformtree_;  // The transform tree containing the robot
 };                          // class RoverApiBase

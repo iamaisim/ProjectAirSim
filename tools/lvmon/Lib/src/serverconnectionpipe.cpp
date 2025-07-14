@@ -6,7 +6,7 @@
 
 namespace {
 
-void DebugPrint(const char *szFmt, ...) {
+void DebugPrint(const char* szFmt, ...) {
   char sz[2048];
   va_list vl;
 
@@ -39,7 +39,7 @@ CServerConnectionPipe::~CServerConnectionPipe() {
   if (hEventWritePending_ != NULL) CloseHandle(hEventWritePending_);
 }
 
-void CServerConnectionPipe::ClientThreadProc(CThread *pthread) {
+void CServerConnectionPipe::ClientThreadProc(CThread* pthread) {
   bool fClientIOIsPending = false;
   bool fExit = false;
   HANDLE rgh[] = {hEventExitThread_, nullptr, hEventWritePending_};
@@ -106,7 +106,7 @@ void CServerConnectionPipe::ClientThreadProc(CThread *pthread) {
         {
           // Create client entry
           std::unique_lock<std::recursive_mutex> ul(mutexClients_);
-          ClientEntry *pcliententry;
+          ClientEntry* pcliententry;
           std::pair<UMClientIDPClientEntry::iterator, bool> pair;
 
           pair = umclientidpcliententry_.emplace(
@@ -160,9 +160,9 @@ LError:
 
 void CServerConnectionPipe::ClientCompletedReadCB(DWORD /*dwErr*/, DWORD cbRead,
                                                   LPOVERLAPPED poverlapped) {
-  ClientEntry *pcliententry =
-      reinterpret_cast<ClientEntry *>(reinterpret_cast<uint8_t *>(poverlapped) -
-                                      offsetof(ClientEntry, overlappedRead));
+  ClientEntry* pcliententry =
+      reinterpret_cast<ClientEntry*>(reinterpret_cast<uint8_t*>(poverlapped) -
+                                     offsetof(ClientEntry, overlappedRead));
 
   // Process the data from the client
   if (cbRead > 0)
@@ -204,9 +204,9 @@ void CServerConnectionPipe::ClientCompletedWriteCB(DWORD dwErr,
     DebugPrint("CServerConnectionPipe::ClientCompletedWriteCB(): err %d\n",
                dwErr);
 
-  ClientEntry *pcliententry =
-      reinterpret_cast<ClientEntry *>(reinterpret_cast<uint8_t *>(poverlapped) -
-                                      offsetof(ClientEntry, overlappedWrite));
+  ClientEntry* pcliententry =
+      reinterpret_cast<ClientEntry*>(reinterpret_cast<uint8_t*>(poverlapped) -
+                                     offsetof(ClientEntry, overlappedWrite));
   std::unique_lock<std::recursive_mutex> ul(pcliententry->mutexWrite);
 
   // Start next write, if any
@@ -256,7 +256,7 @@ void CServerConnectionPipe::ClientCompletedWriteCB(DWORD dwErr,
   pcliententry->Release();  // Release this completed write
 }
 
-void CServerConnectionPipe::RemoveClient(ClientEntry *pcliententry) {
+void CServerConnectionPipe::RemoveClient(ClientEntry* pcliententry) {
   // DebugPrint("CServerConnectionPipe::RemoveClient():  Removing client %p\n",
   // pcliententry);
 
@@ -281,9 +281,9 @@ void CServerConnectionPipe::RemoveClient(ClientEntry *pcliententry) {
   }
 }
 
-bool CServerConnectionPipe::ConnectClient(OVERLAPPED &overlapped) {
+bool CServerConnectionPipe::ConnectClient(OVERLAPPED& overlapped) {
   bool fIOIsPendingRet = false;
-  const wchar_t *wzPipename = L"\\\\.\\pipe\\lvmonserver";
+  const wchar_t* wzPipename = L"\\\\.\\pipe\\lvmonserver";
 
   hPipeClientNew_ =
       CreateNamedPipeW(wzPipename,                  // pipe name
@@ -327,7 +327,7 @@ bool CServerConnectionPipe::ConnectClient(OVERLAPPED &overlapped) {
   return (fIOIsPendingRet);
 }
 
-void CServerConnectionPipe::Send(ClientID clientid, const uint8_t *pb,
+void CServerConnectionPipe::Send(ClientID clientid, const uint8_t* pb,
                                  size_t cb) {
   // DebugPrint("Queuing %d bytes to client %u\n", cb, clientid);
 
@@ -335,7 +335,7 @@ void CServerConnectionPipe::Send(ClientID clientid, const uint8_t *pb,
 
   if (pair != umclientidpcliententry_.end()) {
     auto pcliententry = pair->second;
-    auto &queuevecbWrite = pcliententry->queuevecbWrite;
+    auto& queuevecbWrite = pcliententry->queuevecbWrite;
 
     {
       std::unique_lock<std::recursive_mutex> ul(pcliententry->mutexWrite);
@@ -372,7 +372,7 @@ void CServerConnectionPipe::Stop(void) {
 }
 
 CServerConnectionPipe::ClientEntry::ClientEntry(
-    ClientID clientidIn, CServerConnectionPipe *pserverconnectionpipeIn,
+    ClientID clientidIn, CServerConnectionPipe* pserverconnectionpipeIn,
     HANDLE hPipeIn)
     : clientid(clientidIn),
       fWriteInProgress(false),

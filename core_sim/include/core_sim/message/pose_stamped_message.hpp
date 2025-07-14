@@ -16,7 +16,7 @@ namespace projectairsim {
 class PoseStampedMessage : public Message {
  public:
   PoseStampedMessage(const TimeNano time_stamp, const Vector3 position,
-              const Quaternion orientation);
+                     const Quaternion orientation);
 
   PoseStampedMessage();
 

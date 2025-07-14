@@ -5,7 +5,7 @@
 
 #define SCENE_BEGIN_NAMESPACE \
   namespace microsoft {       \
-  namespace projectairsim {     \
+  namespace projectairsim {   \
   namespace rendering {       \
   namespace scene {
 

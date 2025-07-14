@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -396,10 +396,9 @@ void AUnrealSimLoader::LoadUnrealScene() {
               GISRenderer = UnrealWorld->SpawnActor<AGISRenderer>(
                   AGISRenderer::StaticClass(), FTransform(), GISSpawnParams);
 
-              GISRenderer->Init(SimServer, TilesDir,
-                                Scene.GetHomeGeoPoint().geo_point,
-                                Scene.GetTilesAltitudeOffset(),
-                                HorizonTilesDir);
+              GISRenderer->Init(
+                  SimServer, TilesDir, Scene.GetHomeGeoPoint().geo_point,
+                  Scene.GetTilesAltitudeOffset(), HorizonTilesDir);
               break;
             }
             case projectairsim::SceneType::kBlackShark: {

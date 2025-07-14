@@ -43,13 +43,14 @@ class PoseStampedMessage::Impl : public MessageImpl {
 // -----------------------------------------------------------------------------
 // class PoseStampedMessage
 
-PoseStampedMessage::PoseStampedMessage() : Message(std::make_shared<PoseStampedMessage::Impl>()) {}
+PoseStampedMessage::PoseStampedMessage()
+    : Message(std::make_shared<PoseStampedMessage::Impl>()) {}
 
 PoseStampedMessage::PoseStampedMessage(const TimeNano time_stamp_val,
-                         const Vector3 position_val,
-                         const Quaternion orientation_val)
-    : Message(std::make_shared<PoseStampedMessage::Impl>(time_stamp_val, position_val,
-                                                  orientation_val)) {}
+                                       const Vector3 position_val,
+                                       const Quaternion orientation_val)
+    : Message(std::make_shared<PoseStampedMessage::Impl>(
+          time_stamp_val, position_val, orientation_val)) {}
 
 PoseStampedMessage::~PoseStampedMessage() {}
 
@@ -79,8 +80,8 @@ void PoseStampedMessage::Deserialize(const std::string& buffer) {
 PoseStampedMessage::Impl::Impl() : MessageImpl(MessageType::kPosestamped) {}
 
 PoseStampedMessage::Impl::Impl(const TimeNano time_stamp_val,
-                        const Vector3 position_val,
-                        const Quaternion orientation_val)
+                               const Vector3 position_val,
+                               const Quaternion orientation_val)
     : MessageImpl(MessageType::kPosestamped),
       time_stamp(time_stamp_val),
       position(position_val),
@@ -88,7 +89,9 @@ PoseStampedMessage::Impl::Impl(const TimeNano time_stamp_val,
 
 TimeNano PoseStampedMessage::Impl::GetTimeStamp() const { return time_stamp; }
 
-Vector3 PoseStampedMessage::Impl::GetPosition() const { return position.ToVector3(); }
+Vector3 PoseStampedMessage::Impl::GetPosition() const {
+  return position.ToVector3();
+}
 
 Quaternion PoseStampedMessage::Impl::GetOrientation() const {
   return orientation.ToQuaternion();

@@ -142,8 +142,8 @@ void Trajectory::Impl::Load(
 
 const std::string& Trajectory::Impl::GetName() const { return traj_name_; }
 
-void Trajectory::Impl::KinematicsUpdate(TimeSec curr_time,
-                                        TrajectoryKinematics& traj_kinematics) const {
+void Trajectory::Impl::KinematicsUpdate(
+    TimeSec curr_time, TrajectoryKinematics& traj_kinematics) const {
   if (time_sec_.empty()) return;
 
   int lower;

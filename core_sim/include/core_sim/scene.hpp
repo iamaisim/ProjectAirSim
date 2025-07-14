@@ -31,14 +31,17 @@ struct SegmentationSettings {
   bool use_owner_name = true;
 };
 
-enum SceneType { kUnrealNative = 0, kCustomGIS = 1, kCesiumGIS = 2, kBlackShark = 3};
+enum SceneType {
+  kUnrealNative = 0,
+  kCustomGIS = 1,
+  kCesiumGIS = 2,
+  kBlackShark = 3
+};
 
-NLOHMANN_JSON_SERIALIZE_ENUM(SceneType, {
-                                            {kUnrealNative, "UnrealNative"},
-                                            {kCustomGIS, "CustomGIS"},
-                                            {kCesiumGIS, "CesiumGIS"},
-                                            {kBlackShark, "BlackShark"}
-                                        })
+NLOHMANN_JSON_SERIALIZE_ENUM(SceneType, {{kUnrealNative, "UnrealNative"},
+                                         {kCustomGIS, "CustomGIS"},
+                                         {kCesiumGIS, "CesiumGIS"},
+                                         {kBlackShark, "BlackShark"}})
 
 class Scene {
  public:

@@ -105,10 +105,12 @@ class SimpleFlightApi : public VTOLFWApiBase {
 
   bool MoveByVelocityBodyFrame(float vx, float vy, float vz, float duration,
                                DrivetrainType drivetrain, bool yaw_is_rate,
-                               float yaw, int64_t command_start_time_nanos) override;
+                               float yaw,
+                               int64_t command_start_time_nanos) override;
   bool MoveByVelocityBodyFrameZ(float vx, float vy, float z, float duration,
                                 DrivetrainType drivetrain, bool yaw_is_rate,
-                                float yaw, int64_t command_start_time_nanos) override;
+                                float yaw,
+                                int64_t command_start_time_nanos) override;
   // controller configs
   void SetControllerGains(uint8_t controllerType, const std::vector<float>& kp,
                           const std::vector<float>& ki,

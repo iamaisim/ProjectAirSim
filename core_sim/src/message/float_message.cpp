@@ -38,7 +38,8 @@ class FloatMessage::Impl : public MessageImpl {
 // -----------------------------------------------------------------------------
 // class FloatMessage
 
-FloatMessage::FloatMessage() : Message(std::make_shared<FloatMessage::Impl>()) {}
+FloatMessage::FloatMessage()
+    : Message(std::make_shared<FloatMessage::Impl>()) {}
 
 FloatMessage::FloatMessage(float val)
     : Message(std::make_shared<FloatMessage::Impl>(val)) {}

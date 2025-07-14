@@ -29,7 +29,7 @@ class TRXTorqueController : public IAxisController {
         goal_(nullptr),
         last_goal_mode_(),
         last_goal_val_(),
-        output_(Axis4r()[IAxisController::kXRoll]), // should be 0
+        output_(Axis4r()[IAxisController::kXRoll]),  // should be 0
         params_(params),
         state_estimator_(nullptr) {}
 
@@ -47,7 +47,7 @@ class TRXTorqueController : public IAxisController {
     IAxisController::Reset();
 
     last_goal_mode_ = GoalMode::GetUnknown();
-    output_ = Axis4r()[IAxisController::kXRoll]; // should be 0
+    output_ = Axis4r()[IAxisController::kXRoll];  // should be 0
 
     for (unsigned int axis = 0; axis < Axis4r::AxisCount(); ++axis) {
       if (axis_controllers_[axis] != nullptr) axis_controllers_[axis]->Reset();
@@ -61,8 +61,8 @@ class TRXTorqueController : public IAxisController {
     // position/velocity goals.
     IAxisController::Update();
 
-    const auto& goal_mode = goal_->GetGoalMode(); // added reference
-    const auto& goal_val = goal_->GetGoalValue(); // added reference
+    const auto& goal_mode = goal_->GetGoalMode();  // added reference
+    const auto& goal_val = goal_->GetGoalValue();  // added reference
 
     if (!goal_val.Equals4(last_goal_val_)) {
       last_goal_val_ = goal_val;
@@ -126,8 +126,8 @@ class TRXTorqueController : public IAxisController {
 
     // update axis controller
     output_ = Axis4r()[IAxisController::kXRoll];  // should be 0
-    //if (fabs(state_estimator_->GetAngles().Pitch()) <
-    //    params_->vtol.pitch_min_fixed_wing) {
+    // if (fabs(state_estimator_->GetAngles().Pitch()) <
+    //     params_->vtol.pitch_min_fixed_wing) {
     {
       if (axis_controllers_[IAxisController::kXRoll] != nullptr) {
         axis_controllers_[IAxisController::kXRoll]->Update();
@@ -165,12 +165,12 @@ class TRXTorqueController : public IAxisController {
   std::unique_ptr<IAxisController>
       axis_controllers_[Axis4r::AxisCount()];  // Controllers for each axis
   const IBoardClock* clock_;
-  FixedGoal fixed_goal_;  // Goal when there's no controller otherwise
-  const IGoal* goal_;                             // External goal provide
-  GoalMode last_goal_mode_;   // Previous goal modes
-  Axis4r last_goal_val_;      // Previous goal values
-  TReal output_;              // Our current output
-  Params* params_;            // External parameters
+  FixedGoal fixed_goal_;     // Goal when there's no controller otherwise
+  const IGoal* goal_;        // External goal provide
+  GoalMode last_goal_mode_;  // Previous goal modes
+  Axis4r last_goal_val_;     // Previous goal values
+  TReal output_;             // Our current output
+  Params* params_;           // External parameters
   const IStateEstimator* state_estimator_;
 };
 

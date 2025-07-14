@@ -27,9 +27,9 @@ void ThrottleController::Update(void) {
         (goal.value != pid_controller_throttle_.getPoint())) {
       // Setup the steering control PID
       pid_controller_throttle_.setPoint(goal.value,
-                                       pparams_->angle_level_pid.p.Throttle(),
-                                       pparams_->angle_level_pid.i.Throttle(),
-                                       pparams_->angle_level_pid.d.Throttle());
+                                        pparams_->angle_level_pid.p.Throttle(),
+                                        pparams_->angle_level_pid.i.Throttle(),
+                                        pparams_->angle_level_pid.d.Throttle());
     }
 
     output_ = pid_controller_throttle_.control(velocity_cur);

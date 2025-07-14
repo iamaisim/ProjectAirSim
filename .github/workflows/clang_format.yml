@@ -1,0 +1,47 @@
+name: C/C++ Clang-Format Check
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  clang-format:
+    name: Verify code style with clang-format
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install clang-format 14
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y clang-format-14
+
+      - name: Verify C/C++ formatting
+        shell: bash
+        run: |
+          # Gather all .cpp/.hpp files under version control,
+          # excluding json.hpp and anything under mavlinkcom/
+          files=$(git ls-files \
+                    '*.cpp' '*.hpp' \
+                    ':!AirLib/include/common/common_utils/json.hpp' \
+                    ':!mavlinkcom/**')
+
+          if [[ -z "$files" ]]; then
+            echo "✔ No C/C++ source or header files found."
+            exit 0
+          fi
+
+          # Fail immediately if any remaining file is out of style
+          echo "$files" \
+            | xargs clang-format-14 --dry-run --Werror -style=file
+
+          echo "✔ All C/C++ files conform to clang-format style."

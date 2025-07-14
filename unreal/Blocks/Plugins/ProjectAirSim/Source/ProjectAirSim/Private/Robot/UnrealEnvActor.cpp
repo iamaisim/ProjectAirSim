@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -11,10 +11,10 @@
 #include <utility>
 #include <vector>
 
-#include "ProjectAirSim.h"
 #include "Camera/CameraComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "ProjectAirSim.h"
 #include "Runtime/Engine/Classes/Engine/StaticMesh.h"
 #include "UnrealHelpers.h"
 #include "UnrealLogger.h"
@@ -190,8 +190,8 @@ void AUnrealEnvActor::RotateEnvActorLinksAtRate() {
   }
 }
 
-void AUnrealEnvActor::UpdateEnvActorTargetPose(const projectairsim::Pose& InPose,
-                                               TimeNano InTimestamp) {
+void AUnrealEnvActor::UpdateEnvActorTargetPose(
+    const projectairsim::Pose& InPose, TimeNano InTimestamp) {
   // TODO Need mutex lock to block writing while these data members are being
   // read in other parts of the code to guarantee pose/timestamp stays in sync?
   EnvActorTargetPose = InPose;

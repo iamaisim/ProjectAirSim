@@ -81,7 +81,8 @@ class TopicManager::Impl {
     std::function<void(const Topic&, const Message&)> callback;
     std::function<void(const Topic&, bool is_subscribed)> callback_subscribed;
 
-    TopicBlock(const Topic &topic, std::function<void(const Topic&, bool is_subscribed)>
+    TopicBlock(const Topic& topic,
+               std::function<void(const Topic&, bool is_subscribed)>
                    callback_subscribed_in = nullptr)
         : topic(topic), callback_subscribed(callback_subscribed_in) {}
   };
@@ -526,12 +527,14 @@ bool TopicManager::Impl::Unsubscribe(const std::string& topic_path) {
   std::shared_lock<std::shared_timed_mutex> shared_lock(manager_lock_);
   auto iter = topic_table_.find(topic_path);
   if (iter == topic_table_.end()) {
-    log_.LogError(name_, "Client cannot unsubscribe from unregistered topic '%s'",
+    log_.LogError(name_,
+                  "Client cannot unsubscribe from unregistered topic '%s'",
                   topic_path.c_str());
     return false;
   }
 
-  log_.LogTrace(name_, "Client unsubscribing from topic %s", topic_path.c_str());
+  log_.LogTrace(name_, "Client unsubscribing from topic %s",
+                topic_path.c_str());
 
   {
     auto block = iter->second;
@@ -540,7 +543,8 @@ bool TopicManager::Impl::Unsubscribe(const std::string& topic_path) {
     block->is_subscribed = false;
 
     // Notify callbacks of change in subscription
-    if (callback_subscribed != nullptr) callback_subscribed(block->topic, false);
+    if (callback_subscribed != nullptr)
+      callback_subscribed(block->topic, false);
   }
 
   return true;

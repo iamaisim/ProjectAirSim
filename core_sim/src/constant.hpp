@@ -199,9 +199,12 @@ class Constant {
     static constexpr const char* motion_blur_amount = "motion-blur-amount";
     static constexpr const char* target_gamma = "target-gamma";
     static constexpr const char* max_depth_meters = "max-depth-meters";
-    static constexpr const char* chromatic_aberration_intensity = "chromatic-aberration-intensity";
-    static constexpr const char* depth_of_field_focal_region = "depth-of-field-focal-region";
-    static constexpr const char* depth_of_field_transition_region = "depth-of-field-transition-region";
+    static constexpr const char* chromatic_aberration_intensity =
+        "chromatic-aberration-intensity";
+    static constexpr const char* depth_of_field_focal_region =
+        "depth-of-field-focal-region";
+    static constexpr const char* depth_of_field_transition_region =
+        "depth-of-field-transition-region";
     static constexpr const char* noise_settings = "noise-settings";
     static constexpr const char* rand_contrib = "rand-contrib";
     static constexpr const char* rand_speed = "rand-speed";
@@ -341,7 +344,8 @@ class Constant {
     static constexpr const char* livox_avia = "livox_avia";
     static constexpr const char* livox_mid70 = "livox_mid70";
     static constexpr const char* report_point_cloud = "report-point-cloud";
-    static constexpr const char* report_azimuth_elevation_range = "report-azimuth-elevation-range";
+    static constexpr const char* report_azimuth_elevation_range =
+        "report-azimuth-elevation-range";
     // Distance sensor related config parameters
     static constexpr const char* distance_sensor = "distance-sensor";
     static constexpr const char* min_distance = "min-distance";
@@ -413,7 +417,8 @@ class Constant {
     static constexpr const char* coeff_of_thrust = "coeff-of-thrust";
     static constexpr const char* coeff_of_torque = "coeff-of-torque";
     static constexpr const char* wheel_type = "wheel-type";
-    static constexpr const char* coeff_of_wheel_torque = "coeff-of-wheel_torque";
+    static constexpr const char* coeff_of_wheel_torque =
+        "coeff-of-wheel_torque";
     static constexpr const char* coeff_of_friction = "coeff-of-friction";
     static constexpr const char* air_density = "air-density";
     static constexpr const char* max_rpm = "max-rpm";
@@ -435,9 +440,10 @@ class Constant {
     static constexpr const char* px4_api = "px4-api";
     static constexpr const char* px4_api_settings = "px4-api-settings";
     static constexpr const char* ardupilot_api = "ardupilot-api";
-    static constexpr const char* ardupilot_api_settings = "ardupilot-api-settings";
+    static constexpr const char* ardupilot_api_settings =
+        "ardupilot-api-settings";
     static constexpr const char* actuator_order = "actuator-order";
-    static constexpr const char* actuator_id = "actuator-id";   
+    static constexpr const char* actuator_id = "actuator-id";
     static constexpr const char* inertia = "inertia";
     static constexpr const char* matrix = "matrix";
     static constexpr const char* ixx = "ixx";

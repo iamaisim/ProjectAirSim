@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -375,10 +375,10 @@ void AUnrealScene::BeginPlay() {
        sim_scene->GetSceneType() == projectairsim::SceneType::kBlackShark);
 
   if (sim_scene->GetSceneType() == projectairsim::SceneType::kBlackShark) {
-    black_shark_renderer.reset(new BlackSharkRenderer(sim_scene->GetHomeGeoPoint()));
+    black_shark_renderer.reset(
+        new BlackSharkRenderer(sim_scene->GetHomeGeoPoint()));
     black_shark_renderer->Initialize(unreal_world, isGisScene);
   }
-
 
   time_of_day->initialize(unreal_world, isGisScene);
   time_of_day->set(tod_setting.enabled, tod_setting.start_datetime,

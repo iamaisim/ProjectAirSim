@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -269,7 +269,7 @@ void Magnetometer::Loader::LoadMagnetometerSettings(
   // Load Magnetometer settings
   impl_.magnetometer_settings_.scale_factor =
       JsonUtils::GetNumber<float>(json, Constant::Config::scale_factor,
-                           impl_.magnetometer_settings_.scale_factor);
+                                  impl_.magnetometer_settings_.scale_factor);
 
   impl_.magnetometer_settings_.noise_sigma =
       JsonUtils::GetVector3(json, Constant::Config::noise_sigma,

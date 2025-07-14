@@ -30,7 +30,6 @@ TileDivider::TileAvailable TileDivider::IsTileSufficient(
     return TileAvailable::SUFFICIENT;
   }
 
-
   // TODO - assert that longitude is between -180 to 180 & latitude is between
   // -90 to 90
 

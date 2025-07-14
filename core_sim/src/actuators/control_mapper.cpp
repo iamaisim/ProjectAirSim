@@ -53,17 +53,18 @@ void ControlMapper::Load(ConfigJson config_json) {
   SetClampOutput(JsonUtils::GetBoolean(
       config_json, Constant::Config::clamp_output, fclamp_output_));
 
-  SetDomain(JsonUtils::GetNumber<float>(config_json, Constant::Config::input_min,
-                                 domain_min_),
-            JsonUtils::GetNumber<float>(config_json, Constant::Config::input_max,
-                                 domain_max_));
+  SetDomain(JsonUtils::GetNumber<float>(
+                config_json, Constant::Config::input_min, domain_min_),
+            JsonUtils::GetNumber<float>(
+                config_json, Constant::Config::input_max, domain_max_));
 
-  SetRange(JsonUtils::GetNumber<float>(config_json, Constant::Config::output_min,
-                                range_min_),
-           JsonUtils::GetNumber<float>(config_json, Constant::Config::output_max,
-                                range_max_));
+  SetRange(JsonUtils::GetNumber<float>(
+               config_json, Constant::Config::output_min, range_min_),
+           JsonUtils::GetNumber<float>(
+               config_json, Constant::Config::output_max, range_max_));
 
-  SetScale(JsonUtils::GetNumber<float>(config_json, Constant::Config::scale, scale_));
+  SetScale(JsonUtils::GetNumber<float>(config_json, Constant::Config::scale,
+                                       scale_));
 }
 
 void ControlMapper::SetClampInput(bool fclamp_input) noexcept {

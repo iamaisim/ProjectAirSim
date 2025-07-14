@@ -99,8 +99,8 @@ TEST(Trajectory, LoadFromAPI) {
 
   auto trajectory = projectairsim::EnvActor::MakeTrajectory();
   projectairsim::EnvActor::LoadTrajectoryFromAPI(trajectory, traj_name, time, x,
-                                               y, z, roll, pitch, yaw, vel_x,
-                                               vel_y, vel_z);
+                                                 y, z, roll, pitch, yaw, vel_x,
+                                                 vel_y, vel_z);
   EXPECT_TRUE(trajectory.IsLoaded());
 }
 
@@ -112,7 +112,7 @@ TEST(Trajectory, GetKinematicsAtFirstWaypoint) {
   projectairsim::TrajectoryKinematics traj_kinematics;
   traj_kinematics.traj_params.to_loop = true;
   projectairsim::EnvActor::UpdateKinematics(trajectory, currtime,
-                                          traj_kinematics);
+                                            traj_kinematics);
   EXPECT_EQ(traj_kinematics.kinematics.pose.position,
             projectairsim::Vector3(3, 0, -15));
   EXPECT_EQ(traj_kinematics.kinematics.twist.linear,
@@ -126,7 +126,7 @@ TEST(Trajectory, GetKinematicsBetweenWaypoints) {
   TimeSec curr_time = 7;
   projectairsim::TrajectoryKinematics traj_kinematics;
   projectairsim::EnvActor::UpdateKinematics(trajectory, curr_time,
-                                          traj_kinematics);
+                                            traj_kinematics);
   EXPECT_EQ(traj_kinematics.kinematics.pose.position,
             projectairsim::Vector3(10, 11.666667, -9));
   EXPECT_EQ(traj_kinematics.kinematics.twist.linear,
@@ -141,7 +141,7 @@ TEST(Trajectory, GetKinematicsAtLastWaypoint) {
   projectairsim::TrajectoryKinematics traj_kinematics;
   traj_kinematics.traj_params.to_loop = true;
   projectairsim::EnvActor::UpdateKinematics(trajectory, currtime,
-                                          traj_kinematics);
+                                            traj_kinematics);
   EXPECT_EQ(traj_kinematics.kinematics.pose.position,
             projectairsim::Vector3(20, 20, -4));
   EXPECT_EQ(traj_kinematics.kinematics.twist.linear,
@@ -157,7 +157,7 @@ TEST(Trajectory, GetKinematicsAfterLastWayPointWithLoop) {
   traj_kinematics.traj_params.num_loops = 1;
   TimeSec curr_time = 16;
   projectairsim::EnvActor::UpdateKinematics(trajectory, curr_time,
-                                          traj_kinematics);
+                                            traj_kinematics);
   EXPECT_EQ(traj_kinematics.kinematics.pose.position,
             projectairsim::Vector3(7, 9, -11.3333333));
   EXPECT_EQ(traj_kinematics.kinematics.twist.linear,
@@ -172,10 +172,10 @@ TEST(Trajectory, GetKinematicsAfterLastWayPointWithoutLoop) {
   projectairsim::TrajectoryKinematics traj_kinematics;
   traj_kinematics.traj_params.to_loop = false;
   projectairsim::EnvActor::UpdateKinematics(trajectory, curr_time,
-                                          traj_kinematics);
+                                            traj_kinematics);
   curr_time = 17;
   projectairsim::EnvActor::UpdateKinematics(trajectory, curr_time,
-                                          traj_kinematics);
+                                            traj_kinematics);
   EXPECT_EQ(traj_kinematics.kinematics.pose.position,
             projectairsim::Vector3(20, 20, -4));
   EXPECT_EQ(traj_kinematics.kinematics.twist.linear,
@@ -192,7 +192,7 @@ TEST(Trajectory, GetKinematicsAtFirstWaypointWithOffset) {
   traj_kinematics.traj_params.time_offset = 2;
   traj_kinematics.traj_params.x_offset = -1;
   projectairsim::EnvActor::UpdateKinematics(trajectory, currtime,
-                                          traj_kinematics);
+                                            traj_kinematics);
   EXPECT_EQ(traj_kinematics.kinematics.pose.position,
             projectairsim::Vector3(2, 0, -15));
   EXPECT_EQ(traj_kinematics.kinematics.twist.linear,
@@ -214,8 +214,8 @@ TEST(Trajectory, GetKinematicsAfterLastWayPointWithLoopAndOffset) {
 
   auto trajectory = projectairsim::EnvActor::MakeTrajectory();
   projectairsim::EnvActor::LoadTrajectoryFromAPI(trajectory, traj_name, time, x,
-                                               y, z, roll, pitch, yaw, vel_x,
-                                               vel_y, vel_z);
+                                                 y, z, roll, pitch, yaw, vel_x,
+                                                 vel_y, vel_z);
 
   projectairsim::TrajectoryKinematics traj_kinematics;
   traj_kinematics.traj_params.to_loop = true;
@@ -226,7 +226,7 @@ TEST(Trajectory, GetKinematicsAfterLastWayPointWithLoopAndOffset) {
   traj_kinematics.traj_params.z_offset = 1;
   TimeSec curr_time = 16;
   projectairsim::EnvActor::UpdateKinematics(trajectory, curr_time,
-                                          traj_kinematics);
+                                            traj_kinematics);
   EXPECT_EQ(traj_kinematics.kinematics.pose.position,
             projectairsim::Vector3(7, 9, -11.66666667));
   EXPECT_EQ(traj_kinematics.kinematics.twist.linear,

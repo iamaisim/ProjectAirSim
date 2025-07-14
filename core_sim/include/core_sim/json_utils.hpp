@@ -9,7 +9,6 @@
 
 #include "core_sim/config_json.hpp"
 #include "core_sim/earth_utils.hpp"
-#include "core_sim/physics_common_types.hpp"
 #include "core_sim/message/airspeed_message.hpp"
 #include "core_sim/message/barometer_message.hpp"
 #include "core_sim/message/battery_message.hpp"
@@ -19,6 +18,7 @@
 #include "core_sim/message/kinematics_message.hpp"
 #include "core_sim/message/magnetometer_message.hpp"
 #include "core_sim/message/ready_state_message.hpp"
+#include "core_sim/physics_common_types.hpp"
 #include "core_sim/transforms/transform.hpp"
 #include "json.hpp"
 
@@ -154,24 +154,23 @@ inline void from_json(const json& j, Quaternion& q) {
 }
 
 inline void to_json(json& j, const Pose& pose) {
-    json json_o = {{"w", pose.orientation.w()},
-                   {"x", pose.orientation.x()},
-                   {"y", pose.orientation.y()},
-                   {"z", pose.orientation.z()}};
-    json json_p = {{"x", pose.position.x()},
-                   {"y", pose.position.y()},
-                   {"z", pose.position.z()}};
-  j = json({{"position", json_p},
-            {"orientation", json_o}});
+  json json_o = {{"w", pose.orientation.w()},
+                 {"x", pose.orientation.x()},
+                 {"y", pose.orientation.y()},
+                 {"z", pose.orientation.z()}};
+  json json_p = {{"x", pose.position.x()},
+                 {"y", pose.position.y()},
+                 {"z", pose.position.z()}};
+  j = json({{"position", json_p}, {"orientation", json_o}});
 }
 
 inline void from_json(const json& j, Pose& pose) {
-    auto &j_o = j.at("orientation");
-    auto &j_p = j.at("position");
+  auto& j_o = j.at("orientation");
+  auto& j_p = j.at("position");
 
-
-    pose.position = Vector3(j_p.at("x"), j_p.at("y"), j_p.at("z"));
-    pose.orientation = Quaternion(j_o.at("w"), j_o.at("x"), j_o.at("y"), j_o.at("z"));
+  pose.position = Vector3(j_p.at("x"), j_p.at("y"), j_p.at("z"));
+  pose.orientation =
+      Quaternion(j_o.at("w"), j_o.at("x"), j_o.at("y"), j_o.at("z"));
 }
 
 inline void to_json(json& j, const AirspeedMessage& airspeed_msg) {

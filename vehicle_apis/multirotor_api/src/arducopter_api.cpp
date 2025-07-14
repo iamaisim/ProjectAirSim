@@ -218,7 +218,8 @@ void ArduCopterApi::ReciveRotorsControls() {
   // HandleLockStep();
 }
 
-std::vector<float> ArduCopterApi::GetControlSignals(const std::string& actuator_id) {
+std::vector<float> ArduCopterApi::GetControlSignals(
+    const std::string& actuator_id) {
   if (!is_simulation_mode_) {
     throw std::logic_error(
         "Attempt to read motor controls while not in simulation mode");
@@ -230,7 +231,7 @@ std::vector<float> ArduCopterApi::GetControlSignals(const std::string& actuator_
         GetControllerName(),
         "ArduCopterApi::GetControlSignal() called for invalid actuator: %s",
         actuator_id.c_str());
-    return std::vector<float>(1,0.f);
+    return std::vector<float>(1, 0.f);
   }
 
   // std::lock_guard<std::mutex> guard(hil_controls_mutex_);
@@ -412,7 +413,7 @@ void ArduCopterApi::CommandVelocityZ(float vx, float vy, float z,
 }
 
 void ArduCopterApi::CommandVelocityBody(float vx, float vy, float vz,
-                                  bool yaw_is_rate, float yaw) {
+                                        bool yaw_is_rate, float yaw) {
   unused(vx);
   unused(vy);
   unused(vz);
@@ -421,9 +422,8 @@ void ArduCopterApi::CommandVelocityBody(float vx, float vy, float vz,
   AddStatusMessage("Not Implemented: CommandVelocityBody");
 }
 
-
 void ArduCopterApi::CommandVelocityZBody(float vx, float vy, float z,
-                                  bool yaw_is_rate, float yaw) {
+                                         bool yaw_is_rate, float yaw) {
   unused(vx);
   unused(vy);
   unused(z);

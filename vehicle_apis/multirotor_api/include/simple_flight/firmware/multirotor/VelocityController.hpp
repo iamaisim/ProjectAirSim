@@ -148,7 +148,7 @@ class VelocityController : public IAxisController,
   const IBoardClock* clock_;
   std::unique_ptr<PidController<float>> pid_;
   std::unique_ptr<IAxisController> child_controller_;
- 
+
   const Axis4r GetGoalVelocityLocal() {
     auto goal = goal_->GetGoalValue();
     if (frame_ == VelocityFrameType::kBody) {

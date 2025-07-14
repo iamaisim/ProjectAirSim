@@ -67,7 +67,8 @@ TEST(PhysicsWorld, StepPhysicsWorld) {
       world.StepPhysicsWorld(1.0f);
 
       kin = sim_robot.GetKinematics();
-      EXPECT_FLOAT_EQ(kin.accels.linear.z(), projectairsim::EarthUtils::kGravity);
+      EXPECT_FLOAT_EQ(kin.accels.linear.z(),
+                      projectairsim::EarthUtils::kGravity);
     }
   }
 }

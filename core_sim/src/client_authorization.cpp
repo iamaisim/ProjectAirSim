@@ -29,10 +29,12 @@ class ClientAuthorization::Impl {
  protected:
   static constexpr std::chrono::system_clock::time_point
       kTimePointAlwaysAuthorized = std::chrono::system_clock::time_point::
-          max();  // Set in time_point_when_expired_ to indicate any client is authorized without needing a token
+          max();  // Set in time_point_when_expired_ to indicate any client is
+                  // authorized without needing a token
   static constexpr std::chrono::system_clock::time_point
       kTimePointNotAuthorized = std::chrono::system_clock::time_point::
-          min();  // Set in time_point_when_expired_ to indicate clients are not currently authorized
+          min();  // Set in time_point_when_expired_ to indicate clients are not
+                  // currently authorized
   static const std::chrono::system_clock::time_point
       kTimePointEpochStart;  // The timepoint corresponding to token timestamp 0
 

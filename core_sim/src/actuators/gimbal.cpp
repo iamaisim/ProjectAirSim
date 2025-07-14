@@ -53,7 +53,7 @@ class Gimbal::Impl : public ActuatorImpl {
 
   const ActuatedTransforms& GetActuatedTransforms() const;
 
-   void UpdateActuatorOutput(std::vector<float> && control_signals,
+  void UpdateActuatorOutput(std::vector<float>&& control_signals,
                             const TimeNano sim_dt_nanos);
 
   void UpdateGimbal(IController::GimbalState& new_state,
@@ -115,7 +115,8 @@ const IController::GimbalState& Gimbal::GetGimbalState() const {
   return static_cast<Gimbal::Impl*>(pimpl_.get())->GetGimbalState();
 };
 
-void Gimbal::UpdateActuatorOutput(std::vector<float> && control_signals, const TimeNano sim_dt_nanos){
+void Gimbal::UpdateActuatorOutput(std::vector<float>&& control_signals,
+                                  const TimeNano sim_dt_nanos) {
   static_cast<Gimbal::Impl*>(pimpl_.get())
       ->UpdateActuatorOutput(std::move(control_signals), sim_dt_nanos);
 }
@@ -188,7 +189,8 @@ void Gimbal::Impl::UpdateGimbal(IController::GimbalState& new_state,
   }
 }
 
-void Gimbal::Impl::UpdateActuatorOutput(std::vector<float> && control_signals, const TimeNano sim_dt_nanos) {
+void Gimbal::Impl::UpdateActuatorOutput(std::vector<float>&& control_signals,
+                                        const TimeNano sim_dt_nanos) {
   return;
 }
 

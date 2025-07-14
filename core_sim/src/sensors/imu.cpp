@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -295,14 +295,15 @@ void Imu::Loader::LoadAccelerometerSettings(const json& json) {
   impl.logger_.LogVerbose(impl.name_, "Loading Accelerometer.");
   impl.imu_settings.accelerometer.gravity = JsonUtils::GetNumber<float>(
       json, Constant::Config::gravity, impl.imu_settings.accelerometer.gravity);
-  impl.imu_settings.accelerometer.velocity_random_walk = JsonUtils::GetNumber<float>(
-      json, Constant::Config::velocity_random_walk,
-      impl.imu_settings.accelerometer.velocity_random_walk);
+  impl.imu_settings.accelerometer.velocity_random_walk =
+      JsonUtils::GetNumber<float>(
+          json, Constant::Config::velocity_random_walk,
+          impl.imu_settings.accelerometer.velocity_random_walk);
   impl.imu_settings.accelerometer.tau = JsonUtils::GetNumber<float>(
       json, Constant::Config::tau, impl.imu_settings.accelerometer.tau);
-  impl.imu_settings.accelerometer.bias_stability =
-      JsonUtils::GetNumber<float>(json, Constant::Config::bias_stability,
-                           impl.imu_settings.accelerometer.bias_stability);
+  impl.imu_settings.accelerometer.bias_stability = JsonUtils::GetNumber<float>(
+      json, Constant::Config::bias_stability,
+      impl.imu_settings.accelerometer.bias_stability);
   impl.imu_settings.accelerometer.turn_on_bias =
       JsonUtils::GetVector3(json, Constant::Config::turn_on_bias);
 
@@ -319,12 +320,12 @@ void Imu::Loader::LoadGyroSettings(const json& json) {
   impl.logger_.LogVerbose(impl.name_, "Loading Gyroscope.");
   impl.imu_settings.gyro.angle_random_walk =
       JsonUtils::GetNumber<float>(json, Constant::Config::angle_random_walk,
-                           impl.imu_settings.gyro.angle_random_walk);
-  impl.imu_settings.gyro.tau = JsonUtils::GetNumber<float>(json, Constant::Config::tau,
-                                                    impl.imu_settings.gyro.tau);
+                                  impl.imu_settings.gyro.angle_random_walk);
+  impl.imu_settings.gyro.tau = JsonUtils::GetNumber<float>(
+      json, Constant::Config::tau, impl.imu_settings.gyro.tau);
   impl.imu_settings.gyro.bias_stability =
       JsonUtils::GetNumber<float>(json, Constant::Config::bias_stability,
-                           impl.imu_settings.gyro.bias_stability);
+                                  impl.imu_settings.gyro.bias_stability);
   impl.imu_settings.gyro.turn_on_bias =
       JsonUtils::GetVector3(json, Constant::Config::turn_on_bias);
 

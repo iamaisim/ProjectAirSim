@@ -63,9 +63,9 @@ class Link::Impl : public ComponentWithTopics {
 
   Collision collision_settings_;
   bool is_ground_collision_detection_enabled_;  // If true, the rendering
-                                                 // engine should  perform
-                                                 // ground collision checks for
-                                                 // this link
+                                                // engine should  perform
+                                                // ground collision checks for
+                                                // this link
   Inertial inertial_settings_;
   Link::Loader loader_;
   Visual visual_settings_;

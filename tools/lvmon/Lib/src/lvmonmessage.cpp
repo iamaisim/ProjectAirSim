@@ -8,10 +8,10 @@ namespace LVMon {
 
 void CLVMonMessage::Clear(void) { vecbBuffer_.clear(); }
 
-bool CLVMonMessage::Process(uint8_t **ppbReceivedInOut, uint8_t *pbReceivedMax,
-                            uint8_t **ppbMessageRet, size_t *pcbMessageRet) {
+bool CLVMonMessage::Process(uint8_t** ppbReceivedInOut, uint8_t* pbReceivedMax,
+                            uint8_t** ppbMessageRet, size_t* pcbMessageRet) {
   bool fGotMessageRet = false;
-  uint8_t *&pbReceivedInOut = *ppbReceivedInOut;
+  uint8_t*& pbReceivedInOut = *ppbReceivedInOut;
 
   if (pbReceivedInOut < pbReceivedMax) {
     size_t cbReceived = pbReceivedMax - pbReceivedInOut;
@@ -26,7 +26,7 @@ bool CLVMonMessage::Process(uint8_t **ppbReceivedInOut, uint8_t *pbReceivedMax,
         // Get the header and the total message length
         {
           auto pmsgheader =
-              reinterpret_cast<LVMon::MsgHeader *>(pbReceivedInOut);
+              reinterpret_cast<LVMon::MsgHeader*>(pbReceivedInOut);
 
           pmsgheader->NToH();  // Note: We're modifying the incoming buffer and
                                // whoever gets the message should not call
@@ -64,7 +64,7 @@ bool CLVMonMessage::Process(uint8_t **ppbReceivedInOut, uint8_t *pbReceivedMax,
           pbReceivedInOut = pbReceivedMax;  // Used all of the new data
           cbReceived = 0;
         } else {
-          LVMon::MsgHeader *pmsgheader;
+          LVMon::MsgHeader* pmsgheader;
 
           // Complete the header and get the message data size
           vecbBuffer_.insert(vecbBuffer_.end(), pbReceivedInOut,
@@ -72,7 +72,7 @@ bool CLVMonMessage::Process(uint8_t **ppbReceivedInOut, uint8_t *pbReceivedMax,
           pbReceivedInOut += cbMissing;  // Advance past end of header
           cbReceived -= cbMissing;
 
-          pmsgheader = reinterpret_cast<LVMon::MsgHeader *>(vecbBuffer_.data());
+          pmsgheader = reinterpret_cast<LVMon::MsgHeader*>(vecbBuffer_.data());
           pmsgheader->NToH();  // Note: We're calling NToH() on the
                                // header--whoever gets this message should not
                                // call NToH() on the header again

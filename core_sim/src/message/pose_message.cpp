@@ -19,8 +19,7 @@ class PoseMessage::Impl : public MessageImpl {
  public:
   Impl();
 
-  Impl(const Vector3 position_val,
-       const Quaternion orientation_val);
+  Impl(const Vector3 position_val, const Quaternion orientation_val);
 
   ~Impl() override {}
 
@@ -45,8 +44,8 @@ PoseMessage::PoseMessage() : Message(std::make_shared<PoseMessage::Impl>()) {}
 
 PoseMessage::PoseMessage(const Vector3 position_val,
                          const Quaternion orientation_val)
-    : Message(std::make_shared<PoseMessage::Impl>(position_val,
-                                                  orientation_val)) {}
+    : Message(
+          std::make_shared<PoseMessage::Impl>(position_val, orientation_val)) {}
 
 PoseMessage::~PoseMessage() {}
 

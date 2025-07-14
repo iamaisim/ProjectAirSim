@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -24,8 +24,7 @@
 namespace microsoft {
 namespace projectairsim {
 
-class MultirotorApiBase : public IController,
-                          public IMultirotorApi {
+class MultirotorApiBase : public IController, public IMultirotorApi {
  public:
   MultirotorApiBase() {}
   MultirotorApiBase(const Robot& robot, TransformTree* ptransformtree);
@@ -350,9 +349,9 @@ class MultirotorApiBase : public IController,
   // helper function can wait for anything (as defined by the given function) up
   // to the max_wait duration (in seconds). returns true if the wait function
   // succeeded, or false if timeout occurred or the timeout is invalid.
-  vehicle_apis::FunctionCaller RunFlightCommand(WaitFunction flight_controller_function,
-                                  float flight_command_timeout_sec,
-                                  int64_t command_start_time_nanos);
+  vehicle_apis::FunctionCaller RunFlightCommand(
+      WaitFunction flight_controller_function, float flight_command_timeout_sec,
+      int64_t command_start_time_nanos);
 
   // useful for derived class to check after takeoff
   bool WaitForZ(float timeout_sec, float z, float margin,

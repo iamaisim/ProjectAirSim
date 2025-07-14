@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -234,21 +234,21 @@ void Radar::Loader::LoadRadarSettings(const nlohmann::json& json) {
     impl.logger_.LogVerbose(impl.name_,
                             "'fov' missing or empty. Using defaults");
   } else {
-    impl.radar_settings_.fov_azimuth_max =
-        JsonUtils::GetNumber<float>(fov_settings_json, Constant::Config::azimuth_max,
-                             setting.fov_azimuth_max);
+    impl.radar_settings_.fov_azimuth_max = JsonUtils::GetNumber<float>(
+        fov_settings_json, Constant::Config::azimuth_max,
+        setting.fov_azimuth_max);
 
-    impl.radar_settings_.fov_azimuth_min =
-        JsonUtils::GetNumber<float>(fov_settings_json, Constant::Config::azimuth_min,
-                             setting.fov_azimuth_min);
+    impl.radar_settings_.fov_azimuth_min = JsonUtils::GetNumber<float>(
+        fov_settings_json, Constant::Config::azimuth_min,
+        setting.fov_azimuth_min);
 
-    impl.radar_settings_.fov_elevation_max =
-        JsonUtils::GetNumber<float>(fov_settings_json, Constant::Config::elevation_max,
-                             setting.fov_elevation_max);
+    impl.radar_settings_.fov_elevation_max = JsonUtils::GetNumber<float>(
+        fov_settings_json, Constant::Config::elevation_max,
+        setting.fov_elevation_max);
 
-    impl.radar_settings_.fov_elevation_min =
-        JsonUtils::GetNumber<float>(fov_settings_json, Constant::Config::elevation_min,
-                             setting.fov_elevation_min);
+    impl.radar_settings_.fov_elevation_min = JsonUtils::GetNumber<float>(
+        fov_settings_json, Constant::Config::elevation_min,
+        setting.fov_elevation_min);
 
     impl.radar_settings_.fov_azimuth_resolution = JsonUtils::GetNumber<float>(
         fov_settings_json, Constant::Config::azimuth_resolution,

@@ -86,7 +86,7 @@ class Goals : public vehicle_apis::AxisN<Goal> {
             Goal(),  // kBrake
         } {}
 
-    bool CheckChangedModes(const Goals &goals_other);
+  bool CheckChangedModes(const Goals& goals_other);
 };  // class Goals
 
 }  // namespace simple_drive

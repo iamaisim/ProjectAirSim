@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -9,11 +9,12 @@
 // False if any item is nullptr
 bool ALightActorBase::SetIntensity(float NewIntensity) {
   bool retresult = true;
-  for(int i = 0; i < lightComponents.Num(); i++)
-  {
+  for (int i = 0; i < lightComponents.Num(); i++) {
     if (lightComponents[i] != nullptr) {
       lightComponents[i]->SetIntensity(NewIntensity);
-    } else { retresult = false; }
+    } else {
+      retresult = false;
+    }
   }
 
   return retresult;
@@ -23,11 +24,12 @@ bool ALightActorBase::SetIntensity(float NewIntensity) {
 // False if any item is nullptr
 bool ALightActorBase::SetLightFColor(FColor NewLightColor) {
   bool retresult = true;
-  for(int i = 0; i < lightComponents.Num(); i++)
-  {
+  for (int i = 0; i < lightComponents.Num(); i++) {
     if (lightComponents[i] != nullptr) {
       lightComponents[i]->SetLightFColor(NewLightColor);
-    } else { retresult = false; }
+    } else {
+      retresult = false;
+    }
   }
 
   return retresult;
@@ -38,14 +40,15 @@ bool ALightActorBase::SetLightFColor(FColor NewLightColor) {
 // False if any item is nullptr (or directional light)
 bool ALightActorBase::SetRadius(float NewRadius) {
   bool retresult = true;
-  for(int i = 0; i < lightComponents.Num(); i++)
-  {
+  for (int i = 0; i < lightComponents.Num(); i++) {
     ULocalLightComponent* localLightComponent =
         dynamic_cast<ULocalLightComponent*>(lightComponents[i]);
 
     if (localLightComponent != nullptr) {
       localLightComponent->SetAttenuationRadius(NewRadius);
-    } else { retresult = false; }
+    } else {
+      retresult = false;
+    }
   }
 
   return retresult;

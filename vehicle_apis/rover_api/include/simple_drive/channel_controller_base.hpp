@@ -40,10 +40,10 @@ class ChannelControllerBase : public IChannelController {
   virtual float GetOutput(void) { return output_; }
 
  protected:
-  Logger logger_;                        // Logger object
-  float output_;                         // Channel output value
-  ClockBase* pclock_;                    // Simulation clock
-  std::shared_ptr<const Goals> pgoals_;  // Control goals
+  Logger logger_;                          // Logger object
+  float output_;                           // Channel output value
+  ClockBase* pclock_;                      // Simulation clock
+  std::shared_ptr<const Goals> pgoals_;    // Control goals
   std::shared_ptr<const Params> pparams_;  // Control parameters
   std::shared_ptr<const vehicle_apis::IStateEstimator>
       pistate_estimator_;  // Vehicle state estimator

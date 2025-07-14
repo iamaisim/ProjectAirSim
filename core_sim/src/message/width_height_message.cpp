@@ -40,11 +40,12 @@ class WidthHeightMessage::Impl : public MessageImpl {
 // -----------------------------------------------------------------------------
 // class WidthHeightMessage
 
-WidthHeightMessage::WidthHeightMessage() : Message(std::make_shared<WidthHeightMessage::Impl>()) {}
+WidthHeightMessage::WidthHeightMessage()
+    : Message(std::make_shared<WidthHeightMessage::Impl>()) {}
 
 WidthHeightMessage::WidthHeightMessage(int width, int height)
     : Message(std::make_shared<WidthHeightMessage::Impl>(width, height)) {}
-                                                  
+
 WidthHeightMessage::~WidthHeightMessage() {}
 
 int WidthHeightMessage::GetWidth() const {
@@ -75,9 +76,7 @@ WidthHeightMessage::Impl::Impl(int width_val, int height_val)
 
 int WidthHeightMessage::Impl::GetWidth() const { return width; }
 
-int WidthHeightMessage::Impl::GetHeight() const {
-  return height;
-}
+int WidthHeightMessage::Impl::GetHeight() const { return height; }
 
 std::string WidthHeightMessage::Impl::Serialize() {
   std::stringstream stream;

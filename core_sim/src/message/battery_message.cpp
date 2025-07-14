@@ -28,13 +28,13 @@ class BatteryStateMessage::Impl : public MessageImpl {
 
   void Deserialize(const std::string& buffer) override;
 
-  MSGPACK_DEFINE_MAP(time_stamp, battery_pct_remaining, estimated_time_remaining,
-                     battery_charge_state);
+  MSGPACK_DEFINE_MAP(time_stamp, battery_pct_remaining,
+                     estimated_time_remaining, battery_charge_state);
 
   json getData() const;
 
  private:
-  TimeNano time_stamp;      // Timestamp when reading was taken (nanoseconds)
+  TimeNano time_stamp;  // Timestamp when reading was taken (nanoseconds)
   float battery_pct_remaining;  // Battery charge percent in float 0 to 100
   uint32_t estimated_time_remaining;
   std::string battery_charge_state;
@@ -66,7 +66,8 @@ json BatteryStateMessage::getData() const {
 
 BatteryStateMessage::Impl::Impl() : MessageImpl(MessageType::kBattery) {}
 
-BatteryStateMessage::Impl::Impl(TimeNano time_stamp, float battery_pct_remaining,
+BatteryStateMessage::Impl::Impl(TimeNano time_stamp,
+                                float battery_pct_remaining,
                                 uint32_t estimated_time_remaining,
                                 const std::string& battery_charge_state)
     : MessageImpl(MessageType::kBattery),

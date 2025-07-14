@@ -81,7 +81,8 @@ class ImageMessage : public Message {
                uint32_t step_val, std::vector<uint8_t>&& data_val,
                float pos_x_val, float pos_y_val, float pos_z_val,
                float rot_w_val, float rot_x_val, float rot_y_val,
-               float rot_z_val, std::vector<Annotation> annotations = std::vector<Annotation>());
+               float rot_z_val,
+               std::vector<Annotation> annotations = std::vector<Annotation>());
 
   ImageMessage();
 

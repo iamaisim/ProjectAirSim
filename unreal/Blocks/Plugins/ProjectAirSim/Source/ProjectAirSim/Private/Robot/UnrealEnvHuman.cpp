@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -77,24 +77,27 @@ void AUnrealEnvHuman::Initialize(
         FVector(scale_x_local, scale_y_local, scale_z_local));
 
     // Set the capsule size to match the mesh size
-    FBoxSphereBounds Bounds = SkeletalMeshComponent->CalcBounds(SkeletalMeshComponent->GetComponentTransform());
+    FBoxSphereBounds Bounds = SkeletalMeshComponent->CalcBounds(
+        SkeletalMeshComponent->GetComponentTransform());
     FVector BoxExtent = Bounds.BoxExtent;
     if (BoxExtent.X < BoxExtent.Y) {
       GetCapsuleComponent()->SetCapsuleSize(BoxExtent.X, BoxExtent.Z);
     } else {
       GetCapsuleComponent()->SetCapsuleSize(BoxExtent.Y, BoxExtent.Z);
     }
-    // The pivot points of the SkeletalMeshComponent (at the feet) and the CapsuleComponent (at the center) do not align.
-    // Adjust the location of the SkeletalMeshComponent to match the CapsuleComponent, which is the immovable root component.
-    // Otherwise, either the mesh or the capsule will sink into the floor.
+    // The pivot points of the SkeletalMeshComponent (at the feet) and the
+    // CapsuleComponent (at the center) do not align. Adjust the location of the
+    // SkeletalMeshComponent to match the CapsuleComponent, which is the
+    // immovable root component. Otherwise, either the mesh or the capsule will
+    // sink into the floor.
     SkeletalMeshComponent->SetRelativeLocation(-GetSkeletalMeshZOffset());
   }
 }
 
-FVector AUnrealEnvHuman::GetSkeletalMeshZOffset(){
-    // Method to get the adjusted location of the SkeletalMeshComponent
-    float capsuleHalfHeight = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
-    return FVector(0.0f, 0.0f, capsuleHalfHeight);
+FVector AUnrealEnvHuman::GetSkeletalMeshZOffset() {
+  // Method to get the adjusted location of the SkeletalMeshComponent
+  float capsuleHalfHeight = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+  return FVector(0.0f, 0.0f, capsuleHalfHeight);
 }
 
 void AUnrealEnvHuman::InitializeSkeletalMesh(
@@ -170,13 +173,17 @@ void AUnrealEnvHuman::Tick(float Delta) {
                            0);      // timestamp=0
   MoveEnvActorToTargetPose(false);  // move without collision sweep
 
-  // The LineTrace is calculated from the center of the capsule component, 
-  // so the start and end points are adjusted by the capsule half height (EnvHuman's feet)
-  FVector start = GetCapsuleComponent()->GetComponentLocation() - GetSkeletalMeshZOffset();
+  // The LineTrace is calculated from the center of the capsule component,
+  // so the start and end points are adjusted by the capsule half height
+  // (EnvHuman's feet)
+  FVector start =
+      GetCapsuleComponent()->GetComponentLocation() - GetSkeletalMeshZOffset();
   FVector endUnder =
-      start - GetSkeletalMeshZOffset();  // Trace down by the capsule half height
+      start -
+      GetSkeletalMeshZOffset();  // Trace down by the capsule half height
   FVector endOver =
-      start + GetSkeletalMeshZOffset();  // The end of the vector over the capsule
+      start +
+      GetSkeletalMeshZOffset();  // The end of the vector over the capsule
 
   FHitResult HitResultUnder;
   FHitResult HitResultOver;
@@ -193,22 +200,24 @@ void AUnrealEnvHuman::Tick(float Delta) {
     FVector CeilingLocation = HitResultOver.Location;
     SimEnvHuman.SetGroundLevel(
         projectairsim::TransformUtils::NeuToNedLinear(
-            projectairsim::TransformUtils::ToMeters(
-                UnrealHelpers::ToVector3(CeilingLocation + GetSkeletalMeshZOffset())))
+            projectairsim::TransformUtils::ToMeters(UnrealHelpers::ToVector3(
+                CeilingLocation + GetSkeletalMeshZOffset())))
             .z());
   } else if (bHit) {
     // Floor detected
     FVector FloorLocation = HitResultUnder.Location;
-    SimEnvHuman.SetGroundLevel(projectairsim::TransformUtils::NeuToNedLinear(
-                                   projectairsim::TransformUtils::ToMeters(
-                                       UnrealHelpers::ToVector3(FloorLocation + GetSkeletalMeshZOffset())))
-                                   .z());  // NEU (cm) to NED (m)
+    SimEnvHuman.SetGroundLevel(
+        projectairsim::TransformUtils::NeuToNedLinear(
+            projectairsim::TransformUtils::ToMeters(UnrealHelpers::ToVector3(
+                FloorLocation + GetSkeletalMeshZOffset())))
+            .z());  // NEU (cm) to NED (m)
   } else {
     // Floor not detected
-    SimEnvHuman.SetGroundLevel(projectairsim::TransformUtils::NeuToNedLinear(
-                                   projectairsim::TransformUtils::ToMeters(
-                                       UnrealHelpers::ToVector3(endUnder + GetSkeletalMeshZOffset())))
-                                   .z());  // NEU (cm) to NED (m)
+    SimEnvHuman.SetGroundLevel(
+        projectairsim::TransformUtils::NeuToNedLinear(
+            projectairsim::TransformUtils::ToMeters(
+                UnrealHelpers::ToVector3(endUnder + GetSkeletalMeshZOffset())))
+            .z());  // NEU (cm) to NED (m)
   }
 
   updateAnimation(dt);

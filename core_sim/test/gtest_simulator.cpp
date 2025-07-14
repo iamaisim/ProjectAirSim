@@ -10,7 +10,8 @@
 namespace projectairsim = microsoft::projectairsim;
 
 TEST(Simulator, Constructor) {
-  auto callback = [](const std::string& component, projectairsim::LogLevel level,
+  auto callback = [](const std::string& component,
+                     projectairsim::LogLevel level,
                      const std::string& message) {};
 
   EXPECT_NE(std::make_unique<projectairsim::Simulator>(), nullptr);
@@ -18,7 +19,8 @@ TEST(Simulator, Constructor) {
 }
 
 TEST(Simulator, LoadSimulator) {
-  auto callback = [](const std::string& component, projectairsim::LogLevel level,
+  auto callback = [](const std::string& component,
+                     projectairsim::LogLevel level,
                      const std::string& message) {};
 
   projectairsim::Simulator simulator(callback);
@@ -58,7 +60,8 @@ TEST(Simulator, LoadSimulator) {
 }
 
 TEST(Simulator, IsLoaded) {
-  auto callback = [](const std::string& component, projectairsim::LogLevel level,
+  auto callback = [](const std::string& component,
+                     projectairsim::LogLevel level,
                      const std::string& message) {};
 
   auto simulator = projectairsim::Simulator(callback);
@@ -81,7 +84,8 @@ TEST(Simulator, IsLoaded) {
 }
 
 TEST(Simulator, GetID) {
-  auto callback = [](const std::string& component, projectairsim::LogLevel level,
+  auto callback = [](const std::string& component,
+                     projectairsim::LogLevel level,
                      const std::string& message) {};
 
   auto simulator = projectairsim::Simulator(callback);

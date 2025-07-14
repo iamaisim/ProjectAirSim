@@ -15,8 +15,8 @@
 #include "core_sim/actuators/gimbal.hpp"
 #include "core_sim/actuators/lift_drag_control_surface.hpp"
 #include "core_sim/actuators/rotor.hpp"
-#include "core_sim/actuators/wheel.hpp"
 #include "core_sim/actuators/tilt.hpp"
+#include "core_sim/actuators/wheel.hpp"
 #include "core_sim/error.hpp"
 #include "json.hpp"
 
@@ -113,7 +113,8 @@ class ActuatorImpl : public ComponentWithTopicsAndServiceMethods {
 
     if (type == Constant::Config::rotor) {
       auto rotor = new Rotor(id, enabled, parent_link, child_link, actor_logger,
-                             topic_manager, parent_topic_path, service_manager, state_manager);
+                             topic_manager, parent_topic_path, service_manager,
+                             state_manager);
       rotor->Load(json);
       return std::unique_ptr<Actuator>(rotor);
     } else if (type == Constant::Config::lift_drag_control_surface) {
@@ -134,15 +135,13 @@ class ActuatorImpl : public ComponentWithTopicsAndServiceMethods {
                                service_manager, state_manager);
       gimbal->Load(json);
       return std::unique_ptr<Actuator>(gimbal);
-    } 
-    else if (type == Constant::Config::wheel) {
-      auto wheel = new Wheel(id, enabled, parent_link, child_link,
-                               actor_logger, topic_manager, parent_topic_path,
-                               service_manager, state_manager);
+    } else if (type == Constant::Config::wheel) {
+      auto wheel = new Wheel(id, enabled, parent_link, child_link, actor_logger,
+                             topic_manager, parent_topic_path, service_manager,
+                             state_manager);
       wheel->Load(json);
       return std::unique_ptr<Actuator>(wheel);
-    } 
-    else {
+    } else {
       actor_logger.LogError(actor_name, "[%s] Invalid actuator type '%s'.",
                             id.c_str(), type.c_str());
       throw Error("Invalid actuator type.");
@@ -239,7 +238,8 @@ class ActuatorImpl : public ComponentWithTopicsAndServiceMethods {
 
   void RegisterServiceMethods() {
     auto toggle_fault_method_name = topic_path_ + "/" + "ToggleFault";
-    auto toggle_fault_method = ServiceMethod(toggle_fault_method_name, {"enable"});
+    auto toggle_fault_method =
+        ServiceMethod(toggle_fault_method_name, {"enable"});
     auto toggle_fault_method_handler = toggle_fault_method.CreateMethodHandler(
         &ActuatorImpl::UpdateFaultInjectionEnabledState, *this);
     service_manager_.RegisterMethod(toggle_fault_method,

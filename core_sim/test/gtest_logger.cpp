@@ -9,9 +9,10 @@
 
 namespace projectairsim = microsoft::projectairsim;
 
-void TestLog(projectairsim::LogLevel test_level,
-             std::function<void(projectairsim::Logger&, std::string, const char*)>
-                 log_func);
+void TestLog(
+    projectairsim::LogLevel test_level,
+    std::function<void(projectairsim::Logger&, std::string, const char*)>
+        log_func);
 
 void TestLog(
     projectairsim::LogLevel test_level,
@@ -19,7 +20,8 @@ void TestLog(
         log_func);
 
 TEST(Logger, Constructor) {
-  auto callback = [](const std::string& component, projectairsim::LogLevel level,
+  auto callback = [](const std::string& component,
+                     projectairsim::LogLevel level,
                      const std::string& message) {};
 
   EXPECT_NE(std::make_unique<projectairsim::Logger>(
@@ -49,10 +51,10 @@ TEST(Logger, LogFatal) {
           [](projectairsim::Logger& logger, std::string component,
              const char* format) { logger.LogFatal(component, format); });
 
-  TestLog(
-      projectairsim::LogLevel::kFatal,
-      [](projectairsim::Logger& logger, std::string component, const char* format,
-         int value) { logger.LogFatal(component, format, value); });
+  TestLog(projectairsim::LogLevel::kFatal,
+          [](projectairsim::Logger& logger, std::string component,
+             const char* format,
+             int value) { logger.LogFatal(component, format, value); });
 }
 
 TEST(Logger, LogError) {
@@ -60,10 +62,10 @@ TEST(Logger, LogError) {
           [](projectairsim::Logger& logger, std::string component,
              const char* format) { logger.LogError(component, format); });
 
-  TestLog(
-      projectairsim::LogLevel::kError,
-      [](projectairsim::Logger& logger, std::string component, const char* format,
-         int value) { logger.LogError(component, format, value); });
+  TestLog(projectairsim::LogLevel::kError,
+          [](projectairsim::Logger& logger, std::string component,
+             const char* format,
+             int value) { logger.LogError(component, format, value); });
 }
 
 TEST(Logger, LogWarning) {
@@ -71,10 +73,10 @@ TEST(Logger, LogWarning) {
           [](projectairsim::Logger& logger, std::string component,
              const char* format) { logger.LogWarning(component, format); });
 
-  TestLog(
-      projectairsim::LogLevel::kWarning,
-      [](projectairsim::Logger& logger, std::string component, const char* format,
-         int value) { logger.LogWarning(component, format, value); });
+  TestLog(projectairsim::LogLevel::kWarning,
+          [](projectairsim::Logger& logger, std::string component,
+             const char* format,
+             int value) { logger.LogWarning(component, format, value); });
 }
 
 TEST(Logger, LogTrace) {
@@ -82,10 +84,10 @@ TEST(Logger, LogTrace) {
           [](projectairsim::Logger& logger, std::string component,
              const char* format) { logger.LogTrace(component, format); });
 
-  TestLog(
-      projectairsim::LogLevel::kTrace,
-      [](projectairsim::Logger& logger, std::string component, const char* format,
-         int value) { logger.LogTrace(component, format, value); });
+  TestLog(projectairsim::LogLevel::kTrace,
+          [](projectairsim::Logger& logger, std::string component,
+             const char* format,
+             int value) { logger.LogTrace(component, format, value); });
 }
 
 TEST(Logger, LogVerbose) {
@@ -93,13 +95,14 @@ TEST(Logger, LogVerbose) {
           [](projectairsim::Logger& logger, std::string component,
              const char* format) { logger.LogVerbose(component, format); });
 
-  TestLog(
-      projectairsim::LogLevel::kVerbose,
-      [](projectairsim::Logger& logger, std::string component, const char* format,
-         int value) { logger.LogVerbose(component, format, value); });
+  TestLog(projectairsim::LogLevel::kVerbose,
+          [](projectairsim::Logger& logger, std::string component,
+             const char* format,
+             int value) { logger.LogVerbose(component, format, value); });
 
   int count = 0;
-  auto callback = [&](const std::string& component, projectairsim::LogLevel level,
+  auto callback = [&](const std::string& component,
+                      projectairsim::LogLevel level,
                       const std::string& message) {
     EXPECT_EQ(message, "");
     count++;
@@ -134,7 +137,8 @@ TEST(Logger, LogVerbose) {
 }
 
 TEST(Logger, GetLogLevel) {
-  auto callback = [](const std::string& component, projectairsim::LogLevel level,
+  auto callback = [](const std::string& component,
+                     projectairsim::LogLevel level,
                      const std::string& message) {};
   projectairsim::Logger logger(callback);
 
@@ -159,7 +163,8 @@ TEST(Logger, GetLogLevel) {
 TEST(Logger, SetLogLevel) {
   int count = 0;
 
-  auto callback = [&](const std::string& component, projectairsim::LogLevel level,
+  auto callback = [&](const std::string& component,
+                      projectairsim::LogLevel level,
                       const std::string& message) { count++; };
 
   projectairsim::Logger logger(callback, projectairsim::LogLevel::kVerbose);
@@ -244,14 +249,16 @@ TEST(Logger, SetLogLevel) {
   EXPECT_EQ(count, 1);
 }
 
-void TestLog(projectairsim::LogLevel test_level,
-             std::function<void(projectairsim::Logger&, std::string, const char*)>
-                 log_func) {
+void TestLog(
+    projectairsim::LogLevel test_level,
+    std::function<void(projectairsim::Logger&, std::string, const char*)>
+        log_func) {
   int count = 0;
   std::string actual_component;
   std::string actual_message;
 
-  auto callback = [&](const std::string& component, projectairsim::LogLevel level,
+  auto callback = [&](const std::string& component,
+                      projectairsim::LogLevel level,
                       const std::string& message) {
     if (level == test_level) {
       count++;
@@ -280,7 +287,8 @@ void TestLog(
   std::string actual_component;
   std::string actual_message;
 
-  auto callback = [&](const std::string& component, projectairsim::LogLevel level,
+  auto callback = [&](const std::string& component,
+                      projectairsim::LogLevel level,
                       const std::string& message) {
     if (level == test_level) {
       count++;

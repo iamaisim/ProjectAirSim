@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -299,16 +299,18 @@ Status Drone::Impl::CancelLastTask(bool* pf_task_is_canceled_out) {
   TAsyncResult<Message> ar;
   Status status;
 
-  ar = pclient_->RequestPriorityAsync(str_parent_topic_ + "/CancelLastTask", json(), nullptr);
+  ar = pclient_->RequestPriorityAsync(str_parent_topic_ + "/CancelLastTask",
+                                      json(), nullptr);
   if ((status = ar.Wait()) == Status::OK) {
     const Message& message = ar.GetResult();
     ResponseMessage response_message;
 
     response_message.Deserialize(message);
     if (response_message.GetErrorCode() == 0)
-        *pf_task_is_canceled_out = response_message.GetResult().is_boolean() && static_cast<bool>(response_message.GetResult());
-    else
-    {
+      *pf_task_is_canceled_out =
+          response_message.GetResult().is_boolean() &&
+          static_cast<bool>(response_message.GetResult());
+    else {
       status = Status::RejectedByServer;
 
       log.ErrorF(

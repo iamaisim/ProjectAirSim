@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -56,7 +56,8 @@ TEST(Airspeed, SetsAirspeedID) {
   const auto& id = airspeed_json["id"];
   const auto& is_enabled = airspeed_json["enabled"];
   const auto& parent_link = airspeed_json["parent-link"];
-  auto airspeed = projectairsim::Robot::MakeAirspeed(id, is_enabled, parent_link);
+  auto airspeed =
+      projectairsim::Robot::MakeAirspeed(id, is_enabled, parent_link);
   EXPECT_EQ(airspeed.GetId(), std::string("Airspeed1"));
 }
 
@@ -65,7 +66,8 @@ TEST(Airspeed, SetsSensorType) {
   const auto& id = airspeed_json["id"];
   const auto& is_enabled = airspeed_json["enabled"];
   const auto& parent_link = airspeed_json["parent-link"];
-  auto airspeed = projectairsim::Robot::MakeAirspeed(id, is_enabled, parent_link);
+  auto airspeed =
+      projectairsim::Robot::MakeAirspeed(id, is_enabled, parent_link);
   EXPECT_EQ(airspeed.GetType(), projectairsim::SensorType::kAirspeed);
 }
 
@@ -74,7 +76,8 @@ TEST(Airspeed, SetsIsEnabled) {
   const auto& id = airspeed_json["id"];
   auto is_enabled = airspeed_json["enabled"];
   const auto& parent_link = airspeed_json["parent-link"];
-  auto airspeed = projectairsim::Robot::MakeAirspeed(id, is_enabled, parent_link);
+  auto airspeed =
+      projectairsim::Robot::MakeAirspeed(id, is_enabled, parent_link);
   EXPECT_EQ(airspeed.IsEnabled(), true);
   is_enabled = false;
   airspeed = projectairsim::Robot::MakeAirspeed(id, is_enabled, parent_link);
@@ -86,7 +89,8 @@ TEST(Airspeed, SetsParentLink) {
   const auto& id = airspeed_json["id"];
   const auto& is_enabled = airspeed_json["enabled"];
   auto parent_link = airspeed_json["parent-link"];
-  auto airspeed = projectairsim::Robot::MakeAirspeed(id, is_enabled, parent_link);
+  auto airspeed =
+      projectairsim::Robot::MakeAirspeed(id, is_enabled, parent_link);
   EXPECT_EQ(airspeed.GetParentLink(), std::string("ParentLink"));
   parent_link = std::string("NEW-PARENT-LINK-123");
   airspeed = projectairsim::Robot::MakeAirspeed(id, is_enabled, parent_link);
@@ -98,7 +102,8 @@ TEST(Airspeed, LoadsAirspeed) {
   const auto& id = airspeed_json["id"];
   const auto& is_enabled = airspeed_json["enabled"];
   const auto& parent_link = airspeed_json["parent-link"];
-  auto airspeed = projectairsim::Robot::MakeAirspeed(id, is_enabled, parent_link);
+  auto airspeed =
+      projectairsim::Robot::MakeAirspeed(id, is_enabled, parent_link);
   projectairsim::Robot::LoadAirspeed(airspeed, airspeed_json);
   EXPECT_EQ(airspeed.IsLoaded(), true);
 }
@@ -108,7 +113,8 @@ TEST(Airspeed, SetsIsLoaded) {
   const auto& id = airspeed_json["id"];
   const auto& is_enabled = airspeed_json["enabled"];
   const auto& parent_link = airspeed_json["parent-link"];
-  auto airspeed = projectairsim::Robot::MakeAirspeed(id, is_enabled, parent_link);
+  auto airspeed =
+      projectairsim::Robot::MakeAirspeed(id, is_enabled, parent_link);
   EXPECT_EQ(airspeed.IsLoaded(), false);
   projectairsim::Robot::LoadAirspeed(airspeed, airspeed_json);
   EXPECT_EQ(airspeed.IsLoaded(), true);

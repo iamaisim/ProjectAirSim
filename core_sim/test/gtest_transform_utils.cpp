@@ -15,7 +15,8 @@ TEST(TransformUtils, ToQuaternion) {
   constexpr float a0_y = 0.5f;
   constexpr float a0_z = 0.5f;
 
-  auto q = projectairsim::TransformUtils::ToQuaternion(t0_roll, t0_pitch, t0_yaw);
+  auto q =
+      projectairsim::TransformUtils::ToQuaternion(t0_roll, t0_pitch, t0_yaw);
 
   EXPECT_FLOAT_EQ(q.w(), a0_w);
   EXPECT_FLOAT_EQ(q.x(), a0_x);
@@ -23,9 +24,12 @@ TEST(TransformUtils, ToQuaternion) {
   EXPECT_FLOAT_EQ(q.z(), a0_z);
 
   // Test near pitch singularity clip at 89.9 deg
-  constexpr float t1_roll = projectairsim::TransformUtils::kEulerSingularityMinor;
-  constexpr float t1_pitch = projectairsim::TransformUtils::kEulerSingularityMinor;
-  constexpr float t1_yaw = projectairsim::TransformUtils::kEulerSingularityMinor;
+  constexpr float t1_roll =
+      projectairsim::TransformUtils::kEulerSingularityMinor;
+  constexpr float t1_pitch =
+      projectairsim::TransformUtils::kEulerSingularityMinor;
+  constexpr float t1_yaw =
+      projectairsim::TransformUtils::kEulerSingularityMinor;
   constexpr float a1_w = 0.7071075f;
   constexpr float a1_x = 0.000617057f;
   constexpr float a1_y = 0.7071054f;
@@ -40,8 +44,7 @@ TEST(TransformUtils, ToQuaternion) {
 
   // Test over pitch singularity clip at 89.9 deg
   constexpr float t2_roll = t1_roll;
-  constexpr float t2_pitch =
-      89.99 * M_PI / 180.0f;
+  constexpr float t2_pitch = 89.99 * M_PI / 180.0f;
   constexpr float t2_yaw = t1_yaw;
   constexpr float a2_w = a1_w;
   constexpr float a2_x = a1_x;
@@ -56,9 +59,12 @@ TEST(TransformUtils, ToQuaternion) {
   EXPECT_FLOAT_EQ(q.z(), a2_z);
 
   // Test near pitch singularity clip at 90.1 deg
-  constexpr float t1b_roll = projectairsim::TransformUtils::kEulerSingularityMajor;
-  constexpr float t1b_pitch = projectairsim::TransformUtils::kEulerSingularityMajor;
-  constexpr float t1b_yaw = projectairsim::TransformUtils::kEulerSingularityMajor;
+  constexpr float t1b_roll =
+      projectairsim::TransformUtils::kEulerSingularityMajor;
+  constexpr float t1b_pitch =
+      projectairsim::TransformUtils::kEulerSingularityMajor;
+  constexpr float t1b_yaw =
+      projectairsim::TransformUtils::kEulerSingularityMajor;
   constexpr float a1b_w = 0.7071075f;
   constexpr float a1b_x = -0.00061708689f;
   constexpr float a1b_y = 0.7071054f;
@@ -73,8 +79,7 @@ TEST(TransformUtils, ToQuaternion) {
 
   // Test over pitch singularity clip at 90.1 deg
   constexpr float t2b_roll = t1b_roll;
-  constexpr float t2b_pitch =
-      90.01 * M_PI / 180.0f;
+  constexpr float t2b_pitch = 90.01 * M_PI / 180.0f;
   constexpr float t2b_yaw = t1b_yaw;
   constexpr float a2b_w = a1b_w;
   constexpr float a2b_x = a1b_x;
@@ -89,9 +94,12 @@ TEST(TransformUtils, ToQuaternion) {
   EXPECT_FLOAT_EQ(q.z(), a2b_z);
 
   // Test near pitch singularity negative clip at -89.9 deg
-  constexpr float t3_roll = -projectairsim::TransformUtils::kEulerSingularityMinor;
-  constexpr float t3_pitch = -projectairsim::TransformUtils::kEulerSingularityMinor;
-  constexpr float t3_yaw = -projectairsim::TransformUtils::kEulerSingularityMinor;
+  constexpr float t3_roll =
+      -projectairsim::TransformUtils::kEulerSingularityMinor;
+  constexpr float t3_pitch =
+      -projectairsim::TransformUtils::kEulerSingularityMinor;
+  constexpr float t3_yaw =
+      -projectairsim::TransformUtils::kEulerSingularityMinor;
   constexpr float a3_w = 0.0018511415f;
   constexpr float a3_x = -0.7071054f;
   constexpr float a3_y = -0.00061705709f;
@@ -121,9 +129,12 @@ TEST(TransformUtils, ToQuaternion) {
   EXPECT_FLOAT_EQ(q.z(), a4_z);
 
   // Test near pitch singularity negative clip at -90.1 deg
-  constexpr float t3b_roll = -projectairsim::TransformUtils::kEulerSingularityMajor;
-  constexpr float t3b_pitch = -projectairsim::TransformUtils::kEulerSingularityMajor;
-  constexpr float t3b_yaw = -projectairsim::TransformUtils::kEulerSingularityMajor;
+  constexpr float t3b_roll =
+      -projectairsim::TransformUtils::kEulerSingularityMajor;
+  constexpr float t3b_pitch =
+      -projectairsim::TransformUtils::kEulerSingularityMajor;
+  constexpr float t3b_yaw =
+      -projectairsim::TransformUtils::kEulerSingularityMajor;
   constexpr float a3b_w = -0.0018512607f;
   constexpr float a3b_x = -0.7071054f;
   constexpr float a3b_y = 0.00061711669f;
@@ -215,7 +226,7 @@ TEST(TransformUtils, ToQuaternion) {
 
 TEST(TransformUtils, ToRpy) {
   microsoft::projectairsim::Quaternion q(0.68301266f, -0.18301269f, 0.5f,
-                                       0.5f);  // w, x, y, z
+                                         0.5f);  // w, x, y, z
 
   auto v = projectairsim::TransformUtils::ToRPY(q);
 

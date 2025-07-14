@@ -131,13 +131,11 @@ class TRZTorqueController : public IAxisController, public IGoal {
 
         // initialize axis controller
         if (axis_controllers_[axis] != nullptr) {
-          axis_controllers_[axis]->Initialize(
-              axis, goal_, state_estimator_);
+          axis_controllers_[axis]->Initialize(axis, goal_, state_estimator_);
           axis_controllers_[axis]->Reset();
         }
         if (fwangle_controllers_[axis] != nullptr) {
-          fwangle_controllers_[axis]->Initialize(
-              axis, goal_, state_estimator_);
+          fwangle_controllers_[axis]->Initialize(axis, goal_, state_estimator_);
           fwangle_controllers_[axis]->Reset();
         }
       }
@@ -159,14 +157,14 @@ class TRZTorqueController : public IAxisController, public IGoal {
          axis_controllers_[IAxisController::kZYaw] != nullptr);
   }
 
-  TReal GetOutput() override { // check
+  TReal GetOutput() override {  // check
     output_ = 0.0f;
 
     // Get output
     if (fabs(state_estimator_->GetAngles().Pitch()) >
         (kPI / 2.0f - params_->vtol.pitch_min_fixed_wing)) {
-        //If the vehicle is pitched too vertically, don't attempt to yaw
-        output_ = 0.0f;
+      // If the vehicle is pitched too vertically, don't attempt to yaw
+      output_ = 0.0f;
     } else if (axis_controllers_[IAxisController::kZYaw] != nullptr) {
       output_ = axis_controllers_[IAxisController::kZYaw]->GetOutput();
     } else {
@@ -227,13 +225,13 @@ class TRZTorqueController : public IAxisController, public IGoal {
                                                   // each "axis" (X-pitch,
                                                   // Y-roll, Z-yaw, and
                                                   // Z-height)
-  const IGoal* goal_;        // External goals
+  const IGoal* goal_;                             // External goals
   GoalMode goal_mode_child_;  // Goal mode for angle_level_controller_
   Axis4r goal_value_child_;   // Goal values for angle_level_controller_
-  GoalMode last_goal_mode_;  // Previous goal modes
-  Axis4r last_goal_val_;     // Previous goal values
-  TReal output_;             // Our current output
-  Params* params_;           // External parameters
+  GoalMode last_goal_mode_;   // Previous goal modes
+  Axis4r last_goal_val_;      // Previous goal values
+  TReal output_;              // Our current output
+  Params* params_;            // External parameters
   const IStateEstimator* state_estimator_;  // Vehical state estimator
 };
 

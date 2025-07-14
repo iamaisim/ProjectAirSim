@@ -205,7 +205,8 @@ void MatlabControllerApi::Update() {
   }
 }
 
-std::vector<float> MatlabControllerApi::GetControlSignals(const std::string& actuator_id) {
+std::vector<float> MatlabControllerApi::GetControlSignals(
+    const std::string& actuator_id) {
   std::lock_guard<std::mutex> lock(update_lock_);
 
   auto actuator_map_itr = actuator_id_to_output_idx_map_.find(actuator_id);

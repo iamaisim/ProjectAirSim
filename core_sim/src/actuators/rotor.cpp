@@ -72,7 +72,7 @@ class Rotor::Impl : public ActuatorImpl {
 
   const float GetPowerConsumption() const;
 
-  void UpdateActuatorOutput(std::vector<float> && control_signals,
+  void UpdateActuatorOutput(std::vector<float>&& control_signals,
                             const TimeNano sim_dt_nanos);
 
   void SetAirDensityRatio(float air_density_ratio);
@@ -171,8 +171,8 @@ const ActuatedTransforms& Rotor::GetActuatedTransforms() const {
   return static_cast<Rotor::Impl*>(pimpl_.get())->GetActuatedTransforms();
 }
 
-void Rotor::UpdateActuatorOutput(std::vector<float> && control_signals,
-                            const TimeNano sim_dt_nanos){
+void Rotor::UpdateActuatorOutput(std::vector<float>&& control_signals,
+                                 const TimeNano sim_dt_nanos) {
   static_cast<Rotor::Impl*>(pimpl_.get())
       ->UpdateActuatorOutput(std::move(control_signals), sim_dt_nanos);
 }
@@ -282,8 +282,8 @@ void Rotor::Impl::SetAirDensityRatio(float air_density_ratio) {
 
 void Rotor::Impl::SetTilt(Quaternion quat) { quat_tilt_ = quat; }
 
-void Rotor::Impl::UpdateActuatorOutput(std::vector<float> && control_signals,
-                            const TimeNano sim_dt_nanos){
+void Rotor::Impl::UpdateActuatorOutput(std::vector<float>&& control_signals,
+                                       const TimeNano sim_dt_nanos) {
   // This actuator uses one control signal
   auto control_signal = control_signals[0];
   // Apply first order filter to simulate actuator hardware dynamics

@@ -78,9 +78,7 @@ void SteeringController::Update(void) {
         }
       }
     }
-  }
-  else if (goal.mode == Goal::Mode::kAngleLevel)
-  {
+  } else if (goal.mode == Goal::Mode::kAngleLevel) {
     if (fgoalmodes_changed) {
       // Setup the steering control PID
       pid_controller_steering_.setPoint(0.0f, pparams_->angle_level_pid.p.Z(),

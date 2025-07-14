@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -6,7 +6,6 @@
 
 #include "GPULidar.h"
 
-#include "ProjectAirSim.h"
 #include "Components/LineBatchComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Engine/CollisionProfile.h"
@@ -18,6 +17,7 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Misc/CoreDelegates.h"
 #include "Misc/FileHelper.h"
+#include "ProjectAirSim.h"
 #include "Runtime/Core/Public/Async/ParallelFor.h"
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
 #include "SceneView.h"
@@ -79,10 +79,11 @@ void UGPULidar::TickComponent(float DeltaTime, ELevelTick TickType,
 
   const auto LidarTransformStamped = UnrealTransform::GetPoseNed(this);
   projectairsim::Pose LidarPose(LidarTransformStamped.translation_,
-                              LidarTransformStamped.rotation_);
+                                LidarTransformStamped.rotation_);
 
-  projectairsim::LidarMessage LidarMsg(CurSimTime, PointCloud, AzimuthElevationRangeCloud, SegmentationCloud,
-                                     IntensityCloud, LaserIndexCloud, LidarPose);
+  projectairsim::LidarMessage LidarMsg(
+      CurSimTime, PointCloud, AzimuthElevationRangeCloud, SegmentationCloud,
+      IntensityCloud, LaserIndexCloud, LidarPose);
   Lidar.PublishLidarMsg(LidarMsg);
   LastSimTime = CurSimTime;
 }
@@ -159,15 +160,17 @@ void UGPULidar::SetUpCams() {
   // some ideas from here
   // https://b3d.interplanety.org/en/vertical-and-horizontal-camera-fov-angles/
 
-  VerticleAngle = 2 * std::atan(std::tan(projectairsim::TransformUtils::ToRadians(
-                                    VerticleAngle / 2.0f)) /
-                                std::cos(projectairsim::TransformUtils::ToRadians(
-                                    HorizontalAngle / 2.0f)));
+  VerticleAngle =
+      2 * std::atan(std::tan(projectairsim::TransformUtils::ToRadians(
+                        VerticleAngle / 2.0f)) /
+                    std::cos(projectairsim::TransformUtils::ToRadians(
+                        HorizontalAngle / 2.0f)));
 
   VerticleAngle = projectairsim::TransformUtils::ToDegrees(VerticleAngle);
 
   auto aspectRatio =
-      std::tan(projectairsim::TransformUtils::ToRadians(HorizontalAngle / 2.0)) /
+      std::tan(
+          projectairsim::TransformUtils::ToRadians(HorizontalAngle / 2.0)) /
       std::tan(projectairsim::TransformUtils::ToRadians(VerticleAngle / 2.0));
 
   int HeightEachCam = (int)WidthEachCam / aspectRatio;
@@ -256,8 +259,9 @@ void UGPULidar::InitializePose() {
 
   // Check that the initial pose was set correctly
   projectairsim::Transform InitializedPose = UnrealTransform::GetPoseNed(this);
-  projectairsim::Vector3 InitializedRPY = projectairsim::TransformUtils::ToDegrees(
-      projectairsim::TransformUtils::ToRPY(InitializedPose.rotation_));
+  projectairsim::Vector3 InitializedRPY =
+      projectairsim::TransformUtils::ToDegrees(
+          projectairsim::TransformUtils::ToRPY(InitializedPose.rotation_));
   UnrealLogger::Log(
       projectairsim::LogLevel::kTrace,
       TEXT("[UnrealLidar] Lidar '%S': InitializePose(). "
@@ -357,12 +361,13 @@ void UGPULidar::Simulate(const float SimTimeDeltaSec) {
       PointCloud.emplace_back(PointNed.x());
       PointCloud.emplace_back(PointNed.y());
       PointCloud.emplace_back(PointNed.z());
-      AzimuthElevationRangeCloud.emplace_back(0.0); //TODO: support azelrange format
+      AzimuthElevationRangeCloud.emplace_back(
+          0.0);  // TODO: support azelrange format
       AzimuthElevationRangeCloud.emplace_back(0.0);
       AzimuthElevationRangeCloud.emplace_back(0.0);
       SegmentationCloud.emplace_back(-1);  // TODO: find segmentation id
       IntensityCloud.emplace_back(pointCloudData[i].W);
-      LaserIndexCloud.emplace_back(-1); // TODO: find laser index
+      LaserIndexCloud.emplace_back(-1);  // TODO: find laser index
 
       if (Settings.draw_debug_points) {
         DrawDebugPoint(world, cameraTransform.TransformPosition(point),

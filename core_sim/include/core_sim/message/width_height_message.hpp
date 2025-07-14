@@ -13,8 +13,7 @@ namespace projectairsim {
 
 class WidthHeightMessage : public Message {
  public:
-  WidthHeightMessage(const int width,
-              const int height);
+  WidthHeightMessage(const int width, const int height);
 
   WidthHeightMessage();
 

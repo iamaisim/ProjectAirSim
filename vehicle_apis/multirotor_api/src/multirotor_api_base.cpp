@@ -801,7 +801,8 @@ bool MultirotorApiBase::MoveOnPathInternal(
   float lookahead_error_increasing = 0;
   float lookahead_error = 0;
   vehicle_apis::FunctionCaller function_caller(GetCommandPeriod(), timeout_sec,
-                                 GetCancelToken(), command_start_time_nanos);
+                                               GetCancelToken(),
+                                               command_start_time_nanos);
 
   // initialize next path position
   if (SetNextPathPosition(path3d, path_segs, cur_path_loc,
@@ -1263,8 +1264,8 @@ vehicle_apis::FunctionCaller MultirotorApiBase::RunFlightCommand(
     WaitFunction flight_controller_function, float flight_command_timeout_sec,
     int64_t command_start_time_nanos) {
   vehicle_apis::FunctionCaller function_caller(
-      GetCommandPeriod(), flight_command_timeout_sec,
-                                 GetCancelToken(), command_start_time_nanos);
+      GetCommandPeriod(), flight_command_timeout_sec, GetCancelToken(),
+      command_start_time_nanos);
 
   if (flight_command_timeout_sec <= 0) {
     return function_caller;

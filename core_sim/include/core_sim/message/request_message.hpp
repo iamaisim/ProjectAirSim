@@ -4,8 +4,8 @@
 #define CORE_SIM_INCLUDE_CORE_SIM_MESSAGE_REQUEST_MESSAGE_HPP_
 #include <string>
 
-#include "message.hpp"
 #include "json.hpp"
+#include "message.hpp"
 
 namespace microsoft {
 namespace projectairsim {

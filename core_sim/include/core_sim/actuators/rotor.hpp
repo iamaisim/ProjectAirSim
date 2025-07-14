@@ -109,8 +109,8 @@ class Rotor : public Actuator {
 
   void SetTilt(Quaternion quat);
 
- void UpdateActuatorOutput(std::vector<float> && control_signals,
-                            const TimeNano sim_dt_nanos)override;
+  void UpdateActuatorOutput(std::vector<float>&& control_signals,
+                            const TimeNano sim_dt_nanos) override;
 
   // These conversion operators allow this object to be passed directly to
   // TransformTree methods

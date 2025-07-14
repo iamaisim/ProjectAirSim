@@ -5,12 +5,12 @@
 #include "core_sim/error.hpp"
 #include "core_sim/message/flight_control_rc_input_message.hpp"
 #include "core_sim/message/flight_control_setpoint_message.hpp"
-#include "core_sim/message/int8_message.hpp"
-#include "core_sim/message/joint_state_message.hpp"
-#include "core_sim/message/pose_stamped_message.hpp"
-#include "core_sim/message/pose_message.hpp"
-#include "core_sim/message/int_list_message.hpp"
 #include "core_sim/message/float_message.hpp"
+#include "core_sim/message/int8_message.hpp"
+#include "core_sim/message/int_list_message.hpp"
+#include "core_sim/message/joint_state_message.hpp"
+#include "core_sim/message/pose_message.hpp"
+#include "core_sim/message/pose_stamped_message.hpp"
 
 namespace microsoft {
 namespace projectairsim {

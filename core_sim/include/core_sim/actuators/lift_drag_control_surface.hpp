@@ -40,8 +40,8 @@ class LiftDragControlSurface : public Actuator {
 
   const float& GetControlAngle() const;
 
- void UpdateActuatorOutput(std::vector<float> && control_signals,
-                            const TimeNano sim_dt_nanos)override;
+  void UpdateActuatorOutput(std::vector<float>&& control_signals,
+                            const TimeNano sim_dt_nanos) override;
 
  private:
   friend class Robot;

@@ -43,8 +43,9 @@ class LidarMessage::Impl : public MessageImpl {
 
   void Deserialize(const std::string& buffer) override;
 
-  MSGPACK_DEFINE_MAP(time_stamp, point_cloud, azimuth_elevation_range_cloud, segmentation_cloud,
-                     intensity_cloud, laser_index_cloud, pose);
+  MSGPACK_DEFINE_MAP(time_stamp, point_cloud, azimuth_elevation_range_cloud,
+                     segmentation_cloud, intensity_cloud, laser_index_cloud,
+                     pose);
 
  private:
   TimeNano time_stamp;
@@ -70,8 +71,9 @@ LidarMessage::LidarMessage(TimeNano time_stamp_val,
                            std::vector<int> laser_index_cloud_val,
                            Pose pose_val)
     : Message(std::make_shared<LidarMessage::Impl>(
-          time_stamp_val, point_cloud_val, azimuth_elevation_range_cloud_val, segmentation_cloud_val,
-          intensity_cloud_val, laser_index_cloud_val, pose_val)) {}
+          time_stamp_val, point_cloud_val, azimuth_elevation_range_cloud_val,
+          segmentation_cloud_val, intensity_cloud_val, laser_index_cloud_val,
+          pose_val)) {}
 
 LidarMessage::~LidarMessage() {}
 
@@ -80,7 +82,8 @@ const std::vector<float> LidarMessage::GetPointCloud() const {
 }
 
 const std::vector<float> LidarMessage::GetAzimuthElevationRangeCloud() const {
-  return static_cast<LidarMessage::Impl*>(pimpl_.get())->GetAzimuthElevationRangeCloud();
+  return static_cast<LidarMessage::Impl*>(pimpl_.get())
+      ->GetAzimuthElevationRangeCloud();
 }
 
 const std::vector<int> LidarMessage::GetSegmentationCloud() const {
@@ -131,7 +134,8 @@ const std::vector<float> LidarMessage::Impl::GetPointCloud() const {
   return point_cloud;
 }
 
-const std::vector<float> LidarMessage::Impl::GetAzimuthElevationRangeCloud() const {
+const std::vector<float> LidarMessage::Impl::GetAzimuthElevationRangeCloud()
+    const {
   return azimuth_elevation_range_cloud;
 }
 

@@ -422,16 +422,17 @@ bool CameraIsPoseUpdatePending(int actor_index, int sensor_index) {
   projectairsim::Robot robot;
   projectairsim::Camera camera;
   if (GetRobotByActorIndex(actor_index, robot)) {
-    if (GetSensorByIndex<projectairsim::Camera>(actor_index, sensor_index, camera))
+    if (GetSensorByIndex<projectairsim::Camera>(actor_index, sensor_index,
+                                                camera))
       return camera.IsPoseUpdatePending();
   }
-  
+
   // TODO Log warning
   return false;
 }
 
 const char* CameraGetLookAtObject(int actor_index, int sensor_index) {
-   if (simserver == nullptr) {
+  if (simserver == nullptr) {
     // TODO Log warning
     return "";
   }
@@ -439,18 +440,19 @@ const char* CameraGetLookAtObject(int actor_index, int sensor_index) {
   projectairsim::Robot robot;
   projectairsim::Camera camera;
   if (GetRobotByActorIndex(actor_index, robot)) {
-    if (GetSensorByIndex<projectairsim::Camera>(actor_index, sensor_index, camera))
-    {
+    if (GetSensorByIndex<projectairsim::Camera>(actor_index, sensor_index,
+                                                camera)) {
       const char* result = camera.GetLookAtObject().c_str();
       return result;
     }
   }
-  
+
   // TODO Log warning
   return "";
 }
 
-bool CameraResetPose(int actor_index, int sensor_index, bool wait_for_pose_update) {
+bool CameraResetPose(int actor_index, int sensor_index,
+                     bool wait_for_pose_update) {
   if (simserver == nullptr) {
     // TODO Log warning
     return false;
@@ -459,10 +461,11 @@ bool CameraResetPose(int actor_index, int sensor_index, bool wait_for_pose_updat
   projectairsim::Robot robot;
   projectairsim::Camera camera;
   if (GetRobotByActorIndex(actor_index, robot)) {
-    if (GetSensorByIndex<projectairsim::Camera>(actor_index, sensor_index, camera))
+    if (GetSensorByIndex<projectairsim::Camera>(actor_index, sensor_index,
+                                                camera))
       return camera.ResetCameraPose(wait_for_pose_update);
   }
-  
+
   // TODO Log warning
   return false;
 }
@@ -476,14 +479,16 @@ void CameraMarkPoseUpdateAsCompleted(int actor_index, int sensor_index) {
   projectairsim::Robot robot;
   projectairsim::Camera camera;
   if (GetRobotByActorIndex(actor_index, robot)) {
-    if (GetSensorByIndex<projectairsim::Camera>(actor_index, sensor_index, camera))
+    if (GetSensorByIndex<projectairsim::Camera>(actor_index, sensor_index,
+                                                camera))
       camera.MarkPoseUpdateAsCompleted();
   }
-  
+
   // TODO Log warning
 }
 
-UnityInterop::InteropPose CameraGetDesiredPose(int actor_index, int sensor_index) {
+UnityInterop::InteropPose CameraGetDesiredPose(int actor_index,
+                                               int sensor_index) {
   if (simserver == nullptr) {
     // TODO Log warning
     return UnityInterop::InteropPose();
@@ -492,14 +497,14 @@ UnityInterop::InteropPose CameraGetDesiredPose(int actor_index, int sensor_index
   projectairsim::Robot robot;
   projectairsim::Camera camera;
   if (GetRobotByActorIndex(actor_index, robot)) {
-    if (GetSensorByIndex<projectairsim::Camera>(actor_index, sensor_index, camera))
-    {
+    if (GetSensorByIndex<projectairsim::Camera>(actor_index, sensor_index,
+                                                camera)) {
       const projectairsim::Transform& transformPose = camera.GetDesiredPose();
       UnityInterop::InteropPose pose = UnityInterop::InteropPose(transformPose);
       return pose;
     }
   }
-  
+
   // TODO Log warning
   return UnityInterop::InteropPose();
 }

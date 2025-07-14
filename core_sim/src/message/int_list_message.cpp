@@ -42,26 +42,21 @@ class IntListMessage::Impl : public MessageImpl {
 IntListMessage::IntListMessage(void)
     : Message(std::make_shared<IntListMessage::Impl>()) {}
 
-IntListMessage::IntListMessage(
-    std::initializer_list<int> values)
-    : Message(
-          std::make_shared<IntListMessage::Impl>(values)) {}
+IntListMessage::IntListMessage(std::initializer_list<int> values)
+    : Message(std::make_shared<IntListMessage::Impl>(values)) {}
 
 IntListMessage::~IntListMessage(void) {}
 
 std::vector<int> IntListMessage::GetValues(void) const {
-  return static_cast<IntListMessage::Impl*>(pimpl_.get())
-      ->GetList();
+  return static_cast<IntListMessage::Impl*>(pimpl_.get())->GetList();
 }
 
 std::string IntListMessage::Serialize(void) const {
-  return static_cast<IntListMessage::Impl*>(pimpl_.get())
-      ->Serialize();
+  return static_cast<IntListMessage::Impl*>(pimpl_.get())->Serialize();
 }
 
 void IntListMessage::Deserialize(const std::string& buffer) {
-  static_cast<IntListMessage::Impl*>(pimpl_.get())
-      ->Deserialize(buffer);
+  static_cast<IntListMessage::Impl*>(pimpl_.get())->Deserialize(buffer);
 }
 
 // -----------------------------------------------------------------------------
@@ -70,15 +65,12 @@ void IntListMessage::Deserialize(const std::string& buffer) {
 IntListMessage::Impl::Impl(void)
     : MessageImpl(MessageType::kIntList), values() {}
 
-IntListMessage::Impl::Impl(
-    std::initializer_list<int> _values)
+IntListMessage::Impl::Impl(std::initializer_list<int> _values)
     : MessageImpl(MessageType::kIntList), values() {
   values.assign(_values.begin(), _values.end());
 }
 
-std::vector<int> IntListMessage::Impl::GetList() {
-  return values;
-}
+std::vector<int> IntListMessage::Impl::GetList() { return values; }
 
 std::string IntListMessage::Impl::Serialize(void) {
   std::stringstream stream;

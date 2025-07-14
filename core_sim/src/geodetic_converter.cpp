@@ -50,7 +50,8 @@ void GeodeticConverter::setHome(double home_latitude, double home_longitude,
       atan2(home_ecef_z_, sqrt(pow(home_ecef_x_, 2) + pow(home_ecef_y_, 2)));
 
   ecef_to_ned_matrix_ = nRe(phiP, home_longitude_rad_);
-  ned_to_ecef_matrix_ = nRe(home_latitude_rad_, home_longitude_rad_).transpose();
+  ned_to_ecef_matrix_ =
+      nRe(home_latitude_rad_, home_longitude_rad_).transpose();
 
   // TODO: investigate if the below produces less errors as suggested by threads
   // in https://bizair.visualstudio.com/Project%20AirSim/_workitems/edit/21689/

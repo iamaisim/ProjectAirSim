@@ -72,7 +72,9 @@ class VelocityControllerTRZH : public IFWAngleController,
     pid_->Update();
 
     // use this to drive child controller
-    angle_output_ = -pid_->GetOutput() * params_->angle_level_pid.max_limit[IAxisController::kYPitch];
+    angle_output_ =
+        -pid_->GetOutput() *
+        params_->angle_level_pid.max_limit[IAxisController::kYPitch];
     child_goal_[IAxisController::kYPitch] = angle_output_;
     child_controller_->Update();
     output_ = child_controller_->GetOutput();

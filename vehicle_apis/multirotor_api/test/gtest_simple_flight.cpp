@@ -16,7 +16,8 @@ TEST(SimpleFlight, Constructor) {
   auto params = std::make_unique<simple_flight::Params>();
   auto board =
       std::make_unique<projectairsim::AirSimSimpleFlightBoard>(params.get());
-  auto comm_link = std::make_unique<projectairsim::AirSimSimpleFlightCommLink>();
+  auto comm_link =
+      std::make_unique<projectairsim::AirSimSimpleFlightCommLink>();
   auto state_estimator =
       std::make_unique<projectairsim::AirSimSimpleFlightEstimator>();
   auto state_estimator_fw =

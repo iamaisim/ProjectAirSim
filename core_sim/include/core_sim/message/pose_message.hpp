@@ -15,8 +15,7 @@ namespace projectairsim {
 
 class PoseMessage : public Message {
  public:
-  PoseMessage(const Vector3 position,
-              const Quaternion orientation);
+  PoseMessage(const Vector3 position, const Quaternion orientation);
 
   PoseMessage();
 

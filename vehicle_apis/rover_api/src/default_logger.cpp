@@ -1,7 +1,7 @@
 // Copyright (C) Microsoft Corporation. All rights reserved.
 
-#include "simple_drive/common.hpp"
 #include "ilogger.hpp"
+#include "simple_drive/common.hpp"
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -15,8 +15,8 @@ namespace microsoft {
 namespace projectairsim {
 namespace simple_drive {
 
-const char* DefaultLogger::kMapLogLevelSz[5] = {
-    nullptr, "Warning", "Error", "Fatal Error", "Verbose"};
+const char* DefaultLogger::kMapLogLevelSz[5] = {nullptr, "Warning", "Error",
+                                                "Fatal Error", "Verbose"};
 
 DefaultLogger::DefaultLogger(void) {}
 

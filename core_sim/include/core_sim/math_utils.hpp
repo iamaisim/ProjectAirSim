@@ -6,7 +6,9 @@
 #include <limits>
 
 #pragma warning(push)
-#pragma warning(disable:4127) //Disable warnings about static expressions in conditionals in a module that we don't control
+#pragma warning( \
+    disable : 4127)  // Disable warnings about static expressions in
+                     // conditionals in a module that we don't control
 #include "Eigen/Dense"
 #pragma warning(pop)
 

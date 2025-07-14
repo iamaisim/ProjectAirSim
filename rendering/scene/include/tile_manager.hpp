@@ -23,8 +23,7 @@ SCENE_BEGIN_NAMESPACE
 
 class TileManager {
  public:
-  TileManager(const GeoLocation& center_geo_point, int min_lod, 
-              int max_lod,
+  TileManager(const GeoLocation& center_geo_point, int min_lod, int max_lod,
               TileDivider::Quality quality = TileDivider::Quality::HIGH);
 
   ~TileManager();

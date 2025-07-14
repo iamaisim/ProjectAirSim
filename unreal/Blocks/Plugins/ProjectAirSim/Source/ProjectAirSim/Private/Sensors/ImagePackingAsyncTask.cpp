@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -22,7 +22,8 @@ void FImagePackingAsyncTask::DoWork() {
     ImgResponse.TimeStamp = CapturedCameraTransform.timestamp_;
 
     bool bIsDepthImage =
-        (ImageRequest.ImageType == projectairsim::ImageType::kDepthPerspective ||
+        (ImageRequest.ImageType ==
+             projectairsim::ImageType::kDepthPerspective ||
          ImageRequest.ImageType == projectairsim::ImageType::kDepthPlanar);
 
     // Handle Depth image requests here.
@@ -144,8 +145,7 @@ void FImagePackingAsyncTask::DoWork() {
             ImgResponse.CameraPosition.z(), ImgResponse.CameraOrientation.w(),
             ImgResponse.CameraOrientation.x(),
             ImgResponse.CameraOrientation.y(),
-            ImgResponse.CameraOrientation.z(),
-            Annotations));
+            ImgResponse.CameraOrientation.z(), Annotations));
   }
 
   // Publish the whole pack of image messages

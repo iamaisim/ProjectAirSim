@@ -81,15 +81,20 @@ extern "C" EXPORT double* GetEcefToNeuRotationMatrix();
 
 extern "C" EXPORT int* GetTileKeysToRender(int* size);
 
-extern "C" EXPORT bool CameraIsPoseUpdatePending(int actor_index, int sensor_index);
+extern "C" EXPORT bool CameraIsPoseUpdatePending(int actor_index,
+                                                 int sensor_index);
 
-extern "C" EXPORT const char* CameraGetLookAtObject(int actor_index, int sensor_index);
+extern "C" EXPORT const char* CameraGetLookAtObject(int actor_index,
+                                                    int sensor_index);
 
-extern "C" EXPORT bool CameraResetPose(int actor_index, int sensor_index, bool wait_for_pose_update);
+extern "C" EXPORT bool CameraResetPose(int actor_index, int sensor_index,
+                                       bool wait_for_pose_update);
 
-extern "C" EXPORT void CameraMarkPoseUpdateAsCompleted(int actor_index, int sensor_index);
+extern "C" EXPORT void CameraMarkPoseUpdateAsCompleted(int actor_index,
+                                                       int sensor_index);
 
-extern "C" EXPORT UnityInterop::InteropPose CameraGetDesiredPose(int actor_index, int sensor_index);
+extern "C" EXPORT UnityInterop::InteropPose CameraGetDesiredPose(
+    int actor_index, int sensor_index);
 
 ////////////////////////////// WorldSimApi ///////////////////////////////////
 

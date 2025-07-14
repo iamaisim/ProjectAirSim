@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -99,8 +99,9 @@ void UUnrealRadar::InitializePose(const projectairsim::Transform& PoseNed) {
 
   // Check that the initial pose was set correctly
   projectairsim::Transform InitializedPose = UnrealTransform::GetPoseNed(this);
-  projectairsim::Vector3 InitializedRPY = projectairsim::TransformUtils::ToDegrees(
-      projectairsim::TransformUtils::ToRPY(InitializedPose.rotation_));
+  projectairsim::Vector3 InitializedRPY =
+      projectairsim::TransformUtils::ToDegrees(
+          projectairsim::TransformUtils::ToRPY(InitializedPose.rotation_));
   UnrealLogger::Log(
       projectairsim::LogLevel::kTrace,
       TEXT("[UnrealRadar] Radar '%S': InitializePose(). "
@@ -232,7 +233,8 @@ void UUnrealRadar::SimulateRadarDetections(const TimeNano SimTime) {
     const projectairsim::Vector3 SensorVel = Radar.GetSensorVelocity();
     projectairsim::Kinematics Kin = GetKinematicsFromActor(HitActor);
     const projectairsim::Vector3 RelativeVel = Kin.twist.linear - SensorVel;
-    const projectairsim::Vector3 Dir = UnrealHelpers::ToVector3(RadarToHitPoint);
+    const projectairsim::Vector3 Dir =
+        UnrealHelpers::ToVector3(RadarToHitPoint);
     Detection.velocity = RelativeVel.dot(Dir.normalized());
     Detection.rcs_sqm = EstimateRadarCrossSection(HitActor);
 
@@ -274,9 +276,9 @@ void UUnrealRadar::SimulateRadarDetections(const TimeNano SimTime) {
   // 3. Publish RADAR detection message
   auto RadarTransformStamped = UnrealTransform::GetPoseNed(this);
   projectairsim::Pose RadarPose(RadarTransformStamped.translation_,
-                              RadarTransformStamped.rotation_);
+                                RadarTransformStamped.rotation_);
   projectairsim::RadarDetectionMessage DetectionMsg(SimTime, Detections,
-                                                  RadarPose);
+                                                    RadarPose);
   Radar.PublishRadarDetectionMsg(DetectionMsg);
 
   // 4. Accumulate detections until the next track update
@@ -428,7 +430,7 @@ void UUnrealRadar::SimulateRadarTracks(const TimeNano SimTime) {
   }
   auto RadarTransformStamped = UnrealTransform::GetPoseNed(this);
   projectairsim::Pose RadarPose(RadarTransformStamped.translation_,
-                              RadarTransformStamped.rotation_);
+                                RadarTransformStamped.rotation_);
   projectairsim::RadarTrackMessage TrackMsg(SimTime, CurTracks, RadarPose);
   Radar.PublishRadarTrackMsg(TrackMsg);
 

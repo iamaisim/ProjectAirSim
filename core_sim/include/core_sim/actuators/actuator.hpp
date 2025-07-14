@@ -35,8 +35,8 @@ class Actuator {
   bool IsEnabled() const;
   const std::string& GetParentLink() const;
   const std::string& GetChildLink() const;
-  virtual void UpdateActuatorOutput(std::vector<float> && control_signals,
-                            const TimeNano sim_dt_nanos) = 0;
+  virtual void UpdateActuatorOutput(std::vector<float>&& control_signals,
+                                    const TimeNano sim_dt_nanos) = 0;
 
   bool UpdateFaultInjectionEnabledState(bool enabled);
 

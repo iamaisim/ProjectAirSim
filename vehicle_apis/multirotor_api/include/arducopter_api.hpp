@@ -105,11 +105,11 @@ class ArduCopterApi : public VTOLFWApiBase {
                        float yaw) override;
   void CommandVelocityZ(float vx, float vy, float z, bool yaw_is_rate,
                         float yaw) override;
-  void CommandVelocityBody(float vx, float vy, float vz,
-                                   bool yaw_is_rate, float yaw) override;
+  void CommandVelocityBody(float vx, float vy, float vz, bool yaw_is_rate,
+                           float yaw) override;
 
-  void CommandVelocityZBody(float vx, float vy, float z,
-                                    bool yaw_is_rate, float yaw) override;
+  void CommandVelocityZBody(float vx, float vy, float z, bool yaw_is_rate,
+                            float yaw) override;
   void CommandPosition(float x, float y, float z, bool yaw_is_rate,
                        float yaw) override;
 

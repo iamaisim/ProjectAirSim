@@ -216,8 +216,9 @@ void Simulator::Impl::RegisterServiceMethod(const ServiceMethod& method,
   service_manager_.RegisterMethod(unique_method, method_handler);
 }
 
-bool Simulator::Impl::SetInteractiveFeature(const std::string& feature_id, bool enable) {
-  if(feature_id == "viewport_camera"){
+bool Simulator::Impl::SetInteractiveFeature(const std::string& feature_id,
+                                            bool enable) {
+  if (feature_id == "viewport_camera") {
     sim_scene_.EnableViewportCamera(enable);
     return true;
   }
@@ -235,13 +236,16 @@ void Simulator::Impl::RegisterServiceMethods() {
       [this](const ServiceMethod& method, MethodHandler method_handler) {
         RegisterServiceMethod(method, method_handler);
       });
-  
-  // Register service method SetInteractiveFeature( feature_id(str), enable(bool))
-  auto set_interactive_feature = ServiceMethod("SetInteractiveFeature", {"feature_id", "enable"});
-  auto set_interactive_feature_handler = set_interactive_feature.CreateMethodHandler(
-      &Simulator::Impl::SetInteractiveFeature, *this);
-  RegisterServiceMethod(set_interactive_feature, set_interactive_feature_handler);
 
+  // Register service method SetInteractiveFeature( feature_id(str),
+  // enable(bool))
+  auto set_interactive_feature =
+      ServiceMethod("SetInteractiveFeature", {"feature_id", "enable"});
+  auto set_interactive_feature_handler =
+      set_interactive_feature.CreateMethodHandler(
+          &Simulator::Impl::SetInteractiveFeature, *this);
+  RegisterServiceMethod(set_interactive_feature,
+                        set_interactive_feature_handler);
 }
 
 // -----------------------------------------------------------------------------

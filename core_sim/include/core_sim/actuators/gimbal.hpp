@@ -34,7 +34,7 @@ class Gimbal : public Actuator {
 
   const ActuatedTransforms& GetActuatedTransforms() const;
 
- void UpdateActuatorOutput(std::vector<float> && control_signals,
+  void UpdateActuatorOutput(std::vector<float>&& control_signals,
                             const TimeNano sim_dt_nanos) override;
 
   const std::string& GetTargetID(void) const;

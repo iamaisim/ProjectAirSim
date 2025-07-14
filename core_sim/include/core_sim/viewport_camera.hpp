@@ -25,26 +25,22 @@ class StateManager;
 
 class ViewportCamera {
  public:
-  ViewportCamera(const std::string& id,
-            const std::string& component, const Logger& logger,
-            const TopicManager& topic_manager,
-            const std::string& parent_topic_path,
-            const ServiceManager& service_manager,
-            const StateManager& state_manager);
+  ViewportCamera(const std::string& id, const std::string& component,
+                 const Logger& logger, const TopicManager& topic_manager,
+                 const std::string& parent_topic_path,
+                 const ServiceManager& service_manager,
+                 const StateManager& state_manager);
   void CreateTopics();
 
-  void SetCallbackPoseUpdated(const std::function<
-    void(const Pose&)>& callback); 
-  
-  void SetCallbackAspectRatioUpdated(const std::function<
-    void(float)>& callback);
+  void SetCallbackPoseUpdated(const std::function<void(const Pose&)>& callback);
 
-  void SetCallbackZoomUpdated(const std::function<
-    void(float)>& callback);
+  void SetCallbackAspectRatioUpdated(
+      const std::function<void(float)>& callback);
+
+  void SetCallbackZoomUpdated(const std::function<void(float)>& callback);
 
  protected:
   std::shared_ptr<ViewportCameraImpl> pimpl_;
-
 };
 
 }  // namespace projectairsim

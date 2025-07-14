@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -140,7 +140,8 @@ TEST(Sensor, LoadsCameraSensor) {
   projectairsim::Scene::LoadRobot(robot, config_json);
   auto& sensors = robot.GetSensors();
   EXPECT_EQ(sensors.size(), 0);
-  config_json["sensors"].push_back(projectairsim::Scene::GetBasicCameraConfig());
+  config_json["sensors"].push_back(
+      projectairsim::Scene::GetBasicCameraConfig());
   projectairsim::Scene::LoadRobot(robot, config_json);
   EXPECT_EQ(sensors.size(), 1);
   EXPECT_EQ(sensors.at(0).get().GetType(), projectairsim::SensorType::kCamera);
@@ -197,7 +198,8 @@ TEST(Sensor, LoadsImuAndCameraSensors) {
   projectairsim::Scene::LoadRobot(robot, config_json);
   auto& sensors = robot.GetSensors();
   EXPECT_EQ(sensors.size(), 0);
-  config_json["sensors"].push_back(projectairsim::Scene::GetBasicCameraConfig());
+  config_json["sensors"].push_back(
+      projectairsim::Scene::GetBasicCameraConfig());
   config_json["sensors"].push_back(projectairsim::Scene::GetBasicImuConfig());
   projectairsim::Scene::LoadRobot(robot, config_json);
   EXPECT_EQ(sensors.size(), 2);

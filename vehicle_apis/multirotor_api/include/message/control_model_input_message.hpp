@@ -19,11 +19,13 @@ class ControlModelInputMessage : ControlMessage {
   ControlModelInputMessage()
       : ControlMessage(ControlMessageType::kControlModelInput) {}
 
-  ControlModelInputMessage(
-      uint64_t time_stamp_val, KinematicsFlatMsgpack kinematics_val,
-      float airspeed_val, BarometerFlatMsgpack barometer_val,
-      ImuFlatMsgpack imu_val, Vector3FlatMsgpack magnetometer_val,
-      float distance_val, GpsFlatMsgpack gps_val)
+  ControlModelInputMessage(uint64_t time_stamp_val,
+                           KinematicsFlatMsgpack kinematics_val,
+                           float airspeed_val,
+                           BarometerFlatMsgpack barometer_val,
+                           ImuFlatMsgpack imu_val,
+                           Vector3FlatMsgpack magnetometer_val,
+                           float distance_val, GpsFlatMsgpack gps_val)
       : ControlMessage(ControlMessageType::kControlModelInput),
         time_stamp(time_stamp_val),
         kinematics(kinematics_val),

@@ -11,7 +11,7 @@ CThread::~CThread() {
   WaitForStop();
 }
 
-void CThread::Start(std::function<void(CThread *)> fnThreadProc) {
+void CThread::Start(std::function<void(CThread*)> fnThreadProc) {
   fShouldStop_ = false;
   events_.Reset(kEventExitThread);
   pthread_ = new std::thread(ThreadProcProxy, this, fnThreadProc);
@@ -22,8 +22,8 @@ void CThread::StopAsync(void) {
   events_.Set(kEventExitThread);
 }
 
-void CThread::ThreadProcProxy(CThread *pthread,
-                              std::function<void(CThread *)> fnThreadProc) {
+void CThread::ThreadProcProxy(CThread* pthread,
+                              std::function<void(CThread*)> fnThreadProc) {
   fnThreadProc(pthread);
 }
 

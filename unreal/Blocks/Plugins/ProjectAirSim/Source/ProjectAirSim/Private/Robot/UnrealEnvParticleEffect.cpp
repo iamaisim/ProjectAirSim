@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -8,11 +8,11 @@
 
 #include <vector>
 
+#include "Components/BoxComponent.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
 #include "Particles/ParticleSystemComponent.h"
-#include "Components/BoxComponent.h"
 #include "UObject/ConstructorHelpers.h"
 #include "core_sim/actor/env_actor.hpp"
 #include "core_sim/link.hpp"
@@ -34,7 +34,8 @@ AUnrealEnvParticleEffect::AUnrealEnvParticleEffect(
   NiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(
       TEXT("NiagaraParticleComponent"));
 
-  BoundingBoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoundingBoxComponent"));
+  BoundingBoxComponent =
+      CreateDefaultSubobject<UBoxComponent>(TEXT("BoundingBoxComponent"));
 }
 
 void AUnrealEnvParticleEffect::Initialize(
@@ -42,8 +43,8 @@ void AUnrealEnvParticleEffect::Initialize(
   // Store ptrs to other corresponding components for this env object
   this->SimEnvParticles = InEnvActor;
   auto visuals = InEnvActor.GetVisual();
-  auto particle_mesh = static_cast<const projectairsim::UnrealMesh*>(
-      visuals.GetGeometry());
+  auto particle_mesh =
+      static_cast<const projectairsim::UnrealMesh*>(visuals.GetGeometry());
 
   InitializeMesh(particle_mesh);
   InitializeId(InEnvActor.GetID());
@@ -100,7 +101,7 @@ void AUnrealEnvParticleEffect::Initialize(
 
   projectairsim::Pose pose = projectairsim::Pose(position, orientation);
 
-  UpdateEnvActorTargetPose(pose, 0);      // timestamp=0
+  UpdateEnvActorTargetPose(pose, 0);  // timestamp=0
   MoveEnvActorToTargetPose(false);
 }
 
@@ -131,9 +132,11 @@ void AUnrealEnvParticleEffect::InitializeMesh(
       UE_LOG(LogTemp, Error, TEXT("Failed to load particle asset at path: %s"),
              *meshPath);
     }
-    BoundingBoxComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+    BoundingBoxComponent->AttachToComponent(
+        RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
     BoundingBoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-    BoundingBoxComponent->SetCollisionResponseToAllChannels(ECR_Ignore);  // Adjust collision as needed
+    BoundingBoxComponent->SetCollisionResponseToAllChannels(
+        ECR_Ignore);  // Adjust collision as needed
     BoundingBoxComponent->RegisterComponent();
   } else {
     return;
@@ -152,28 +155,40 @@ void AUnrealEnvParticleEffect::Tick(float Delta) {
   float dt = (NowNanos - PrevSimTimeNanos) / 1.0e9f;
   PrevSimTimeNanos = NowNanos;
 
-  if (TickCount < 2) { // Wait for 2 ticks for the bounds of the particle system to initialize
-    TickCount++;  // Increment the tick counter
+  if (TickCount < 2) {  // Wait for 2 ticks for the bounds of the particle
+                        // system to initialize
+    TickCount++;        // Increment the tick counter
   }
 
   if (NiagaraComponent) {
     NiagaraComponent->AdvanceSimulation(dt, 1);
 
     if (TickCount == 2) {
-      TickCount++; // Increment the tick counter to avoid re-entering this block
+      TickCount++;  // Increment the tick counter to avoid re-entering this
+                    // block
       BoundingBoxComponent->SetBoxExtent(NiagaraComponent->Bounds.BoxExtent);
-      BoundingBoxComponent->SetRelativeLocation(FVector(0, 0, (NiagaraComponent->Bounds.BoxExtent).Z)); // Change the relative location of the bounding box relative to the pivot, to avoid a BoundingBox displacement
+      BoundingBoxComponent->SetRelativeLocation(
+          FVector(0, 0,
+                  (NiagaraComponent->Bounds.BoxExtent)
+                      .Z));  // Change the relative location of the bounding box
+                             // relative to the pivot, to avoid a BoundingBox
+                             // displacement
     }
-   // Advance the simulation
+    // Advance the simulation
   } else if (ParticleComponent) {
     ParticleComponent->SetFloatParameter(FName("Lifetime"), dt);
     if (!ParticleComponent->IsActive()) {
       ParticleComponent->ActivateSystem(true);
-    }    
+    }
     if (TickCount == 2) {
-      TickCount++;  // Increment the tick counter to avoid re-entering this block
+      TickCount++;  // Increment the tick counter to avoid re-entering this
+                    // block
       BoundingBoxComponent->SetBoxExtent(ParticleComponent->Bounds.BoxExtent);
-      BoundingBoxComponent->SetRelativeLocation(FVector(0, 0, (ParticleComponent->Bounds.BoxExtent).Z));// Change the relative location of the bounding box relative to the pivot
+      BoundingBoxComponent->SetRelativeLocation(
+          FVector(0, 0,
+                  (ParticleComponent->Bounds.BoxExtent)
+                      .Z));  // Change the relative location of the bounding box
+                             // relative to the pivot
     }
   }
 }

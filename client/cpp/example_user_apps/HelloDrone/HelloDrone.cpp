@@ -73,10 +73,9 @@ int main(int argc, const char* argv[]) {
           std::cerr << "sim_config path error: " << e.what() << std::endl;
           return (1);
         }
-      } else
-      {
-          std::cerr << "Unknown flag \"" << *pszArg << "\"" << std::endl;
-          return (1);
+      } else {
+        std::cerr << "Unknown flag \"" << *pszArg << "\"" << std::endl;
+        return (1);
       }
     }
   }
@@ -132,7 +131,8 @@ int main(int argc, const char* argv[]) {
   while (!asyncresult.FIsDone())
     std::this_thread::sleep_for(std::chrono::duration<float>(0.005f));
 
-  // Note: must call AsyncResult::Wait() even though AsyncResult::FIsDone() was used
+  // Note: must call AsyncResult::Wait() even though AsyncResult::FIsDone() was
+  // used
   if ((status = asyncresult.Wait()) != Status::OK) goto LError;
   mpc::log.Info("Move-Up completed");
 

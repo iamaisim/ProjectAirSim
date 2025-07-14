@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -100,7 +100,7 @@ static const struct LidarKindEntry {
                    -15.0f,  // vertical_fov_upper_deg
                    1.0f,    // radial_scaling
                    false,   // disable_self_hits
-                   true,   // report_no_return_points
+                   true,    // report_no_return_points
                    Vector3(0.0f, 0.0f, 0.0f),  // no_return_point_value
                    false                       // draw_debug_points
                    )},

@@ -17,7 +17,8 @@ namespace projectairsim {
 
 class DistanceSensorMessage : public Message {
  public:
-  DistanceSensorMessage(TimeNano time_stamp_val, float current_distance, Pose pose_val);
+  DistanceSensorMessage(TimeNano time_stamp_val, float current_distance,
+                        Pose pose_val);
 
   DistanceSensorMessage();
 

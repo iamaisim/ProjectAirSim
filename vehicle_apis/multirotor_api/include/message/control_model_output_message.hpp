@@ -7,8 +7,8 @@
 #include <string>
 
 #include "common_message_utils.hpp"
-#include "msgpack.hpp"
 #include "control_message.hpp"
+#include "msgpack.hpp"
 
 namespace microsoft {
 namespace projectairsim {
@@ -18,8 +18,8 @@ class ControlModelOutputMessage : ControlMessage {
   ControlModelOutputMessage()
       : ControlMessage(ControlMessageType::kControlModelOutput) {}
 
-  ControlModelOutputMessage(
-      uint64_t time_stamp_val, std::vector<float> control_values_val)
+  ControlModelOutputMessage(uint64_t time_stamp_val,
+                            std::vector<float> control_values_val)
       : ControlMessage(ControlMessageType::kControlModelOutput),
         time_stamp(time_stamp_val),
         control_values(control_values_val) {}

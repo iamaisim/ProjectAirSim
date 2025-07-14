@@ -62,8 +62,7 @@ class VehicleStateEstimator : public vehicle_apis::IStateEstimator {
 
   vehicle_apis::Axis3r TransformVectorToBodyFromHorizontalPlaneFrame(
       const vehicle_apis::Axis3r& horizontal_plane_frame_val) const override {
-    const Vector3& vec =
-        Utils::ToVector3(horizontal_plane_frame_val);
+    const Vector3& vec = Utils::ToVector3(horizontal_plane_frame_val);
     auto orientation = kinematics_->pose.orientation;
     // quaternion to roll pitch yaw
     Vector3 rpy = TransformUtils::ToRPY(orientation);
@@ -112,10 +111,8 @@ class VehicleStateEstimator : public vehicle_apis::IStateEstimator {
     state.orientation = GetOrientation();
     state.linear_velocity = GetLinearVelocity();
     state.angular_velocity = GetAngularVelocity();
-    state.linear_acceleration =
-        Utils::ToAxis3r(kinematics_->accels.linear);
-    state.angular_acceleration =
-        Utils::ToAxis3r(kinematics_->accels.angular);
+    state.linear_acceleration = Utils::ToAxis3r(kinematics_->accels.linear);
+    state.angular_acceleration = Utils::ToAxis3r(kinematics_->accels.angular);
 
     return state;
   }

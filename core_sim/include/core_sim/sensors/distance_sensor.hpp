@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -38,11 +38,11 @@ struct DistanceSensorSettings {
   bool draw_debug_points = false;  // If true, add markers at each sensor hit
                                    // points in the Unreal scene
 
-  DistanceSensorSettings(Transform origin_in = Transform(Vector3(0, 0, -1),
-                                                   Quaternion::Identity()),
-                   float report_frequency_in = 0.0f,
-                   float min_distance_in = 0.2f, float max_distance_in = 40.0f,
-                   bool draw_debug_points_in = false)
+  DistanceSensorSettings(
+      Transform origin_in = Transform(Vector3(0, 0, -1),
+                                      Quaternion::Identity()),
+      float report_frequency_in = 0.0f, float min_distance_in = 0.2f,
+      float max_distance_in = 40.0f, bool draw_debug_points_in = false)
       : origin(origin_in),
         report_frequency(report_frequency_in),
         min_distance(min_distance_in),
@@ -70,11 +70,12 @@ class DistanceSensor : public Sensor {
   friend class Robot;
   friend class SensorImpl;
 
-  DistanceSensor(const std::string& id, bool is_enabled, const std::string& parent_link,
-        const Logger& logger, const TopicManager& topic_manager,
-        const std::string& parent_topic_path,
-        const ServiceManager& service_manager,
-        const StateManager& state_manager);
+  DistanceSensor(const std::string& id, bool is_enabled,
+                 const std::string& parent_link, const Logger& logger,
+                 const TopicManager& topic_manager,
+                 const std::string& parent_topic_path,
+                 const ServiceManager& service_manager,
+                 const StateManager& state_manager);
 
   void Load(ConfigJson config_json) override;
 

@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -39,9 +39,9 @@ struct IRoverApi {
                               float lookahead, float adaptive_lookahead,
                               int64_t command_start_time_nanos) = 0;
 
-  virtual bool MoveByHeading(float heading, float speed,
-                             float duration, float heading_margin,
-                             float yaw_rate, float timeout_sec,
+  virtual bool MoveByHeading(float heading, float speed, float duration,
+                             float heading_margin, float yaw_rate,
+                             float timeout_sec,
                              int64_t command_start_time_nanos) = 0;
 };  // interface IRoverApi
 

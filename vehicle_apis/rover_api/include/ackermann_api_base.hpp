@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -23,7 +23,6 @@ class AckermannApiBase : public RoverApiBase, public AckermannApi {
   AckermannApiBase(const Robot& robot, TransformTree* ptransformtree);
 
   virtual ~AckermannApiBase(void) = default;
-
 
   //---------------------------------------------------------------------------
   // IAckermannApi Methods

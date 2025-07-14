@@ -279,7 +279,8 @@ class VFTCascadeController : public IController {
 
  private:
   microsoft::projectairsim::AirSimSimpleFlightEstimatorFW*
-      airsimsimpleflightestimator_;      // Fixed-wing tailsitter vehicle state estimator
+      airsimsimpleflightestimator_;      // Fixed-wing tailsitter vehicle state
+                                         // estimator
   const IBoardClock* boardclock_;        // Event clock
   CascadeController cascadecontroller_;  // multirotor flight mode controller
   int cfixedwing_mode_ok_;  // Used to filter when speed exceeds mode transition

@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -32,8 +32,7 @@ class ServiceManager;
 
 struct ImuParams {
   struct Accelerometer {
-    float gravity =
-        9.80665f;  // m/s^2  TODO: Use value def by phy engine
+    float gravity = 9.80665f;  // m/s^2  TODO: Use value def by phy engine
     float velocity_random_walk = 0.24f * gravity / 1.0E3f;
     float tau = 800;
     float bias_stability = 36.0f * 1E-6f * gravity;

@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -961,9 +961,9 @@ void UUnrealCamera::OnRendered(
   // shared_ptr to the sensor impl to use for publishing the image
   // message.
   (new FAutoDeleteAsyncTask<FImagePackingAsyncTask>(
-          std::move(CaptureResults), CapturedCameraTransform, SimCamera,
-          std::move(Annotations)))
-          ->StartBackgroundTask();
+       std::move(CaptureResults), CapturedCameraTransform, SimCamera,
+       std::move(Annotations)))
+      ->StartBackgroundTask();
 
   // Reset flag to allow next frame capture to start
   bCapturePending = false;

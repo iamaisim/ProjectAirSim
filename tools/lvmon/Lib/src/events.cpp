@@ -8,7 +8,7 @@ CEvents::CEvents(void) : conditionvariable_(), mutex_(), useventSet_() {}
 
 CEvents::~CEvents() {}
 
-bool CEvents::GetEventSet(CEvents::Event *peventRet) {
+bool CEvents::GetEventSet(CEvents::Event* peventRet) {
   bool fGotEvent = false;
   std::unique_lock<std::mutex> ul(mutex_);
 
@@ -57,7 +57,7 @@ CEvents::WaitResult CEvents::Wait(Event event) {
   return (waitresultRet);
 }
 
-CEvents::WaitResult CEvents::WaitForMultiple(size_t cevent, Event *rgevent) {
+CEvents::WaitResult CEvents::WaitForMultiple(size_t cevent, Event* rgevent) {
   WaitResult waitresultRet = kWaitResultFail;
   std::unique_lock<std::mutex> ul(mutex_);
 

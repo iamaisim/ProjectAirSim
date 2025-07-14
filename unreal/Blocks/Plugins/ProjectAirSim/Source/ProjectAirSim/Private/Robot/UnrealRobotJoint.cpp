@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -6,8 +6,8 @@
 
 #include "UnrealRobotJoint.h"
 
-#include "ProjectAirSim.h"
 #include "Async/Async.h"
+#include "ProjectAirSim.h"
 #include "core_sim/transforms/transform_utils.hpp"
 
 namespace projectairsim = microsoft::projectairsim;
@@ -22,7 +22,8 @@ UUnrealRobotJoint::UUnrealRobotJoint(
   PrimaryComponentTick.TickGroup = TG_PrePhysics;
 }
 
-void UUnrealRobotJoint::Initialize(const microsoft::projectairsim::Joint& Joint) {
+void UUnrealRobotJoint::Initialize(
+    const microsoft::projectairsim::Joint& Joint) {
   InitializePose(Joint.GetOrigin());
   InitializeConstraints(Joint);
 

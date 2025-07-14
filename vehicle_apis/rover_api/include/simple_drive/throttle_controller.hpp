@@ -30,7 +30,7 @@ class ThrottleController : public ChannelControllerBase {
   Goals goals_last_;  // Goals during the last update
   PidController
       pid_controller_throttle_;  // PID controller to generate throttle signal
-};                              // class ThrottleController
+};                               // class ThrottleController
 
 }  // namespace simple_drive
 }  // namespace projectairsim

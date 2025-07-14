@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -256,7 +256,8 @@ void Battery::Impl::Update(const TimeNano sim_time, const TimeNano sim_dt_nanos,
   if (battery_settings_.mode == BatteryMode::kEnergyConsumption) {
     // Might need to add a constant to account for sensors/other equipment on
     // board
-    battery_settings_.battery_drain_rate = power * battery_settings_.power_coefficient;
+    battery_settings_.battery_drain_rate =
+        power * battery_settings_.power_coefficient;
   }
   Update(sim_time, sim_dt_nanos);
 }
@@ -377,17 +378,16 @@ void Battery::Loader::LoadBatterySettings(const json& json) {
   } else {
     impl.logger_.LogWarning(impl.name_, "Invalid battery mode specified");
   }
-  impl.battery_settings_.battery_capacity =
-      JsonUtils::GetNumber<float>(json, Constant::Config::total_battery_capacity, 100.0f);
-  impl.state_.battery_remaining =
-      JsonUtils::GetNumber<float>(json, Constant::Config::battery_capacity_at_start, 100.0f);
+  impl.battery_settings_.battery_capacity = JsonUtils::GetNumber<float>(
+      json, Constant::Config::total_battery_capacity, 100.0f);
+  impl.state_.battery_remaining = JsonUtils::GetNumber<float>(
+      json, Constant::Config::battery_capacity_at_start, 100.0f);
   impl.state_.battery_pct_remaining =
       impl.state_.battery_remaining / impl.battery_settings_.battery_capacity;
   if (impl.battery_settings_.mode == BatteryMode::kSimpleDischarge) {
     impl.battery_settings_.battery_drain_rate = JsonUtils::GetNumber<float>(
         json, Constant::Config::battery_drain_rate_at_start, 0.02f);
-  }
-  else if (impl.battery_settings_.mode == BatteryMode::kEnergyConsumption) {
+  } else if (impl.battery_settings_.mode == BatteryMode::kEnergyConsumption) {
     impl.battery_settings_.power_coefficient = JsonUtils::GetNumber<float>(
         json, Constant::Config::rotor_power_coefficient, 1.00f);
   }

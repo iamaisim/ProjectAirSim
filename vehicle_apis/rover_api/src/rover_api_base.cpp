@@ -101,10 +101,10 @@ void RoverApiBase::RegisterServiceMethods() {
   sim_robot_.RegisterServiceMethod(method, method_handler);
 
   // Register MoveByHeading
-  method = ServiceMethod(
-      "MoveByHeading",
-      {"heading", "speed", "duration", "heading_margin",
-        "yaw_rate", "timeout_sec", "_service_method_start_time"});
+  method =
+      ServiceMethod("MoveByHeading",
+                    {"heading", "speed", "duration", "heading_margin",
+                     "yaw_rate", "timeout_sec", "_service_method_start_time"});
   method_handler =
       method.CreateMethodHandler(&RoverApiBase::MoveByHeading, *this);
   sim_robot_.RegisterServiceMethod(method, method_handler);

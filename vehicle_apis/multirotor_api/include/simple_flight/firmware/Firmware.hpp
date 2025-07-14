@@ -26,10 +26,10 @@ namespace simple_flight {
 
 class Firmware : public IFirmware {
  public:
-  Firmware(
-      Params* params, IBoard* board, ICommLink* comm_link,
-      IStateEstimator* state_estimator,
-      microsoft::projectairsim::AirSimSimpleFlightEstimatorFW* state_estimator_fw)
+  Firmware(Params* params, IBoard* board, ICommLink* comm_link,
+           IStateEstimator* state_estimator,
+           microsoft::projectairsim::AirSimSimpleFlightEstimatorFW*
+               state_estimator_fw)
       : params_(params),
         board_(board),
         comm_link_(comm_link),

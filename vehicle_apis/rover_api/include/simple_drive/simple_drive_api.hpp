@@ -38,7 +38,8 @@ class SimpleDriveApi : public AckermannApiBase {
 
   //---------------------------------------------------------------------------
   // IAckermannApi Method Overrides
-  bool SetRoverControls(float engine, float steering_angle, float brake) override;
+  bool SetRoverControls(float engine, float steering_angle,
+                        float brake) override;
 
   //---------------------------------------------------------------------------
   // IRoverApi Method Overrides
@@ -53,9 +54,8 @@ class SimpleDriveApi : public AckermannApiBase {
                       float yaw_rate_max, float lookahead,
                       float adaptive_lookahead,
                       int64_t command_start_time_nanos) override;
-  bool MoveByHeading(float heading, float speed,
-                     float duration, float heading_margin,
-                     float yaw_rate, float timeout_sec,
+  bool MoveByHeading(float heading, float speed, float duration,
+                     float heading_margin, float yaw_rate, float timeout_sec,
                      int64_t command_start_time_nanos) override;
 
   //---------------------------------------------------------------------------

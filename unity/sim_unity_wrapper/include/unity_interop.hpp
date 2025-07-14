@@ -257,9 +257,10 @@ static projectairsim::LidarMessage ToSimLidarMessage(
 
   // TODO unity support for az/el/range output format
   return projectairsim::LidarMessage(
-      interop_lidar_message.time_stamp, std::move(point_cloud), std::vector<float>(),
-      std::move(segmentation_cloud), std::move(intensity_cloud),
-      std::move(laser_index_cloud), ToSimPose(interop_lidar_message.pose));
+      interop_lidar_message.time_stamp, std::move(point_cloud),
+      std::vector<float>(), std::move(segmentation_cloud),
+      std::move(intensity_cloud), std::move(laser_index_cloud),
+      ToSimPose(interop_lidar_message.pose));
 }
 
 }  // namespace UnityInterop

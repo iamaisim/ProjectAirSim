@@ -54,7 +54,8 @@ class LiftDragControlSurface::Impl : public ActuatorImpl {
 
   const float& GetControlAngle() const;
 
-  void UpdateActuatorOutput(std::vector<float> && control_signals, const TimeNano sim_dt_nanos);
+  void UpdateActuatorOutput(std::vector<float>&& control_signals,
+                            const TimeNano sim_dt_nanos);
 
  private:
   friend class LiftDragControlSurface::Loader;
@@ -108,8 +109,8 @@ const float& LiftDragControlSurface::GetControlAngle() const {
       ->GetControlAngle();
 }
 
-void LiftDragControlSurface::UpdateActuatorOutput(std::vector<float> && control_signals,
-  const TimeNano sim_dt_nanos){
+void LiftDragControlSurface::UpdateActuatorOutput(
+    std::vector<float>&& control_signals, const TimeNano sim_dt_nanos) {
   static_cast<LiftDragControlSurface::Impl*>(pimpl_.get())
       ->UpdateActuatorOutput(std::move(control_signals), sim_dt_nanos);
 }
@@ -122,7 +123,7 @@ LiftDragControlSurface::Impl::Impl(
     const std::string& child_link, const Logger& logger,
     const TopicManager& topic_manager, const std::string& parent_topic_path,
     const ServiceManager& service_manager, const StateManager& state_manager)
-    :ActuatorImpl(ActuatorType::kLiftDragControlSurface, id, is_enabled,
+    : ActuatorImpl(ActuatorType::kLiftDragControlSurface, id, is_enabled,
                    parent_link, child_link, Constant::Component::rotor, logger,
                    topic_manager, parent_topic_path, service_manager,
                    state_manager),
@@ -153,8 +154,8 @@ const float& LiftDragControlSurface::Impl::GetControlAngle() const {
   return control_angle_;
 }
 
-void LiftDragControlSurface::Impl::UpdateActuatorOutput(std::vector<float> && control_signals,
-  const TimeNano sim_dt_nanos){
+void LiftDragControlSurface::Impl::UpdateActuatorOutput(
+    std::vector<float>&& control_signals, const TimeNano sim_dt_nanos) {
   // Convert -1.0 ~ +1.0 control signal to control surface angle (like a servo
   // motor but without any dynamics)
   auto control_signal = control_signals[0];

@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -7,4 +7,5 @@
 
 #include "pch.h"
 
-// When you are using pre-compiled headers, this source file is necessary for compilation to succeed.
+// When you are using pre-compiled headers, this source file is necessary for
+// compilation to succeed.

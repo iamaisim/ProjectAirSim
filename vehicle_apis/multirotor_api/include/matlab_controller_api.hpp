@@ -47,8 +47,8 @@ class MatlabControllerApi : public IController {
   void LoadSettings(const Robot& robot);
 
  private:
-   void ConnectToMatlab();
-   void GetSensors(const Robot& robot);
+  void ConnectToMatlab();
+  void GetSensors(const Robot& robot);
 
   Robot sim_robot_;  // The robot we control
   std::mutex update_lock_;

@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -257,7 +257,8 @@ void UUnrealRobotLink::CheckGroundCollision(void) {
 
       if (Collision_Hit_Callback_T != nullptr) {
         Collision_Hit_Callback_T(this, HitResult.GetActor(),
-                               HitResult.GetComponent(), FVector(), HitResult);
+                                 HitResult.GetComponent(), FVector(),
+                                 HitResult);
       }
     }
   }
@@ -302,7 +303,7 @@ void UUnrealRobotLink::OnCollisionHit(UPrimitiveComponent* HitComponent,
                          "'%s' at z= '%f'"),
                     *(HitComponent->GetName()), *(OtherActor->GetName()),
                     Hit.Location.Z);
-#endif//DEBUG_VERBOSE
+#endif  // DEBUG_VERBOSE
 
   if (Collision_Hit_Callback)
     Collision_Hit_Callback(HitComponent, OtherActor, OtherComp, NormalImpulse,

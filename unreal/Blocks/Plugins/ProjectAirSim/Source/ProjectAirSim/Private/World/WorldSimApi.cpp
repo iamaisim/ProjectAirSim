@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -170,9 +170,10 @@ void WorldSimApi::RegisterServiceMethods() {
 
   auto set_light_intensity = projectairsim::ServiceMethod(
       "SetLightObjectIntensity", {"object_name", "new_intensity"});
-  auto set_light_intensity_handler =
-      set_light_intensity.CreateMethodHandler(&WorldSimApi::setLightIntensity, *this);
-  sim_scene_->RegisterServiceMethod(set_light_intensity, set_light_intensity_handler);
+  auto set_light_intensity_handler = set_light_intensity.CreateMethodHandler(
+      &WorldSimApi::setLightIntensity, *this);
+  sim_scene_->RegisterServiceMethod(set_light_intensity,
+                                    set_light_intensity_handler);
 
   auto set_light_color = projectairsim::ServiceMethod(
       "SetLightObjectColor", {"object_name", "color_rgb"});
@@ -1269,7 +1270,7 @@ bool WorldSimApi::setLightIntensity(const std::string& object_name,
         } else {
           UnrealLogger::Log(projectairsim::LogLevel::kError,
                             TEXT("[WorldSimApi::setLightIntensity] Cannot find "
-                                  "specified object."));
+                                 "specified object."));
         }
       },
       true);
@@ -1278,17 +1279,15 @@ bool WorldSimApi::setLightIntensity(const std::string& object_name,
 
 bool WorldSimApi::setLightColor(const std::string& object_name,
                                 const std::vector<float>& color_rgb) {
-
   if (color_rgb.size() != 3) {
-    UnrealLogger::Log(
-        projectairsim::LogLevel::kError,
-        TEXT("[WorldSimApi::setLightColor] Invalid color_rgb."));
+    UnrealLogger::Log(projectairsim::LogLevel::kError,
+                      TEXT("[WorldSimApi::setLightColor] Invalid color_rgb."));
     return false;
   }
 
   FColor color =
-      FLinearColor{color_rgb[0], color_rgb[1], color_rgb[2], 1.0f}
-          .ToFColor(true);
+      FLinearColor{color_rgb[0], color_rgb[1], color_rgb[2], 1.0f}.ToFColor(
+          true);
 
   bool result = false;
 
@@ -1302,7 +1301,7 @@ bool WorldSimApi::setLightColor(const std::string& object_name,
         } else {
           UnrealLogger::Log(projectairsim::LogLevel::kError,
                             TEXT("[WorldSimApi::setLightColor] Cannot find "
-                                  "specified object."));
+                                 "specified object."));
         }
       },
       true);
@@ -1319,11 +1318,12 @@ bool WorldSimApi::setLightRadius(const std::string& object_name,
             unreal_world_, FString(object_name.c_str()));
 
         if (lightActor) {
-          result = lightActor->SetRadius(new_radius);;
+          result = lightActor->SetRadius(new_radius);
+          ;
         } else {
           UnrealLogger::Log(projectairsim::LogLevel::kError,
                             TEXT("[WorldSimApi::setLightRadius] Cannot find "
-                                  "specified object."));
+                                 "specified object."));
         }
       },
       true);

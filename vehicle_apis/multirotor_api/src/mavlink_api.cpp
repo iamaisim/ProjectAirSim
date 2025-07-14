@@ -370,7 +370,8 @@ void MavLinkApi::InitializeGimbalStatus(const Robot& robot) {
   }
 }
 
-std::vector<float> MavLinkApi::GetControlSignals(const std::string& actuator_id) {
+std::vector<float> MavLinkApi::GetControlSignals(
+    const std::string& actuator_id) {
   if (!is_simulation_mode_) {
     throw std::logic_error(
         "Attempt to read motor controls while not in simulation mode");
@@ -514,9 +515,9 @@ bool MavLinkApi::MoveToPosition(float x, float y, float z, float velocity,
       Vector3f goal_dist_vect;
       float goal_dist;
 
-      vehicle_apis::FunctionCaller function_caller(GetCommandPeriod(), timeout_sec,
-                                     GetCancelToken(),
-                                     command_start_time_nanos);
+      vehicle_apis::FunctionCaller function_caller(
+          GetCommandPeriod(), timeout_sec, GetCancelToken(),
+          command_start_time_nanos);
 
       while (!function_caller.IsComplete()) {
         goal_dist_vect = GetPosition() - goal_pos;
@@ -676,9 +677,8 @@ bool MavLinkApi::GoHome(float timeout_sec, float velocity,
       }
 
       vehicle_apis::FunctionCaller function_caller(
-          GetCommandPeriod(), timeout_sec,
-                                     GetCancelToken(),
-                                     command_start_time_nanos);
+          GetCommandPeriod(), timeout_sec, GetCancelToken(),
+          command_start_time_nanos);
 
       UpdateState();
       const Vector3f& goal_pos = Vector3f(current_state_.home.local_pose.pos.x,
@@ -1101,7 +1101,9 @@ void MavLinkApi::ResetState() {
   last_update_time_ = 0;
   last_hil_sensor_time_ = 0;
   is_api_control_enabled_ = false;
-  thrust_controller_ = PidController(); // TODO: Review: To introduce an aditional PID loop to comunicate with PX4 doesn´t seem correct.
+  thrust_controller_ =
+      PidController();  // TODO: Review: To introduce an aditional PID loop to
+                        // comunicate with PX4 doesn´t seem correct.
   std::fill(std::begin(control_outputs_), std::end(control_outputs_), 0.0f);
   was_reset_ = false;
   received_actuator_controls_ = false;

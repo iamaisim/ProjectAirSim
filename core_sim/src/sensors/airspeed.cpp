@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -300,13 +300,15 @@ void AirspeedSensor::Loader::Load(const json& json) {
 
 void AirspeedSensor::Loader::LoadAirspeedSensorSettings(const json& json) {
   // Load AirspeedSensor settings
-  impl_.airspeedsensor_settings_.pressure_factor_sigma = JsonUtils::GetNumber<float>(
-      json, Constant::Config::pressure_factor_sigma,
-      impl_.airspeedsensor_settings_.pressure_factor_sigma);
+  impl_.airspeedsensor_settings_.pressure_factor_sigma =
+      JsonUtils::GetNumber<float>(
+          json, Constant::Config::pressure_factor_sigma,
+          impl_.airspeedsensor_settings_.pressure_factor_sigma);
 
   impl_.airspeedsensor_settings_.pressure_factor_tau =
-      JsonUtils::GetNumber<float>(json, Constant::Config::pressure_factor_tau,
-                           impl_.airspeedsensor_settings_.pressure_factor_tau);
+      JsonUtils::GetNumber<float>(
+          json, Constant::Config::pressure_factor_tau,
+          impl_.airspeedsensor_settings_.pressure_factor_tau);
 
   impl_.airspeedsensor_settings_.uncorrelated_noise_sigma =
       JsonUtils::GetNumber<float>(

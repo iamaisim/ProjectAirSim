@@ -1,16 +1,15 @@
 #include "LidarIntensitySceneViewExtension.h"
 
-#include "RHI.h"
-#include "SceneView.h"
-#include "RenderGraph.h"
-#include "Runtime/Renderer/Private/PostProcess/PostProcessing.h"
 #include "CommonRenderResources.h"
 #include "Containers/DynamicRHIResourceArray.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
-#include "SceneRendering.h"
-
 #include "LidarIntensityShader.h"
+#include "RHI.h"
+#include "RenderGraph.h"
+#include "Runtime/Renderer/Private/PostProcess/PostProcessing.h"
+#include "SceneRendering.h"
+#include "SceneView.h"
 
 static const bool DEBUG_RENDER_TO_VIEWPORT = false;
 
@@ -101,8 +100,7 @@ bool FLidarIntensitySceneViewExtension::IsValidForBoundRenderTarget(
 FLidarIntensitySceneViewExtension::FLidarIntensitySceneViewExtension(
     const FAutoRegister& AutoRegister,
     TWeakObjectPtr<UTextureRenderTarget2D> InRenderTarget2D)
-    : FSceneViewExtensionBase(AutoRegister),
-      RenderTarget2D(InRenderTarget2D) {}
+    : FSceneViewExtensionBase(AutoRegister), RenderTarget2D(InRenderTarget2D) {}
 
 void FLidarIntensitySceneViewExtension::PrePostProcessPass_RenderThread(
     FRDGBuilder& GraphBuilder, const FSceneView& View,
@@ -137,9 +135,9 @@ void FLidarIntensitySceneViewExtension::PrePostProcessPass_RenderThread(
 
   FRDGTexture* IntensityRenderTargetTexture = GraphBuilder.CreateTexture(
       LidarIntensityOutputDesc, TEXT("IntensityRenderTargetTexture"));
-  FScreenPassRenderTarget IntensityRenderTarget = FScreenPassRenderTarget(
-      IntensityRenderTargetTexture, SceneColor.ViewRect,
-      ERenderTargetLoadAction::EClear);
+  FScreenPassRenderTarget IntensityRenderTarget =
+      FScreenPassRenderTarget(IntensityRenderTargetTexture, SceneColor.ViewRect,
+                              ERenderTargetLoadAction::EClear);
   FScreenPassRenderTarget SceneColorRenderTarget(
       SceneColor, ERenderTargetLoadAction::ELoad);
   const FScreenPassTextureViewport SceneColorTextureViewport(SceneColor);
@@ -188,7 +186,8 @@ void FLidarIntensitySceneViewExtension::PrePostProcessPass_RenderThread(
       RDG_EVENT_NAME("LidarIntensityPass"), PostProcessMaterialParameters,
       ERDGPassFlags::Raster,
       [&View, TextureViewport, VertexShader, PixelShader, DefaultBlendState,
-       DepthStencilState, PostProcessMaterialParameters](FRHICommandListImmediate& RHICmdList) {
+       DepthStencilState,
+       PostProcessMaterialParameters](FRHICommandListImmediate& RHICmdList) {
         DrawScreenPass(
             RHICmdList, View,
             TextureViewport,  // Output Viewport
@@ -215,7 +214,7 @@ void FLidarIntensitySceneViewExtension::PrePostProcessPass_RenderThread(
       GetGlobalShaderMap(GMaxRHIFeatureLevel));
 
   auto NumPoints = cachedParams.NumCams * cachedParams.HorizontalResolution *
-                  cachedParams.LaserNums;
+                   cachedParams.LaserNums;
   auto BufferSize = NumPoints * sizeof(float) * 4;
 
   float* InitialData = new float[NumPoints * 4];
@@ -280,21 +279,22 @@ void FLidarIntensitySceneViewExtension::PrePostProcessPass_RenderThread(
       GraphBuilder, RDG_EVENT_NAME("LidarPointCloud Pass"),
       LidarPointCloudShader, PassParameters, GroupContext);
 
-    FCopyBufferToCPUPass* CopyPassParameters =
-        GraphBuilder.AllocParameters<FCopyBufferToCPUPass>();
-    CopyPassParameters->Buffer = PointCloudBufferRDG;
+  FCopyBufferToCPUPass* CopyPassParameters =
+      GraphBuilder.AllocParameters<FCopyBufferToCPUPass>();
+  CopyPassParameters->Buffer = PointCloudBufferRDG;
 
-    GraphBuilder.AddPass(
-        RDG_EVENT_NAME("FCopyBufferToCPUPass"), CopyPassParameters,
-        ERDGPassFlags::Readback,
-        [this, &InitialData, PointCloudBufferRDG, BufferSize](FRHICommandList& RHICmdList) {
-          InitialData = (float*)RHILockBuffer(PointCloudBufferRDG->GetRHI(), 0,
-                                              BufferSize, RLM_ReadOnly);
+  GraphBuilder.AddPass(
+      RDG_EVENT_NAME("FCopyBufferToCPUPass"), CopyPassParameters,
+      ERDGPassFlags::Readback,
+      [this, &InitialData, PointCloudBufferRDG,
+       BufferSize](FRHICommandList& RHICmdList) {
+        InitialData = (float*)RHILockBuffer(PointCloudBufferRDG->GetRHI(), 0,
+                                            BufferSize, RLM_ReadOnly);
 
-          FMemory::Memcpy(LidarPointCloudData.data(), InitialData, BufferSize);
+        FMemory::Memcpy(LidarPointCloudData.data(), InitialData, BufferSize);
 
-          RHIUnlockBuffer(PointCloudBufferRDG->GetRHI());
-        });
+        RHIUnlockBuffer(PointCloudBufferRDG->GetRHI());
+      });
 }
 
 void FLidarIntensitySceneViewExtension::UpdateParameters(

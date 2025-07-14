@@ -3,10 +3,10 @@
 #ifndef CORE_SIM_INCLUDE_CORE_SIM_LOGGER_HPP_
 #define CORE_SIM_INCLUDE_CORE_SIM_LOGGER_HPP_
 
+#include <cstdarg>
 #include <functional>
 #include <memory>
 #include <string>
-#include <cstdarg>
 
 #include "core_sim/log_level.hpp"
 

@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -31,7 +31,8 @@ void AUnrealSimTopicData::Tick(float DeltaTime) {
   // // Example of getting pose data and exposing it to Unreal variables
   // projectairsim::PoseStampedMessage PoseStampedMessageObj;
   // bool bFound = GetTopicData<projectairsim::PoseStampedMessage>(
-  //     "/Sim/SceneBasicDrone/robots/Drone1/actual_pose", PoseStampedMessageObj);
+  //     "/Sim/SceneBasicDrone/robots/Drone1/actual_pose",
+  //     PoseStampedMessageObj);
   // if (bFound) {
   //   auto CurPositionNED = PoseStampedMessageObj.GetPosition();
   //   Drone1Position = UnrealTransform::NedToUnrealLinear(CurPositionNED);
@@ -42,7 +43,8 @@ void AUnrealSimTopicData::EndPlay(const EEndPlayReason::Type EndPlayReason) {
   Super::EndPlay(EndPlayReason);
 }
 
-void AUnrealSimTopicData::SetTopicPublishedCallback(projectairsim::Scene& Scene) {
+void AUnrealSimTopicData::SetTopicPublishedCallback(
+    projectairsim::Scene& Scene) {
   Scene.SetCallbackTopicPublished(
       [this](const std::string& topic_path,
              const projectairsim::MessageType& message_type,
@@ -53,7 +55,8 @@ void AUnrealSimTopicData::SetTopicPublishedCallback(projectairsim::Scene& Scene)
 }
 
 void AUnrealSimTopicData::OnTopicPublished(
-    const std::string& topic_path, const projectairsim::MessageType& message_type,
+    const std::string& topic_path,
+    const projectairsim::MessageType& message_type,
     const std::string& message_buffer) {
   FString TopicPath(UTF8_TO_TCHAR(topic_path.c_str()));
 

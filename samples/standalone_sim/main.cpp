@@ -9,7 +9,8 @@
 
 namespace projectairsim = microsoft::projectairsim;
 
-void LoggingCallback(const std::string& component, projectairsim::LogLevel level,
+void LoggingCallback(const std::string& component,
+                     projectairsim::LogLevel level,
                      const std::string& message) {
   std::cout << "[" << component << "]"
             << " " << message << std::endl;
@@ -18,7 +19,7 @@ void LoggingCallback(const std::string& component, projectairsim::LogLevel level
 int main(int argc, char* argv[]) {
   try {
     projectairsim::SimServer simserver(LoggingCallback,
-                                     projectairsim::LogLevel::kVerbose);
+                                       projectairsim::LogLevel::kVerbose);
     int topics_port = 8989;
     if (argc > 1) topics_port = std::atoi(argv[1]);
 

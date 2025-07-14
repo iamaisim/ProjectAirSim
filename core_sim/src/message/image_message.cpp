@@ -6,10 +6,10 @@
 #include <sstream>
 #include <string>
 
-#include "json.hpp"
 #include "core_sim/json_utils.hpp"
-#include "message_impl.hpp"
+#include "json.hpp"
 #include "message/common_utils.hpp"
+#include "message_impl.hpp"
 #include "msgpack.hpp"
 
 namespace microsoft {
@@ -136,7 +136,7 @@ json ImageMessage::GetData() const {
   return static_cast<ImageMessage::Impl*>(pimpl_.get())->GetData();
 }
 
-std::vector<float> ImageMessage::GetPositionData()  const {
+std::vector<float> ImageMessage::GetPositionData() const {
   return static_cast<ImageMessage::Impl*>(pimpl_.get())->GetPositionData();
 }
 
@@ -147,7 +147,7 @@ std::vector<uint8_t>& ImageMessage::GetPixelVector() {
 const std::vector<Annotation> ImageMessage::GetAnnotations() const {
   return static_cast<ImageMessage::Impl*>(pimpl_.get())->GetAnnotations();
 }
-  // -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // class ImageMessage::Impl
 
 ImageMessage::Impl::Impl()
@@ -228,9 +228,7 @@ json ImageMessage::Impl::GetData() const {
                {"annotations", GetAnnotations()}});
 }
 
-std::vector<uint8_t> &ImageMessage::Impl::GetPixelVector() {
-  return data;
-}
+std::vector<uint8_t>& ImageMessage::Impl::GetPixelVector() { return data; }
 
 const std::vector<Annotation> ImageMessage::Impl::GetAnnotations() const {
   std::vector<Annotation> annotations_out;
@@ -241,9 +239,9 @@ const std::vector<Annotation> ImageMessage::Impl::GetAnnotations() const {
 }
 
 std::vector<float> ImageMessage::Impl::GetPositionData() const {
-   std::vector<float> position_vect{pos_x, pos_y, pos_z, rot_w,
+  std::vector<float> position_vect{pos_x, pos_y, pos_z, rot_w,
                                    rot_x, rot_y, rot_z};
-   return position_vect;
+  return position_vect;
 }
 
 }  // namespace projectairsim

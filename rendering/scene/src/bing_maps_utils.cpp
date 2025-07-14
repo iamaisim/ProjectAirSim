@@ -86,7 +86,7 @@ void BingMapsUtils::TileXYToLatLong(int tile_x, int tile_y, int lod,
 }
 
 bool BingMapsUtils::TryCreateTilePosition(uint64_t quadKeyValue, int* x, int* y,
-                           int* levelOfDetail) {
+                                          int* levelOfDetail) {
   // Calculate the level of detail based on the marker bit.
   uint64_t tempQuadKeyValue = quadKeyValue;
   int internalLevelOfDetail = 0;

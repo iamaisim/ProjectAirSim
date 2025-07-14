@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI Consulting Corp.
 //
 // MIT License. All rights reserved.
@@ -257,29 +257,30 @@ void Barometer::Loader::LoadBarometerSettings(const json& json) {
   impl_.barometer_settings_.qnh = JsonUtils::GetNumber<float>(
       json, Constant::Config::qnh, impl_.barometer_settings_.qnh);
 
-  impl_.barometer_settings_.pressure_factor_sigma =
-      JsonUtils::GetNumber<float>(json, Constant::Config::pressure_factor_sigma,
-                           impl_.barometer_settings_.pressure_factor_sigma);
+  impl_.barometer_settings_.pressure_factor_sigma = JsonUtils::GetNumber<float>(
+      json, Constant::Config::pressure_factor_sigma,
+      impl_.barometer_settings_.pressure_factor_sigma);
 
-  impl_.barometer_settings_.pressure_factor_tau =
-      JsonUtils::GetNumber<float>(json, Constant::Config::pressure_factor_tau,
-                           impl_.barometer_settings_.pressure_factor_tau);
+  impl_.barometer_settings_.pressure_factor_tau = JsonUtils::GetNumber<float>(
+      json, Constant::Config::pressure_factor_tau,
+      impl_.barometer_settings_.pressure_factor_tau);
 
   impl_.barometer_settings_.uncorrelated_noise_sigma =
-      JsonUtils::GetNumber<float>(json, Constant::Config::uncorrelated_noise_sigma,
-                           impl_.barometer_settings_.uncorrelated_noise_sigma);
+      JsonUtils::GetNumber<float>(
+          json, Constant::Config::uncorrelated_noise_sigma,
+          impl_.barometer_settings_.uncorrelated_noise_sigma);
 
   impl_.barometer_settings_.update_latency =
       JsonUtils::GetNumber<float>(json, Constant::Config::update_latency,
-                           impl_.barometer_settings_.update_latency);
+                                  impl_.barometer_settings_.update_latency);
 
   impl_.barometer_settings_.update_frequency =
       JsonUtils::GetNumber<float>(json, Constant::Config::update_frequency,
-                           impl_.barometer_settings_.update_frequency);
+                                  impl_.barometer_settings_.update_frequency);
 
   impl_.barometer_settings_.startup_delay =
       JsonUtils::GetNumber<float>(json, Constant::Config::startup_delay,
-                           impl_.barometer_settings_.startup_delay);
+                                  impl_.barometer_settings_.startup_delay);
 
   impl_.logger_.LogVerbose(impl_.name_, "Loaded Barometer settings");
 }

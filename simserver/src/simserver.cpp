@@ -305,7 +305,8 @@ void SimServer::LoadControllers(Scene& scene) {
         sim_robot.SetController(
             std::unique_ptr<IController>(matlab_controller_api));
       } else if (controller_type == "simple-drive-api") {
-        auto simple_drive_api = new simple_drive::SimpleDriveApi(sim_robot, ptransformtree);
+        auto simple_drive_api =
+            new simple_drive::SimpleDriveApi(sim_robot, ptransformtree);
         sim_robot.SetController(std::unique_ptr<IController>(simple_drive_api));
       } else {
         simulator_->GetLogger().LogWarning("SimServer::LoadControllers",

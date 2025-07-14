@@ -3,8 +3,8 @@
 #ifndef ROVER_API_SIMPLE_DRIVE_UTILS_HPP_
 #define ROVER_API_SIMPLE_DRIVE_UTILS_HPP_
 
-#include "core_sim/physics_common_types.hpp"
 #include "common/common.hpp"
+#include "core_sim/physics_common_types.hpp"
 
 namespace microsoft {
 namespace projectairsim {

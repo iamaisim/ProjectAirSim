@@ -12,16 +12,16 @@
 
 namespace simple_flight {
 
-using microsoft::projectairsim::vehicle_apis::k2PI;
-using microsoft::projectairsim::vehicle_apis::kPI;
-using microsoft::projectairsim::vehicle_apis::kPI_2;
 using microsoft::projectairsim::vehicle_apis::Axis3;
 using microsoft::projectairsim::vehicle_apis::Axis3r;
 using microsoft::projectairsim::vehicle_apis::Axis4;
 using microsoft::projectairsim::vehicle_apis::Axis4r;
 using microsoft::projectairsim::vehicle_apis::AxisN;
 using microsoft::projectairsim::vehicle_apis::AxisNr;
+using microsoft::projectairsim::vehicle_apis::k2PI;
 using microsoft::projectairsim::vehicle_apis::KinematicsState;
+using microsoft::projectairsim::vehicle_apis::kPI;
+using microsoft::projectairsim::vehicle_apis::kPI_2;
 using microsoft::projectairsim::vehicle_apis::PidConfig;
 using microsoft::projectairsim::vehicle_apis::TReal;
 using microsoft::projectairsim::vehicle_apis::VehicleState;

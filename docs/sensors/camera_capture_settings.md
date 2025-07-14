@@ -147,11 +147,7 @@ A single camera can output multiple capture types. The following parameters desc
 
 ---
 
-<<<<<<< HEAD
-Copyright (C) Microsoft Corporation.  All rights reserved.
-=======
 Copyright (C) Microsoft Corporation.  
 Copyright (C) 2025 IAMAI Consulting Corp.
 
 MIT License. All rights reserved.
->>>>>>> a6d8c94 (Added IAMAI copyright signature to every file)

@@ -11,7 +11,8 @@ On Windows, Project AirSim can be developed with either Visual Studio 2019 or VS
 
     - `Desktop development with C++` workload
     - `.NET Framework 4.8 SDK` individual component
-    - (no)`.NET Core SDK` individual component
+    - `MSVC v143 - VS 2022 C++ x64/x86 build tools (v14.37-17.7)` individual component
+    - (no)`.NET Core SDK` individual component    
 
     Second, install **[VS Code](https://code.visualstudio.com/)** with the following extensions:
 
@@ -55,6 +56,20 @@ On Windows, Project AirSim can be developed with either Visual Studio 2019 or VS
     `git clone https://github.com/iamaisim/ProjectAirSim.git`
 
 7. Do the **[Project AirSim Client Setup](../client_setup.md#setting-up-the-client-on-windows)**.
+
+8. (Optional) Unreal Engine 5.2.x requires a specific MSVC compiler version and will fail with newer versions Create a configuration file to force Unreal's Build Tool to use the compiler version `14.37.32822`
+
+    File Path: `%APPDATA%\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml`
+
+    Content:
+    ```xml
+    <?xml version="1.0" encoding="utf-8"?>
+    <Configuration xmlns="https://www.unrealengine.com/BuildConfiguration">
+        <WindowsPlatform>
+            <CompilerVersion>14.37.32822</CompilerVersion>
+        </WindowsPlatform>
+    </Configuration>
+    ```
 
 Now you're ready to start **[Developing Project AirSim Sim Libs](use_source.md#developing-projectairsim-libs)**
 

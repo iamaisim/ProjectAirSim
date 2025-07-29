@@ -16,12 +16,12 @@
 :maxdepth: 2
 :caption: Getting Started
 
-internal/use_source.md
-internal/use_prebuilt.md
-internal/dev_setup_linux.md
-internal/dev_setup_win.md
-internal/vscode_user_settings.md
-internal/headless_cloud.md
+development/use_source.md
+development/use_prebuilt.md
+development/dev_setup_linux.md
+development/dev_setup_win.md
+development/vscode_user_settings.md
+development/headless_cloud.md
 ```
 
 ```{toctree}
@@ -35,7 +35,7 @@ sensors/segmentation.md
 sensors/lidar.md
 sensors/radar.md
 sensors/battery.md
-internal/sensors/display.md
+development/sensors/display.md
 ```
 
 ```{toctree}
@@ -44,10 +44,10 @@ internal/sensors/display.md
 
 physics/fast_physics.md
 physics/matlab_physics.md
-internal/physics/unreal_physics.md
+development/physics/unreal_physics.md
 scene/sim_clock.md
 scene/weather_visual_effects.md
-internal/scene/sim_clock_internal.md
+development/scene/sim_clock_development.md
 ```
 
 ```{toctree}

@@ -1,6 +1,6 @@
 """
 Copyright (C) Microsoft Corporation. 
-Copyright (C) IAMAI Consulting Corporation.  
+Copyright (C) 2025 IAMAI CONSULTING CORP
 MIT License.
 
 Demonstrates flying a FastPhysics quadrotor using a PX4 controller.

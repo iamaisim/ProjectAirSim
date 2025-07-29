@@ -1,6 +1,6 @@
 """
 Copyright (C) Microsoft Corporation. 
-Copyright (C) IAMAI Consulting Corporation.  
+Copyright (C) 2025 IAMAI CONSULTING CORP
 MIT License.
 ROS bridge for Project AirSim: Sensor message conversion module
 """

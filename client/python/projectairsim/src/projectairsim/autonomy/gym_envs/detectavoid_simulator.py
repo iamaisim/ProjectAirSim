@@ -1,6 +1,6 @@
 """
 Copyright (C) Microsoft Corporation. 
-Copyright (C) IAMAI Consulting Corporation.  
+Copyright (C) 2025 IAMAI CONSULTING CORP
 MIT License.
 ProjectAirSim:: Autonomy:: RL Gym Environments: Bonsai-SD3-compatible ProjectAirSimDetectAvoid Gym env
 This file contains the ProjectAirSimDetectAvoid simulator interface that

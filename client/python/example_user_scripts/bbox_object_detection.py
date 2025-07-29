@@ -1,6 +1,6 @@
 """
 Copyright (C) Microsoft Corporation. 
-Copyright (C) IAMAI Consulting Corporation.  
+Copyright (C) 2025 IAMAI CONSULTING CORP
 MIT License.
 
 Demonstrates capturing images with bounding boxes from a non-physics drone.

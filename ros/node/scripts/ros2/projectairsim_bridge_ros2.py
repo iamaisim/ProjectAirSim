@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 Copyright (C) Microsoft Corporation. 
-Copyright (C) IAMAI Consulting Corporation.  
+Copyright (C) 2025 IAMAI CONSULTING CORP
 MIT License.
 
 ROS bridge for Project AirSim.  This example illustrates the basic setup of

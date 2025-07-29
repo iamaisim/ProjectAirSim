@@ -339,6 +339,6 @@ For PX4 in WSL2:
 ---
 
 Copyright (C) Microsoft Corporation.  
-Copyright (c) 2025 IAMAI Consulting Corporation.
+Copyright (C) 2025 IAMAI CONSULTING CORP
 
 MIT License. All rights reserved.

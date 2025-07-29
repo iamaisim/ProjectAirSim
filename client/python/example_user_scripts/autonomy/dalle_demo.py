@@ -1,6 +1,6 @@
 """
 Copyright (C) Microsoft Corporation. 
-Copyright (C) IAMAI Consulting Corporation.  
+Copyright (C) 2025 IAMAI CONSULTING CORP
 MIT License.
 ProjectAirSim:: Autonomy building-blocks::DALL-E Demo for Real-time Data Augmentation
 This Demo App detects landing pads in the scene and augments the scene with a

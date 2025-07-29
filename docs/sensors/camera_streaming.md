@@ -119,6 +119,6 @@ To connect to a remote PixelStreaming view, such as running the sim server on Az
 ---
 
 Copyright (C) Microsoft Corporation.  
-Copyright (c) 2025 IAMAI Consulting Corporation.
+Copyright (C) 2025 IAMAI CONSULTING CORP
 
 MIT License. All rights reserved.

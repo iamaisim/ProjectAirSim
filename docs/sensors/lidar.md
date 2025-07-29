@@ -130,6 +130,6 @@ A standard `livox_mid70` config would be similar to this:
 ---
 
 Copyright (C) Microsoft Corporation.  
-Copyright (c) 2025 IAMAI Consulting Corporation.
+Copyright (C) 2025 IAMAI CONSULTING CORP
 
 MIT License. All rights reserved.

@@ -2,7 +2,7 @@
 """
 Warmup script for ONNX model on GPU.
 Copyright (C) Microsoft Corporation.
-Copyright (C) IAMAI Consulting Corporation.
+Copyright (C) 2025 IAMAI CONSULTING CORP
 MIT License.
 """
 

@@ -2,9 +2,9 @@
 
 ## Security
 
-IAMAI Consulting Corporation takes the security of our software seriously. This includes all source code repositories managed through our GitHub organization: [IAMAI Consulting Corporation](https://github.com/iamaisim).
+IAMAI CONSULTING CORP takes the security of our software seriously. This includes all source code repositories managed through our GitHub organization: [IAMAI CONSULTING CORP](https://github.com/iamaisim).
 
-If you believe you have found a security vulnerability in any IAMAI Consulting Corporation repository, please report it to us as described below.
+If you believe you have found a security vulnerability in any IAMAI CONSULTING CORP repository, please report it to us as described below.
 
 ## Reporting Security Issues
 
@@ -37,6 +37,6 @@ We prefer reports and communication in **English or Spanish**.
 
 ## Policy
 
-IAMAI Consulting Corporation follows the principles of [Coordinated Vulnerability Disclosure](https://www.iso.org/standard/72311.html) and we appreciate researchers who disclose issues responsibly.
+IAMAI CONSULTING CORP follows the principles of [Coordinated Vulnerability Disclosure](https://www.iso.org/standard/72311.html) and we appreciate researchers who disclose issues responsibly.
 
 <!-- END IAMAI SECURITY.MD BLOCK -->

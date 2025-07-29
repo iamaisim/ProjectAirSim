@@ -485,6 +485,6 @@ We `await` TakeoffAsync, which retrieves an asychronous task. We then execute th
 ---
 
 Copyright (C) Microsoft Corporation.  
-Copyright (c) 2025 IAMAI Consulting Corporation.
+Copyright (C) 2025 IAMAI CONSULTING CORP
 
 MIT License. All rights reserved.

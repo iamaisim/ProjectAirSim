@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Copyright (C) Microsoft Corporation. 
-Copyright (C) IAMAI Consulting Corporation.  
+Copyright (C) 2025 IAMAI CONSULTING CORP
 MIT License.
 
 Demo client script for navigating a 3D occupancy map

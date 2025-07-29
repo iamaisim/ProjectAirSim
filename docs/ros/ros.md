@@ -197,6 +197,6 @@ Samples of using the Project AirSim ROS Bridge are provided in the `ros/examples
 ---
 
 Copyright (C) Microsoft Corporation.  
-Copyright (c) 2025 IAMAI Consulting Corporation.
+Copyright (C) 2025 IAMAI CONSULTING CORP
 
 MIT License. All rights reserved.

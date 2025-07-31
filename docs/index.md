@@ -87,5 +87,5 @@ controllers/px4/px4_sitl_wsl2.md
 :maxdepth: 1
 :caption: Python Client API Reference
 
-Python Client API Reference <https://iamaisim.github.io/ProjectAirSim/api_docs/index.html>
+Python Client API Reference <https://iamaisim.github.io/ProjectAirSim/client_api/index.html>
 ```

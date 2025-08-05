@@ -110,7 +110,7 @@ else()
 endif()
 ExternalProject_Add(nng-external
     GIT_REPOSITORY          https://github.com/nanomsg/nng.git
-    GIT_TAG                 v1.5.2
+    GIT_TAG                 v1.11
     GIT_CONFIG              "advice.detachedHead=false"
     PREFIX                  ${CMAKE_BINARY_DIR}/_deps/nng
     # Use Update step override to delete unused /etc/ folder of NNG development support files that list a lot of Go reference packages

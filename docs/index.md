@@ -3,25 +3,45 @@
 ```{include} ../README.md
 :relative-docs: docs_build/source
 :relative-images: docs_build/source/images
-```
+````
 
 ```{toctree}
 :maxdepth: 2
 :caption: Introduction
 
 ../README.md
+transition_from_airsim.md
+system_specs.md
+faq.md
+license.md
 ```
 
 ```{toctree}
 :maxdepth: 2
 :caption: Getting Started
 
-development/use_source.md
 development/use_prebuilt.md
+development/use_source.md
+client_setup.md
+use_plugin.md
 development/dev_setup_linux.md
 development/dev_setup_win.md
 development/vscode_user_settings.md
 development/headless_cloud.md
+```
+
+```{toctree}
+:maxdepth: 2
+:caption: Configuration
+
+config.md
+config_scene.md
+config_robot.md
+multiple_robots.md
+command_line_switches.md
+gis_scenes.md
+modify_drone_physical.md
+modify_drone_visual.md
 ```
 
 ```{toctree}
@@ -36,32 +56,6 @@ sensors/lidar.md
 sensors/radar.md
 sensors/battery.md
 development/sensors/display.md
-```
-
-```{toctree}
-:maxdepth: 2
-:caption: Physics and Simulation
-
-physics/fast_physics.md
-physics/matlab_physics.md
-development/physics/unreal_physics.md
-scene/sim_clock.md
-scene/weather_visual_effects.md
-development/scene/sim_clock_development.md
-```
-
-```{toctree}
-:maxdepth: 2
-:caption: Code Structure
-
-code_structure.md
-```
-
-```{toctree}
-:maxdepth: 2
-:caption: APIs and Programmatic Control
-
-apis.md
 ```
 
 ```{toctree}
@@ -81,7 +75,45 @@ controllers/px4/px4_sitl_wsl2.md
 
 ```{toctree}
 :maxdepth: 2
-:caption: Settings
+:caption: Autonomy
+
+autonomy/autonomy.md
+autonomy/setup.md
+autonomy/gym/gym_envs.md
+```
+
+```{toctree}
+:maxdepth: 2
+:caption: Data Collection
+
+datacollection/data_generation.md
+datacollection/config.md
+datacollection/randomizations.md
+datacollection/augmentations.md
+datacollection/data_aggregation.md
+datacollection/trajectory.md
+datacollection/azure.md
+datacollection/api.md
+```
+
+```{toctree}
+:maxdepth: 2
+:caption: Scene & Simulation
+
+scene/sim_clock.md
+scene/weather_visual_effects.md
+development/scene/sim_clock_internal.md
+physics/fast_physics.md
+physics/matlab_physics.md
+```
+
+```{toctree}
+:maxdepth: 2
+:caption: APIs & Programmatic Control
+
+api.md
+ros/ros.md
+```
 
 ```{toctree}
 :maxdepth: 1

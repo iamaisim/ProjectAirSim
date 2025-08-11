@@ -350,10 +350,10 @@ client.takeoffAsync().join()
 as you would in AirSim OSS, use 
 
 ```
-takeoff_task = await drone.TakeoffAsync()
+takeoff_task = await drone.takeoff_async()
 await takeoff_task
 ```
-We `await` TakeoffAsync, which retrieves an asychronous task. We then execute the task by `await`ing it.
+We `await` takeoff_async, which retrieves an asychronous task. We then execute the task by `await`ing it.
 
 ## Reference table for api migration
 
@@ -363,7 +363,7 @@ We `await` TakeoffAsync, which retrieves an asychronous task. We then execute th
 
 | AirSim OSS      | Project AirSim | Observations |
 | ----------- | ----------- | ----------- |
-| client.enableApiControl(bool)      | drone.EnableApiControl(), drone.DisableApiControl()       |        |
+| client.enableApiControl(bool)      | drone.enable_api_control(), drone.disable_api_control()       |        |
 | client.isApiControlEnabled() | Not implemented.| |
 | client.reset()      | World()       | To reset the scene, instantiate the same World again.       |
 | client.confirmConnection() | Not implemented. | |
@@ -374,17 +374,17 @@ We `await` TakeoffAsync, which retrieves an asychronous task. We then execute th
 
 | AirSim OSS      | Project AirSim | Observations |
 | ----------- | ----------- | ----------- |
-| client.armDisarm(bool)      | drone.Arm(), drone.Disarm()       |        |
-| client.takeoffAsync()      | drone.TakeoffAsync()       |       |
-| client.landAsync()      | drone.LandAsync()       | Default timeout has changed from 60 to 3e38 seconds.       |
-| client.hoverAsync()      | drone.HoverAsync()       |        |
-| client.moveByVelocityAsync(vx, vy, vz, duration, drivetrain, yaw_mode)     | drone.MoveByVelocityAsync(self,v_north,v_east,v_down,duration,yaw_control_mode,yaw_is_rate,yaw)       | YawMode struct does not exist. Pass yaw and yaw_is_rate separately.        |
-|client.moveByVelocityZAsync(vx, vy, vz, duration, drivetrain, yaw_mode)     | drone.MoveByVelocityZAsync(self,v_north,v_east,v_down,duration,yaw_control_mode,yaw_is_rate,yaw)       | YawMode struct does not exist. Pass yaw and yaw_is_rate separately.        |
-| client.moveToPositionAsync(self, x, y, z, velocity, timeout_sec, drivetrain, yaw_mode, lookahead, adaptive_lookahead) | drone.MoveToPositionAsync(self, north, east, down, velocity, timeout_sec, yaw_control_mode, yaw_is_rate, yaw, lookahead, adaptive_lookahead) | YawMode struct does not exist. Pass yaw and yaw_is_rate separately. |
-| client.moveOnPathAsync() | drone.moveOnPathAsync() | Path is now given as a 2D array. |
+| client.armDisarm(bool)      | drone.arm(), drone.disarm()       |        |
+| client.takeoffAsync()      | drone.takeoff_async()       |       |
+| client.landAsync()      | drone.land_async()       | Default timeout has changed from 60 to 3e38 seconds.       |
+| client.hoverAsync()      | drone.hover_async()       |        |
+| client.moveByVelocityAsync(vx, vy, vz, duration, drivetrain, yaw_mode)     | drone.move_by_velocity_async(self,v_north,v_east,v_down,duration,yaw_control_mode,yaw_is_rate,yaw)       | YawMode struct does not exist. Pass yaw and yaw_is_rate separately.        |
+|client.moveByVelocityZAsync(vx, vy, vz, duration, drivetrain, yaw_mode)     | drone.move_by_velocity_z_async(self,v_north,v_east,v_down,duration,yaw_control_mode,yaw_is_rate,yaw)       | YawMode struct does not exist. Pass yaw and yaw_is_rate separately.        |
+| client.moveToPositionAsync(self, x, y, z, velocity, timeout_sec, drivetrain, yaw_mode, lookahead, adaptive_lookahead) | drone.move_to_position_async(self, north, east, down, velocity, timeout_sec, yaw_control_mode, yaw_is_rate, yaw, lookahead, adaptive_lookahead) | YawMode struct does not exist. Pass yaw and yaw_is_rate separately. |
+| client.moveOnPathAsync() | drone.move_on_path_async() | Path is now given as a 2D array. |
 | client.moveToZAsync() | Not implemented.| |
-| client.simSetVehiclePose() | drone.SetPose() | |
-| client.simSetKinematics() | drone.SetGroundTruthKinematics() | |
+| client.simSetVehiclePose() | drone.set_pose() | |
+| client.simSetKinematics() | drone.get_ground_truth_kinematics() | |
 | client.moveByManualAsync() | [See info on how to set up remote controller.](controllers/simple_flight#using-an-xbox-controller) | |
 | client.moveByRc() | flight_rc.set() | Only needs to be called once. |
 
@@ -392,71 +392,71 @@ We `await` TakeoffAsync, which retrieves an asychronous task. We then execute th
 #### Images
 | AirSim OSS      | Project AirSim | Observations |
 | ----------- | ----------- | ----------- |
-| client.simGetImage() | Not implemented. | Use drone.GetImages with only one image_type_id to request a single image. |
-| client.simGetImages(requests) | drone.GetImages(camera_id, image_type_ids) | Instead of sending a set of ImageRequests, call requests a set of ImageTypes from a given camera. |
-| client.simSetCameraPose() | drone.SetCameraPose() | |
+| client.simGetImage() | Not implemented. | Use drone.get_images with only one image_type_id to request a single image. |
+| client.simGetImages(requests) | drone.get_images(camera_id, image_type_ids) | Instead of sending a set of ImageRequests, call requests a set of ImageTypes from a given camera. |
+| client.simSetCameraPose() | drone.set_camera_pose() | |
 | client.simGetCameraInfo() | Not implemented. | |
 | client.simSetCameraFov() | Not implemented. | |
 | client.simGetDistortionParams() | Not implemented. | |
 | client.simSetDistortionParams() | Not implemented. | |
 | client.simSetDetectionFilterRadius() | Not implemented. |
 | client.simAddDetectionFilterMeshName() | Configurable. Set "object_id" in the "annotations" section of the [camera config.](sensors/camera_capture_settings) | |
-| client.simGetDetections() | Use drone.GetImages on a camera with "annotations" configured. The returned data will include an "annotations" section. | |
+| client.simGetDetections() | Use drone.get_images on a camera with "annotations" configured. The returned data will include an "annotations" section. | |
 | client.simClearDetectionMeshNames() | Not implemented. | |
 
 #### Sensors and Ground Truth
 | AirSim OSS      | Project AirSim | Observations |
 | ----------- | ----------- | ----------- |
 | client.getMultirotorState()      | No equivalent.       | The API for estimated kinematics is not implemented yet. Use GetGroundTruthKinematics for now; it's the same unless a flight controller with estimation such as PX4 is in use. Collision info can be obtained by using self.client.subscribe() to subscribe to the collision sensor.       |
-| client.getImuData()      | drone.GetImuData(sensor_name)       |        |
-| client.getBarometerData()      | drone.GetBarometerData(sensor_name)       |        |
-| client.getMagnetometerData()      | drone.GetMagnetometerData(sensor_name)       |        |
-| client.getGpsData()      | drone.GetGpsData(sensor_name)       |        |
+| client.getImuData()      | drone.get_imu_data(sensor_name)       |        |
+| client.getBarometerData()      | drone.get_barometer_data(sensor_name)       |        |
+| client.getMagnetometerData()      | drone.get_magnetometer_data(sensor_name)       |        |
+| client.getGpsData()      | drone.get_gps_data(sensor_name)       |        |
 | client.getLidarData() | Not implemented. | Use self.client.subscribe() to subscribe to the LiDAR sensor and handle LiDAR data in the callback. |
-| client.simGetVehiclePose() | drone.GetGroundTruthPose() | |
+| client.simGetVehiclePose() | drone.get_ground_truth_pose() | |
 | client.getHomeGeoPoint() | Not implemented. | |
 
 #### Simulation 
 | AirSim OSS      | Project AirSim | Observations |
 | ----------- | ----------- | ----------- |
-| client.simSetTraceLine() | world.SetTraceLine() | |
-| client.simSetWind(wind) | world.SetWindVelocity(n, e, d) | Wind isn't implemented in the physics yet, but the API exists. |
-| client.simEnableWeather() | Run world.EnableWeatherVisualEffects(), world.DisableWeatherVisualEffects() | |
-| client.simSetWeatherParameter() | world.SetWeatherVisualEffectsParam() |  |
+| client.simSetTraceLine() | world.set_trace_line() | |
+| client.simSetWind(wind) | world.set_wind_velocity(n, e, d) | Wind isn't implemented in the physics yet, but the API exists. |
+| client.simEnableWeather() | Run world.enable_weather_visual_effects(), world.disable_weather_visual_effects() | |
+| client.simSetWeatherParameter() | world.set_weather_visual_effects_param() |  |
 | client.simTestLineOfSightToPoint() | Not implemented. | |
 | client.simTestLineOfSightBetweenPoints() | Not implemented. | |
 | client.simGetWorldExtents() | Not implemented. | |
-| client.simPause() | world.Pause(), world.Unpause() | |
-| client.simContinueForTime() | world.ContinueForSimTime() | Units have changed from seconds to nanoseconds. |
+| client.simPause() | world.pause(), world.resume() | |
+| client.simContinueForTime() | world.continue_for_sim_time() | Units have changed from seconds to nanoseconds. |
 | client.simAddVehicle() | Not supported. | ProjectAirsim does not currently support adding new drones while the sim is running. All required drones should be added to the scene configuration. |
-| client.simGetSegmentationObjectId() | world.GetSegmentationObjectIDByName() | |
-| client.simSetSegmentationObjectId() | world.SetSegmentationObjectIDByName() | |
+| client.simGetSegmentationObjectId() | world.get_segmentation_id_by_name() | |
+| client.simSetSegmentationObjectId() | world.set_segmentation_id_by_name() | |
 | client.simSetObjectMaterial() | Not implemented. | |
-| client.simSetObjectMaterialFromTexture() | SetObjectTextureFromUrl() | Use the `file:///` protocol to access local textures. |
+| client.simSetObjectMaterialFromTexture() | world.set_object_material() | Use the `file:///` protocol to access local textures. |
 | client.simListAssets() | Not implemented. | |
-| client.simSpawnObject() | world.SpawnObject() | |
-| client.simDestroyObject() | world.DestroyObject() | |
-| client.simListSceneObjects() | world.ListObjects() | |
-| client.simGetObjectPose() | world.GetObjectPose() | |
-| client.simSetObjectPose() | world.SetObjectPose() | |
-| client.simGetObjectScale() | world.GetObjectScale() | |
-| client.simSetObjectScale() | world.SetObjectScale() | |
-| client.simSwapTextures() | world.SwapObjectTexture() | |
+| client.simSpawnObject() | world.spawn_object() | |
+| client.simDestroyObject() | world.destroy_object() | |
+| client.simListSceneObjects() | world.list_objects() | |
+| client.simGetObjectPose() | world.get_object_pose() | |
+| client.simSetObjectPose() | world.set_object_pose() | |
+| client.simGetObjectScale() | world.get_object_scale() | |
+| client.simSetObjectScale() | world.set_object_scale() | |
+| client.simSwapTextures() | Not implemented. | |
 | client.simSetLightIntensity() | Not implemented. | |
-| client.simPlotArrows() | world.PlotDebugArrows() ||
-| client.simPlotPoints() | world.PlotDebugPoints() ||
-| client.simPlotLineStrip() | world.PlotDebugSolidLine() ||
-| client.simPlotLineList() | world.PlotDebugDashedLine() ||
-| client.simPlotStrings() | world.PlotDebugStrings() ||
-| client.simPlotTransforms() | world.PlotDebugTransforms() | |
-| client.simPlotTransformsWithNames() | world.PlotDebugTransformsWithNames() | |
-| client.simFlushPersistentMarkers() | world.FlushPersistentMarkers() | |
+| client.simPlotArrows() | world.plot_debug_arrows() ||
+| client.simPlotPoints() | world.plot_debug_points() ||
+| client.simPlotLineStrip() | world.plot_debug_solid_line() ||
+| client.simPlotLineList() | world.plot_debug_dashed_line() ||
+| client.simPlotStrings() | world.plot_debug_strings() ||
+| client.simPlotTransforms() | world.plot_debug_transforms() | |
+| client.simPlotTransformsWithNames() | world.plot_debug_transforms_with_names() | |
+| client.simFlushPersistentMarkers() | world.flush_persistent_markers() | |
 
 #### Utilities
 | AirSim OSS      | Project AirSim | Observations |
 | ----------- | ----------- | ----------- |
-| airsim.to_eularian_angles() | airsim_vnext.utils.quaternion_to_eulerian_angles() | |
-| airsim.to_quaternion() | airsim_vnext.utils.eulerian_angles_to_quaternion() | |
+| airsim.to_eularian_angles() | projectairsim.utils.quaternion_to_rpy() | |
+| airsim.to_quaternion() | projectairsim.utils.rpy_to_quaternion() | |
 
 ### Types
 
@@ -481,6 +481,9 @@ We `await` TakeoffAsync, which retrieves an asychronous task. We then execute th
 | ----------- | ----------- | ----------- |
 | ImuDataOSS      | ImuDataPA       | The orientation parameter for OSS is in Euler and for PA in Quaternions|
 
+#### Migrated AirSim v1 Scripts examples
+
+In the "../client/python/airsimv1_scripts_migrated" folder, you will find examples of AirSim scripts that have been translated to work with Project AirSim. These scripts demonstrate how to adapt existing functionalities from AirSim OSS to Project AirSim, serving as a practical reference for migrating your own scripts.
 
 ---
 

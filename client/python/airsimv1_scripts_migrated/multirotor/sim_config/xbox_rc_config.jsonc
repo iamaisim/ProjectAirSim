@@ -1,0 +1,159 @@
+{
+  // Mapping from Xbox game controller to Simple Flight flight controller
+  //
+  // This configuration file creates the following mapping:
+  //
+  // Xbox Control               Simple Flight Function
+  // ------------               -----------------
+  // Left joystick horizontal   X-roll angle
+  // Left joystick vertical     Throttle
+  // Right joystick horizontal  Z-yaw angle
+  // Right joystick vertical    Y-pitch angle
+  // X button                   Toggle API control enable/disable
+  // Y button                   Toggle betweeen angle-level and angle-rate control
+  // Start button               Arm vehicle (hold throttle down and press for at least 0.2 seconds)
+  // Back button                Disarm vehicle (hold throttle down and press for at least 0.2 seconds)
+  //
+  "channel_map": { // RC input channels
+    "0": { // X-roll axis
+      "input_channel": "xLeft", // Left joystick horizontal movement
+      // The logical joystick values ranges [-32768..+32767], but when a joystick
+      // is at a diagonal position, each axis is at only 27600.0 so we'll make
+      // the input range smaller to ensure the joystick output can reach the
+      // extremes no matter the position.
+      "input_range": {
+        "min": -27500.0,
+        "max": 27500.0
+      },
+      // The "neutral zone" for a resting joystick where joystick values in this
+      // range maps to 0.0. This may be a bit generous depending on your controller.
+      "input_dead_range": {
+        "min": -5000.0,
+        "max": 5000.0
+      },
+      // The joystick values are mapped to this range for output to Simple Flight
+      "output_range": {
+        "min": -1.0,
+        "max": 1.0
+      }
+    },
+    "1": { // Z-yaw axis
+      "input_channel": "xRight", // Right joystick horizontal movement
+      "input_range": {
+        "min": -27500.0,
+        "max": 27500.0
+      },
+      "input_dead_range": {
+        "min": -5000.0,
+        "max": 5000.0
+      },
+      "output_range": {
+        "min": -1.0,
+        "max": 1.0
+      }
+    },
+    "2": { // Throttle
+      "input_channel": "yLeft", // Left joystick vertical movement
+      "input_range": {
+        "min": -27500.0,
+        "max": 27500.0
+      },
+      "input_dead_range": {
+        "min": -5000.0,
+        "max": 5000.0
+      },
+      "output_range": {
+        "min": 0.0, // Throttle output range [0.0..1.0] instead of [-1.0..1.0]
+        "max": 1.0
+      }
+    },
+    "3": { // Y-pitch axis
+      "input_channel": "yRight", // Right joystick vertical movement
+      "input_range": {
+        "min": -27500.0,
+        "max": 27500.0
+      },
+      "input_dead_range": {
+        "min": -5000.0,
+        "max": 5000.0
+      },
+      // A positive Y-pitch pitches the vehicle backwards opposite to the
+      // movement of the joystick.  By flipping the output range the
+      // joystick pushed all the way up maps to -1.0 while pulled all
+      // the way back maps to +1.0, making the vehicle pitch as expected.
+      "output_range": {
+        "min": 1.0,
+        "max": -1.0
+      }
+    },
+    "4": { // Angle level or angle rate control switch
+      // Virtual toggle switch mapped to Y button.  The XboxController class
+      // is written to generate this virtual toggle switch value.  Pushing the
+      // Y button toggles the switchLevelRate virtual switch between 0.0 and
+      // 1.0.
+      "input_channel": "switchLevelRate",
+      "input_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      // Both regular and virtual toggle buttons output 0.0 or 1.0 and nothing
+      // in between so a dead range isn't needed.  Set it to a zero-size range
+      // at the middle to ensure it won't interfere.
+      "input_dead_range": {
+        "min": 0.5,
+        "max": 0.5
+      },
+      "output_range": {
+        "min": 0.0,
+        "max": 1.0
+      }
+    },
+    "5": { // API control enable switch
+      "input_channel": "switchEnableAPIControl", // Virtual toggle switch mapped to X button
+      "input_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "input_dead_range": {
+        "min": 0.5,
+        "max": 0.5
+      },
+      "output_range": {
+        "min": 0.0,
+        "max": 1.0
+      }
+    }
+  },
+  "channel_map_oob": { // Out-of-band channels
+    "arm_vehicle": { // Arm vehicle command
+      "input_channel": "btnStart", // Press and hold the Start button for at least 200 ms with the throttle all the way down
+      "input_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "input_dead_range": {
+        "min": 0.5,
+        "max": 0.5
+      },
+      "output_range": {
+        "min": 0.0,
+        "max": 1.0
+      }
+    },
+    "disarm_vehicle": { // Disamr vehicle command
+      "input_channel": "btnBack", // Press and hold the Back button for at least 200 ms with the throttle all the way down
+      "input_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "input_dead_range": {
+        "min": 0.5,
+        "max": 0.5
+      },
+      "output_range": {
+        "min": 0.0,
+        "max": 1.0
+      }
+    }
+  }
+}

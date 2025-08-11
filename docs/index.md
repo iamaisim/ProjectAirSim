@@ -75,29 +75,6 @@ controllers/px4/px4_sitl_wsl2.md
 
 ```{toctree}
 :maxdepth: 2
-:caption: Autonomy
-
-autonomy/autonomy.md
-autonomy/setup.md
-autonomy/gym/gym_envs.md
-```
-
-```{toctree}
-:maxdepth: 2
-:caption: Data Collection
-
-datacollection/data_generation.md
-datacollection/config.md
-datacollection/randomizations.md
-datacollection/augmentations.md
-datacollection/data_aggregation.md
-datacollection/trajectory.md
-datacollection/azure.md
-datacollection/api.md
-```
-
-```{toctree}
-:maxdepth: 2
 :caption: Scene & Simulation
 
 scene/sim_clock.md

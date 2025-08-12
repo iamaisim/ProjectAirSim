@@ -73,7 +73,7 @@ However, the provided script does not let us view the PX4 console. If you want t
 
     You can add more than two vehicles but you will need to make sure you adjust the TCP port for each (ie: vehicle 3's port would be `4562` and so on..) and adjust the spawn point.
 
-4. Now run your client script loading the simulation scene and Project AirSim should connect to PX4 SITL instances via TCP.  If you are running the instances with the [PX4 console visible](px4_multi_vehicle.md#Starting-sitl-instances-with-px4-console), you should see a bunch of messages from each PX4 SITL window.  Specifically, the following messages tell you that AirSim is connected properly and GPS fusion is stable:
+4. Now run your client script loading the simulation scene and Project AirSim should connect to PX4 SITL instances via TCP.  If you are running the instances with the [PX4 console visible](px4_multi_vehicle.md), you should see a bunch of messages from each PX4 SITL window.  Specifically, the following messages tell you that AirSim is connected properly and GPS fusion is stable:
 
         INFO  [simulator] Simulator connected on UDP port 14560
         INFO  [mavlink] partner IP: 127.0.0.1

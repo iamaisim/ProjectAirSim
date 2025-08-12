@@ -21,14 +21,14 @@ You must have one of the supported devices listed above. For manual flight simul
     1. Make sure your RC receiver and RC transmitter are bound to each other.
     2. Connect the receiver (the vehicle-based radio unit) to the PX4 flight controller's RC port.
 
-    Refer to your RC manual and [PX4 docs](https://docs.px4.io/en/getting_started/rc_transmitter_receiver.html) for more information.
+    Refer to your RC manual and [PX4 docs](https://docs.px4.io/main/en/getting_started/rc_transmitter_receiver.html) for more information.
 
 2. Do not plug the PX4 flight controller device into your computer yet.
 3. Download and install [QGroundControl](http://qgroundcontrol.com/).
 4. Launch *QGroundControl* and go to the Vehicle Firmware Setup panel (click on the Ground Control logo, select the "Vehicle Setup" tool, then "Firmware" tab.)
 5. Connect the PX4 flight controller device to a USB port on your computer.
 6. *QGroundControl* should detect the PX4 hardware and offer to setup the firmware on the device.  Select the "PX4 Pro Stable Release vx.xx.x" flight stack.
-See also the [initial firmware setup video](https://docs.px4.io/master/en/config/).
+See also the [initial firmware setup video](https://docs.px4.io/main/en/config/).
 7. In *QGroundControl*, configure your PX4 flight controller device for HIL simulation by selecting under "Simulation (Copter)" the "HIL Quadrocopter X" airframe, then click "Apply and Restart" at the top.  After the PX4 device reboots and *QGroundControl* reconnects to it, verify that "HIL Quadrocopter X" is still selected.
 
 For manual flight simulation, perform these additional steps:
@@ -43,7 +43,7 @@ For manual flight simulation, perform these additional steps:
     Roll and pitch sensitivity | mid-3 mark
     Altitude and position control sensitivity | mid-2 mark
 
-11. In the [robot configuration file](/config_robot.md), specify PX4 for your vehicle controller like this:
+11. In the [robot configuration file](../../config_robot.md), specify PX4 for your vehicle controller like this:
 ```jsonc
     {
         ...
@@ -76,7 +76,7 @@ You'll need to replace the "serial-port" entry's value of "serial device name" w
 
 After completing the above setup you should now be able to use *QGroundControl* to fly the vehicle in Project AirSim.  If an RC transmitter and receiver are connected and configured through the additional setup steps for manual flight simulation, you can manually fly using the RC transmitter. With manual flight you don't need *QGroundControl* after the initial setup. You can usually arm the vehicle by lowering and bringing the two sticks of the RC transmitter together down and inwards. Typically the Stabilized flight mode (instead of Manual) gives a better experience for beginners.  For more information see the [PX4 Basic Flying Guide](https://docs.px4.io/master/en/flying/basic_flying.html).
 
-You can also control the drone with a Python script using [the Python APIs](/apis.md).
+You can also control the drone with a Python script using [the Python APIs](../../api.md).
 
 ---
 

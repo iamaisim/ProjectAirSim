@@ -192,7 +192,7 @@ The script will load a simulation scene and fly the drone from the launch pad to
 
 ## Examples
 
-Samples of using the Project AirSim ROS Bridge are provided in the `ros/examples` directory.  See [Project AirSim ROS Bridge Examples](ros_examples.md) for more information.
+Samples of using the Project AirSim ROS Bridge are provided in the `ros/examples` directory.
 
 ---
 

@@ -21,7 +21,7 @@ To convert an existing AirSim Unreal environment to Project AirSim, you can perf
         "Enabled": true
         },
 
-3. Add Project AirSim to the environment following **[How to add the Project AirSim Plugin to a custom Unreal environment](use_plugin.md#how-to-add-the-airsim-v-next-plugin-to-a-custom-unreal-environment)**, including the part about setting the `GameMode` to `AirSimVNextGameMode` since `AirSimGameMode` is no longer valid.
+3. Add Project AirSim to the environment following **[How to add the Project AirSim Plugin to a custom Unreal environment](use_plugin)**, including the part about setting the `GameMode` to `AirSimVNextGameMode` since `AirSimGameMode` is no longer valid.
 
 4. On first opening of the `<environment>.uproject` file with Unreal Engine 4.25, there may be some warnings about failing to load some AirSim content such as:
 
@@ -57,9 +57,9 @@ General guidelines to update your environment to SunSky:
 
 ## Converting an AirSim OSS configuration to Project AirSim
 
-Refer to the [documentation on configuration](config.md) for information about Project AirSim's configuration files and what settings are available.
+Refer to the [documentation on configuration](config) for information about Project AirSim's configuration files and what settings are available.
 
-The following is a rough guide on how to handle each element from the AirSim OSS configuration in Project AirSim. Some items are introduced without highlighting their position in the Project AirSim configuration hierarchy. Refer to the [documentation](config.md) to know the exact positions of each configuration item.
+The following is a rough guide on how to handle each element from the AirSim OSS configuration in Project AirSim. Some items are introduced without highlighting their position in the Project AirSim configuration hierarchy. Refer to the [documentation](config) to know the exact positions of each configuration item.
 
 **"SimMode":** 
 
@@ -150,7 +150,7 @@ Not needed.
 
 **"RC":**
 
-Not selected through config. See the [remote control guide](controllers/simple_flight#using-an-xbox-controller) for information on how to set up a remote controller with Project Airsim.
+Not selected through config. See the [remote control guide](controllers/simple_flight) for information on how to set up a remote controller with Project Airsim.
 
 **"X", "Y", "Z", "Yaw", "Roll", "Pitch":**
 
@@ -328,7 +328,7 @@ Project Airsim's client does not automatically set up the environment from a `se
 world = World(client, "scene_config.jsonc")
 ```
 
-Note that the file path is relative to `.\sim_config` where `.` is the location of the script. For information on writing scene configuration files see the [Scene Configuration Settings documentation](config_scene.md).
+Note that the file path is relative to `.\sim_config` where `.` is the location of the script. For information on writing scene configuration files see the [Scene Configuration Settings documentation](config_scene).
 
 To take control of a drone, initialize it using the name it has in the config.
 

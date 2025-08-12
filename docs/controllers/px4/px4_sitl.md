@@ -12,7 +12,7 @@ All Project AirSim airframes are supported when using PX4 SITL.  See [Starting a
 
 For manual flight simulation, you will also need a controller supported by your operating system such as an XBox game controller (see [Remote Controller](#remote-controller), below.)
 
-The [PX4 software](http://dev.px4.io) provides a "software-in-loop" simulation (SITL) version of their stack that runs in natively in Linux. If you are on Windows then you can use the [Cygwin Toolchain](https://docs.px4.io/master/en/setup/dev_env_windows_cygwin.html).
+The [PX4 software](https://docs.px4.io/main/en/development/development.html) provides a "software-in-loop" simulation (SITL) version of their stack that runs in natively in Linux. If you are on Windows then you can use the [Cygwin Toolchain](https://docs.px4.io/main/en/dev_setup/dev_env_windows_cygwin.html#windows-development-environment-cygwin-based).
 
 **Note:** Whenever you stop the Project AirSim Unreal application you must restart PX4 before you can begin another flight session with Project AirSim and PX4.  See [Starting a New Flight Session](#starting-a-new-flight-session), below.
 
@@ -20,7 +20,7 @@ The [PX4 software](http://dev.px4.io) provides a "software-in-loop" simulation (
 
 Before setting up PX4, ensure that the Project AirSim [Client Setup](/client_setup.md) has been completed first.
 
-On Windows, install the [Cygwin Toolchain](https://docs.px4.io/master/en/setup/dev_env_windows_cygwin.html).
+On Windows, install the [Cygwin Toolchain](https://docs.px4.io/main/en/dev_setup/dev_env_windows_cygwin.html#windows-development-environment-cygwin-based).
 
 1. Follow the steps through cloning the repository.  You may skip the example step to run JMAVSim.
 2. In the PX4 console window (started by `run-console.bat`), navigate into the PX4-Autopilot repo directory if not there already:
@@ -39,13 +39,13 @@ On Windows, install the [Cygwin Toolchain](https://docs.px4.io/master/en/setup/d
     Note that this may take a while.  PX4 will automatically start at the end of the build.
 
 
-Proceed to [The First Flight Session](#the-first-a-flight-session), below.
+Proceed to [The First Flight Session](#the-first-flight-session), below.
 
 ### Setup the PX4 build environment for Linux
 
 Before setting up PX4, ensure that the Project AirSim [Client Setup](/client_setup.md) has been completed first.
 
-For reference, the official setup steps for PX4 on Linux [are here.](https://docs.px4.io/master/en/dev_setup/dev_env_linux_ubuntu.html)  Follow the instructions for [Gazebo, JMAVSim and NuttX (Pixhawk) Targets](https://docs.px4.io/master/en/dev_setup/dev_env_linux_ubuntu.html#gazebo-jmavsim-and-nuttx-pixhawk-targets).
+For reference, the official setup steps for PX4 on Linux [are here.](https://docs.px4.io/main/en/dev_setup/dev_env_linux_ubuntu.html)  Follow the instructions for [Gazebo, JMAVSim and NuttX (Pixhawk) Targets](https://docs.px4.io/main/en/dev_setup/dev_env_linux_ubuntu.html#gazebo-jmavsim-and-nuttx-pixhawk-targets).
 
 The following steps are the Linux-relevant parts from [our own version of the PX4 build instructions](px4_build.md) which is a bit more concise about what we need exactly:
 
@@ -69,7 +69,7 @@ The following steps are the Linux-relevant parts from [our own version of the PX
 
     Note that this may take a while.  PX4 will automatically start at the end of the build.
 
-Proceed to [The first flight session](#the-first-a-flight-session), below.
+Proceed to [The first flight session](#the-first-flight-session), below.
 
 ## The first flight session
 1. You should see a message saying the SITL PX4 app is waiting for the simulator (Project AirSim) to connect.  You will also see information about which ports are configured for a MAVLink connection to the PX4 app.
@@ -298,7 +298,7 @@ To start a flight session, start PX4 by running the same command to build it:
 
 ## Remote controller
 
-*QGroundControl* enables manual flight in Project AirSim using a remote control or joystick-like game controller (such as an Xbox game controller) connected to your PC.  See [*QGroundControl* Joystick Setup](https://docs.qgroundcontrol.com/master/en/SetupView/Joystick.html) for more information.
+*QGroundControl* enables manual flight in Project AirSim using a remote control or joystick-like game controller (such as an Xbox game controller) connected to your PC.  See [*QGroundControl* Joystick Setup](https://docs.qgroundcontrol.com/master/en/qgc-user-guide/setup_view/joystick.html#joystick-setup) for more information.
 
 ## Advanced PX4 SITL configurations
 
@@ -309,7 +309,7 @@ See [Multi-vehicle simulation with PX4](px4_multi_vehicle.md).
 
 ### Running PX4 remotely
 
-PX4 SITL is usually run on the same computer as Project AirSim but it is possible to run PX4 on separate computer.  See [Running Simulation on a Remote Server](https://docs.px4.io/v1.testing/en/simulation/#running-simulation-on-a-remote-server) in the PX4 documentation.
+PX4 SITL is usually run on the same computer as Project AirSim but it is possible to run PX4 on separate computer.  See [Running Simulation on a Remote Server](https://docs.px4.io/main/en/simulation/#running-simulation-on-a-remote-server) in the PX4 documentation.
 
 In Project AirSim, put the IP address of the remote computer running PX4 into the `control-ip-address` parameter of the `controller/px4-settings` section in the [robot configuration settings](../../config_robot.md#PX4_communication_port_settings).
 

@@ -1,6 +1,6 @@
 # Build From Source as a Developer
 
-For many usage scenarios, **[Using Pre-built Binary Environments](use_prebuilt.md)** or **[Using Project AirSim Plugin in Custom Environments](../use_plugin.md)** is enough to get a simulation up and running. The main development would then be done by setting up the **[Config JSON Settings](../config.md)** and using the **[Project AirSim Client](../client_setup.md)** and **[APIs](../api.md)** to drive the simulation for the particular usage application.
+For many usage scenarios, **[Using Pre-built Binary Environments](use_prebuilt)** or **[Using Project AirSim Plugin in Custom Environments](../use_plugin)** is enough to get a simulation up and running. The main development would then be done by setting up the **[Config JSON Settings](../config)** and using the **[Project AirSim Client](../client_setup)** and **[APIs](../api)** to drive the simulation for the particular usage application.
 
 If deeper customization or extending new features is needed, building the Project AirSim framework from source can be done through the process described below.
 
@@ -39,11 +39,11 @@ projectairsim
 
 ## Initial developer setup
 
-Project AirSim can be developed using Windows 10/Server 2019 or Ubuntu 20.04 Linux. See **[System Specifications](../system_specs.md)** for more details.
+Project AirSim can be developed using Windows 10/Server 2019 or Ubuntu 20.04 Linux. See **[System Specifications](../system_specs)** for more details.
 
 For details on getting your dev environment set up, choose your platform:
-- **[Developer Initial Setup for Windows](dev_setup_win.md)**
-- **[Developer Initial Setup for Linux](dev_setup_linux.md)**
+- **[Developer Initial Setup for Windows](dev_setup_win)**
+- **[Developer Initial Setup for Linux](dev_setup_linux)**
 
 ---
 
@@ -51,9 +51,9 @@ For details on getting your dev environment set up, choose your platform:
 
 Choose your development tool:
 
-- **[Command Line (Windows/Linux)](#command-line-(windows/linux))**
-- **[VS Code (Windows/Linux)](#vs-code-(windows/linux))**
-- **[Visual Studio 2019 (Windows only)](#visual-studio-2019-(windows-only))**
+- **[Command Line (Windows/Linux)](#command-line-windows-linux)**
+- **[VS Code (Windows/Linux)](#vs-code-windows-linux)**
+- **[Visual Studio 2019 (Windows only)](#visual-studio-2019-windows-only)**
 
 **Note:** Project AirSim sim libs uses CMake which saves build configuration information in a cache, so **if you switch tools** between using command line, VS Code, or Visual Studio 2019 to drive the CMake project in the same folder, you should **clear the cache** by running `build clean` so the next tool can reset the configuration and build again properly.
 
@@ -216,7 +216,7 @@ To develop using a multi-root workspace project file, follow the steps below:
 
     Sometimes this is faster to use than the `BlocksEditor` targets for development iteration because it doesn't load all of the Editor overhead on each launch. However, the Editor can be convenient for repeatedly starting/stopping play of the simulation while debugging the same build.
 
-10. **See **[Developing Project AirSim Client Library](#developing-projectairsim-client-library)** for the next steps of interacting with the Blocks simulation through the Python client.**
+10. **See **[Developing Project AirSim Client Library](#developing-project-airsim-sim-libs)** for the next steps of interacting with the Blocks simulation through the Python client.**
 
 ---
 
@@ -310,7 +310,7 @@ However, it is possible to use Visual Studio to do both in a single project by f
 
     Sometimes this is faster to use than the `...Editor` targets for development iteration because it doesn't load all of the Editor overhead on each launch. However, the Editor can be convenient for repeatedly starting/stopping play of the simulation while debugging the same build.
 
-10. **See **[Developing Project AirSim Client Library](#developing-projectairsim-client-library)** for the next steps of interacting with the Blocks simulation through the Python client.**
+10. **See **[Developing Project AirSim Client Library](#developing-project-airsim-sim-libs)** for the next steps of interacting with the Blocks simulation through the Python client.**
 
 ---
 
@@ -320,7 +320,7 @@ However, it is possible to use Visual Studio to do both in a single project by f
 
 2. Launch the Blocks simulation and start play.
 
-3. Switch to `projectairsim/python` directory using a command line with an activated Python environment that was set up during the **[Project AirSim Client Setup](../client_setup.md)**.
+3. Switch to `projectairsim/python` directory using a command line with an activated Python environment that was set up during the **[Project AirSim Client Setup](../client_setup)**.
 
 4. Start executing a client script to load the simulation configured in step 1 and interact with the simulation.
 

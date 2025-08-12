@@ -59,7 +59,7 @@ Project AirSim currently comes with some base configurations for quadrotor drone
 "physics-type": "unreal-physics"
 ```
 
-**[Unreal physics](internal/physics/unreal_physics.md)** uses the **[PhysX](https://developer.nvidia.com/gameworks-physx-overview)** engine that's built-in to Unreal. PhysX can calculate motion for multi-jointed robots with constraints on each joint, as well as rigid body dynamics for aerial drone flight.
+**[Unreal physics](tbd)** uses the **[PhysX](https://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Introduction.html)** engine that's built-in to Unreal. PhysX can calculate motion for multi-jointed robots with constraints on each joint, as well as rigid body dynamics for aerial drone flight.
 
 *Note: The simulation will automatically detect when any actor in the scene is configured to use Unreal Physics, and this will link the physics calculation step to Unreal's rendering step, so the [sim clock setting](config_scene.md#steppable-clock) for `step-ns` may need to be much slower (20 ms = ~50 FPS) to maintain reasonable simulation advancement rate.*
 
@@ -415,7 +415,7 @@ For PX4 in WSL2, the value for `local-host-ip` can be found by running the comma
 | SITL Configuration | `control-port` | `control-port-remote` | `control-ip-address` | Notes |
 | ------------------ | -------------- | --------------------- | -------------------- | ----- |
 | Same computer       | Usually `14540` | (Unassigned) | `127.0.0.1` |
-| Different computer | (Ignored) | Usually `14580` | IP address of PX4 host | Use [MAVLink Router](https://docs.px4.io/master/en/simulation/#running-simulation-on-a-remote-server) running on the PX4 host. |
+| Different computer | (Ignored) | Usually `14580` | IP address of PX4 host | Use [MAVLink Router](https://docs.px4.io/main/en/simulation/#running-simulation-on-a-remote-server) running on the PX4 host. |
 | PX4 in WSL2 | Usually `14540` | (Unassigned) | `remote` | In WSL2, set environment variable `PX4_SIM_HOST_ADDR` to Project AirSim host IP address.  MAVLink Router is not used.
 
 When running PX4 on the same computer or in WSL2, PX4 connects to Project AirSim at UDP/IP port `control-port`.  When running PX4 remotely, Project AirSim connects to PX4 at the UDP/IP port `control-port-remote`.
@@ -468,10 +468,10 @@ The order and number of the actuator `id` tags depends on the airframe:
 
 | Project AirSim Airframe | Actuator Order |
 | -------- | -------------- |
-| `quadrotor-x` | [Quadrotor-X order](https://docs.px4.io/master/en/airframes/airframe_reference.html#quadrotor-x) (front right, rear left, front left, rear right) |
-| `hexarotor-x` | [Hexarotor-X order](https://docs.px4.io/master/en/airframes/airframe_reference.html#hexarotor-x) (front right, rear left, front left, rear right) |
-| `vtol-quad-x-tailsitter` | \*[VTOL Quad Tailsitter order](https://docs.px4.io/master/en/airframes/airframe_reference.html#vtol-quad-tailsitter) (front right, rear left, front left, rear right, unused output port, elevon left, elevon right)
-| `vtol-quad-tiltrotor` | \*[VTOL Tiltrotor order](https://docs.px4.io/master/en/airframes/airframe_reference.html#vtol-tiltrotor) (rotor outboard left, rotor inboard left, rotor inboard right, rotor outboard right, tilt outboard left, tilt inboard left, tilt inboard right, tilt outboard right, aileron left, aileron right, elevator, rudder)
+| `quadrotor-x` | [Quadrotor-X order](https://docs.px4.io/main/en/airframes/airframe_reference.html#quadrotor-x) (front right, rear left, front left, rear right) |
+| `hexarotor-x` | [Hexarotor-X order](https://docs.px4.io/main/en/airframes/airframe_reference.html#hexarotor-x) (front right, rear left, front left, rear right) |
+| `vtol-quad-x-tailsitter` | \*[VTOL Quad Tailsitter order](https://docs.px4.io/main/en/airframes/airframe_reference.html#vtol-quad-tailsitter) (front right, rear left, front left, rear right, unused output port, elevon left, elevon right)
+| `vtol-quad-tiltrotor` | \*[VTOL Tiltrotor order](https://docs.px4.io/main/en/airframes/airframe_reference.html#vtol-tiltrotor) (rotor outboard left, rotor inboard left, rotor inboard right, rotor outboard right, tilt outboard left, tilt inboard left, tilt inboard right, tilt outboard right, aileron left, aileron right, elevator, rudder)
 
 \**Note: The PX4 documentation does not currently show the correct order.*
 

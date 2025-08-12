@@ -1,6 +1,6 @@
 # PX4 Lockstep Mode
 
-Recent versions of PX4 support a new [lockstep feature](https://docs.px4.io/master/en/simulation/#lockstep-simulation) when communicating with a simulator over TCP.  `Lockstep` decouples the internal clocks of PX4 and the simulator from real-time and synchronizes them to each other so that both internal clocks advance together.  This allows PX4 to behave normally even during unusually long delays in simulator updates.
+Recent versions of PX4 support a new [lockstep feature](https://docs.px4.io/main/en/simulation/#lockstep-simulation) when communicating with a simulator over TCP.  `Lockstep` decouples the internal clocks of PX4 and the simulator from real-time and synchronizes them to each other so that both internal clocks advance together.  This allows PX4 to behave normally even during unusually long delays in simulator updates.
 
 It is recommended that when you are running a `lockstep`-enabled version of PX4 in SITL mode that you specify the controller settings within the robot configuration of Project AirSim to set `lock-step` to `true` and set `use-tcp` to `true`.
 

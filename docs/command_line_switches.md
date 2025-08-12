@@ -15,7 +15,7 @@ Project AirSim supports the following command line switches.  Since Project AirS
 | <code>&#x2011;nosound</code> | Disable any sound output |
 | <code>&#x2011;benchmark</code> | Enabled Unreal's benchmark mode that seems to remove any sleeps in between rendering/tick loops to run without limiting to any real-time execution rate FPS target (this mode needs further testing to confirm any side-effects and how it could be used properly) |
 | <code>&#x2011;gltfDir=</code><i>dir/containing/tiles/</i> | If you'll be using a GIS scene, you can specify the directory to read the tiles from. Alternatively, if you're trying CesiumForUnreal you can provide the root tileset json file. |
-| <code>&#x2011;clientauthpubkey=</code><i>public_key</i> | Specify a client authorization public key to require clients to present a client authorization token before being allowed to use the client API.  Overrides the key set by the [PROJECTAIRSIM_CLIENT_AUTH_PUBKEY](#environment_variables) environment variable. |
+| <code>&#x2011;clientauthpubkey=</code><i>public_key</i> | Specify a client authorization public key to require clients to present a client authorization token before being allowed to use the client API.  Overrides the key set by the [PROJECTAIRSIM_CLIENT_AUTH_PUBKEY](#environment-variables) environment variable. |
 
 The below simulation parameters can also be changed through the comand line:
 

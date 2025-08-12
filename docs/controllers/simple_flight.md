@@ -21,7 +21,7 @@ To use Simple Flight to fly a robot programmatically with a Python mission scrip
 6. (Optional) Disarm the vehicle with `projectairsim.Drone.disarm()`
 7. (Optional) Disable API control with `projectairsim.Drone.disable_api_control()`
 
-To use Simple Flight to fly a robot manually with a manual controller like an Xbox game controller, see [Using an Xbox controller](#using-an-xbox-game-controller), below.
+To use Simple Flight to fly a robot manually with a manual controller like an Xbox game controller, see [Using an Xbox controller](#using-an-xbox-controller), below.
 
 ## Using an Xbox controller
 

@@ -14,6 +14,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Strip "docs/" prefixes from README
+        run: sed -i 's|docs/||g' README.md
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:

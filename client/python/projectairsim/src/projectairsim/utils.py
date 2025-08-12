@@ -483,7 +483,7 @@ def load_scene_config_as_dict(
     """
     projectairsim_log().info(f"Loading scene config: {config_name}")
     total_path = os.path.join(sim_config_path, config_name)
-    filepaths = [total_path, [], []]
+    filepaths = [total_path, [], [], []]
 
     robot_config_schema = pkg_resources.resource_string(
         __name__, "schema/robot_config_schema.jsonc"
@@ -504,14 +504,19 @@ def load_scene_config_as_dict(
     if "actors" in data:  # read and write the robot-config param in each actor
         for actor in data["actors"]:
             if actor["type"] == "robot":
-                actor_path = actor["robot-config"]
-                total_actor_path = os.path.join(sim_config_path, actor_path)
-                filepaths[1].append(total_actor_path)
-                with open(total_actor_path) as e:
-                    temp = commentjson.load(e)
-                    validate_json(temp, robot_config_schema)
-                    actor["robot-config"] = temp
-
+                actor_configs = actor["robot-config"]
+                combined_config = {}
+                if not isinstance(actor_configs, list):
+                    actor_configs = [actor_configs]
+                for actor_path in actor_configs:
+                    total_actor_path = os.path.join(sim_config_path, actor_path)
+                    filepaths[1].append(total_actor_path)
+                    with open(total_actor_path) as e:
+                        temp = commentjson.load(e)
+                        combined_config = merge_dicts(combined_config,temp)
+                validate_json(combined_config, robot_config_schema)
+                actor["robot-config"] = combined_config
+                
     if "environment-actors" in data:
         # read and write the env-actor-config param in each env actor
         for env_actor in data["environment-actors"]:
@@ -535,6 +540,34 @@ def load_scene_config_as_dict(
 
     return (data, filepaths)
 
+def merge_dicts(d1, d2):
+    """Recursively merges dict d2 into dict d1"""
+    for k, v in d2.items():
+        if isinstance(v, collections.abc.Mapping):
+            d1[k] = merge_dicts(d1.get(k, {}), v)
+        elif isinstance(v, list) and isinstance(d1.get(k), list):
+            d1[k] = merge_lists(d1[k], v)
+        else:
+            d1[k] = v
+    return d1
+
+def merge_lists(l1, l2):
+    """Merges two lists of dictionaries, matching elements by the 'name' key if present"""
+    result = l1[:]
+    for item2 in l2:
+        if isinstance(item2, dict) and "name" in item2:
+            # Try to find the corresponding item in l1 based on 'name'
+            matching_item = next((item1 for item1 in result if item1.get("name") == item2["name"]), None)
+            if matching_item:
+                # Merge the dictionaries
+                merge_dicts(matching_item, item2)
+            else:
+                # If no match, append the item from l2
+                result.append(item2)
+        else:
+            # If it's not a dictionary or doesn't have a 'name', just append it
+            result.append(item2)
+    return result
 
 def validate_json(json_data, file_name) -> None:
     """Validates a JSON according to a given schema

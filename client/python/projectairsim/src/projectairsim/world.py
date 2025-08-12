@@ -4,12 +4,15 @@ Copyright (C) 2025 IAMAI CONSULTING CORP
 MIT License.
 Python API class for ProjectAirSim World.
 """
+from pathlib import Path
 import commentjson
 from typing import Dict, List
 import time
 from datetime import datetime
 import numpy as np
 import math
+import json
+import os
 import random
 
 from projectairsim import ProjectAirSimClient
@@ -33,6 +36,10 @@ from projectairsim.utils import (
 )
 from projectairsim.planners import AStarPlanner
 
+if os.environ.get("INSIDE_DOCKER") == "1":
+    DEFAULT_CONFIG_PATH = Path("/home/ue4/airsim_shared/world_config.json")
+else:
+    DEFAULT_CONFIG_PATH = Path.home() / "airsim_shared" / "world_config.json"
 
 class World(object):
     def __init__(
@@ -55,21 +62,53 @@ class World(object):
         self.client = client
         self.sim_config_path = sim_config_path
         self.sim_instance_idx = sim_instance_idx
-        self.parent_topic = "/Sim/SceneBasicDrone"  # default-scene's ID
+        self.parent_topic = "/Sim"  # default-scene's ID
+        self._scene_config_name = scene_config_name
+        self._delay_after_load_sec = delay_after_load_sec
 
         self.sim_config = None
         self.home_geo_point = None
-        if scene_config_name:
-            config_loaded, config_paths = load_scene_config_as_dict(
-                scene_config_name,
-                sim_config_path,
-                sim_instance_idx,
-            )
-            config_dict = config_loaded
-            self.scene_config_path = config_paths[0]
-            self.robot_config_paths = config_paths[1]
-            self.envactor_config_paths = config_paths[2]
-            self.load_scene(config_dict, delay_after_load_sec=delay_after_load_sec)
+
+        if not scene_config_name:
+            try:
+                with open(DEFAULT_CONFIG_PATH, "r") as f:
+                    cfg = json.load(f)
+                scene_config_name = cfg["scene_config_name"]
+                delay_after_load_sec = cfg.get("delay_after_load_sec", 0)
+                sim_config_path = cfg.get("sim_config_path", sim_config_path)
+                sim_instance_idx = cfg.get("sim_instance_idx", sim_instance_idx)
+                projectairsim_log().info(f"Loaded world config from {DEFAULT_CONFIG_PATH}")
+            except Exception as e:
+                raise RuntimeError(f"Could not load previous world config: {e}")
+        else:
+            try:
+                os.makedirs(DEFAULT_CONFIG_PATH.parent, exist_ok=True)
+                with open(DEFAULT_CONFIG_PATH, "w") as f:
+                    json.dump(
+                        {
+                            "scene_config_name": scene_config_name,
+                            "delay_after_load_sec": delay_after_load_sec,
+                            "sim_config_path": "./sim_config/",
+                            "sim_instance_idx": sim_instance_idx,
+                        },
+                        f,
+                    )
+                projectairsim_log().info(f"Saved world config to {DEFAULT_CONFIG_PATH}")
+            except Exception as e:
+                projectairsim_log().warning(f"Could not save world config: {e}")
+
+        # Load scene config
+        config_loaded, config_paths = load_scene_config_as_dict(
+            scene_config_name,
+            sim_config_path,
+            sim_instance_idx,
+        )
+        config_dict = config_loaded
+        self.scene_config_path = config_paths[0]
+        self.robot_config_paths = config_paths[1]
+        self.envactor_config_paths = config_paths[2]
+        self.envobject_config_paths = config_paths[3]
+        self.load_scene(config_dict, delay_after_load_sec=delay_after_load_sec)
         random.seed()
         self.import_ned_trajectory(
             "null_trajectory", [0, 1], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]

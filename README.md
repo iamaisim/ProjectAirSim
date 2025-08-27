@@ -16,7 +16,7 @@ For more details on the architecture, see **[Project AirSim Architecture Overvie
 
 Project AirSim currently supports Windows 11 and Ubuntu 22. For more info about hardware specs for working with Project AirSim, see **[System Specifications](docs/system_specs.md)**.
 
-![Drone flying in Blocks environment](docs/images/drone_in_blocks.jpg)
+![Drone flying in Urban environment](docs/images/airtaxi_in_dynamic_city.jpg)
 
 ## Open Source Commitment
 
@@ -72,7 +72,7 @@ See **[Installing system prerequisites](docs/system_specs.md#installing-system-p
 
 > I just want to download and run a Project AirSim environment and drive it with some Python code.
 
-*Note:* You can either build Project AirSim from source or download pre-built binaries to use with the Python client. Currently, only the classic Blocks environment is available. If you require another environment (e.g., urban, geo-specific, etc.), you can sponsor its maintenance by contacting [envs@iamaisim.com](mailto:envs@iamaisim.com).
+*Note:* You can either build Project AirSim from source or download pre-built binaries to use with the Python client.
 
 #### **[Use pre-built binary environments](docs/development/use_prebuilt.md)**
 

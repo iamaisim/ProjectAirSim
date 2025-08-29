@@ -33,7 +33,7 @@ For Ubuntu, the Vulkan libraries also need to be installed by running:
 
 ```
 sudo apt update
-sudo apt install libvulkan1 vulkan-utils
+sudo apt install libvulkan1 vulkan-tools
 sudo reboot
 ```
 
@@ -45,7 +45,7 @@ sudo apt install mesa-vulkan-drivers
 
 To confirm that the Vulkan libraries are working correctly, you can run:
 ```
-vullkaninfo
+vulkaninfo
 ```
 
 ## Performance improvement tips

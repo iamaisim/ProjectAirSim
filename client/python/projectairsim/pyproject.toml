@@ -1,0 +1,77 @@
+[build-system]
+requires = ["setuptools>=68", "wheel", "build"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "projectairsim"
+version = "0.1.1"
+description = "Project AirSim client package"
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.7,<4"
+license = { text = "MIT" }
+authors = [{ name = "IAMAI Simulations" }]
+keywords = ["simulation", "uav", "drone", "airsim", "robotics"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Scientific/Engineering :: Visualization"
+]
+
+dependencies = [
+  "pynng>=0.5.0",
+  "msgpack>=1.0.5",
+  "opencv-python>=4.2.0.32",
+  "numpy",
+  "matplotlib",
+  "commentjson>=0.9.0",
+  "jsonschema>=4.4.0",
+  "inputs",
+  "pqdict",
+  "cryptography",
+  "pykml",
+  "junit-xml",
+  "jsonlines",
+  "Shapely",
+  "azure-storage-blob",
+  "open3d==0.16.*"
+]
+
+[project.optional-dependencies]
+autonomy = [
+  "torch>=1.8.0",
+  "torchvision>=0.9.0",
+  "scikit-image>=0.18.1",
+  "Pillow<=8.2.0",
+  "gym==0.18.3",
+  "onnxruntime-gpu",
+  "pydantic",
+  "python-multipart",
+  "fastapi",
+  "uvicorn",
+]
+bonsai = [
+  "microsoft-bonsai-api==0.1.2",
+  "python-dotenv==0.13.0",
+  "bonsai-cli==1.0.8",
+  "msal-extensions==0.1.3",
+]
+datacollection = [
+  "albumentations==1.3.0",
+]
+
+[tool.setuptools]
+# Source layout: packages live under src/
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["projectairsim*"]
+
+# Include non-Python data files inside the wheels/sdist.
+[tool.setuptools.package-data]
+# Adjust these globs if your schemas/assets live elsewhere under the package.
+"projectairsim" = ["schema/*.jsonc", "**/schema/*.jsonc"]
+"projectairsim.autonomy.gym_envs" = ["sim_config/*.jsonc", "*.ink"]

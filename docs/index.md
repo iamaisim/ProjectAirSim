@@ -96,5 +96,5 @@ ros/ros.md
 :maxdepth: 1
 :caption: Python Client API Reference
 
-Python Client API Reference <https://iamaisim.github.io/ProjectAirSim/client_api/index.html>
+Python Client API Reference <https://aurebidart.github.io/ProjectAirSim/client_api/index.html>
 ```

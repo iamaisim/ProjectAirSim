@@ -22,6 +22,7 @@
 #include "UnrealLogger.h"
 #include "World/WeatherLib.h"
 #include "core_sim/clock.hpp"
+#include "Sensors/UnrealCamera.h"
 
 namespace projectairsim = microsoft::projectairsim;
 
@@ -609,7 +610,6 @@ bool AUnrealScene::GetSimBoundingBox3D(
 
 nlohmann::json AUnrealScene::Get3DBoundingBoxServiceMethod(
     const std::string& object_name, int box_alignment) {
-  FRotator BoxRotation;
   FOrientedBox OrientedBox;
   projectairsim::BBox3D OutBBox;
   auto BoxAlignment =

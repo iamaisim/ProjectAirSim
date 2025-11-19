@@ -15,6 +15,8 @@
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
 #include "core_sim/actor/env_actor.hpp"
+#include "assimp/Importer.hpp"
+#include "core_sim/geodetic_converter.hpp"
 
 namespace projectairsim = microsoft::projectairsim;
 
@@ -1246,7 +1248,7 @@ std::vector<std::string> WorldSimApi::swapTextures(const std::string& tag,
           }
 
           if (invalidChoice) continue;
-          dynamic_cast<ATextureShuffleActor*>(shuffler)->SwapTexture(
+          Cast<ATextureShuffleActor>(shuffler)->SwapTexture(
               tex_id, component_id, material_id);
           swappedObjectNames.push_back(TCHAR_TO_UTF8(*shuffler->GetName()));
         }

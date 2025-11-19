@@ -15,6 +15,8 @@
 #include "Runtime/Core/Public/Async/ParallelFor.h"
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
 #include "UnrealLogger.h"
+#include "UnrealTransforms.h"
+#include "core_sim/clock.hpp"
 
 namespace projectairsim = microsoft::projectairsim;
 

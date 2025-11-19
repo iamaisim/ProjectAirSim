@@ -31,6 +31,7 @@
 #include "Runtime/Engine/Classes/Engine/StaticMesh.h"
 #include "UnrealLogger.h"
 #include "core_sim/transforms/transform_utils.hpp"
+#include "ProceduralMeshComponent.h"
 
 // comment so that generated.h is always the last include file with clang-format
 #include "UnrealHelpers.generated.h"

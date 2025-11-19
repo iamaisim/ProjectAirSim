@@ -8,6 +8,7 @@
 #include "KismetProceduralMeshLibrary.h"
 #include "Materials/Material.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include <string>
 
 // Sets default values
 AProcMeshActor::AProcMeshActor() {

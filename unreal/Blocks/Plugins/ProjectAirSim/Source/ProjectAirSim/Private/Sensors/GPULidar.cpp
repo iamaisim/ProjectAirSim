@@ -25,6 +25,7 @@
 #include "UObject/ConstructorHelpers.h"
 #include "UnrealCameraRenderRequest.h"
 #include "UnrealLogger.h"
+#include "UnrealTransforms.h"
 
 namespace projectairsim = microsoft::projectairsim;
 
@@ -131,12 +132,12 @@ void UGPULidar::SetupSceneCapture(
   }
 
   // Hide debug points in case "draw-debug-points" is set to true
-  OutSceneCaptureComp->HideComponent(
-      Cast<UPrimitiveComponent>(UnrealWorld->LineBatcher));
-  OutSceneCaptureComp->HideComponent(
-      Cast<UPrimitiveComponent>(UnrealWorld->PersistentLineBatcher));
-  OutSceneCaptureComp->HideComponent(
-      Cast<UPrimitiveComponent>(UnrealWorld->ForegroundLineBatcher));
+  OutSceneCaptureComp->HideComponent(Cast<UPrimitiveComponent>(
+      UnrealWorld->GetLineBatcher(UWorld::ELineBatcherType::World)));
+  OutSceneCaptureComp->HideComponent(Cast<UPrimitiveComponent>(
+      UnrealWorld->GetLineBatcher(UWorld::ELineBatcherType::WorldPersistent)));
+  OutSceneCaptureComp->HideComponent(Cast<UPrimitiveComponent>(
+      UnrealWorld->GetLineBatcher(UWorld::ELineBatcherType::Foreground)));
 
   OutSceneCaptureComp->RegisterComponent();
   auto RenderTarget = NewObject<UTextureRenderTarget2D>();

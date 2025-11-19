@@ -339,6 +339,8 @@ unreal/**/Saved
 unreal/**/Package
 unreal/**/.vscode
 unreal/**/ProjectAirSim/SimLibs
+unreal/**/DerivedDataCache
+unreal/**/Samples
 
 # VS Code projects
 *.code-workspace
@@ -376,3 +378,5 @@ env/
 # Simulink cache
 **/slprj
 *.slxc
+
+venv

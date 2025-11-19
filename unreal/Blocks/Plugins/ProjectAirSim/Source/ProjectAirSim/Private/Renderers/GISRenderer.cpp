@@ -26,6 +26,7 @@
 
 #include "bing_maps_utils.hpp"
 #include "tile_info.hpp"
+#include "core_sim/log_level.hpp"
 
 AGISRenderer::AGISRenderer()
     : SimServer(nullptr),

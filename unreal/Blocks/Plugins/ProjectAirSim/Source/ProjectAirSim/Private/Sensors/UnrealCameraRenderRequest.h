@@ -7,6 +7,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "core_sim/clock.hpp"
 
 namespace UnrealCameraRenderRequest {
 
@@ -26,7 +27,7 @@ void OnEndPlay();
 
 void OnBeginPlay();
 
-void ReadPixels(FRHITexture2D* Texture, bool bPixelsAsFloat,
+void ReadPixels(FRHITexture* Texture, bool bPixelsAsFloat,
                 RenderResult* ImageResult);
 
 bool CompressUsingImageWrapper(const TArray<FColor>& UnCompressed,

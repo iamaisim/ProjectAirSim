@@ -117,7 +117,7 @@ class AUnrealScene : public AActor {
   TimeNano unreal_time;
   bool using_unreal_physics;
 
-  std::unique_ptr<WorldSimApi> world_api;
+  std::unique_ptr<class WorldSimApi> world_api;
   std::shared_ptr<TimeOfDay> time_of_day;
   std::vector<std::string> objects_;
 

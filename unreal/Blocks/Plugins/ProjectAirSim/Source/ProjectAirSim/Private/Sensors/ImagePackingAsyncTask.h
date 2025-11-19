@@ -11,6 +11,7 @@
 #include "UnrealCameraRenderRequest.h"
 #include "core_sim/sensors/camera.hpp"
 #include "core_sim/transforms/transform_utils.hpp"
+#include "UnrealCamera.h"
 
 // This class follows the example template in Unreal's AsyncWork.h for
 // FAutoDeleteAsyncTask that deletes itself after completion on a background

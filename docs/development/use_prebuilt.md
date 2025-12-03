@@ -2,7 +2,7 @@
 
 The quickest way to jump in and see what Project AirSim can do is to download and run a pre-built binary environment.
 
-Currently, only the classic Blocks environment is available. To download it, visit the [GitHub releases section](https://github.com/ProjectAirSim/releases). If you require another environment (e.g., urban, geo-specific, etc.), you can sponsor its maintenance by contacting [envs@iamaisim.com](mailto:envs@iamaisim.com).
+Currently, only the classic Blocks environment is available. To download it, visit the [GitHub releases section](https://github.com/iamaisim/ProjectAirSim/releases). If you require another environment (e.g., urban, geo-specific, etc.), you can sponsor its maintenance by contacting [envs@iamaisim.com](mailto:envs@iamaisim.com).
 
 [IAMAI](https://iamaisim.com) also provides Docker-packaged environments with customized configurations.
 

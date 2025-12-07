@@ -3,35 +3,9 @@
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 #include "DesktopPlatform/Public/IDesktopPlatform.h"
-//#include "DesktopPlatform/Public/DesktopPlatformModule.h" this one might be needed, not sure, test without first
+#include "DesktopPlatform/Public/DesktopPlatformModule.h"
 
-// Helper function to open file dialog, returns true if successful, OutPath contains the selected file path
-static bool OpenFileDialogHelper(const FString& Title, const FString& initialPath, const FString& FileTypes, FString& OutPath)
-{
-    IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
-    if (DesktopPlatform)
-    {
-        TArray<FString> OutFiles;
-        const void* ParentWindowWindowHandle = FSlateApplication::Get().FindBestParentWindowHandleForDialogs(nullptr);
-        
-        bool bOpened = DesktopPlatform->OpenFileDialog(
-            ParentWindowWindowHandle,
-            Title,
-            *initialPath,//default path
-            TEXT(""),
-            FileTypes,
-            EFileDialogFlags::None,
-            OutFiles
-        );
-
-        if (bOpened && OutFiles.Num() > 0)
-        {
-            OutPath = OutFiles[0];
-            return true;
-        }
-    }
-    return false;
-}
+static bool OpenFileDialogHelper(const FString& Title, const FString& initialPath, const FString& FileTypes, FString& OutPath);
 
 void USettingsMenu::NativeConstruct()
 {
@@ -59,7 +33,6 @@ void USettingsMenu::BeginDestroy()
 void USettingsMenu::SetActivatePath()
 {
     FString SelectedFile;
-    //replace FPaths::ProjectDir() with what the default directory of activate should be if known
     if (!OpenFileDialogHelper(TEXT("Select Virtual Environment Activate Script"), FPaths::ProjectDir(), TEXT("All Files (*.*)|*.*"), SelectedFile))
     {
         UE_LOG(LogTemp, Warning, TEXT("No file selected for virtual environment activation script."));
@@ -72,13 +45,16 @@ void USettingsMenu::SetActivatePath()
 void USettingsMenu::SelectPythonScript()
 {
     FString SelectedFile;
-    if (OpenFileDialogHelper(TEXT("Select Python Script"), FPaths::ProjectDir(), TEXT("Python Scripts|*.py"), SelectedFile))
+    FString DefaultPath = FPaths::ProjectDir();
+    if (!ScriptFolderPath.Equals("")) DefaultPath = ScriptFolderPath;
+    if (OpenFileDialogHelper(TEXT("Select Python Script"), DefaultPath, TEXT("Python Scripts|*.py"), SelectedFile))
     {
-        //double check these are correct
         ScriptFolderPath = FPaths::GetPath(SelectedFile) + "\\";
         FString FileName = FPaths::GetCleanFilename(SelectedFile);
         OnFileSelected(FileName);
-    }else{
+    }
+    else
+    {
         UE_LOG(LogTemp, Warning, TEXT("No Python script selected."));
     }
 }
@@ -265,4 +241,31 @@ bool USettingsMenu::PopulateGUI()
 void USettingsMenu::ApplyChanges()
 {
     SceneConfig->ApplyChanges();
+}
+
+static bool OpenFileDialogHelper(const FString& Title, const FString& initialPath, const FString& FileTypes, FString& OutPath)
+{
+    IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
+    if (DesktopPlatform)
+    {
+        TArray<FString> OutFiles;
+        const void* ParentWindowWindowHandle = FSlateApplication::Get().FindBestParentWindowHandleForDialogs(nullptr);
+        
+        bool bOpened = DesktopPlatform->OpenFileDialog(
+            ParentWindowWindowHandle,
+            Title,
+            *initialPath,//default path
+            TEXT(""),
+            FileTypes,
+            EFileDialogFlags::None,
+            OutFiles
+        );
+
+        if (bOpened && OutFiles.Num() > 0)
+        {
+            OutPath = OutFiles[0];
+            return true;
+        }
+    }
+    return false;
 }

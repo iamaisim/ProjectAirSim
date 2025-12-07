@@ -14,22 +14,22 @@ bool UActorSettings::LoadAll()
 	if (!LoadName()) 
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Failed to load name."));
-		return false;
+		//return false;
 	}
 	if (!LoadXYZ())	
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Failed to load xyz."));
-		return false;
+		//return false;
 	}
 	if (!LoadRPYDeg())	
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Failed to load rpy-deg."));
-		return false;
+		//return false;
 	}
 	if (!LoadRobotConfig())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Failed to load robot-config."));
-		return false;
+		//return false;
 	}
 	return true;
 }

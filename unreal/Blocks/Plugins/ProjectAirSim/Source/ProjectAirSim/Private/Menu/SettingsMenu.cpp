@@ -2,7 +2,36 @@
 #include "HAL/PlatformProcess.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
-#include "HAL/PlatformFilemanager.h"
+#include "DesktopPlatform/Public/IDesktopPlatform.h"
+//#include "DesktopPlatform/Public/DesktopPlatformModule.h" this one might be needed, not sure, test without first
+
+// Helper function to open file dialog, returns true if successful, OutPath contains the selected file path
+static bool OpenFileDialogHelper(const FString& Title, const FString& initialPath, const FString& FileTypes, FString& OutPath)
+{
+    IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
+    if (DesktopPlatform)
+    {
+        TArray<FString> OutFiles;
+        const void* ParentWindowWindowHandle = FSlateApplication::Get().FindBestParentWindowHandleForDialogs(nullptr);
+        
+        bool bOpened = DesktopPlatform->OpenFileDialog(
+            ParentWindowWindowHandle,
+            Title,
+            *initialPath,//default path
+            TEXT(""),
+            FileTypes,
+            EFileDialogFlags::None,
+            OutFiles
+        );
+
+        if (bOpened && OutFiles.Num() > 0)
+        {
+            OutPath = OutFiles[0];
+            return true;
+        }
+    }
+    return false;
+}
 
 void USettingsMenu::NativeConstruct()
 {
@@ -29,14 +58,29 @@ void USettingsMenu::BeginDestroy()
 
 void USettingsMenu::SetActivatePath()
 {
-    VirtualEnvActivatePath = "C:\\Lee\\Repos\\AirSim\\airsim-venv\\Scripts\\activate";
+    FString SelectedFile;
+    //replace FPaths::ProjectDir() with what the default directory of activate should be if known
+    if (!OpenFileDialogHelper(TEXT("Select Virtual Environment Activate Script"), FPaths::ProjectDir(), TEXT("All Files (*.*)|*.*"), SelectedFile))
+    {
+        UE_LOG(LogTemp, Warning, TEXT("No file selected for virtual environment activation script."));
+        return;
+    }
+    VirtualEnvActivatePath = SelectedFile;
     LoadScriptButton->SetVisibility(ESlateVisibility::Visible);
 }
 
 void USettingsMenu::SelectPythonScript()
 {
-    ScriptFolderPath = TEXT("C:\\Lee\\Repos\\AirSim\\ProjectAirSim\\client\\python\\example_user_scripts\\");
-    OnFileSelected("hello_drone.py");
+    FString SelectedFile;
+    if (OpenFileDialogHelper(TEXT("Select Python Script"), FPaths::ProjectDir(), TEXT("Python Scripts|*.py"), SelectedFile))
+    {
+        //double check these are correct
+        ScriptFolderPath = FPaths::GetPath(SelectedFile) + "\\";
+        FString FileName = FPaths::GetCleanFilename(SelectedFile);
+        OnFileSelected(FileName);
+    }else{
+        UE_LOG(LogTemp, Warning, TEXT("No Python script selected."));
+    }
 }
 
 void USettingsMenu::RunScript()

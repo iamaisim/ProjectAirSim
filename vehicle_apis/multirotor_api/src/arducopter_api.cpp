@@ -237,7 +237,7 @@ std::vector<float> ArduCopterApi::GetControlSignals(const std::string& actuator_
   }
 
   // std::lock_guard<std::mutex> guard(hil_controls_mutex_);
-  return std::vector<float>(control_outputs_[actuator_map_itr->second]);
+  return std::vector<float>(1, control_outputs_[actuator_map_itr->second]);
 }
 
 //---------------------------------------------------------------------------

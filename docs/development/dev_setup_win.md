@@ -1,5 +1,4 @@
 # Developer Initial Setup for Windows
-{# include enable_internal_docs.tpp #}
 
 On Windows, Project AirSim can be developed with either Visual Studio 2019 or VS Code. VS Code is convenient because it provides a lighter-weight, cross-platform common experience between Windows and Linux.
 
@@ -11,7 +10,7 @@ On Windows, Project AirSim can be developed with either Visual Studio 2019 or VS
 
     - `Desktop development with C++` workload
     - `.NET Framework 4.8 SDK` individual component
-    - (no)`.NET Core SDK` individual component
+    - `.NET 8.0 Runtime` individual component
 
     Second, install **[VS Code](https://code.visualstudio.com/)** with the following extensions:
 
@@ -28,7 +27,7 @@ On Windows, Project AirSim can be developed with either Visual Studio 2019 or VS
 
     Third, see **[Optional VS Code User Settings](vscode_user_settings.md)** for some example customized user settings that can help with Project AirSim development.
 
-    B) To develop with **Visual Studio 2019**:
+    B) To develop with **Visual Studio 2022**:
 
     Install **[Visual Studio 2019](https://visualstudio.microsoft.com/vs/)** with:
 

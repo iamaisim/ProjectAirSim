@@ -3,19 +3,22 @@
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 
-#include "Windows/AllowWindowsPlatformTypes.h"
-#include "Windows/PreWindowsApi.h"
-#include <shobjidl.h>
-#include "Windows/PostWindowsApi.h"
-#include "Windows/HideWindowsPlatformTypes.h"
+#if PLATFORM_WINDOWS
+    #include "Windows/AllowWindowsPlatformTypes.h"
+    #include "Windows/PreWindowsApi.h"
+    #include <shobjidl.h>
+    #include "Windows/PostWindowsApi.h"
+    #include "Windows/HideWindowsPlatformTypes.h"
 
-static bool RunNativeWindowsFileDialog(const FString& Title, const FString& DefaultPath, const FString& Filter, FString& OutFile);
+    static bool RunNativeWindowsFileDialog(const FString& Title, const FString& DefaultPath, const FString& Filter, FString& OutFile);
+#endif
+
 
 void USettingsMenu::NativeConstruct()
 {
     Super::NativeConstruct();
 
-    ConfigFolder = "sim_config\\";
+    ConfigFolder = "sim_config/";
     ScriptFolderPath = "";
     PythonScriptName = "";
     VirtualEnvActivatePath = "";
@@ -38,7 +41,8 @@ void USettingsMenu::SetActivatePath()
 {
     FString SelectedFile;
     FString DefaultPath = FPaths::ConvertRelativePathToFull(FPlatformProcess::UserDir());
-    
+   
+#if PLATFORM_WINDOWS
     if (RunNativeWindowsFileDialog(TEXT("Select Virtual Environment Activate Script"), DefaultPath, TEXT("All Files|*"), SelectedFile))
     {
         VirtualEnvActivatePath = SelectedFile;
@@ -48,6 +52,7 @@ void USettingsMenu::SetActivatePath()
     {
         UE_LOG(LogTemp, Warning, TEXT("File selection cancelled or failed."));
     }
+#endif
 }
 
 void USettingsMenu::SelectPythonScript()
@@ -55,6 +60,7 @@ void USettingsMenu::SelectPythonScript()
     FString SelectedFile;
     FString DefaultPath = ScriptFolderPath.IsEmpty() ? FPaths::ProjectDir() : ScriptFolderPath;
 
+#if PLATFORM_WINDOWS
     if (RunNativeWindowsFileDialog(TEXT("Select Python Script"), DefaultPath, TEXT("Python Scripts|*.py"), SelectedFile))
     {
         ScriptFolderPath = FPaths::GetPath(SelectedFile) + TEXT("\\");
@@ -65,6 +71,7 @@ void USettingsMenu::SelectPythonScript()
     {
         UE_LOG(LogTemp, Warning, TEXT("No Python script selected."));
     }
+#endif
 }
 
 void USettingsMenu::RunScript()
@@ -79,24 +86,27 @@ void USettingsMenu::RunScript()
         UE_LOG(LogTemp, Warning, TEXT("File not found: %s"), *(ScriptFolderPath + PythonScriptName));
         return;
     }
-
-    FString Cmd = TEXT("C:\\Windows\\System32\\cmd.exe");
-    
-    FString Args = FString::Printf(
+    FString Cmd;
+    FString Args;
+#if PLATFORM_WINDOWS
+    Cmd = TEXT("C:\\Windows\\System32\\cmd.exe");
+    Args = FString::Printf(
         TEXT("/K \"call %s && cd /d %s && python %s && cmd\""),
         *VirtualEnvActivatePath,
         *ScriptFolderPath,
         *PythonScriptName);
-    
+#elif PLATFORM_LINUX
+    Cmd = TEXT("/bin/bash");
+    Args = FString::Printf(
+        TEXT("-c \"source '%s' && cd '%s' && python3 '%s'; exec bash\""),
+        *VirtualEnvActivatePath,
+        *ScriptFolderPath,
+        *PythonScriptName);
+#endif
+
     if (FPlatformProcess::IsProcRunning(CurrentPythonProcess)) FPlatformProcess::TerminateProc(CurrentPythonProcess, true);
 
-    CurrentPythonProcess = FPlatformProcess::CreateProc(
-        *Cmd, 
-        *Args, //params
-        false, //bLaunchDetatched
-        false, //bLaunchHidden
-        false, //bLaunchReallyHidden
-        nullptr, 0, nullptr, nullptr);
+    CurrentPythonProcess = FPlatformProcess::CreateProc( *Cmd, *Args, false, false, false, nullptr, 0, nullptr, nullptr);
 }
 
 void USettingsMenu::OnFileSelected(const FString& FileName)
@@ -251,6 +261,7 @@ void USettingsMenu::ApplyChanges()
     SceneConfig->ApplyChanges();
 }
 
+#if PLATFORM_WINDOWS
 static bool RunNativeWindowsFileDialog(const FString& Title, const FString& DefaultPath, const FString& Filter, FString& OutFile)
 {
     IFileOpenDialog* FileDialog;
@@ -298,7 +309,7 @@ static bool RunNativeWindowsFileDialog(const FString& Title, const FString& Defa
             Item->Release();
         }
     }
-
     FileDialog->Release();
     return bSuccess;
 }
+#endif

@@ -2,10 +2,14 @@
 #include "HAL/PlatformProcess.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
-#include "DesktopPlatform/Public/IDesktopPlatform.h"
-#include "DesktopPlatform/Public/DesktopPlatformModule.h"
 
-static bool OpenFileDialogHelper(const FString& Title, const FString& initialPath, const FString& FileTypes, FString& OutPath);
+#include "Windows/AllowWindowsPlatformTypes.h"
+#include "Windows/PreWindowsApi.h"
+#include <shobjidl.h>
+#include "Windows/PostWindowsApi.h"
+#include "Windows/HideWindowsPlatformTypes.h"
+
+static bool RunNativeWindowsFileDialog(const FString& Title, const FString& DefaultPath, const FString& Filter, FString& OutFile);
 
 void USettingsMenu::NativeConstruct()
 {
@@ -33,23 +37,27 @@ void USettingsMenu::BeginDestroy()
 void USettingsMenu::SetActivatePath()
 {
     FString SelectedFile;
-    if (!OpenFileDialogHelper(TEXT("Select Virtual Environment Activate Script"), FPaths::ProjectDir(), TEXT("All Files (*.*)|*.*"), SelectedFile))
+    FString DefaultPath = FPaths::ConvertRelativePathToFull(FPlatformProcess::UserDir());
+    
+    if (RunNativeWindowsFileDialog(TEXT("Select Virtual Environment Activate Script"), DefaultPath, TEXT("All Files|*"), SelectedFile))
     {
-        UE_LOG(LogTemp, Warning, TEXT("No file selected for virtual environment activation script."));
-        return;
+        VirtualEnvActivatePath = SelectedFile;
+        LoadScriptButton->SetVisibility(ESlateVisibility::Visible);
     }
-    VirtualEnvActivatePath = SelectedFile;
-    LoadScriptButton->SetVisibility(ESlateVisibility::Visible);
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("File selection cancelled or failed."));
+    }
 }
 
 void USettingsMenu::SelectPythonScript()
 {
     FString SelectedFile;
-    FString DefaultPath = FPaths::ProjectDir();
-    if (!ScriptFolderPath.Equals("")) DefaultPath = ScriptFolderPath;
-    if (OpenFileDialogHelper(TEXT("Select Python Script"), DefaultPath, TEXT("Python Scripts|*.py"), SelectedFile))
+    FString DefaultPath = ScriptFolderPath.IsEmpty() ? FPaths::ProjectDir() : ScriptFolderPath;
+
+    if (RunNativeWindowsFileDialog(TEXT("Select Python Script"), DefaultPath, TEXT("Python Scripts|*.py"), SelectedFile))
     {
-        ScriptFolderPath = FPaths::GetPath(SelectedFile) + "\\";
+        ScriptFolderPath = FPaths::GetPath(SelectedFile) + TEXT("\\");
         FString FileName = FPaths::GetCleanFilename(SelectedFile);
         OnFileSelected(FileName);
     }
@@ -243,29 +251,54 @@ void USettingsMenu::ApplyChanges()
     SceneConfig->ApplyChanges();
 }
 
-static bool OpenFileDialogHelper(const FString& Title, const FString& initialPath, const FString& FileTypes, FString& OutPath)
+static bool RunNativeWindowsFileDialog(const FString& Title, const FString& DefaultPath, const FString& Filter, FString& OutFile)
 {
-    IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
-    if (DesktopPlatform)
-    {
-        TArray<FString> OutFiles;
-        const void* ParentWindowWindowHandle = FSlateApplication::Get().FindBestParentWindowHandleForDialogs(nullptr);
-        
-        bool bOpened = DesktopPlatform->OpenFileDialog(
-            ParentWindowWindowHandle,
-            Title,
-            *initialPath,//default path
-            TEXT(""),
-            FileTypes,
-            EFileDialogFlags::None,
-            OutFiles
-        );
+    IFileOpenDialog* FileDialog;
+    HRESULT hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_IFileOpenDialog, reinterpret_cast<void**>(&FileDialog));
 
-        if (bOpened && OutFiles.Num() > 0)
+    if (FAILED(hr)) return false;
+
+    FileDialog->SetTitle(*Title);
+
+    IShellItem* DefaultFolderItem;
+    FString WindowsPath = DefaultPath.Replace(TEXT("/"), TEXT("\\"));
+    if (SUCCEEDED(SHCreateItemFromParsingName(*WindowsPath, NULL, IID_PPV_ARGS(&DefaultFolderItem))))
+    {
+        FileDialog->SetFolder(DefaultFolderItem);
+        DefaultFolderItem->Release();
+    }
+
+    FString FilterName, FilterSpec;
+    if (Filter.Split(TEXT("|"), &FilterName, &FilterSpec))
+    {
+        COMDLG_FILTERSPEC FileTypes[] = { { *FilterName, *FilterSpec } };
+        FileDialog->SetFileTypes(1, FileTypes);
+    }
+    else
+    {
+        COMDLG_FILTERSPEC FileTypes[] = { { L"All Files", L"*.*" } };
+        FileDialog->SetFileTypes(1, FileTypes);
+    }
+
+    hr = FileDialog->Show(NULL);
+
+    bool bSuccess = false;
+    if (SUCCEEDED(hr))
+    {
+        IShellItem* Item;
+        if (SUCCEEDED(FileDialog->GetResult(&Item)))
         {
-            OutPath = OutFiles[0];
-            return true;
+            PWSTR FilePath;
+            if (SUCCEEDED(Item->GetDisplayName(SIGDN_FILESYSPATH, &FilePath)))
+            {
+                OutFile = FString(FilePath);
+                CoTaskMemFree(FilePath);
+                bSuccess = true;
+            }
+            Item->Release();
         }
     }
-    return false;
+
+    FileDialog->Release();
+    return bSuccess;
 }

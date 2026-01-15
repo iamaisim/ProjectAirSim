@@ -6,7 +6,7 @@
 class UCaptureSettings;
 
 UCLASS()
-class UCaptureSettingsWidget : public UUserWidget
+class PROJECTAIRSIM_API UCaptureSettingsWidget : public UUserWidget
 {
 	GENERATED_BODY()
 

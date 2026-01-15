@@ -24,9 +24,11 @@ class PROJECTAIRSIM_API AProjectAirSimGameMode : public AGameModeBase {
 
   void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
+  UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
+	TSoftClassPtr<USettingsMenu> SettingsMenuClass;
+
  private:
   AUnrealSimLoader UnrealSimLoader;
-  UPROPERTY(EditAnywhere, Category = "UI")
-  TSubclassOf<USettingsMenu> SettingsMenuClass;
-  USettingsMenu* SettingsMenuInstance = nullptr;
+  UPROPERTY()
+  USettingsMenu* SettingsMenuInstance;
 };

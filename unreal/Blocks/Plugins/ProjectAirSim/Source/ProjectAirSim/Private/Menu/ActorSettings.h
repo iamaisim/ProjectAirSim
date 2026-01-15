@@ -9,7 +9,7 @@
 #include "ActorSettings.generated.h"
 
 UCLASS()
-class UActorSettings : public UObject {
+class PROJECTAIRSIM_API UActorSettings : public UObject {
 
 	GENERATED_BODY()
 

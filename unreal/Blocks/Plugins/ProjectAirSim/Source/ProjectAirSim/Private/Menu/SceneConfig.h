@@ -7,7 +7,7 @@
 #include "SceneConfig.generated.h"
 
 UCLASS()
-class USceneConfig : public UObject
+class PROJECTAIRSIM_API USceneConfig : public UObject
 {
 
 	GENERATED_BODY()

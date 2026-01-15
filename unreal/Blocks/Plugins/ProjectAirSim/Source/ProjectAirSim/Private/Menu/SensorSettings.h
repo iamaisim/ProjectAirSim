@@ -7,7 +7,7 @@
 #include "SensorSettings.generated.h"
 
 UCLASS()
-class USensorSettings : public UObject {
+class PROJECTAIRSIM_API USensorSettings : public UObject {
 
 	GENERATED_BODY()
 

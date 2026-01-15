@@ -7,7 +7,7 @@
 #include "RobotConfig.generated.h"
 
 UCLASS()
-class URobotConfig : public UObject
+class PROJECTAIRSIM_API URobotConfig : public UObject
 {
 
 	GENERATED_BODY()

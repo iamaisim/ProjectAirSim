@@ -6,7 +6,7 @@
 class UActorSettings;
 
 UCLASS()
-class UActorSettingsWidget : public UUserWidget
+class PROJECTAIRSIM_API UActorSettingsWidget : public UUserWidget
 {
 	GENERATED_BODY()
 

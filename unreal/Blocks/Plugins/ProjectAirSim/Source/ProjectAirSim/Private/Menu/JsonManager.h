@@ -7,7 +7,7 @@
 #include "JsonManager.generated.h"
 
 UCLASS()
-class UJsonManager : public UObject
+class PROJECTAIRSIM_API UJsonManager : public UObject
 {
 	GENERATED_BODY()
 

@@ -9,7 +9,7 @@
 class USettingsMenu;
 
 UCLASS()
-class UCaptureSettings : public UObject {
+class PROJECTAIRSIM_API UCaptureSettings : public UObject {
 
 	GENERATED_BODY()
 

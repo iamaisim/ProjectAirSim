@@ -7,7 +7,7 @@
 class USensorSettings;
 
 UCLASS()
-class USensorSettingsWidget : public UUserWidget
+class PROJECTAIRSIM_API USensorSettingsWidget : public UUserWidget
 {
 	GENERATED_BODY()
 

@@ -13,7 +13,7 @@
 #include "SettingsMenu.generated.h"
 
 UCLASS()
-class USettingsMenu : public UUserWidget
+class PROJECTAIRSIM_API USettingsMenu : public UUserWidget
 {
 	GENERATED_BODY()
 
@@ -48,7 +48,9 @@ public:
 	FString ScriptFolderPath;
 	FString ConfigFolder;
 
+	UPROPERTY()
 	TMap<FString, USceneConfig*> SceneConfigMap;
+	UPROPERTY()
 	TMap<FString, URobotConfig*> RobotConfigMap;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Actors")

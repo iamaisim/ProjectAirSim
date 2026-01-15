@@ -5,7 +5,7 @@
 #include "RobotConfigWidget.generated.h"
 
 UCLASS()
-class URobotConfigWidget : public UUserWidget
+class PROJECTAIRSIM_API URobotConfigWidget : public UUserWidget
 {
 	GENERATED_BODY()
 

@@ -426,7 +426,7 @@
           "horz-noise-lines-contrib": 1.0,
           "horz-noise-lines-density-y": 0.01,
           "horz-noise-lines-density-xy": 0.5,
-          "horz-distortion-contirb": 1.0,
+          "horz-distortion-contrib": 1.0,
           "horz-distortion-strength": 0.002
         }
       ],

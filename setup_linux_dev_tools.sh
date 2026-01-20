@@ -7,7 +7,7 @@ set -e
 
 sudo apt-get update
 # Install lsb_release to check Ubuntu version
-sudo apt-get -y install --no-install-recommends lsb-release
+sudo apt-get -y install --no-install-recommends lsb-release git wget
 
 if [[ $(lsb_release -rs) == "18.04" ]]; then
     # Add Kitware's APT repository to get cmake 3.15 or newer on Ubuntu 18.04 following https://apt.kitware.com/

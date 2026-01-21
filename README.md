@@ -111,10 +111,13 @@ Follow these steps to set up and run Project AirSim from source:
 - Generate Visual Studio Code project files:
   - **Linux/macOS**:
     ```bash
+    cd ./unreal/Blocks/
+    chmod u+x ./blocks_genprojfiles_vscode.sh
     ./blocks_genprojfiles_vscode.sh
     ```
   - **Windows**:
     ```cmd
+    cd .\unreal\Blocks\
     blocks_genprojfiles_vscode.bat
     ```
 

@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation. 
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI CONSULTING CORP
 
 // MIT License. All rights reserved.
@@ -169,7 +169,10 @@ struct JsonMsgpack {
   explicit JsonMsgpack(const json& data_json) {
     data = json::to_msgpack(data_json);
   }
-  json ToJson() const { return json::from_msgpack(data); }
+  json ToJson() const {
+    const auto* ptr = reinterpret_cast<const char*>(data.data());
+    return json::from_msgpack(ptr, ptr + data.size());
+	}
 };
 
 struct RadarDetectionMsgpack {

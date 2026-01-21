@@ -6,6 +6,9 @@
 
 #include "LidarPointCloudCS.h"
 
+// Forward declarations
+struct FPostProcessingInputs;
+
 class FLidarIntensitySceneViewExtension : public FSceneViewExtensionBase {
  public:
   FLidarIntensitySceneViewExtension(const FAutoRegister& AutoRegister,

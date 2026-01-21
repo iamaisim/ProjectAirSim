@@ -85,6 +85,10 @@ public class ProjectAirSim : ModuleRules
             if (buildType == "Debug")
                 liststrIncludes.Add(PluginDirectory + "/SimLibs/lvmon/include");
 
+            // Add Renderer internal headers for PostProcess access
+            string EngineDir = Path.GetFullPath(Target.RelativeEnginePath);
+            liststrIncludes.Add(Path.Combine(EngineDir, "Source/Runtime/Renderer/Internal"));
+
             PrivateIncludePaths.AddRange(liststrIncludes);
         }
 

@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------------------------------------------------------------
 #
-# Copyright (C) Microsoft Corporation.  
+# Copyright (C) Microsoft Corporation.
 # Copyright (C) 2025 IAMAI CONSULTING CORP
 #
 # MIT License. All rights reserved.
@@ -80,8 +80,8 @@ endif()
 # Directly download single include file json.hpp
 FetchContent_Declare(
     nlohmann-json
-    URL                  https://raw.githubusercontent.com/nlohmann/json/v3.11.2/single_include/nlohmann/json.hpp
-    URL_HASH             MD5=b1c1ce77d46b72b72f38051d8384c7b8  # from PowerShell: CertUtil -hashfile json.hpp MD5
+    URL                  https://raw.githubusercontent.com/nlohmann/json/v3.11.3/single_include/nlohmann/json.hpp
+    URL_HASH             SHA256=9bea4c8066ef4a1c206b2be5a36302f8926f7fdc6087af5d20b417d0cf103ea6  # from PowerShell: CertUtil -hashfile json.hpp MD5
     DOWNLOAD_NO_EXTRACT  True
     DOWNLOAD_NO_PROGRESS True
     DOWNLOAD_DIR         ${CMAKE_BINARY_DIR}/_deps/nlohmann-install
@@ -149,6 +149,13 @@ ExternalProject_Add_Step(nng-external post-install
     DEPENDEES install
 )
 
+# Assimp compiler-specific flags
+set(ASSIMP_EXTRA_CXX_FLAGS "")
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+    set(ASSIMP_EXTRA_CXX_FLAGS "-Wno-error=nontrivial-memcall")
+endif()
+
 # Set up dependency: assimp
 message("Setting up [assimp] dependency as an external project...")
 # CMake external projects don't adopt the parent's CMAKE_MSVC_RUNTIME_LIBRARY setting,
@@ -178,7 +185,8 @@ ExternalProject_Add(assimp-external
         -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=${CMAKE_FIND_ROOT_PATH_MODE_PACKAGE}
         -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
         -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-        -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
+        -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}\ ${ASSIMP_EXTRA_CXX_FLAGS}
+	    -DASSIMP_WARNINGS_AS_ERRORS=OFF
         -DCMAKE_POSITION_INDEPENDENT_CODE=True
         -DBUILD_SHARED_LIBS=OFF
         -DASSIMP_BUILD_ZLIB=ON  # force build of assimp's packaged zlib in case it detects it existing in a python environment

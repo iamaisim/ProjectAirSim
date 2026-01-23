@@ -1,6 +1,6 @@
 # Developer Initial Setup for Windows
 
-On Windows, Project AirSim can be developed with either Visual Studio 2019 or VS Code. VS Code is convenient because it provides a lighter-weight, cross-platform common experience between Windows and Linux.
+On Windows, Project AirSim can be developed with either Visual Studio 2022 or VS Code. VS Code is convenient because it provides a lighter-weight, cross-platform common experience between Windows and Linux.
 
 ## Setup
 
@@ -29,18 +29,18 @@ On Windows, Project AirSim can be developed with either Visual Studio 2019 or VS
 
     B) To develop with **Visual Studio 2022**:
 
-    Install **[Visual Studio 2019](https://visualstudio.microsoft.com/vs/)** with:
+    Install **[Visual Studio 2022](https://visualstudio.microsoft.com/vs/)** with:
 
     - `Desktop development with C++` workload
     - `.NET Framework 4.8 SDK` individual component
     - `.NET Core SDK` individual component
 
-2. Install the **[Epic Games Launcher](https://www.unrealengine.com/en-US/)** and install Unreal Engine 5.2 binary (requires Epic account log-in). While selecting the engine version to install, there is also an `Options` section where you can enable downloading `Editor symbols for debugging` (~30 GB) if desired. **Note**: Installing the engine can take a long time **(~1 hour)**.
+2. Install the **[Epic Games Launcher](https://www.unrealengine.com/en-US/)** and install Unreal Engine 5.7 binary (requires Epic account log-in). While selecting the engine version to install, there is also an `Options` section where you can enable downloading `Editor symbols for debugging` (~30 GB) if desired. **Note**: Installing the engine can take a long time **(~1 hour)**.
 
 3. Set a Windows environment variable for `UE_ROOT` to the installed folder, either through the Control Panel section `Edit environment variables for your account`, or by using the command line:
 
     ```
-    setx UE_ROOT "C:\Program Files\Epic Games\UE_5.2"
+    setx UE_ROOT "C:\Program Files\Epic Games\UE_5.7"
 
     <restart the command prompt to refresh environment variables>
     ```
@@ -55,7 +55,7 @@ On Windows, Project AirSim can be developed with either Visual Studio 2019 or VS
 
 7. Do the **[Project AirSim Client Setup](../client_setup.md#setting-up-the-client-on-windows)**.
 
-8. (Optional) Unreal Engine 5.2.x requires a specific MSVC compiler version and will fail with newer versions Create a configuration file to force Unreal's Build Tool to use the compiler version `14.37.32822`
+8. (Optional) Unreal Engine 5.7.x requires a specific MSVC compiler version and will fail with newer versions Create a configuration file to force Unreal's Build Tool to use the compiler version `14.39.33519` or `14.39.33523`
 
     File Path: `%APPDATA%\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml`
 
@@ -64,7 +64,7 @@ On Windows, Project AirSim can be developed with either Visual Studio 2019 or VS
     <?xml version="1.0" encoding="utf-8"?>
     <Configuration xmlns="https://www.unrealengine.com/BuildConfiguration">
         <WindowsPlatform>
-            <CompilerVersion>14.37.32822</CompilerVersion>
+            <CompilerVersion>14.39.33519</CompilerVersion>
         </WindowsPlatform>
     </Configuration>
     ```

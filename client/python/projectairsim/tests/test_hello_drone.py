@@ -39,10 +39,10 @@ def check_imu(imu_msg):
     assert -5.0 <= ang_vel["z"] <= 5.0
 
 
-async def wait_for_pose_change(robo, prev_pose, timeout=2.0):
+async def wait_for_pose_change(multirotor, prev_pose, timeout=2.0):
     start = time.time()
     while True:
-        pose = robo.robot_actual_pose
+        pose = multirotor.multirotort_actual_pose
         if pose is not None and pose != prev_pose:
             return pose
         if time.time() - start > timeout:
@@ -51,37 +51,37 @@ async def wait_for_pose_change(robo, prev_pose, timeout=2.0):
 
 
 @pytest.fixture(scope="class")
-def robo():
+def multirotor():
     class ProjectAirSimTestObject:
         client = ProjectAirSimClient()
         client.connect()
         world = World(client, "scene_test_drone.jsonc", 1)
         drone = Drone(client, world, "Drone1")
-        robot_actual_pose = None
+        multirotort_actual_pose = None
 
-        def robot_actual_pose_callback(self, topic, message):
-            self.robot_actual_pose = message
+        def multirotort_actual_pose_callback(self, topic, message):
+            self.multirotort_actual_pose = message
 
-    robo_obj = ProjectAirSimTestObject()
-    yield robo_obj
+    multirotor_obj = ProjectAirSimTestObject()
+    yield multirotor_obj
 
     print("\nTeardown client...")
-    robo_obj.client.disconnect()
+    multirotor_obj.client.disconnect()
 
 
 class TestClientBase:
-    async def main(self, robo):
+    async def main(self, multirotor):
         print("start")
-        drone = robo.drone
-        client = robo.client
+        drone = multirotor.drone
+        client = multirotor.client
 
         client.subscribe(
-            drone.robot_info["actual_pose"], robo.robot_actual_pose_callback
+            drone.multirotort_info["actual_pose"], multirotor.multirotort_actual_pose_callback
         )
 
         timeout = time.time() + 5
-        robo.robot_actual_pose = None
-        while robo.robot_actual_pose is None:
+        multirotor.multirotort_actual_pose = None
+        while multirotor.multirotort_actual_pose is None:
             if time.time() > timeout:
                 pytest.fail("Timeout waiting for a pose message update")
             await asyncio.sleep(0.1)
@@ -102,14 +102,14 @@ class TestClientBase:
         drone.enable_api_control()
         drone.arm()
 
-        prev_pose = robo.robot_actual_pose
+        prev_pose = multirotor.multirotort_actual_pose
         move_up = await drone.move_by_velocity_async(
             v_north=0.0, v_east=0.0, v_down=-2.0, duration=2.0
         )
         projectairsim_log().info("Move-Up invoked")
         await move_up
         projectairsim_log().info("Move-Up completed")
-        new_pose = await wait_for_pose_change(robo, prev_pose)
+        new_pose = await wait_for_pose_change(multirotor, prev_pose)
         assert new_pose["position"]["z"] < prev_pose["position"]["z"]
 
         prev_pose = new_pose
@@ -119,7 +119,7 @@ class TestClientBase:
         projectairsim_log().info("Move-North invoked")
         await move_north
         projectairsim_log().info("Move-North completed")
-        new_pose = await wait_for_pose_change(robo, prev_pose)
+        new_pose = await wait_for_pose_change(multirotor, prev_pose)
         assert new_pose["position"]["x"] > prev_pose["position"]["x"]
 
         prev_pose = new_pose
@@ -129,7 +129,7 @@ class TestClientBase:
         projectairsim_log().info("Move-West invoked")
         await move_west
         projectairsim_log().info("Move-West completed")
-        new_pose = await wait_for_pose_change(robo, prev_pose)
+        new_pose = await wait_for_pose_change(multirotor, prev_pose)
         assert new_pose["position"]["y"] < prev_pose["position"]["y"]
 
         prev_pose = new_pose
@@ -139,7 +139,7 @@ class TestClientBase:
         projectairsim_log().info("Move-South invoked")
         await move_south
         projectairsim_log().info("Move-South completed")
-        new_pose = await wait_for_pose_change(robo, prev_pose)
+        new_pose = await wait_for_pose_change(multirotor, prev_pose)
         assert new_pose["position"]["x"] < prev_pose["position"]["x"]
 
         prev_pose = new_pose
@@ -149,7 +149,7 @@ class TestClientBase:
         projectairsim_log().info("Move-East invoked")
         await move_east
         projectairsim_log().info("Move-East completed")
-        new_pose = await wait_for_pose_change(robo, prev_pose)
+        new_pose = await wait_for_pose_change(multirotor, prev_pose)
         assert new_pose["position"]["y"] > prev_pose["position"]["y"]
 
         prev_pose = new_pose
@@ -159,7 +159,7 @@ class TestClientBase:
         projectairsim_log().info("Move-Down invoked")
         await move_down
         projectairsim_log().info("Move-Down completed")
-        new_pose = await wait_for_pose_change(robo, prev_pose)
+        new_pose = await wait_for_pose_change(multirotor, prev_pose)
         assert new_pose["position"]["z"] > prev_pose["position"]["z"]
 
         drone.disarm()
@@ -167,5 +167,5 @@ class TestClientBase:
 
         client.disconnect()
 
-    def test_hello_drone(self, robo):
-        asyncio.run(self.main(robo))
+    def test_hello_drone(self, multirotor):
+        asyncio.run(self.main(multirotor))

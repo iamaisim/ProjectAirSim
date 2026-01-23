@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) Microsoft Corporation. 
+# Copyright (C) Microsoft Corporation.
 # Copyright (C) 2025 IAMAI CONSULTING CORP
 # MIT License.
 
@@ -65,6 +65,7 @@ sudo apt-get update
 
 # Install prerequisites
 sudo apt-get -y install --no-install-recommends \
+    lsb-release \
     build-essential \
     rsync \
     make \

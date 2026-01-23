@@ -32,6 +32,9 @@ Enabling streaming is independent of enabling capture of the raw image pixels th
 
 Currently, only a single streaming camera view can be rendered and viewed at a time for any sim instance, so there is no additional cost to enable multiple streaming cameras in the scene to have them available to cycle the view through, but the FPS of the sim may vary based on the resolution of the currently active streaming camera due to its corresponding rendering load.
 
+**Note:**  
+This documentation applies to Unreal Engine 5.x. While Pixel Streaming has evolved internally since UE 4.27, the external workflow and Project AirSim integration remain largely the same.
+
 ## Launching the sim with camera streaming on a local machine
 
 When running on a local machine, the `streaming-enabled` cameras can be viewed through the native viewport window of the sim process, but the web viewer can also be used to see how the stream would work if the sim server was running remotely from the user/client interface.
@@ -86,7 +89,7 @@ To connect to a remote PixelStreaming view, such as running the sim server on Az
 
 1. Ensure port 80 is open for TCP and UDP on the sim server compute machine (including through any OS firewall settings) to allow the stream viewer web browser to connect to the Signalling Web Server and proxy user inputs back to the server.
 
-2. The Signalling Web Server launching scripts need to detect the server's public IP for the STUN server to connect the client to the server over the internet. As of UE 5.2, there are some bugs in the launching scripts that prevent the public IP from being detected correctly. To fix these bugs, manually modify the scripts as follows:
+2. The Signalling Web Server launching scripts need to detect the server's public IP for the STUN server to connect the client to the server over the internet. In some Unreal Engine 5.x versions, there are known issues in the Pixel Streaming signalling server launch scripts that may prevent the public IP from being detected correctly. To fix these bugs, manually modify the scripts as follows:
 
     **(Linux) Start_Common.sh**
 

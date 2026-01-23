@@ -81,7 +81,7 @@ endif()
 FetchContent_Declare(
     nlohmann-json
     URL                  https://raw.githubusercontent.com/nlohmann/json/v3.11.3/single_include/nlohmann/json.hpp
-    URL_HASH             SHA256=9bea4c8066ef4a1c206b2be5a36302f8926f7fdc6087af5d20b417d0cf103ea6  # from PowerShell: CertUtil -hashfile json.hpp MD5
+    URL_HASH             SHA256=9bea4c8066ef4a1c206b2be5a36302f8926f7fdc6087af5d20b417d0cf103ea6
     DOWNLOAD_NO_EXTRACT  True
     DOWNLOAD_NO_PROGRESS True
     DOWNLOAD_DIR         ${CMAKE_BINARY_DIR}/_deps/nlohmann-install

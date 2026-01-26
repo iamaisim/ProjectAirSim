@@ -110,11 +110,21 @@ def make_base_specs(
     data_spec: Dict,
     container_client: ContainerClient,
 ) -> None:
-    # TODO: Upload each of these files to container
-    blob_list = [blob.name for blob in container_client.list_blobs()]
+    
+    if container_client is not None:
+        file_list = [blob.name for blob in container_client.list_blobs()]
+    else:
+        # If no container client is provided, assume local storage
+        # Search for existing specs_file_names files in the local save path
+        file_list = [
+            file for file in os.listdir(save_path)
+            if file in specs_file_names.values()
+        ]
+
+
 
     for key in specs_file_names.keys():
-        if specs_file_names.get(key) not in blob_list:
+        if specs_file_names.get(key) not in file_list:
             file_save_path = pathlib.Path(save_path, specs_file_names.get(key))
             if key == "jsonl":
                 jsonl_data = spec_jsonl.make_base_jsonl()
@@ -131,11 +141,12 @@ def make_base_specs(
             if key == "coco":
                 spec_coco.make_base_coco_json(output_spec, file_save_path)
 
-            upload_blob(
-                container_client,
-                blob_name=os.path.join(BLOB_BASE_PATH, specs_file_names[key]),
-                file_path=file_save_path,
-            )
+            if container_client is not None:
+                upload_blob(
+                    container_client,
+                    blob_name=os.path.join(BLOB_BASE_PATH, specs_file_names[key]),
+                    file_path=file_save_path,
+                )
 
     return
 

@@ -69,6 +69,9 @@ On Windows, Project AirSim can be developed with either Visual Studio 2022 or VS
     </Configuration>
     ```
 
+*Note: If there more than one MSVC compiler version installed, choose the correct one using the command:
+call "PATH TO VS\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" x64 -vcvars_ver=14.39, and make sure the correct version is set in "BuildConfiguration.xml"*
+
 Now you're ready to start **[Developing Project AirSim Sim Libs](use_source.md#developing-projectairsim-libs)**
 
 ---

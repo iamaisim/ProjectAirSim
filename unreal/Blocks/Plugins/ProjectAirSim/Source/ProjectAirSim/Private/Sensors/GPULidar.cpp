@@ -7,6 +7,7 @@
 #include "GPULidar.h"
 
 #include "ProjectAirSim.h"
+#include "UnrealCompatibility.h"
 #include "Components/LineBatchComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Engine/CollisionProfile.h"
@@ -132,12 +133,21 @@ void UGPULidar::SetupSceneCapture(
   }
 
   // Hide debug points in case "draw-debug-points" is set to true
-  OutSceneCaptureComp->HideComponent(Cast<UPrimitiveComponent>(
-      UnrealWorld->GetLineBatcher(UWorld::ELineBatcherType::World)));
-  OutSceneCaptureComp->HideComponent(Cast<UPrimitiveComponent>(
-      UnrealWorld->GetLineBatcher(UWorld::ELineBatcherType::WorldPersistent)));
-  OutSceneCaptureComp->HideComponent(Cast<UPrimitiveComponent>(
-      UnrealWorld->GetLineBatcher(UWorld::ELineBatcherType::Foreground)));
+  #if UE_IS_5_7 
+    OutSceneCaptureComp->HideComponent(Cast<UPrimitiveComponent>(
+        UnrealWorld->GetLineBatcher(UWorld::ELineBatcherType::World)));
+    OutSceneCaptureComp->HideComponent(Cast<UPrimitiveComponent>(
+        UnrealWorld->GetLineBatcher(UWorld::ELineBatcherType::WorldPersistent)));
+    OutSceneCaptureComp->HideComponent(Cast<UPrimitiveComponent>(
+        UnrealWorld->GetLineBatcher(UWorld::ELineBatcherType::Foreground)));
+  #elif UE_IS_5_2
+  OutSceneCaptureComp->HideComponent(
+      Cast<UPrimitiveComponent>(UnrealWorld->LineBatcher));
+  OutSceneCaptureComp->HideComponent(
+      Cast<UPrimitiveComponent>(UnrealWorld->PersistentLineBatcher));
+  OutSceneCaptureComp->HideComponent(
+      Cast<UPrimitiveComponent>(UnrealWorld->ForegroundLineBatcher));
+  #endif
 
   OutSceneCaptureComp->RegisterComponent();
   auto RenderTarget = NewObject<UTextureRenderTarget2D>();

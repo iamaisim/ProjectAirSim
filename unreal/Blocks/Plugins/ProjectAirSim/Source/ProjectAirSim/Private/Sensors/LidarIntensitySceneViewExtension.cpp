@@ -1,6 +1,7 @@
 #include "LidarIntensitySceneViewExtension.h"
 
 #include "RHI.h"
+#include "UnrealCompatibility.h"
 #include "SceneView.h"
 #include "RenderGraph.h"
 #include "ScreenPass.h"
@@ -15,7 +16,11 @@
 #include "SceneTextureParameters.h"
 
 // Access to FPostProcessingInputs definition from internal Renderer headers
-#include "Runtime/Renderer/Internal/PostProcess/PostProcessInputs.h"
+#if UE_IS_5_7
+    #include "Runtime/Renderer/Internal/PostProcess/PostProcessInputs.h"
+#elif UE_IS_5_2
+    #include "Runtime/Renderer/Private/PostProcess/PostProcessing.h"
+#endif
 
 #include "LidarIntensityShader.h"
 
@@ -157,9 +162,16 @@ void FLidarIntensitySceneViewExtension::PrePostProcessPass_RenderThread(
   const FScreenPassTextureViewportParameters SceneTextureViewportParams =
       GetTextureViewportParameters(SceneColorTextureViewport);
 
+#if UE_IS_5_7
   FSceneTextureShaderParameters SceneTextures =
       CreateSceneTextureShaderParameters(
           GraphBuilder, View, ESceneTextureSetupMode::All);
+#elif UE_IS_5_2
+  FSceneTextureShaderParameters SceneTextures =
+      CreateSceneTextureShaderParameters(
+          GraphBuilder, ((const FViewInfo&)View).GetSceneTexturesChecked(),
+          View.GetFeatureLevel(), ESceneTextureSetupMode::All);
+#endif
 
   const FScreenPassTextureViewport TextureViewport(
       SceneColorRenderTarget.Texture, Viewport);
@@ -200,15 +212,27 @@ void FLidarIntensitySceneViewExtension::PrePostProcessPass_RenderThread(
             FScreenPassPipelineState(VertexShader, PixelShader,
                                      DefaultBlendState, DepthStencilState),
             [&](FRHICommandListImmediate& RHICmdList) {
-              VertexShader->SetParameters(RHICmdList.GetScratchShaderParameters(), View);
-              SetShaderParameters(RHICmdList, VertexShader,
-                                  VertexShader.GetVertexShader(),
-                                  *PostProcessMaterialParameters);
+                #if UE_IS_5_7
+                    VertexShader->SetParameters(RHICmdList.GetScratchShaderParameters(), View);
+                    SetShaderParameters(RHICmdList, VertexShader,
+                                        VertexShader.GetVertexShader(),
+                                        *PostProcessMaterialParameters);
 
-              PixelShader->SetParameters(RHICmdList.GetScratchShaderParameters(), View);
-              SetShaderParameters(RHICmdList, PixelShader,
-                                  PixelShader.GetPixelShader(),
-                                  *PostProcessMaterialParameters);
+                    PixelShader->SetParameters(RHICmdList.GetScratchShaderParameters(), View);
+                    SetShaderParameters(RHICmdList, PixelShader,
+                                        PixelShader.GetPixelShader(),
+                                        *PostProcessMaterialParameters);
+                #elif UE_IS_5_2
+                     VertexShader->SetParameters(RHICmdList, View);
+                        SetShaderParameters(RHICmdList, VertexShader,
+                                            VertexShader.GetVertexShader(),
+                                            *PostProcessMaterialParameters);
+
+                        PixelShader->SetParameters(RHICmdList, View);
+                        SetShaderParameters(RHICmdList, PixelShader,
+                                            PixelShader.GetPixelShader(),
+                                            *PostProcessMaterialParameters);
+                #endif
             });
       });
 

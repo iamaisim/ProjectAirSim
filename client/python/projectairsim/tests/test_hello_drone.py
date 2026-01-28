@@ -42,7 +42,7 @@ def check_imu(imu_msg):
 async def wait_for_pose_change(multirotor, prev_pose, timeout=2.0):
     start = time.time()
     while True:
-        pose = multirotor.multirotort_actual_pose
+        pose = multirotor.robot_actual_pose
         if pose is not None and pose != prev_pose:
             return pose
         if time.time() - start > timeout:
@@ -57,10 +57,10 @@ def multirotor():
         client.connect()
         world = World(client, "scene_test_drone.jsonc", 1)
         drone = Drone(client, world, "Drone1")
-        multirotort_actual_pose = None
+        robot_actual_pose = None
 
-        def multirotort_actual_pose_callback(self, topic, message):
-            self.multirotort_actual_pose = message
+        def robot_actual_pose_callback(self, topic, message):
+            self.robot_actual_pose = message
 
     multirotor_obj = ProjectAirSimTestObject()
     yield multirotor_obj
@@ -76,12 +76,12 @@ class TestClientBase:
         client = multirotor.client
 
         client.subscribe(
-            drone.multirotort_info["actual_pose"], multirotor.multirotort_actual_pose_callback
+            drone.robot_info["actual_pose"], multirotor.robot_actual_pose_callback
         )
 
         timeout = time.time() + 5
-        multirotor.multirotort_actual_pose = None
-        while multirotor.multirotort_actual_pose is None:
+        multirotor.robot_actual_pose = None
+        while multirotor.robot_actual_pose is None:
             if time.time() > timeout:
                 pytest.fail("Timeout waiting for a pose message update")
             await asyncio.sleep(0.1)
@@ -102,7 +102,7 @@ class TestClientBase:
         drone.enable_api_control()
         drone.arm()
 
-        prev_pose = multirotor.multirotort_actual_pose
+        prev_pose = multirotor.robot_actual_pose
         move_up = await drone.move_by_velocity_async(
             v_north=0.0, v_east=0.0, v_down=-2.0, duration=2.0
         )

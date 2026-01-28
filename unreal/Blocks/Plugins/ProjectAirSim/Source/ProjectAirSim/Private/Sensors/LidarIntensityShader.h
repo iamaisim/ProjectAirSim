@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UnrealCompatibility.h"
 #include "UnrealCameraRenderRequest.h"
 #include "Engine/TextureRenderTarget2D.h"
 
@@ -50,11 +51,18 @@ class FLidarIntensityPS : public FLidarIntensityShader {
   FLidarIntensityPS(
       const ShaderMetaType::CompiledShaderInitializerType& Initializer)
       : FLidarIntensityShader(Initializer) {}
-
-  void SetParameters(FRHIBatchedShaderParameters& BatchedParameters, const FSceneView& View) {
+  #if UE_IS_5_7
+    void SetParameters(FRHIBatchedShaderParameters& BatchedParameters, const FSceneView& View) {
+      FGlobalShader::SetParameters<FViewUniformShaderParameters>(
+          BatchedParameters, View.ViewUniformBuffer);
+    }
+  #elif UE_IS_5_2
+    void SetParameters(FRHICommandList& RHICmdList, const FSceneView& View) {
     FGlobalShader::SetParameters<FViewUniformShaderParameters>(
-        BatchedParameters, View.ViewUniformBuffer);
+        RHICmdList, RHICmdList.GetBoundPixelShader(), View.ViewUniformBuffer);
   }
+  #endif
+
 
   static void ModifyCompilationEnvironment(
       const FGlobalShaderPermutationParameters& Parameters,
@@ -72,9 +80,15 @@ class FLidarIntensityVS : public FLidarIntensityShader {
   FLidarIntensityVS(
       const ShaderMetaType::CompiledShaderInitializerType& Initializer)
       : FLidarIntensityShader(Initializer) {}
-
-  void SetParameters(FRHIBatchedShaderParameters& BatchedParameters, const FSceneView& View) {
+  #if UE_IS_5_7
+    void SetParameters(FRHIBatchedShaderParameters& BatchedParameters, const FSceneView& View) {
+      FGlobalShader::SetParameters<FViewUniformShaderParameters>(
+          BatchedParameters, View.ViewUniformBuffer);
+    }
+  #elif UE_IS_5_2
+    void SetParameters(FRHICommandList& RHICmdList, const FSceneView& View) {
     FGlobalShader::SetParameters<FViewUniformShaderParameters>(
-        BatchedParameters, View.ViewUniformBuffer);
+        RHICmdList, RHICmdList.GetBoundVertexShader(), View.ViewUniformBuffer);
   }
+  #endif
 };

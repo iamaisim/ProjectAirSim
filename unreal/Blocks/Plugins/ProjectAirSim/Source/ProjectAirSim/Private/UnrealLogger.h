@@ -8,15 +8,22 @@
 #include <iostream>
 
 #include "CoreMinimal.h"
+#include "UnrealCompatibility.h"
 #include "core_sim/log_level.hpp"
 
 DECLARE_LOG_CATEGORY_EXTERN(SimPlugin, All, All);
 
 class UnrealLogger {
  public:
+ #if UE_IS_5_7
   template <typename... ArgTypes>
   static void Log(microsoft::projectairsim::LogLevel level,
                   UE::Core::TCheckedFormatString<FString::FmtCharType, ArgTypes...> format, ArgTypes... args);
+ #elif UE_IS_5_2
+  template <size_t N, typename... ArgTypes>
+  static void Log(microsoft::projectairsim::LogLevel level,
+                  const TCHAR (&format)[N], ArgTypes... args);
+ #endif
 
   static void LogSim(const std::string& module,
                      microsoft::projectairsim::LogLevel level,
@@ -26,9 +33,10 @@ class UnrealLogger {
   static std::string GetTimeStamp();
 };
 
+#if UE_IS_5_7
 template <typename... ArgTypes>
 inline void UnrealLogger::Log(microsoft::projectairsim::LogLevel level,
-                              UE::Core::TCheckedFormatString<FString::FmtCharType, ArgTypes...> format, ArgTypes... args) {
+                              UE::Core::TCheckedFormatString<FString::FmtCharType, ArgTypes...> format, ArgTypes... args){
   FString LogMessage = FString::Printf(format, args...);
 
   // Output to Unreal's native log file/console
@@ -63,6 +71,45 @@ inline void UnrealLogger::Log(microsoft::projectairsim::LogLevel level,
   std::clog << "[" << time_stamp << "] " << TCHAR_TO_UTF8(*LogMessage)
             << std::endl;
 }
+#elif UE_IS_5_2
+template <size_t N, typename... ArgTypes>
+inline void UnrealLogger::Log(microsoft::projectairsim::LogLevel level,
+                              const TCHAR (&format)[N], ArgTypes... args){
+  FString LogMessage = FString::Printf(format, args...);
+
+  // Output to Unreal's native log file/console
+  switch (level) {
+    case microsoft::projectairsim::LogLevel::kFatal:
+      UE_LOG(SimPlugin, Fatal, TEXT("%s"), *LogMessage);
+      break;
+
+    case microsoft::projectairsim::LogLevel::kError:
+      UE_LOG(SimPlugin, Error, TEXT("%s"), *LogMessage);
+      break;
+
+    case microsoft::projectairsim::LogLevel::kWarning:
+      UE_LOG(SimPlugin, Warning, TEXT("%s"), *LogMessage);
+      break;
+
+    case microsoft::projectairsim::LogLevel::kTrace:
+      UE_LOG(SimPlugin, Log, TEXT("%s"), *LogMessage);
+      break;
+
+    case microsoft::projectairsim::LogLevel::kVerbose:
+      UE_LOG(SimPlugin, Verbose, TEXT("%s"), *LogMessage);
+      break;
+
+    default:
+      UE_LOG(SimPlugin, VeryVerbose, TEXT("%s"), *LogMessage);
+      break;
+  }
+
+  // Output to an independent log file
+  auto time_stamp = GetTimeStamp();
+  std::clog << "[" << time_stamp << "] " << TCHAR_TO_UTF8(*LogMessage)
+            << std::endl;
+}
+#endif
 
 inline void UnrealLogger::LogSim(const std::string& module,
                                  microsoft::projectairsim::LogLevel level,

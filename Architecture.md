@@ -38,7 +38,7 @@ Project AirSim is a comprehensive simulation platform that transforms Unreal Eng
 
 **Blocks Project** (`unreal/Blocks/`)
 - Primary UE5 project containing the simulation environment
-- Configured for UE 5.7 with ProjectAirSim plugin enabled
+- Configured for UE versions 5.2 and 5.7 with ProjectAirSim plugin enabled
 - Contains simulation levels (BlocksMap.umap, GISMap.umap)
 - Manages content assets and Blueprints
 
@@ -462,7 +462,7 @@ Build Sim Libs → Package Plugin → Cook Content → Package Game → Distribu
 ### Software Dependencies
 
 **Core Dependencies**:
-- Unreal Engine 5.7
+- Unreal Engine 5.2 and 5.7
 - Visual Studio 2019/2022 (Windows)
 - CMake 3.20+
 - Python 3.7+

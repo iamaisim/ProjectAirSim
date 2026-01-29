@@ -35,7 +35,7 @@ On Windows, Project AirSim can be developed with either Visual Studio 2022 or VS
     - `.NET Framework 4.8 SDK` individual component
     - `.NET Core SDK` individual component
 
-2. Install the **[Epic Games Launcher](https://www.unrealengine.com/en-US/)** and install Unreal Engine 5.7 binary (requires Epic account log-in). While selecting the engine version to install, there is also an `Options` section where you can enable downloading `Editor symbols for debugging` (~30 GB) if desired. **Note**: Installing the engine can take a long time **(~1 hour)**.
+2. Install the **[Epic Games Launcher](https://www.unrealengine.com/en-US/)** and install Unreal Engine, either 5.2 or 5.7 binary (requires Epic account log-in). While selecting the engine version to install, there is also an `Options` section where you can enable downloading `Editor symbols for debugging` (~30 GB) if desired. **Note**: Installing the engine can take a long time **(~1 hour)**.
 
 3. Set a Windows environment variable for `UE_ROOT` to the installed folder, either through the Control Panel section `Edit environment variables for your account`, or by using the command line:
 
@@ -44,6 +44,8 @@ On Windows, Project AirSim can be developed with either Visual Studio 2022 or VS
 
     <restart the command prompt to refresh environment variables>
     ```
+
+
 
 4. Unreal Engine on Windows defaults to using DirectX 11 for rendering, so you may need to install the latest GPU driver and DirectX updates. However, if you want to use Vulkan for rendering instead, you may need to install the **[Vulkan SDK](https://www.lunarg.com/vulkan-sdk/)**.
 
@@ -68,6 +70,9 @@ On Windows, Project AirSim can be developed with either Visual Studio 2022 or VS
         </WindowsPlatform>
     </Configuration>
     ```
+
+*Note: If there more than one MSVC compiler version installed, choose the correct one using the command:
+call "PATH TO VS\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" x64 -vcvars_ver=14.39, and make sure the correct version is set in "BuildConfiguration.xml"*
 
 Now you're ready to start **[Developing Project AirSim Sim Libs](use_source.md#developing-projectairsim-libs)**
 

@@ -83,8 +83,8 @@ See **[Installing system prerequisites](docs/system_specs.md#installing-system-p
 
 Follow these steps to set up and run Project AirSim from source:
 
-### 1. Install Unreal Engine 5.7
-- Download and install **[Unreal Engine 5.7](https://www.unrealengine.com/en-US/download)**.
+### 1. Install Unreal Engine versions 5.2 or 5.7
+- Download and install **[Unreal Engine](https://www.unrealengine.com/en-US/download)**.
 - Set the `UE_ROOT` environment variable to the Unreal Engine installation path:
   ```bash
   export UE_ROOT=/path/to/UnrealEngine
@@ -111,13 +111,10 @@ Follow these steps to set up and run Project AirSim from source:
 - Generate Visual Studio Code project files:
   - **Linux/macOS**:
     ```bash
-    cd ./unreal/Blocks/
-    chmod u+x ./blocks_genprojfiles_vscode.sh
     ./blocks_genprojfiles_vscode.sh
     ```
   - **Windows**:
     ```cmd
-    cd .\unreal\Blocks\
     blocks_genprojfiles_vscode.bat
     ```
 

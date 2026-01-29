@@ -63,12 +63,13 @@ Choose your development tool:
 
 On Windows, run the `build.cmd` script using the `x64 Native Tools Command Prompt for VS 2022`. 
 
-Unreal Engine 7.x requires a specific MSVC compiler version and will fail with newer versions. Load the correct toolset into your command prompt session:
-```cmd
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat" -vcvars_ver=14.39.33519
-```
+Unreal Engine 5.x requires a specific MSVC compiler version and will fail with newer versions. Make sure the correct compiler version is installed:
 
-Note: This path assumes a default VS 2022 Community installation. Adjust the path if yours is different.
+For `UE5.2`: 14.37.32822
+
+For `UE5.7`: 14.39.33519
+
+Note: This path assumes a default VS 2022 Community installation. Adjust the path if yours is different. There is no need to choose the version, both can be installed, `build.cmd` will choose the correct one according to the UE_ROOT set up previously in the Initial Setup.
 
 On Linux, run the `build.sh` shell script.
 

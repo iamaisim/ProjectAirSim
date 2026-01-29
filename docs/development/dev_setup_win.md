@@ -40,12 +40,12 @@ On Windows, Project AirSim can be developed with either Visual Studio 2022 or VS
 3. Set a Windows environment variable for `UE_ROOT` to the installed folder, either through the Control Panel section `Edit environment variables for your account`, or by using the command line:
 
     ```
-    setx UE_ROOT "C:\Program Files\Epic Games\UE_5.7"
+    setx UE_ROOT "C:\Program Files\Epic Games\UE_5.x"
 
     <restart the command prompt to refresh environment variables>
     ```
 
-
+**Note**: set the Unreal Engine vesion installed (5.2 or 5.7)
 
 4. Unreal Engine on Windows defaults to using DirectX 11 for rendering, so you may need to install the latest GPU driver and DirectX updates. However, if you want to use Vulkan for rendering instead, you may need to install the **[Vulkan SDK](https://www.lunarg.com/vulkan-sdk/)**.
 
@@ -57,7 +57,7 @@ On Windows, Project AirSim can be developed with either Visual Studio 2022 or VS
 
 7. Do the **[Project AirSim Client Setup](../client_setup.md#setting-up-the-client-on-windows)**.
 
-8. (Optional) Unreal Engine 5.7.x requires a specific MSVC compiler version and will fail with newer versions Create a configuration file to force Unreal's Build Tool to use the compiler version `14.39.33519` or `14.39.33523`
+8. (Optional) Unreal Engine 5.2.x requires a specific MSVC compiler version and will fail with newer versions Create a configuration file to force Unreal's Build Tool to use the compiler version `14.37.32822`. And 5.7.x requires a compiler version `14.39.33519` or `14.39.33523`
 
     File Path: `%APPDATA%\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml`
 
@@ -66,13 +66,10 @@ On Windows, Project AirSim can be developed with either Visual Studio 2022 or VS
     <?xml version="1.0" encoding="utf-8"?>
     <Configuration xmlns="https://www.unrealengine.com/BuildConfiguration">
         <WindowsPlatform>
-            <CompilerVersion>14.39.33519</CompilerVersion>
+            <CompilerVersion>*Fill with correct compiler version*</CompilerVersion>
         </WindowsPlatform>
     </Configuration>
     ```
-
-*Note: If there more than one MSVC compiler version installed, choose the correct one using the command:
-call "PATH TO VS\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" x64 -vcvars_ver=14.39, and make sure the correct version is set in "BuildConfiguration.xml"*
 
 Now you're ready to start **[Developing Project AirSim Sim Libs](use_source.md#developing-projectairsim-libs)**
 

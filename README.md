@@ -89,6 +89,7 @@ Follow these steps to set up and run Project AirSim from source:
   ```bash
   export UE_ROOT=/path/to/UnrealEngine
   ```
+**Note**: Project AirSim currently supports Unreal Engine versions 5.2 and 5.7 only.
 
 ### 2. Install Dependencies (Linux Only)
 - Run the setup script to install required development tools:

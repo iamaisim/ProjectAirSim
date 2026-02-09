@@ -85,8 +85,8 @@ Plugin Structure
 ```
 Sim Libs Modules
 ├── core_sim/           (Simulation loop, scene management)
-├── vehicle_apis/       (Robot controllers: MAVLink, ArduPilot, PX4)
-├── physics/           (Physics engines: PhysX, Bullet, custom)
+├── vehicle_apis/       (Robot controllers: SimpleFlight, ArduPilot, PX4)
+├── physics/           (Physics engines: FastPhysics, Matlab)
 ├── mavlinkcom/        (MAVLink protocol implementation)
 ├── rendering/         (Rendering components)
 ├── sensors/           (Sensor simulation)

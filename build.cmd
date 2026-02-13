@@ -97,7 +97,7 @@ call "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliar
 if errorlevel 1 (
   echo:
   echo [ERROR] Failed to initialize MSVC %MSVC_VER%
-  goto :buildfailed_nomsg
+  goto :select_msvc_default
 )
 
 REM =====================================================

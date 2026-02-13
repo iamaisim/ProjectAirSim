@@ -11,8 +11,8 @@ REM =====================================================
 REM Check Visual Studio environment
 REM =====================================================
 
-if "%VisualStudioVersion%" == "16.0" goto ver_ok
-if "%VisualStudioVersion%" == "17.0" goto ver_ok
+if "%VisualStudioVersion%"=="16.0" goto ver_ok
+if "%VisualStudioVersion%"=="17.0" goto ver_ok
 
 echo:
 echo You need to run this command from x64 Native Tools Command Prompt for VS 2019 or VS 2022.
@@ -28,26 +28,28 @@ if errorlevel 1 (
 )
 
 REM =====================================================
-REM Detect Unreal Engine version
+REM Unreal Engine detection (OPTIONAL)
+REM UE_ROOT is optional to allow standalone / Unity builds
 REM =====================================================
+
+set UE_DETECTED=0
+set UE_MINOR=
 
 if "%UE_ROOT%"=="" (
   echo:
-  echo [ERROR] UE_ROOT environment variable is not set.
-  echo Please set UE_ROOT to your Unreal Engine root directory.
-  goto :buildfailed_nomsg
+  echo UE_ROOT not set. Building without Unreal Engine integration.
+  goto :select_msvc_default
 )
 
 set BUILD_VERSION_FILE=%UE_ROOT%\Engine\Build\Build.version
 
 if not exist "%BUILD_VERSION_FILE%" (
   echo:
-  echo [ERROR] Build.version not found at:
+  echo UE_ROOT is set but Build.version not found:
   echo %BUILD_VERSION_FILE%
-  goto :buildfailed_nomsg
+  echo Falling back to standalone build.
+  goto :select_msvc_default
 )
-
-set UE_MINOR=
 
 for /f "tokens=2 delims=:," %%A in ('findstr /i "MinorVersion" "%BUILD_VERSION_FILE%"') do (
   set UE_MINOR=%%A
@@ -56,9 +58,10 @@ for /f "tokens=2 delims=:," %%A in ('findstr /i "MinorVersion" "%BUILD_VERSION_F
 set UE_MINOR=%UE_MINOR: =%
 
 echo Detected Unreal Engine version: 5.%UE_MINOR%
+set UE_DETECTED=1
 
 REM =====================================================
-REM Select MSVC version based on UE version
+REM Select MSVC version (UE-aware)
 REM =====================================================
 
 if "%UE_MINOR%"=="2" (
@@ -67,16 +70,28 @@ if "%UE_MINOR%"=="2" (
   set MSVC_VER=14.39
 ) else (
   echo:
-  echo [ERROR] Unsupported Unreal Engine version 5.%UE_MINOR%
-  echo Only UE 5.2 and UE 5.7 are supported.
-  goto :buildfailed_nomsg
+  echo Unsupported Unreal Engine version 5.%UE_MINOR%
+  echo Falling back to default toolset.
+  goto :select_msvc_default
 )
 
-echo Using MSVC toolset version: %MSVC_VER%
+goto :msvc_ready
 
 REM =====================================================
-REM Re-initialize MSVC environment with correct toolset
+REM Default MSVC (standalone / Unity)
 REM =====================================================
+
+:select_msvc_default
+echo Using default MSVC toolset (standalone / Unity build)
+set MSVC_VER=14.37
+
+REM =====================================================
+REM Initialize MSVC environment
+REM =====================================================
+
+:msvc_ready
+
+echo Using MSVC toolset version: %MSVC_VER%
 
 call "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" x64 -vcvars_ver=%MSVC_VER%
 if errorlevel 1 (

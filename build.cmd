@@ -96,8 +96,7 @@ echo Using MSVC toolset version: %MSVC_VER%
 call "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" x64 -vcvars_ver=%MSVC_VER%
 if errorlevel 1 (
   echo:
-  echo [ERROR] Failed to initialize MSVC %MSVC_VER%
-  goto :select_msvc_default
+  echo [WARNING] Failed to initialize MSVC %MSVC_VER%
 )
 
 REM =====================================================

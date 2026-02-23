@@ -11,9 +11,7 @@ public class ProjectAirSim : ModuleRules
 {
     public ProjectAirSim(ReadOnlyTargetRules Target) : base(Target)
     {
-        CppStandard = CppStandardVersion.Cpp17;
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-        PrivatePCHHeaderFile = "Public/ProjectAirSim.h";
 
         // Allow Unreal's default setting for IWYU instead of setting explicitly
         // bEnforceIWYU = true;  // UE <= 5.1
@@ -21,8 +19,6 @@ public class ProjectAirSim : ModuleRules
 
         bEnableExceptions = true;
 
-        // Silence MSVC 14.25.28610 deprecation warning from Eigen
-        PublicDefinitions.Add("_SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING");
 
         string buildType = (Target.Configuration == UnrealTargetConfiguration.Debug ||
                             Target.Configuration == UnrealTargetConfiguration.DebugGame)
@@ -47,7 +43,6 @@ public class ProjectAirSim : ModuleRules
         if (Target.Platform == UnrealTargetPlatform.Win64)
         {
             List<string> liststrIncludes = new List<string> {
-                    ModuleDirectory + "/Private",
                     PluginDirectory + "/SimLibs/core_sim/include",
                     PluginDirectory + "/SimLibs/simserver/include",
                     PluginDirectory + "/SimLibs/physics/include",
@@ -65,6 +60,7 @@ public class ProjectAirSim : ModuleRules
 
             if (buildType == "Debug")
                 liststrIncludes.Add(PluginDirectory + "/SimLibs/lvmon/include");
+            liststrIncludes.Add(Path.Combine(GetModuleDirectory("Renderer"), "Internal"));
 
             PrivateIncludePaths.AddRange(liststrIncludes);
         }

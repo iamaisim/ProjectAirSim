@@ -34,6 +34,7 @@
 #include "core_sim/message/image_message.hpp"
 #include "core_sim/sensors/camera.hpp"
 #include "core_sim/transforms/transform_utils.hpp"
+#include "UnrealTransforms.h"
 
 namespace projectairsim = microsoft::projectairsim;
 
@@ -149,12 +150,12 @@ void UUnrealCamera::LoadCameraMaterials() {
 
 void HideDebugDrawComponent(USceneCaptureComponent2D* CaptureComponent,
                             UWorld* UnrealWorld) {
+  CaptureComponent->HideComponent(Cast<UPrimitiveComponent>(
+      UnrealWorld->GetLineBatcher(UWorld::ELineBatcherType::World)));
   CaptureComponent->HideComponent(
-      Cast<UPrimitiveComponent>(UnrealWorld->LineBatcher));
-  CaptureComponent->HideComponent(
-      Cast<UPrimitiveComponent>(UnrealWorld->PersistentLineBatcher));
-  CaptureComponent->HideComponent(
-      Cast<UPrimitiveComponent>(UnrealWorld->ForegroundLineBatcher));
+      Cast<UPrimitiveComponent>(UnrealWorld->GetLineBatcher(UWorld::ELineBatcherType::WorldPersistent)));
+  CaptureComponent->HideComponent(Cast<UPrimitiveComponent>(
+      UnrealWorld->GetLineBatcher(UWorld::ELineBatcherType::Foreground)));
 }
 
 void UUnrealCamera::CreateComponents() {
@@ -918,7 +919,7 @@ void UUnrealCamera::OnRendered(
         FTextureRenderTargetResource* RtResource =
             CaptureComponent->TextureTarget->GetRenderTargetResource();
         if (RtResource) {
-          FRHITexture2D* Texture = RtResource->GetRenderTargetTexture();
+          FRHITexture* Texture = RtResource->GetRenderTargetTexture();
           // Copy pixel values out of Unreal's RHI
           UnrealCameraRenderRequest::RenderResult ImageResult;
           auto bIsDepthImage =

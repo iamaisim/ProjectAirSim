@@ -21,7 +21,7 @@ void OnEndPlay() {
   ImageWrapperModule = nullptr;
 }
 
-void ReadPixels(FRHITexture2D* Texture, bool bPixelsAsFloat,
+void ReadPixels(FRHITexture* Texture, bool bPixelsAsFloat,
                 RenderResult* ImageResult) {
   FRHICommandListImmediate& RHICmdList =
       GetImmediateCommandList_ForRenderCommand();

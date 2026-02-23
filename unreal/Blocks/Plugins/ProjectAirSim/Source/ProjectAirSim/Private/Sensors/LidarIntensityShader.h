@@ -2,18 +2,18 @@
 
 #include "CoreMinimal.h"
 #include "UnrealCameraRenderRequest.h"
-#include "Runtime/Engine/Classes/Engine/TextureRenderTarget2D.h"
+#include "Engine/TextureRenderTarget2D.h"
 
 #include "RHI.h"
 #include "RHIStaticStates.h"
-#include "Runtime/RenderCore/Public/ShaderParameterUtils.h"
-#include "Runtime/RenderCore/Public/RenderResource.h"
-#include "Runtime/Renderer/Public/MaterialShader.h"
-#include "Runtime/RenderCore/Public/RenderGraphResources.h"
+#include "ShaderParameterUtils.h"
+#include "RenderResource.h"
+#include "MaterialShader.h"
+#include "RenderGraphResources.h"
 
 // FScreenPassTextureViewportParameters and FScreenPassTextureInput
-#include "Runtime/Renderer/Private/ScreenPass.h"
-#include "Runtime/Renderer/Private/SceneTextureParameters.h"
+#include "ScreenPass.h"
+#include "SceneTextureParameters.h"
 
 BEGIN_SHADER_PARAMETER_STRUCT(FLidarIntensityShaderInputParameters, )
   SHADER_PARAMETER_STRUCT_REF(FViewUniformShaderParameters, View)
@@ -51,9 +51,9 @@ class FLidarIntensityPS : public FLidarIntensityShader {
       const ShaderMetaType::CompiledShaderInitializerType& Initializer)
       : FLidarIntensityShader(Initializer) {}
 
-  void SetParameters(FRHICommandList& RHICmdList, const FSceneView& View) {
+  void SetParameters(FRHIBatchedShaderParameters& BatchedParameters, const FSceneView& View) {
     FGlobalShader::SetParameters<FViewUniformShaderParameters>(
-        RHICmdList, RHICmdList.GetBoundPixelShader(), View.ViewUniformBuffer);
+        BatchedParameters, View.ViewUniformBuffer);
   }
 
   static void ModifyCompilationEnvironment(
@@ -73,8 +73,8 @@ class FLidarIntensityVS : public FLidarIntensityShader {
       const ShaderMetaType::CompiledShaderInitializerType& Initializer)
       : FLidarIntensityShader(Initializer) {}
 
-  void SetParameters(FRHICommandList& RHICmdList, const FSceneView& View) {
+  void SetParameters(FRHIBatchedShaderParameters& BatchedParameters, const FSceneView& View) {
     FGlobalShader::SetParameters<FViewUniformShaderParameters>(
-        RHICmdList, RHICmdList.GetBoundVertexShader(), View.ViewUniformBuffer);
+        BatchedParameters, View.ViewUniformBuffer);
   }
 };

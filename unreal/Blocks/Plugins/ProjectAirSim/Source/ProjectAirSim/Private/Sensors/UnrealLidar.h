@@ -15,6 +15,7 @@
 #include "core_sim/clock.hpp"
 #include "core_sim/sensors/lidar.hpp"
 #include "core_sim/transforms/transform_utils.hpp"
+#include <memory>
 
 // comment so that generated.h is always the last include file with clang-format
 #include "UnrealLidar.generated.h"

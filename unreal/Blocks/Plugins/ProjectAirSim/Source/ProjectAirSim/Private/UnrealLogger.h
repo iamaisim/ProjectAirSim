@@ -14,9 +14,9 @@ DECLARE_LOG_CATEGORY_EXTERN(SimPlugin, All, All);
 
 class UnrealLogger {
  public:
-  template <size_t N, typename... ArgTypes>
+  template <typename... ArgTypes>
   static void Log(microsoft::projectairsim::LogLevel level,
-                  const TCHAR (&format)[N], ArgTypes... args);
+      UE::Core::TCheckedFormatString<FString::FmtCharType, ArgTypes...> format, ArgTypes... args);
 
   static void LogSim(const std::string& module,
                      microsoft::projectairsim::LogLevel level,
@@ -26,9 +26,9 @@ class UnrealLogger {
   static std::string GetTimeStamp();
 };
 
-template <size_t N, typename... ArgTypes>
+template <typename... ArgTypes>
 inline void UnrealLogger::Log(microsoft::projectairsim::LogLevel level,
-                              const TCHAR (&format)[N], ArgTypes... args) {
+    UE::Core::TCheckedFormatString<FString::FmtCharType, ArgTypes...> format, ArgTypes... args) {
   FString LogMessage = FString::Printf(format, args...);
 
   // Output to Unreal's native log file/console

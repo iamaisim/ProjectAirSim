@@ -14,15 +14,17 @@
 #include "Robot/UnrealRobot.h"
 #include "Sensors/UnrealViewportCamera.h"
 #include "World/TimeofDay.hpp"
-#include "World/WorldSimApi.h"
+
 #include "core_sim/clock.hpp"
 #include "core_sim/earth_utils.hpp"
 #include "core_sim/scene.hpp"
 #include "json.hpp"
 #include "unreal_physics.hpp"
-
+#include "World/WorldSimApi.h"
 // comment so that generated.h is always the last include file with clang-format
 #include "UnrealScene.generated.h"
+
+class WorldSimApi;
 
 UCLASS()
 class AUnrealScene : public AActor {

@@ -4,7 +4,7 @@
 // MIT License. All rights reserved.
 
 #include "ProjectAirSimGameMode.h"
-
+#include "GameFramework/PlayerController.h"
 #include <exception>
 
 #include "Runtime/Core/Public/Misc/Paths.h"
@@ -15,12 +15,32 @@ AProjectAirSimGameMode::AProjectAirSimGameMode(
       UnrealSimLoader(FPaths::ConvertRelativePathToFull(FPaths::ProjectDir())) {
   DefaultPawnClass = nullptr;
   FApp::bUseFixedSeed = true;  // for determinism, persists in UE project
+
+    SettingsMenuClass = FSoftClassPath(TEXT("/Game/UI/WBP_SettingsMenu.WBP_SettingsMenu_C"));
 }
 
 void AProjectAirSimGameMode::StartPlay() {
-  Super::StartPlay();
+    Super::StartPlay();
 
-  UnrealSimLoader.LaunchSimulation(this->GetWorld());
+    UnrealSimLoader.LaunchSimulation(this->GetWorld());
+    APlayerController* PC = GetWorld()->GetFirstPlayerController();
+    
+    if (PC && PC->PlayerCameraManager)
+    {
+        UClass* LoadedWidgetClass = SettingsMenuClass.LoadSynchronous();
+        if (LoadedWidgetClass)
+        {
+            SettingsMenuInstance = CreateWidget<USettingsMenu>(PC, LoadedWidgetClass);
+            if (SettingsMenuInstance) 
+            {
+                SettingsMenuInstance->AddToViewport();
+                FInputModeUIOnly InputMode;
+                InputMode.SetWidgetToFocus(SettingsMenuInstance->TakeWidget());
+                PC->SetInputMode(InputMode);
+                PC->bShowMouseCursor = true;
+            }
+        }
+    }    
 }
 
 void AProjectAirSimGameMode::EndPlay(const EEndPlayReason::Type EndPlayReason) {

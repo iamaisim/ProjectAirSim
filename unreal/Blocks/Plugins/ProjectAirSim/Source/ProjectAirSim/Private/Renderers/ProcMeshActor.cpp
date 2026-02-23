@@ -4,7 +4,7 @@
 // MIT License. All rights reserved.
 
 #include "ProcMeshActor.h"
-
+#include <string>
 #include "KismetProceduralMeshLibrary.h"
 #include "Materials/Material.h"
 #include "Materials/MaterialInstanceDynamic.h"

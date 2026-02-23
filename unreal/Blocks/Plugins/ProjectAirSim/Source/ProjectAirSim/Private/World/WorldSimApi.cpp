@@ -14,8 +14,10 @@
 #include "WeatherLib.h"
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
+#include "assimp/Importer.hpp"
 #include "core_sim/actor/env_actor.hpp"
-
+#include "core_sim/scene.hpp"
+#include "core_sim/geodetic_converter.hpp"
 namespace projectairsim = microsoft::projectairsim;
 
 void WorldSimApi::RegisterServiceMethods() {

@@ -126,7 +126,10 @@ public class ProjectAirSim : ModuleRules
                 "Projects",  // default
                 "ProceduralMeshComponent",
                 "PixelStreaming",
-                "SunPosition"
+                "SunPosition",
+                "Json",
+                "JsonUtilities",
+                "InputCore"
                 // ... add private dependencies that you statically link with here ...
             }
         );

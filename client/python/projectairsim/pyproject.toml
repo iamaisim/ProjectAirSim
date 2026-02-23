@@ -36,7 +36,7 @@ dependencies = [
   "jsonlines",
   "Shapely",
   "azure-storage-blob",
-  "open3d==0.16.*"
+  "open3d>=0.16.0"
 ]
 
 [project.optional-dependencies]

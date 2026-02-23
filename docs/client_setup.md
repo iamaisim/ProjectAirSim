@@ -4,12 +4,12 @@
 
 A Python client uses the following to communicate with the Project AirSim simulation server:
 
-- Python 3.7-3.9, 64-bit
+- Python 3.7 or newer, 64-bit
 - **[pynng](https://github.com/codypiersall/pynng)** nanomsg-next-gen wrapper pip package
 
 ### Setting Up the Client on **Windows**
 
-1. Install Python 3.7-3.9 for Windows. There are many options for installing Python, but one recommended way is to:
+1. Install Python 3.7 or newer for Windows. There are many options for installing Python, but one recommended way is to:
 
     - Download the official **[Windows installer for Python](https://www.python.org/downloads/windows/)**.  Please note that the 64-bit version is required.
 
@@ -21,12 +21,12 @@ A Python client uses the following to communicate with the Project AirSim simula
 
 2. Activate the Python environment to use with Project AirSim.
 
-    If you don't have a suitable Python environment yet, do the following.  Here, we assume we're using Python 3.8 installed in the directory `C:\Python38`, but use the version and directory of your installation of Python:
+    If you don't have a suitable Python environment yet, do the following. Use the version and directory of your installation of Python:
 
     A) Install `virtualenv` and create a new environment (here named `airsim-venv` but you may choose any convenient name):
 
-        C:\Python310\python -m pip install virtualenv
-        C:\Python310\python -m venv C:\path\to\airsim-venv
+        python -m pip install virtualenv
+        python -m venv C:\path\to\airsim-venv
 
     B) Activate your environment:
 
@@ -72,9 +72,9 @@ A Python client uses the following to communicate with the Project AirSim simula
 
 ### Setting Up the Client on **Linux**
 
-1. Install Python 3.7-3.9 to your system:
+1. Install Python 3.7 or newer to your system:
 
-    Ubuntu 20.04 comes with Python 3.8, but Project AirSim requires additional packages:
+    Ubuntu 20.04 comes with Python 3.8, while newer versions like Ubuntu 24.04 come with Python 3.12:
 
         sudo apt install python3-dev python3-venv
 

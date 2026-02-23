@@ -1,5 +1,6 @@
 from argparse import ArgumentError
 import multiprocessing as mp
+import time
 
 import numpy as np
 import open3d as o3d
@@ -367,8 +368,14 @@ class LidarDisplay:
 
                 # Do Open3D processing
                 if self.window_created:
-                    self.o3d_vis.poll_events()
+                    # check if window is still open
+                    if not self.o3d_vis.poll_events():
+                        self.running = False
+                        break
                     self.o3d_vis.update_renderer()
+
+                # Cap frame rate to reduce CPU usage and avoid issues with DWM/WGL on Windows
+                time.sleep(0.01)
 
         except KeyboardInterrupt:
             pass  # Just exit normally

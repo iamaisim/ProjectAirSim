@@ -16,7 +16,7 @@ AProjectAirSimGameMode::AProjectAirSimGameMode(
   DefaultPawnClass = nullptr;
   FApp::bUseFixedSeed = true;  // for determinism, persists in UE project
 
-    SettingsMenuClass = FSoftClassPath(TEXT("/Game/UI/WBP_SettingsMenu.WBP_SettingsMenu_C"));
+    SettingsMenuClass = FSoftClassPath(TEXT("/ProjectAirSim/UI/ConfigEditor/WBP_SettingsMenu.WBP_SettingsMenu_C"));
 }
 
 void AProjectAirSimGameMode::StartPlay() {

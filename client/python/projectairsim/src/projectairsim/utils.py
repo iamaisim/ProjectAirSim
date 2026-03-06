@@ -17,7 +17,14 @@ import commentjson
 import jsonschema
 from jsonschema import validate
 from pykml import parser
-import pkg_resources
+import sys
+
+PYTHON_VERSION = (3, 12)
+if sys.version_info < PYTHON_VERSION:
+    import pkg_resources
+else:
+    from importlib.resources import files
+    from pathlib import Path
 
 from projectairsim.geodetic_converter import GeodeticConverter
 
@@ -482,15 +489,27 @@ def load_scene_config_as_dict(
         Tuple[Dict, List]: a tuple containing the dict and the file paths of all loaded configuration files
     """
     projectairsim_log().info(f"Loading scene config: {config_name}")
-    total_path = os.path.join(sim_config_path, config_name)
-    filepaths = [total_path, [], []]
+    
+    if sys.version_info < PYTHON_VERSION:
+        total_path = os.path.join(sim_config_path, config_name)
+        filepaths = [total_path, [], []]
+        
+        robot_config_schema = pkg_resources.resource_string(
+            __name__, "schema/robot_config_schema.jsonc"
+        )
+        scene_config_schema = pkg_resources.resource_string(
+            __name__, "schema/scene_config_schema.jsonc"
+        )
 
-    robot_config_schema = pkg_resources.resource_string(
-        __name__, "schema/robot_config_schema.jsonc"
-    )
-    scene_config_schema = pkg_resources.resource_string(
-        __name__, "schema/scene_config_schema.jsonc"
-    )
+    else:
+        # Path handling for loading files
+        BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent / "example_user_scripts"
+        config_path = os.path.join(BASE_DIR, sim_config_path, config_name)
+        total_path = os.path.join(sim_config_path, config_path)
+        filepaths = [total_path, [], []]
+    
+        robot_config_schema = (files(__package__) / "schema/robot_config_schema.jsonc").read_bytes()
+        scene_config_schema = (files(__package__) / "schema/scene_config_schema.jsonc").read_bytes()
 
     with open(total_path) as f:
         data = commentjson.load(f)  # read and write the JSON as a dict
@@ -505,7 +524,12 @@ def load_scene_config_as_dict(
         for actor in data["actors"]:
             if actor["type"] == "robot":
                 actor_path = actor["robot-config"]
-                total_actor_path = os.path.join(sim_config_path, actor_path)
+                
+                if sys.version_info < PYTHON_VERSION: 
+                    total_actor_path = os.path.join(sim_config_path, actor_path)
+                else:
+                    total_actor_path = os.path.join(BASE_DIR, sim_config_path, actor_path)
+                
                 filepaths[1].append(total_actor_path)
                 with open(total_actor_path) as e:
                     temp = commentjson.load(e)
@@ -517,7 +541,12 @@ def load_scene_config_as_dict(
         for env_actor in data["environment-actors"]:
             if env_actor["type"] == "env_actor":
                 env_actor_path = env_actor["env-actor-config"]
-                total_env_actor_path = os.path.join(sim_config_path, env_actor_path)
+                
+                if sys.version_info < PYTHON_VERSION:
+                    total_env_actor_path = os.path.join(sim_config_path, env_actor_path)
+                else:
+                    total_env_actor_path = os.path.join(BASE_DIR, sim_config_path, env_actor_path)
+                
                 filepaths[2].append(env_actor_path)
                 with open(total_env_actor_path) as e:
                     temp = commentjson.load(e)

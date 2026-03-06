@@ -28,7 +28,13 @@ void USettingsMenu::NativeConstruct()
         if (SetActivateButton) SetActivateButton->OnClicked.AddDynamic(this, &USettingsMenu::SetActivatePath);
         if (LoadScriptButton) LoadScriptButton->OnClicked.AddDynamic(this, &USettingsMenu::SelectPythonScript);
         if (RunScriptButton) RunScriptButton->OnClicked.AddDynamic(this, &USettingsMenu::RunScript);
+        if (CloseButton) CloseButton->OnClicked.AddDynamic(this, &USettingsMenu::CloseMenu);
     }
+}
+
+void USettingsMenu::CloseMenu() 
+{
+    RemoveFromParent();
 }
 
 void USettingsMenu::BeginDestroy()

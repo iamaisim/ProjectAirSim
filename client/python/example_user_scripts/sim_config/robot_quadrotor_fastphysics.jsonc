@@ -3,42 +3,32 @@
 	"links": [
 		{
 			"name": "Frame",
-			"inertial":
-			{
-				"mass": 1,
-				"inertia":
-				{
+			"inertial": {
+				"mass": 1.0,
+				"inertia": {
 					"type": "geometry",
-					"geometry":
-					{
-						"box":
-						{
+					"geometry": {
+						"box": {
 							"size": "0.180 0.110 0.040"
 						}
 					}
 				},
-				"aerodynamics":
-				{
-					"drag-coefficient": 0.32500000000000001,
+				"aerodynamics": {
+					"drag-coefficient": 0.325,
 					"type": "geometry",
-					"geometry":
-					{
-						"box":
-						{
+					"geometry": {
+						"box": {
 							"size": "0.180 0.110 0.040"
 						}
 					}
 				}
 			},
-			"collision":
-			{
-				"restitution": 0.10000000000000001,
+			"collision": {
+				"restitution": 0.1,
 				"friction": 0.5
 			},
-			"visual":
-			{
-				"geometry":
-				{
+			"visual": {
+				"geometry": {
 					"type": "unreal_mesh",
 					"name": "/Drone/Quadrotor1"
 				}
@@ -46,41 +36,32 @@
 		},
 		{
 			"name": "Prop_FL",
-			"inertial":
-			{
-				"origin":
-				{
+			"inertial": {
+				"origin": {
 					"xyz": "0.253 -0.253 -0.01",
 					"rpy-deg": "0 0 0"
 				},
 				"mass": 0.055,
-				"inertia":
-				{
+				"inertia": {
 					"type": "point-mass"
 				},
-				"aerodynamics":
-				{
-					"drag-coefficient": 0.32500000000000001,
+				"aerodynamics": {
+					"drag-coefficient": 0.325,
 					"type": "geometry",
-					"geometry":
-					{
-						"cylinder":
-						{
+					"geometry": {
+						"cylinder": {
 							"radius": 0.1143,
 							"length": 0.01
 						}
 					}
 				}
 			},
-			"visual":
-			{
-				"origin":
-				{
+			"visual": {
+				"origin": {
 					"xyz": "0.253 -0.253 -0.01",
 					"rpy-deg": "0 0 0"
 				},
-				"geometry":
-				{
+				"geometry": {
 					"type": "unreal_mesh",
 					"name": "/Drone/PropellerRed"
 				}
@@ -88,41 +69,32 @@
 		},
 		{
 			"name": "Prop_FR",
-			"inertial":
-			{
-				"origin":
-				{
+			"inertial": {
+				"origin": {
 					"xyz": "0.253 0.253 -0.01",
 					"rpy-deg": "0 0 0"
 				},
 				"mass": 0.055,
-				"inertia":
-				{
+				"inertia": {
 					"type": "point-mass"
 				},
-				"aerodynamics":
-				{
-					"drag-coefficient": 0.32500000000000001,
+				"aerodynamics": {
+					"drag-coefficient": 0.325,
 					"type": "geometry",
-					"geometry":
-					{
-						"cylinder":
-						{
+					"geometry": {
+						"cylinder": {
 							"radius": 0.1143,
 							"length": 0.01
 						}
 					}
 				}
 			},
-			"visual":
-			{
-				"origin":
-				{
+			"visual": {
+				"origin": {
 					"xyz": "0.253 0.253 -0.01",
 					"rpy-deg": "0 0 0"
 				},
-				"geometry":
-				{
+				"geometry": {
 					"type": "unreal_mesh",
 					"name": "/Drone/PropellerRed"
 				}
@@ -130,41 +102,32 @@
 		},
 		{
 			"name": "Prop_RL",
-			"inertial":
-			{
-				"origin":
-				{
+			"inertial": {
+				"origin": {
 					"xyz": "-0.253 -0.253 -0.01",
 					"rpy-deg": "0 0 0"
 				},
 				"mass": 0.055,
-				"inertia":
-				{
+				"inertia": {
 					"type": "point-mass"
 				},
-				"aerodynamics":
-				{
-					"drag-coefficient": 0.32500000000000001,
+				"aerodynamics": {
+					"drag-coefficient": 0.325,
 					"type": "geometry",
-					"geometry":
-					{
-						"cylinder":
-						{
+					"geometry": {
+						"cylinder": {
 							"radius": 0.1143,
 							"length": 0.01
 						}
 					}
 				}
 			},
-			"visual":
-			{
-				"origin":
-				{
+			"visual": {
+				"origin": {
 					"xyz": "-0.253 -0.253 -0.01",
 					"rpy-deg": "0 0 0"
 				},
-				"geometry":
-				{
+				"geometry": {
 					"type": "unreal_mesh",
 					"name": "/Drone/PropellerWhite"
 				}
@@ -172,41 +135,32 @@
 		},
 		{
 			"name": "Prop_RR",
-			"inertial":
-			{
-				"origin":
-				{
+			"inertial": {
+				"origin": {
 					"xyz": "-0.253 0.253 -0.01",
 					"rpy-deg": "0 0 0"
 				},
 				"mass": 0.055,
-				"inertia":
-				{
+				"inertia": {
 					"type": "point-mass"
 				},
-				"aerodynamics":
-				{
-					"drag-coefficient": 0.32500000000000001,
+				"aerodynamics": {
+					"drag-coefficient": 0.325,
 					"type": "geometry",
-					"geometry":
-					{
-						"cylinder":
-						{
+					"geometry": {
+						"cylinder": {
 							"radius": 0.1143,
 							"length": 0.01
 						}
 					}
 				}
 			},
-			"visual":
-			{
-				"origin":
-				{
+			"visual": {
+				"origin": {
 					"xyz": "-0.253 0.253 -0.01",
 					"rpy-deg": "0 0 0"
 				},
-				"geometry":
-				{
+				"geometry": {
 					"type": "unreal_mesh",
 					"name": "/Drone/PropellerWhite"
 				}
@@ -243,13 +197,11 @@
 			"axis": "0 0 1"
 		}
 	],
-	"controller":
-	{
+	"controller": {
 		"id": "Simple_Flight_Controller",
 		"airframe-setup": "quadrotor-x",
 		"type": "simple-flight-api",
-		"simple-flight-api-settings":
-		{
+		"simple-flight-api-settings": {
 			"actuator-order": [
 				{
 					"id": "Prop_FR_actuator"
@@ -273,20 +225,18 @@
 			"enabled": true,
 			"parent-link": "Frame",
 			"child-link": "Prop_FL",
-			"origin":
-			{
+			"origin": {
 				"xyz": "0.253 -0.253 -0.01",
 				"rpy-deg": "0 0 0"
 			},
-			"rotor-settings":
-			{
+			"rotor-settings": {
 				"turning-direction": "clock-wise",
 				"normal-vector": "0.0 0.0 -1.0",
 				"coeff-of-thrust": 0.109919,
-				"coeff-of-torque": 0.040163999999999998,
-				"max-rpm": 6396.6670000000004,
+				"coeff-of-torque": 0.040164,
+				"max-rpm": 6396.667,
 				"propeller-diameter": 0.2286,
-				"smoothing-tc": 0.0050000000000000001
+				"smoothing-tc": 0.005
 			}
 		},
 		{
@@ -295,20 +245,18 @@
 			"enabled": true,
 			"parent-link": "Frame",
 			"child-link": "Prop_FR",
-			"origin":
-			{
+			"origin": {
 				"xyz": "0.253 0.253 -0.01",
 				"rpy-deg": "0 0 0"
 			},
-			"rotor-settings":
-			{
+			"rotor-settings": {
 				"turning-direction": "counter-clock-wise",
 				"normal-vector": "0.0 0.0 -1.0",
 				"coeff-of-thrust": 0.109919,
-				"coeff-of-torque": 0.040163999999999998,
-				"max-rpm": 6396.6670000000004,
+				"coeff-of-torque": 0.040164,
+				"max-rpm": 6396.667,
 				"propeller-diameter": 0.2286,
-				"smoothing-tc": 0.0050000000000000001
+				"smoothing-tc": 0.005
 			}
 		},
 		{
@@ -317,20 +265,18 @@
 			"enabled": true,
 			"parent-link": "Frame",
 			"child-link": "Prop_RL",
-			"origin":
-			{
+			"origin": {
 				"xyz": "-0.253 -0.253 -0.01",
 				"rpy-deg": "0 0 0"
 			},
-			"rotor-settings":
-			{
+			"rotor-settings": {
 				"turning-direction": "counter-clock-wise",
 				"normal-vector": "0.0 0.0 -1.0",
 				"coeff-of-thrust": 0.109919,
-				"coeff-of-torque": 0.040163999999999998,
-				"max-rpm": 6396.6670000000004,
+				"coeff-of-torque": 0.040164,
+				"max-rpm": 6396.667,
 				"propeller-diameter": 0.2286,
-				"smoothing-tc": 0.0050000000000000001
+				"smoothing-tc": 0.005
 			}
 		},
 		{
@@ -339,20 +285,18 @@
 			"enabled": true,
 			"parent-link": "Frame",
 			"child-link": "Prop_RR",
-			"origin":
-			{
+			"origin": {
 				"xyz": "-0.253 0.253 -0.01",
 				"rpy-deg": "0 0 0"
 			},
-			"rotor-settings":
-			{
+			"rotor-settings": {
 				"turning-direction": "clock-wise",
 				"normal-vector": "0.0 0.0 -1.0",
 				"coeff-of-thrust": 0.109919,
-				"coeff-of-torque": 0.040163999999999998,
-				"max-rpm": 6396.6670000000004,
+				"coeff-of-torque": 0.040164,
+				"max-rpm": 6396.667,
 				"propeller-diameter": 0.2286,
-				"smoothing-tc": 0.0050000000000000001
+				"smoothing-tc": 0.005
 			}
 		}
 	],
@@ -362,7 +306,7 @@
 			"type": "camera",
 			"enabled": true,
 			"parent-link": "Frame",
-			"capture-interval": 0.029999999329447746,
+			"capture-interval": 0.03,
 			"capture-settings": [
 				{
 					"image-type": 0,
@@ -376,14 +320,12 @@
 					"target-gamma": 2.5
 				}
 			],
-			"gimbal":
-			{
+			"gimbal": {
 				"lock-roll": true,
 				"lock-pitch": true,
 				"lock-yaw": false
 			},
-			"origin":
-			{
+			"origin": {
 				"xyz": "-10.0 0.0 -1.0",
 				"rpy-deg": "0 -11.46 0"
 			}
@@ -393,10 +335,10 @@
 			"type": "camera",
 			"enabled": true,
 			"parent-link": "Frame",
-			"capture-interval": 0.019999999552965164,
+			"capture-interval": 0.02,
 			"capture-settings": [
 				{
-					"image-type": 0,
+					"image-type": 0, // scene camera
 					"width": 400,
 					"height": 225,
 					"fov-degrees": 90,
@@ -407,7 +349,7 @@
 					"target-gamma": 2.5
 				},
 				{
-					"image-type": 1,
+					"image-type": 1, // depth planar
 					"width": 400,
 					"height": 225,
 					"fov-degrees": 90,
@@ -417,7 +359,7 @@
 					"compress": false
 				},
 				{
-					"image-type": 2,
+					"image-type": 2, // depth perspective
 					"width": 400,
 					"height": 225,
 					"fov-degrees": 90,
@@ -427,7 +369,7 @@
 					"compress": false
 				},
 				{
-					"image-type": 3,
+					"image-type": 3, // segmentation
 					"width": 400,
 					"height": 225,
 					"fov-degrees": 90,
@@ -437,7 +379,7 @@
 					"compress": false
 				},
 				{
-					"image-type": 4,
+					"image-type": 4, // depth vis
 					"width": 400,
 					"height": 225,
 					"fov-degrees": 90,
@@ -448,7 +390,7 @@
 					"max-depth-meters": 100
 				},
 				{
-					"image-type": 5,
+					"image-type": 5, // disparity normalized
 					"width": 400,
 					"height": 225,
 					"fov-degrees": 90,
@@ -458,7 +400,7 @@
 					"compress": false
 				},
 				{
-					"image-type": 6,
+					"image-type": 6, // surface normals
 					"width": 400,
 					"height": 225,
 					"fov-degrees": 90,
@@ -472,23 +414,22 @@
 				{
 					"enabled": false,
 					"image-type": 1,
-					"rand-contrib": 0.20000000000000001,
-					"rand-speed": 100000,
-					"rand-size": 500,
+					"rand-contrib": 0.2,
+					"rand-speed": 100000.0,
+					"rand-size": 500.0,
 					"rand-density": 2,
-					"horz-wave-contrib": 0.029999999999999999,
-					"horz-wave-strength": 0.080000000000000002,
-					"horz-wave-vert-size": 1,
-					"horz-wave-screen-size": 1,
-					"horz-noise-lines-contrib": 1,
+					"horz-wave-contrib": 0.03,
+					"horz-wave-strength": 0.08,
+					"horz-wave-vert-size": 1.0,
+					"horz-wave-screen-size": 1.0,
+					"horz-noise-lines-contrib": 1.0,
 					"horz-noise-lines-density-y": 0.01,
 					"horz-noise-lines-density-xy": 0.5,
-					"horz-distortion-contrib": 1,
+					"horz-distortion-contrib": 1.0,
 					"horz-distortion-strength": 0.002
 				}
 			],
-			"origin":
-			{
+			"origin": {
 				"xyz": "0 0.0 0.0",
 				"rpy-deg": "0 -90 0"
 			}
@@ -498,18 +439,16 @@
 			"type": "imu",
 			"enabled": true,
 			"parent-link": "Frame",
-			"accelerometer":
-			{
-				"velocity-random-walk": 0.0023530000000000001,
+			"accelerometer": {
+				"velocity-random-walk": 2.353e-3,
 				"tau": 800,
-				"bias-stability": 0.00035300000000000002,
+				"bias-stability": 3.53e-4,
 				"turn-on-bias": "0 0 0"
 			},
-			"gyroscope":
-			{
-				"angle-random-walk": 8.7264399999999998e-05,
+			"gyroscope": {
+				"angle-random-walk": 8.72644e-5,
 				"tau": 500,
-				"bias-stability": 2.23014e-05,
+				"bias-stability": 2.23014e-5,
 				"turn-on-bias": "0 0 0"
 			}
 		},

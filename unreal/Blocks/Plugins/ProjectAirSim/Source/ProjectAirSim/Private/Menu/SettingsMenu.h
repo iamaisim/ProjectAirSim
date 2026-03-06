@@ -44,6 +44,9 @@ public:
 
 	UFUNCTION()
 	void ApplyChanges();
+
+	UFUNCTION()
+	void CloseMenu();
 	
 	FString ScriptFolderPath;
 	FString ConfigFolder;
@@ -93,6 +96,9 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
     UButton* RunScriptButton;
+
+	UPROPERTY(meta = (BindWidget))
+	UButton* CloseButton;
 
 	UFUNCTION()
     void RunScript();

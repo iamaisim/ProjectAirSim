@@ -38,6 +38,8 @@ class EnvActor(object):
     def set_actor_info_topics(self):
         self.actor_info = {}
         self.actor_info["actual_kinematics"] = f"{self.parent_topic}/actual_kinematics"
+        # Backward compatibility: keep "actual_pose" as an alias for "actual_kinematics"
+        self.actor_info["actual_pose"] = self.actor_info["actual_kinematics"]
 
     def log_topics(self):
         projectairsim_log().info("-------------------------------------------------")

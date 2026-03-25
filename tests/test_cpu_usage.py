@@ -15,7 +15,8 @@ Cases:
   9. Idle after all stepping
 
 Run from: ProjectAirSim repo root
-Requires: UE editor with NavGym map in Play mode.
+Requires: UE editor or packaged sim in Play mode (Blocks map is fine).
+Uses bundled scene_basic_drone.jsonc from example_user_scripts/sim_config.
 
 Usage:
     uv run pytest tests/test_cpu_usage.py -v -s
@@ -33,19 +34,18 @@ psutil = pytest.importorskip("psutil")
 from projectairsim import ProjectAirSimClient, Drone, World
 from projectairsim.types import ImageType
 
-SIM_ADDRESS = "172.23.240.1"
 STEP_3MS = 3_000_000
 STEP_10MS = 10_000_000
 STEP_20MS = 20_000_000
 
-NAV_JAX_SIM_CONFIG = str(
-    Path(__file__).resolve().parent.parent.parent
-    / "nav-jax"
-    / "sims"
-    / "airsim"
+SIM_CONFIG_PATH = str(
+    Path(__file__).resolve().parent.parent
+    / "client"
+    / "python"
+    / "example_user_scripts"
     / "sim_config"
 )
-SCENE_CONFIG = "scene_gate_course_rl.jsonc"
+SCENE_CONFIG = "scene_basic_drone.jsonc"
 
 MEASURE_SEC = 5.0  # measurement window per case
 
@@ -177,7 +177,7 @@ def print_report(label: str, stats: dict):
 
 @pytest.fixture(scope="module")
 def client():
-    c = ProjectAirSimClient(address=SIM_ADDRESS)
+    c = ProjectAirSimClient()
     c.connect()
     yield c
     c.disconnect()
@@ -188,7 +188,7 @@ def world(client):
     w = World(
         client,
         SCENE_CONFIG,
-        sim_config_path=NAV_JAX_SIM_CONFIG,
+        sim_config_path=SIM_CONFIG_PATH,
         delay_after_load_sec=2,
     )
     return w
@@ -201,7 +201,6 @@ def drone(client, world):
     topic = f"{world.parent_topic}/robots/Drone1"
     client.request({"method": f"{topic}/EnableApiControl", "params": {}, "version": 1.0})
     client.request({"method": f"{topic}/Arm", "params": {}, "version": 1.0})
-    client.request({"method": f"{topic}/SetAcroMode", "params": {"enabled": True}, "version": 1.0})
     return d
 
 

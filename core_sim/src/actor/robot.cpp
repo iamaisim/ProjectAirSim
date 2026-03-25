@@ -140,6 +140,10 @@ class Robot::Impl : public ActorImpl {
   const CollisionInfo& GetCollisionInfo() const;
   const Vector3& GetExternalForce() const;
 
+  // Pull API event accumulation
+  void AccumulateStepEvent(const json& event);
+  json DrainStepEvents();
+
   void SetActuatedRotations(const ActuatedRotations& actuated_rots,
                             TimeNano external_time_stamp = -1);
 
@@ -237,6 +241,10 @@ class Robot::Impl : public ActorImpl {
   Topic collision_info_topic_;
   Topic rotor_info_topic_;
   std::vector<std::reference_wrapper<Topic>> topics_;
+
+  // Pull API event accumulation buffer
+  std::vector<json> step_event_buffer_;
+  std::mutex step_event_mutex_;
 
   KinematicsCallback callback_kinematics_updated_;
 
@@ -483,6 +491,10 @@ const std::string& Robot::GetControllerSettings() const {
 
 const CollisionInfo& Robot::GetCollisionInfo() const {
   return static_cast<Robot::Impl*>(pimpl_.get())->GetCollisionInfo();
+}
+
+json Robot::DrainStepEvents() {
+  return static_cast<Robot::Impl*>(pimpl_.get())->DrainStepEvents();
 }
 
 void Robot::SetActuatedTransforms(const ActuatedTransforms& actuated_transforms,
@@ -1210,7 +1222,36 @@ void Robot::Impl::UpdateCollisionInfo(const CollisionInfo& collision_info) {
   if (collision_info_.has_collided) {
     CollisionInfoMessage collision_info_msg(collision_info_);
     topic_manager_.PublishTopic(collision_info_topic_, collision_info_msg);
+
+    // Accumulate collision event for pull API Step() response
+    AccumulateStepEvent(json{
+        {"type", "collision"},
+        {"sim_time_ns", collision_info_.time_stamp},
+        {"object_name", collision_info_.object_name},
+        {"impact_point",
+         {{"x", collision_info_.impact_point.x()},
+          {"y", collision_info_.impact_point.y()},
+          {"z", collision_info_.impact_point.z()}}},
+        {"normal",
+         {{"x", collision_info_.normal.x()},
+          {"y", collision_info_.normal.y()},
+          {"z", collision_info_.normal.z()}}}});
   }
+}
+
+void Robot::Impl::AccumulateStepEvent(const json& event) {
+  std::lock_guard<std::mutex> lock(step_event_mutex_);
+  step_event_buffer_.push_back(event);
+}
+
+json Robot::Impl::DrainStepEvents() {
+  std::lock_guard<std::mutex> lock(step_event_mutex_);
+  json events = json::array();
+  for (auto& event : step_event_buffer_) {
+    events.push_back(std::move(event));
+  }
+  step_event_buffer_.clear();
+  return events;
 }
 
 void Robot::Impl::SetHasCollided(bool has_collided) {

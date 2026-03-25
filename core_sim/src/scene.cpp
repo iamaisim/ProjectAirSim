@@ -177,6 +177,8 @@ class Scene::Impl : public ComponentWithTopicsAndServiceMethods {
       const std::vector<float>& pose_pitch, const std::vector<float>& pose_yaw,
       const std::vector<float>& vel_x_lin, const std::vector<float>& vel_y_lin,
       const std::vector<float>& vel_z_lin);
+  // Pull API: advance sim and return bundled state + events
+  json Step(TimeNano dt_ns);
 
   bool SetWindVelocity(float v_x, float v_y, float v_z);
   Vector3 GetWindVelocity();
@@ -799,6 +801,55 @@ TimeNano Scene::Impl::ContinueForSingleStep(bool wait_until_complete) {
   return SimClock::Get()->NowSimNanos();
 }
 
+json Scene::Impl::Step(TimeNano dt_ns) {
+  if (clock_settings_.type != ClockType::kSteppable) {
+    logger_.LogError(name_, "This clock type doesn't support Step.");
+    throw Error("This clock type doesn't support Step.");
+  }
+
+  // Advance sim time and wait for completion
+  SimClock::Get()->ContinueForSimTime(dt_ns);
+  while (!IsSimPaused()) {
+    std::this_thread::yield();
+  }
+
+  TimeNano current_sim_time = SimClock::Get()->NowSimNanos();
+
+  // Build response with per-drone state and events
+  json drones = json::object();
+  for (auto& actor : actors_) {
+    if (actor->GetType() == ActorType::kRobot) {
+      auto& robot = static_cast<Robot&>(*actor);
+      const auto& kin = robot.GetKinematics();
+
+      json state = json{
+          {"position",
+           {{"x", kin.pose.position.x()},
+            {"y", kin.pose.position.y()},
+            {"z", kin.pose.position.z()}}},
+          {"orientation",
+           {{"w", kin.pose.orientation.w()},
+            {"x", kin.pose.orientation.x()},
+            {"y", kin.pose.orientation.y()},
+            {"z", kin.pose.orientation.z()}}},
+          {"linear_velocity",
+           {{"x", kin.twist.linear.x()},
+            {"y", kin.twist.linear.y()},
+            {"z", kin.twist.linear.z()}}},
+          {"angular_velocity",
+           {{"x", kin.twist.angular.x()},
+            {"y", kin.twist.angular.y()},
+            {"z", kin.twist.angular.z()}}}};
+
+      json events = robot.DrainStepEvents();
+
+      drones[robot.GetID()] = json{{"state", state}, {"events", events}};
+    }
+  }
+
+  return json{{"sim_time_ns", current_sim_time}, {"drones", drones}};
+}
+
 std::vector<std::string> Scene::Impl::SimGetActors() {
   std::vector<std::string> actor_ids = {};
   for (const auto& actor : actors_) {
@@ -926,6 +977,11 @@ void Scene::Impl::RegisterServiceMethods() {
   auto get_wind_vel_handler =
       get_wind_vel.CreateMethodHandler(&Scene::Impl::GetWindVelocity, *this);
   RegisterServiceMethod(get_wind_vel, get_wind_vel_handler);
+
+  // Pull API: Step advances sim and returns bundled state + events
+  auto step = ServiceMethod("Step", {"dt_ns"});
+  auto step_handler = step.CreateMethodHandler(&Scene::Impl::Step, *this);
+  RegisterServiceMethod(step, step_handler);
 }
 
 void Scene::Impl::UnregisterAllServiceMethods() {

@@ -63,6 +63,10 @@ bonsai = [
 datacollection = [
   "albumentations==1.3.0",
 ]
+tests = [
+  "pytest",
+  "psutil>=5.9.0",
+]
 
 [tool.setuptools]
 # Source layout: packages live under src/

@@ -87,3 +87,30 @@ uv run pytest tests/test_cpu_usage.py -v -s
 2. **System CPU is 3-6%** — server-side spins exist but aren't impactful.
 3. **GetImages is 314ms/call** — separate issue, not a spin problem.
 4. **Step latency scales linearly with dt** — RPC overhead is negligible.
+
+### After PR1 (2026-04-07)
+
+#### Idle / Connected Cases
+
+| Case | Scenario                   | Py CPU   | Sys CPU | Threads | Hottest Thread |
+|------|----------------------------|----------|---------|---------|----------------|
+| 2    | Connected only             | **0.0%** | 2.8%    | 1       | 0.0%           |
+| 3    | Scene loaded, idle         | **1.4%** | 0.5%    | 2       | 0.2%           |
+| 9    | Idle after stepping        | **1.2%** | 0.5%    | 2       | —              |
+
+#### Stepping Cases
+
+| Case | Scenario                        | Py CPU   | Steps/sec | Avg Latency |
+|------|---------------------------------|----------|-----------|-------------|
+| 4    | Step 3ms, no images             | **5.0%** | 331.5     | 3.02ms      |
+| 5    | Step 3ms + GetImages every step | **5.5%** | 3.1       | 317.97ms    |
+| 6    | Step 3ms + GetImages every 10   | **5.6%** | 32.8      | 30.50ms     |
+| 7    | Step 10ms, no images            | **2.4%** | 90.5      | 11.05ms     |
+| 8    | Step 20ms, no images            | **2.2%** | 50.4      | 19.84ms     |
+
+#### Results
+
+- **Idle CPU: 103% → 0-1.4%.** Target met.
+- **No thread pinned at 100% when idle.** Target met.
+- **Step throughput: 342.5 → 331.5 steps/sec (3.2% drop).** Within 5% budget.
+- **Step latency: 2.92ms → 3.02ms.** Negligible change.

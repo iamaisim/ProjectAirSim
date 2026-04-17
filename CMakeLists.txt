@@ -48,8 +48,8 @@ elseif(UNIX)
         set(UNREAL_LINUX_TOOLCHAIN "${CMAKE_SOURCE_DIR}/unreal-linux-toolchain.cmake")
     else()
         message("Building/linking against system-installed toolchain")
-        set(CMAKE_C_COMPILER clang-13)
-        set(CMAKE_CXX_COMPILER clang++-13)
+        set(CMAKE_C_COMPILER clang-15)
+        set(CMAKE_CXX_COMPILER clang++-15)
     endif()
 endif()
 
@@ -808,31 +808,45 @@ else()
     set(onnx_hash MD5=dd6d6ba7aaaa58dd9ef8528dfcb822d2)
 endif()
 
-FetchContent_Declare(
-    onnxruntime
-    URL                  ${onnx_url}
-    URL_HASH             ${onnx_hash} # from PowerShell: CertUtil -hashfile json.hpp MD5
-    DOWNLOAD_NO_PROGRESS True
-    DOWNLOAD_DIR         ${CMAKE_BINARY_DIR}/_deps/onnxruntime-download
-)
-FetchContent_GetProperties(onnxruntime)
+# macOS can use a locally supplied prebuilt ONNX Runtime package.
+set(ONNXRUNTIME_ROOTDIR "" CACHE PATH "Path to a prebuilt ONNX Runtime package")
+if(APPLE AND NOT ONNXRUNTIME_ROOTDIR AND DEFINED ENV{ONNXRUNTIME_ROOT})
+    set(ONNXRUNTIME_ROOTDIR "$ENV{ONNXRUNTIME_ROOT}" CACHE PATH "Path to a prebuilt ONNX Runtime package" FORCE)
+endif()
 
-if(NOT onnxruntime_POPULATED)
-    message("Checking if [onnxruntime] dependency needs to be fetched...")
-    FetchContent_Populate(onnxruntime)
+if(APPLE AND ONNXRUNTIME_ROOTDIR)
+    if(NOT EXISTS "${ONNXRUNTIME_ROOTDIR}/include" OR NOT EXISTS "${ONNXRUNTIME_ROOTDIR}/lib")
+        message(FATAL_ERROR "ONNXRUNTIME_ROOTDIR is set, but ${ONNXRUNTIME_ROOTDIR} does not contain include/ and lib/ directories")
+    endif()
+    set(ONNX_INCLUDE_DIR ${ONNXRUNTIME_ROOTDIR}/include)
+    set(ONNX_LIB_DIR ${ONNXRUNTIME_ROOTDIR}/lib/)
+    message("Using macOS ONNX Runtime from ${ONNXRUNTIME_ROOTDIR}")
+else()
+    FetchContent_Declare(
+        onnxruntime
+        URL                  ${onnx_url}
+        URL_HASH             ${onnx_hash}
+        DOWNLOAD_NO_PROGRESS True
+        DOWNLOAD_DIR         ${CMAKE_BINARY_DIR}/_deps/onnxruntime-download
+    )
+    FetchContent_GetProperties(onnxruntime)
+    if(NOT onnxruntime_POPULATED)
+        message("Checking if [onnxruntime] dependency needs to be fetched...")
+        FetchContent_Populate(onnxruntime)
+    endif()
     set(ONNXRUNTIME_ROOTDIR ${onnxruntime_SOURCE_DIR})
     set(ONNX_INCLUDE_DIR ${onnxruntime_SOURCE_DIR}/include)
-    set(ONNX_LIB_DIR  ${onnxruntime_SOURCE_DIR}/lib/)
-    message("ONNX_INCLUDE_DIR set to ${ONNX_INCLUDE_DIR}")
+    set(ONNX_LIB_DIR ${onnxruntime_SOURCE_DIR}/lib/)
+endif()
 
-    message("Packaging [onnxruntime] to ${UE_PLUGIN_SIMLIBS_DIR}/shared_libs")
-    file(COPY "${ONNX_INCLUDE_DIR}" DESTINATION "${UE_PLUGIN_SIMLIBS_DIR}/shared_libs/onnxruntime")
-    file(COPY "${ONNX_LIB_DIR}" DESTINATION "${UE_PLUGIN_SIMLIBS_DIR}/shared_libs" FILES_MATCHING PATTERN "*onn*.dll" PATTERN "*onn*.lib" PATTERN "*.so*" PATTERN "*.dylib*")
+message("ONNX_INCLUDE_DIR set to ${ONNX_INCLUDE_DIR}")
+message("Packaging [onnxruntime] to ${UE_PLUGIN_SIMLIBS_DIR}/shared_libs")
+file(COPY "${ONNX_INCLUDE_DIR}" DESTINATION "${UE_PLUGIN_SIMLIBS_DIR}/shared_libs/onnxruntime")
+file(COPY "${ONNX_LIB_DIR}" DESTINATION "${UE_PLUGIN_SIMLIBS_DIR}/shared_libs" FILES_MATCHING PATTERN "*onn*.dll" PATTERN "*onn*.lib" PATTERN "*.so*" PATTERN "*.dylib*")
 
-    if(NOT APPLE)
-        add_definitions(-DUSE_CUDA)
-        add_definitions(-DUSE_TENSORRT)
-    endif()
+if(NOT APPLE)
+    add_definitions(-DUSE_CUDA)
+    add_definitions(-DUSE_TENSORRT)
 endif()
 
 if(PROJECTAIRSIM_BUILD_UNITY)

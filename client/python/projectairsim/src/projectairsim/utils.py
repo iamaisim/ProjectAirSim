@@ -8,7 +8,6 @@ ProjectAirSim utilities
 import logging
 import math
 from typing import Dict, List, Tuple
-import importlib.resources as resources
 import msgpack
 import numpy as np
 import collections
@@ -18,27 +17,9 @@ import commentjson
 import jsonschema
 from jsonschema import validate
 from pykml import parser
+import pkg_resources
 
 from projectairsim.geodetic_converter import GeodeticConverter
-
-
-def load_text_resource(resource_path: str) -> str:
-    """Loads a package text resource and returns its contents.
-
-    Uses importlib.resources.files() when available (Python >= 3.9).
-    Falls back to pkg_resources for older Python versions.
-    """
-    if hasattr(resources, "files"):
-        # Preferred API: importlib.resources.files() (Python >= 3.9)
-        return (
-            resources.files(__package__)
-            .joinpath(resource_path)
-            .read_text(encoding="utf-8")
-        )
-    # Compatibility fallback for Python < 3.9
-    import pkg_resources
-
-    return pkg_resources.resource_string(__package__, resource_path).decode("utf-8")
 
 
 def get_pitch_between_traj_points(point1, point2):
@@ -504,8 +485,12 @@ def load_scene_config_as_dict(
     total_path = os.path.join(sim_config_path, config_name)
     filepaths = [total_path, [], []]
 
-    robot_config_schema = load_text_resource("schema/robot_config_schema.jsonc")
-    scene_config_schema = load_text_resource("schema/scene_config_schema.jsonc")
+    robot_config_schema = pkg_resources.resource_string(
+        __name__, "schema/robot_config_schema.jsonc"
+    )
+    scene_config_schema = pkg_resources.resource_string(
+        __name__, "schema/scene_config_schema.jsonc"
+    )
 
     with open(total_path) as f:
         data = commentjson.load(f)  # read and write the JSON as a dict

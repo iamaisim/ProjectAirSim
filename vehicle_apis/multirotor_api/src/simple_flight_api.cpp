@@ -5,7 +5,6 @@
 
 #include "simple_flight_api.hpp"
 
-#include <LVMon/lvmon.h>
 #ifdef LVMON_REPORTING
 #include <LVMon/lvmon.h>
 #endif  // LVMON_REPORTING

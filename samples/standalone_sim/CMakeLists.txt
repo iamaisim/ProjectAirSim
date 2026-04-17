@@ -38,7 +38,7 @@ else()
         simserver
         core_sim
         nng-external
-        openssl-external
+        $<$<BOOL:${PROJECTAIRSIM_IS_LINUX}>:openssl-external>
         physics
         multirotor_api
         rendering_scene
@@ -77,7 +77,7 @@ if(WIN32)
             ws2_32  # req by nng on Win
             mswsock  # req by nng on Win
             advapi32  # req by nng on Win
-            lvmon
+            $<$<BOOL:${PROJECTAIRSIM_ENABLE_LVMON}>:lvmon>
     )
 else()
     target_link_libraries(
@@ -90,6 +90,8 @@ else()
         multirotor_api
         rendering_scene
         nng
-        crypto # Client authorization
-)
+        $<$<BOOL:${PROJECTAIRSIM_IS_MACOS}>:OpenSSL::Crypto>
+        $<$<BOOL:${PROJECTAIRSIM_IS_LINUX}>:crypto>
+        $<$<BOOL:${PROJECTAIRSIM_ENABLE_LVMON}>:lvmon>
+    )
 endif()

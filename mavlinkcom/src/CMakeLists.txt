@@ -47,11 +47,13 @@ LIST(APPEND MAVLINK_SOURCES serial_com/UdpClientPort.cpp)
 LIST(APPEND MAVLINK_SOURCES serial_com/SocketInit.cpp)
 LIST(APPEND MAVLINK_SOURCES serial_com/wifi.cpp)
 
-IF(UNIX)
+if(APPLE)
+    LIST(APPEND MAVLINK_SOURCES "impl/apple/MavLinkFindSerialPorts.cpp")
+elseif(UNIX)
     LIST(APPEND MAVLINK_SOURCES "impl/linux/MavLinkFindSerialPorts.cpp")
-ELSE()
+else()
     LIST(APPEND MAVLINK_SOURCES "impl/windows/WindowsFindSerialPorts.cpp")
-ENDIF()
+endif()
 
 add_library(
     ${TARGET_NAME}
@@ -77,7 +79,6 @@ target_include_directories(
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         # ${EIGEN_INCLUDE_DIR}
-        lvmon
 )
 
 target_link_libraries(

@@ -24,7 +24,20 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")  # Have to match UE (uses /MD
 include(FetchContent)
 include(ExternalProject)
 
-if (UNIX)
+set(PROJECTAIRSIM_IS_MACOS FALSE)
+set(PROJECTAIRSIM_IS_LINUX FALSE)
+if(APPLE)
+    set(PROJECTAIRSIM_IS_MACOS TRUE)
+elseif(UNIX)
+    set(PROJECTAIRSIM_IS_LINUX TRUE)
+endif()
+
+set(PROJECTAIRSIM_ENABLE_LVMON TRUE)
+if(PROJECTAIRSIM_IS_MACOS)
+    set(PROJECTAIRSIM_ENABLE_LVMON FALSE)
+endif()
+
+if (PROJECTAIRSIM_IS_LINUX)
     if(DEFINED ENV{UE_ROOT})
         # Build/link against UE's packaged Linux toolchain instead of system-installed toolchain
         # Note: This must be set BEFORE `project()` is called
@@ -33,9 +46,11 @@ if (UNIX)
         link_directories("$ENV{UE_ROOT}/Engine/Source/ThirdParty/Unix/LibCxx/lib/Unix/x86_64-unknown-linux-gnu")
     else()
         message("Building/linking against system-installed toolchain")
-        set(CMAKE_C_COMPILER clang-13)
-        set(CMAKE_CXX_COMPILER clang++-13)
+        set(CMAKE_C_COMPILER clang-15)
+        set(CMAKE_CXX_COMPILER clang++-15)
     endif()
+elseif(PROJECTAIRSIM_IS_MACOS)
+    message("Building/linking against macOS system toolchain")
 endif()
 
 # Set up project
@@ -70,6 +85,7 @@ set(SIMLIBS_TEST_DIR ${CMAKE_BINARY_DIR}/unit_tests)
 set(UE_PLUGIN_SIMLIBS_DIR ${CMAKE_SOURCE_DIR}/unreal/Blocks/Plugins/ProjectAirSim/SimLibs)
 set(UNITY_WRAPPER_DLL_DIR ${CMAKE_SOURCE_DIR}/unity/BlocksUnity/Assets/Plugins)
 set(MATLAB_PHYSICS_DIR ${CMAKE_SOURCE_DIR}/physics/matlab_sfunc)
+set(JSBSIM_CORESIM_DIR ${CMAKE_SOURCE_DIR}/core_sim/jsbsim)
 set(MATLAB_CONTROL_DIR ${CMAKE_SOURCE_DIR}/vehicle_apis/multirotor_api/matlab_sfunc)
 # set(UE_PLUGIN_CESIUM_NATIVE_DIR ${CMAKE_SOURCE_DIR}/unreal/Blocks/Plugins/ProjectAirSim/SimLibs)
 # set(UE_CESIUM_PLUGIN_DIR ${CMAKE_SOURCE_DIR}/unreal/Blocks/Plugins/CesiumForUnreal/)
@@ -86,7 +102,7 @@ if(WIN32)
     # Disable manifest generation for executables to avoid build failures due to Windows write
     # permission issues (possibly from file locks by antivirus or other OS file protection)
     add_link_options(/MANIFEST:NO)
-elseif(UNIX)
+elseif(PROJECTAIRSIM_IS_LINUX)
     add_compile_definitions(__CLANG__)
     add_compile_options(-stdlib=libc++ -ferror-limit=10)
     # Note: Linking -lanl (for getaddrinfo) and -pthread are required because of nng
@@ -95,7 +111,115 @@ elseif(UNIX)
     # set(CESIUM_CXX_FLAGS "-std=c++17 -stdlib=libc++")
     # set(CESIUM_LINKER_FLAGS "-stdlib=libc++ -lc++abi")
     # set(CESIUM_LINUX_TOOLCHAIN ${UE_CESIUM_PLUGIN_DIR}/extern/unreal-linux-toolchain.cmake)
+elseif(PROJECTAIRSIM_IS_MACOS)
+    add_compile_definitions(__CLANG__)
+    add_compile_options(-stdlib=libc++ -ferror-limit=10)
+    add_link_options(-stdlib=libc++)
+
+    # set(CESIUM_CXX_FLAGS "-std=c++17 -stdlib=libc++")
+    # set(CESIUM_LINKER_FLAGS "-stdlib=libc++ -lc++abi")
+    # set(CESIUM_LINUX_TOOLCHAIN ${UE_CESIUM_PLUGIN_DIR}/extern/unreal-linux-toolchain.cmake)
 endif()
+
+# Set up dependency: jsbsim
+message("Setting up [jsbsim] dependency as an external project...")
+# CMake external projects don't adopt the parent's CMAKE_MSVC_RUNTIME_LIBRARY setting,
+# so to force /MD non-debug CRT to match UE, build Debug config as Relwithdebinfo and
+# build Release as Release.
+set(JSBSIM_BUILD_TYPE $<IF:$<CONFIG:Debug>,Relwithdebinfo,Release>)
+set(JSBSIM_SRC_DIR ${CMAKE_BINARY_DIR}/_deps/jsbsim/src/jsbsim-repo)
+set(JSBSIM_LIB_DIR ${CMAKE_BINARY_DIR}/_deps/jsbsim-install/lib)
+set(JSBSIM_INCLUDE_DIR ${CMAKE_BINARY_DIR}/_deps/jsbsim-install/include/JSBSim)
+set(JSBSIM_LIBRARY_TYPE SHARED)
+set(JSBSIM_BUILD_SHARED_LIBS ON)
+
+# Platform-specific settings for JSBSim
+if(WIN32)
+    set(JSBSIM_C_COMPILER ${CMAKE_C_COMPILER})
+    set(JSBSIM_CXX_COMPILER ${CMAKE_CXX_COMPILER})
+    set(JSBSIM_CXX_FLAGS "")
+    set(JSBSIM_BIN_DIR ${CMAKE_BINARY_DIR}/_deps/jsbsim-install/bin)
+    set(JSBSIM_SHARED_LIB ${JSBSIM_BIN_DIR}/JSBSim.dll)
+    set(JSBSIM_IMPORT_LIB ${JSBSIM_LIB_DIR}/JSBSim.lib)
+    set(JSBSIM_BYPRODUCTS ${JSBSIM_SHARED_LIB} ${JSBSIM_IMPORT_LIB})
+elseif(PROJECTAIRSIM_IS_MACOS)
+    set(JSBSIM_C_COMPILER ${CMAKE_C_COMPILER})
+    set(JSBSIM_CXX_COMPILER ${CMAKE_CXX_COMPILER})
+    set(JSBSIM_CXX_FLAGS "-stdlib=libc++")
+    set(JSBSIM_LIBRARY_TYPE STATIC)
+    set(JSBSIM_BUILD_SHARED_LIBS OFF)
+    set(JSBSIM_SHARED_LIB ${JSBSIM_LIB_DIR}/libJSBSim.a)
+    set(JSBSIM_IMPORT_LIB "")
+    set(JSBSIM_BYPRODUCTS ${JSBSIM_SHARED_LIB})
+else()
+    set(JSBSIM_C_COMPILER clang)
+    set(JSBSIM_CXX_COMPILER clang++)
+    set(JSBSIM_CXX_FLAGS "-stdlib=libc++")
+    set(JSBSIM_SHARED_LIB ${JSBSIM_LIB_DIR}/libJSBSim.so)
+    set(JSBSIM_IMPORT_LIB "")
+    set(JSBSIM_BYPRODUCTS ${JSBSIM_SHARED_LIB})
+endif()
+
+ExternalProject_Add(jsbsim-repo
+    GIT_REPOSITORY  https://github.com/JSBSim-Team/jsbsim
+    GIT_TAG         "v1.1.12"
+    GIT_CONFIG      "advice.detachedHead=false"
+    PREFIX          ${CMAKE_BINARY_DIR}/_deps/jsbsim
+    BUILD_COMMAND   ${CMAKE_COMMAND} --build <BINARY_DIR> --config ${JSBSIM_BUILD_TYPE}
+    INSTALL_COMMAND ${CMAKE_COMMAND} --build <BINARY_DIR> --config ${JSBSIM_BUILD_TYPE} --target install
+    UPDATE_COMMAND  ""  # disable update step
+    CMAKE_ARGS
+        -DCMAKE_C_COMPILER=${JSBSIM_C_COMPILER}
+        -DCMAKE_CXX_COMPILER=${JSBSIM_CXX_COMPILER}
+        -DCMAKE_CXX_FLAGS=${JSBSIM_CXX_FLAGS}
+        -DCMAKE_POSITION_INDEPENDENT_CODE=True
+        -DCMAKE_BUILD_TYPE:STRING=${JSBSIM_BUILD_TYPE}
+        -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_BINARY_DIR}/_deps/jsbsim-install
+        -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+        -DBUILD_SHARED_LIBS=${JSBSIM_BUILD_SHARED_LIBS}
+        -DBUILD_PYTHON_MODULE=OFF
+        -DBUILD_DOCS=OFF
+        # Disable SONAME versioning so libJSBSim.so doesn't require libJSBSim.so.1 symlink at runtime
+        -DCMAKE_PLATFORM_NO_VERSIONED_SONAME=TRUE
+        # Fix RPATH issue with Ninja generator
+        -DCMAKE_BUILD_WITH_INSTALL_RPATH=TRUE
+    TEST_COMMAND    ""  # disable test step
+    BUILD_BYPRODUCTS ${JSBSIM_BYPRODUCTS}
+    BUILD_ALWAYS 1
+)
+
+set(JSBSIM_POST_INSTALL_COMMANDS
+    COMMAND ${CMAKE_COMMAND} -E echo "Copying [jsbsim] library to ${JSBSIM_CORESIM_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${JSBSIM_CORESIM_DIR}/lib/$<IF:$<CONFIG:Release>,Release,Debug>/"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${JSBSIM_INCLUDE_DIR}" "${JSBSIM_CORESIM_DIR}/include"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${JSBSIM_SRC_DIR}/aircraft" "${JSBSIM_CORESIM_DIR}/models/aircraft"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${JSBSIM_SRC_DIR}/engine" "${JSBSIM_CORESIM_DIR}/models/engine"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${JSBSIM_SRC_DIR}/systems" "${JSBSIM_CORESIM_DIR}/models/systems"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${JSBSIM_SRC_DIR}/scripts" "${JSBSIM_CORESIM_DIR}/models/scripts"
+    COMMAND ${CMAKE_COMMAND} -E copy "${JSBSIM_SHARED_LIB}" "${JSBSIM_CORESIM_DIR}/lib/$<IF:$<CONFIG:Release>,Release,Debug>/"
+)
+if(WIN32)
+    list(APPEND JSBSIM_POST_INSTALL_COMMANDS COMMAND ${CMAKE_COMMAND} -E copy "${JSBSIM_IMPORT_LIB}" "${JSBSIM_CORESIM_DIR}/lib/$<IF:$<CONFIG:Release>,Release,Debug>/")
+endif()
+
+ExternalProject_Add_Step(jsbsim-repo post-install
+    ${JSBSIM_POST_INSTALL_COMMANDS}
+    DEPENDEES install
+)
+
+# Add jsbsim as imported library
+add_library(jsbsim ${JSBSIM_LIBRARY_TYPE} IMPORTED)
+if(WIN32)
+    set_target_properties(jsbsim PROPERTIES
+        IMPORTED_LOCATION ${JSBSIM_SHARED_LIB}
+        IMPORTED_IMPLIB ${JSBSIM_IMPORT_LIB}
+    )
+else()
+    set_target_properties(jsbsim PROPERTIES
+        IMPORTED_LOCATION ${JSBSIM_SHARED_LIB}
+    )
+endif()
+
 
 
 # Set up dependency: nlohmann JSON
@@ -307,7 +431,7 @@ if(NOT tinygltf_POPULATED)
     # Note: tinygltf is only used internally by sim libs, so no need to package it with other sim libs
 endif()
 
-if(UNIX)
+if(PROJECTAIRSIM_IS_LINUX)
     # Set up dependency: openssl
     message("Setting up [openssl] dependency as an external project...")
     # CMake external projects don't adopt the parent's CMAKE_MSVC_RUNTIME_LIBRARY setting,
@@ -337,40 +461,89 @@ if(UNIX)
         COMMAND ${CMAKE_COMMAND} -E remove_directory "${UE_PLUGIN_SIMLIBS_DIR}/openssl/$<IF:$<CONFIG:Release>,Release,Debug>/pkgconfig"
         DEPENDEES install
     )
+elseif(PROJECTAIRSIM_IS_MACOS)
+    find_package(OpenSSL REQUIRED)
+    get_filename_component(OPENSSL_LIB_DIR "${OPENSSL_CRYPTO_LIBRARY}" DIRECTORY)
+    set(OPENSSL_INCLUDE_DIR ${OPENSSL_INCLUDE_DIR})
+    message("Using macOS OpenSSL from ${OPENSSL_LIB_DIR}")
 endif()
 
-if(UNIX)
+# 1. 针对不同平台设置自动下载的 URL
+if(PROJECTAIRSIM_IS_LINUX)
     set(onnx_url https://github.com/microsoft/onnxruntime/releases/download/v1.12.1/onnxruntime-linux-x64-gpu-1.12.1.tgz)
     set(onnx_hash MD5=27adfa51648d2713608f35c3c6957a4f)
-else()
+elseif(WIN32)
     set(onnx_url https://github.com/microsoft/onnxruntime/releases/download/v1.12.1/onnxruntime-win-x64-gpu-1.12.1.zip)
     set(onnx_hash MD5=dd6d6ba7aaaa58dd9ef8528dfcb822d2)
+elseif(PROJECTAIRSIM_IS_MACOS)
+    # 动态判断 Mac 是 Apple Silicon (arm64) 还是 Intel 芯片
+    if(CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "arm64")
+        set(onnx_url https://github.com/microsoft/onnxruntime/releases/download/v1.12.1/onnxruntime-osx-arm64-1.12.1.tgz)
+    else()
+        set(onnx_url https://github.com/microsoft/onnxruntime/releases/download/v1.12.1/onnxruntime-osx-x86_64-1.12.1.tgz)
+    endif()
 endif()
 
-FetchContent_Declare(
-    onnxruntime
-    URL                  ${onnx_url}
-    URL_HASH             ${onnx_hash} # from PowerShell: CertUtil -hashfile json.hpp MD5
-    DOWNLOAD_NO_PROGRESS True
-    DOWNLOAD_DIR         ${CMAKE_BINARY_DIR}/_deps/onnxruntime-download
-)
-FetchContent_GetProperties(onnxruntime)
+# 2. macOS 优先使用本地预编译包；没有提供时再自动下载
+set(ONNXRUNTIME_ROOTDIR "" CACHE PATH "Path to a prebuilt ONNX Runtime package")
+if(PROJECTAIRSIM_IS_MACOS AND NOT ONNXRUNTIME_ROOTDIR AND DEFINED ENV{ONNXRUNTIME_ROOT})
+    set(ONNXRUNTIME_ROOTDIR "$ENV{ONNXRUNTIME_ROOT}" CACHE PATH "Path to a prebuilt ONNX Runtime package" FORCE)
+endif()
 
-if(NOT onnxruntime_POPULATED)
-    message("Checking if [onnxruntime] dependency needs to be fetched...")
-    FetchContent_Populate(onnxruntime)
+if(NOT (PROJECTAIRSIM_IS_MACOS AND ONNXRUNTIME_ROOTDIR))
+    if(PROJECTAIRSIM_IS_MACOS)
+        FetchContent_Declare(
+            onnxruntime
+            URL                  ${onnx_url}
+            DOWNLOAD_NO_PROGRESS True
+            DOWNLOAD_DIR         ${CMAKE_BINARY_DIR}/_deps/onnxruntime-download
+        )
+    else()
+        FetchContent_Declare(
+            onnxruntime
+            URL                  ${onnx_url}
+            URL_HASH             ${onnx_hash}
+            DOWNLOAD_NO_PROGRESS True
+            DOWNLOAD_DIR         ${CMAKE_BINARY_DIR}/_deps/onnxruntime-download
+        )
+    endif()
+endif()
+
+# 3. 先确定 ONNX Runtime 的根目录，再统一进行变量设置和文件分发
+if(PROJECTAIRSIM_IS_MACOS AND ONNXRUNTIME_ROOTDIR)
+    if(NOT EXISTS "${ONNXRUNTIME_ROOTDIR}/include" OR NOT EXISTS "${ONNXRUNTIME_ROOTDIR}/lib")
+        message(FATAL_ERROR "ONNXRUNTIME_ROOTDIR is set, but ${ONNXRUNTIME_ROOTDIR} does not contain include/ and lib/ directories")
+    endif()
+    set(ONNX_INCLUDE_DIR ${ONNXRUNTIME_ROOTDIR}/include)
+    set(ONNX_LIB_DIR ${ONNXRUNTIME_ROOTDIR}/lib)
+    message("Using macOS ONNX Runtime from ${ONNXRUNTIME_ROOTDIR}")
+else()
+    FetchContent_GetProperties(onnxruntime)
+    if(NOT onnxruntime_POPULATED)
+        message("Checking if [onnxruntime] dependency needs to be fetched...")
+        FetchContent_Populate(onnxruntime)
+    endif()
+
     set(ONNXRUNTIME_ROOTDIR ${onnxruntime_SOURCE_DIR})
     set(ONNX_INCLUDE_DIR ${onnxruntime_SOURCE_DIR}/include)
-    set(ONNX_LIB_DIR  ${onnxruntime_SOURCE_DIR}/lib/)
-    message("ONNX_INCLUDE_DIR set to ${ONNX_INCLUDE_DIR}")
+    set(ONNX_LIB_DIR ${onnxruntime_SOURCE_DIR}/lib/)
+endif()
 
-    message("Packaging [onnxruntime] to ${UE_PLUGIN_SIMLIBS_DIR}/shared_libs")
-    file(COPY "${ONNX_INCLUDE_DIR}" DESTINATION "${UE_PLUGIN_SIMLIBS_DIR}/shared_libs/onnxruntime")
+message("ONNX_INCLUDE_DIR set to ${ONNX_INCLUDE_DIR}")
+message("Packaging [onnxruntime] to ${UE_PLUGIN_SIMLIBS_DIR}/shared_libs")
+file(COPY "${ONNX_INCLUDE_DIR}" DESTINATION "${UE_PLUGIN_SIMLIBS_DIR}/shared_libs/onnxruntime")
+
+# 根据平台拷贝不同后缀的动态库文件，并隔离 NVIDIA 专属宏
+if(PROJECTAIRSIM_IS_MACOS)
+    file(COPY "${ONNX_LIB_DIR}" DESTINATION "${UE_PLUGIN_SIMLIBS_DIR}/shared_libs" FILES_MATCHING PATTERN "*.dylib" PATTERN "*.dylib.*")
+    message("Packaging [onnxruntime] to ${UNITY_WRAPPER_DLL_DIR}")
+    file(COPY "${ONNX_LIB_DIR}/" DESTINATION "${UNITY_WRAPPER_DLL_DIR}/" FILES_MATCHING PATTERN "*.dylib" PATTERN "*.dylib.*")
+else()
     file(COPY "${ONNX_LIB_DIR}" DESTINATION "${UE_PLUGIN_SIMLIBS_DIR}/shared_libs" FILES_MATCHING PATTERN "*onn*.dll" PATTERN "*onn*.lib" PATTERN "*.so*")
-
     message("Packaging [onnxruntime] to ${UNITY_WRAPPER_DLL_DIR}")
     file(COPY "${ONNX_LIB_DIR}/" DESTINATION "${UNITY_WRAPPER_DLL_DIR}/" FILES_MATCHING PATTERN "*onn*.dll" PATTERN "*onn*.lib" PATTERN "*.so*")
 
+    # 仅在非 Mac 平台启用 CUDA 和 TensorRT
     add_definitions(-DUSE_CUDA)
     add_definitions(-DUSE_TENSORRT)
 endif()
@@ -427,6 +600,8 @@ add_subdirectory(samples)
 add_subdirectory(physics)
 add_subdirectory(mavlinkcom)
 add_subdirectory(rendering)
-add_subdirectory(tools)
+if(PROJECTAIRSIM_ENABLE_LVMON)
+    add_subdirectory(tools)
+endif()
 add_subdirectory(unity)
 add_subdirectory(vehicle_apis)

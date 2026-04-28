@@ -109,8 +109,10 @@ set_target_properties(${TARGET_NAME} PROPERTIES
 
 if(WIN32)
     add_dependencies(${TARGET_NAME} nng-external)
-else()
+elseif(PROJECTAIRSIM_IS_LINUX)
     add_dependencies(${TARGET_NAME} nng-external openssl-external)
+else()
+    add_dependencies(${TARGET_NAME} nng-external)
 endif()
 
 # Set up nng and openssl for linking
@@ -148,14 +150,16 @@ if(WIN32)
             Bcrypt # Client authorization
             Crypt32 # Client authorization
             Ncrypt # Client authorization
-            lvmon
+            $<$<BOOL:${PROJECTAIRSIM_ENABLE_LVMON}>:lvmon>
     )
 else()
     target_link_libraries(
         ${TARGET_NAME}
         PRIVATE
             nng
-            crypto # Client authorization
+            $<$<BOOL:${PROJECTAIRSIM_IS_MACOS}>:OpenSSL::Crypto>
+            $<$<BOOL:${PROJECTAIRSIM_IS_LINUX}>:crypto>
+            $<$<BOOL:${PROJECTAIRSIM_ENABLE_LVMON}>:lvmon>
     )
 endif()
 

@@ -64,7 +64,7 @@ if(WIN32)
         PRIVATE
             core_sim
             mavlinkcom
-            lvmon
+            $<$<BOOL:${PROJECTAIRSIM_ENABLE_LVMON}>:lvmon>
             nng
             ws2_32  # req by nng on Win
             mswsock  # req by nng on Win
@@ -76,7 +76,7 @@ else()
         PRIVATE
         core_sim
         mavlinkcom
-        lvmon
+        $<$<BOOL:${PROJECTAIRSIM_ENABLE_LVMON}>:lvmon>
         nng
     )
 endif()

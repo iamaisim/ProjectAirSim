@@ -23,6 +23,11 @@ public class ProjectAirSim : ModuleRules
                             Target.Configuration == UnrealTargetConfiguration.DebugGame)
                             ? "Debug"
                             : "Release";
+        bool isWin = Target.Platform == UnrealTargetPlatform.Win64;
+        bool isMac = Target.Platform == UnrealTargetPlatform.Mac;
+        bool isLinux = Target.Platform == UnrealTargetPlatform.Linux;
+        string lvmonIncludeDir = PluginDirectory + "/SimLibs/lvmon/include";
+        string onnxIncludeDir = PluginDirectory + "/SimLibs/shared_libs/onnxruntime/include";
 
         PublicIncludePaths.AddRange(
             new string[] {
@@ -39,7 +44,7 @@ public class ProjectAirSim : ModuleRules
 
         // TODO: Can we do something to add includes and libraries for features
         // in a less manual fashion?
-        if (Target.Platform == UnrealTargetPlatform.Win64)
+        if (isWin)
         {
             List<string> liststrIncludes = new List<string> {
                     PluginDirectory + "/SimLibs/core_sim/include",
@@ -53,13 +58,13 @@ public class ProjectAirSim : ModuleRules
                     PluginDirectory + "/SimLibs/assimp/include",
                     PluginDirectory + "/SimLibs/json/include",
                     PluginDirectory + "/SimLibs/nng/include",
-                    PluginDirectory + "/SimLibs/shared_libs/onnxruntime/include"
+                    onnxIncludeDir
                     // ... add other private include paths required here ...
                 };
 
-            if (buildType == "Debug")
-                liststrIncludes.Add(PluginDirectory + "/SimLibs/lvmon/include");
-                liststrIncludes.Add(Path.Combine(GetModuleDirectory("Renderer"), "Internal"));
+            if (buildType == "Debug" && Directory.Exists(lvmonIncludeDir))
+                liststrIncludes.Add(lvmonIncludeDir);
+            liststrIncludes.Add(Path.Combine(GetModuleDirectory("Renderer"), "Internal"));
 
             PrivateIncludePaths.AddRange(liststrIncludes);
         }
@@ -78,12 +83,12 @@ public class ProjectAirSim : ModuleRules
                     PluginDirectory + "/SimLibs/assimp/include",
                     PluginDirectory + "/SimLibs/json/include",
                     PluginDirectory + "/SimLibs/nng/include",
-                    PluginDirectory + "/SimLibs/shared_libs/onnxruntime/include"
+                    onnxIncludeDir
                     // ... add other private include paths required here ...
                 };
 
-            if (buildType == "Debug")
-                liststrIncludes.Add(PluginDirectory + "/SimLibs/lvmon/include");
+            if (buildType == "Debug" && Directory.Exists(lvmonIncludeDir))
+                liststrIncludes.Add(lvmonIncludeDir);
 
             // Add Renderer internal headers for PostProcess access
             string EngineDir = Path.GetFullPath(Target.RelativeEnginePath);
@@ -136,7 +141,7 @@ public class ProjectAirSim : ModuleRules
             }
         );
 
-        if (Target.Platform == UnrealTargetPlatform.Win64)
+        if (isWin)
         {
             List<string> liststrLibraries = new List<string> {
                     PluginDirectory + "/SimLibs/core_sim/" + buildType + "/core_sim.lib",
@@ -152,8 +157,9 @@ public class ProjectAirSim : ModuleRules
                     PluginDirectory + "/SimLibs/shared_libs/onnxruntime.lib",
                 };
 
-            if (buildType == "Debug")
-                liststrLibraries.Add(PluginDirectory + "/SimLibs/lvmon/" + buildType + "/lvmon.lib");
+            string lvmonLib = PluginDirectory + "/SimLibs/lvmon/" + buildType + "/lvmon.lib";
+            if (buildType == "Debug" && File.Exists(lvmonLib))
+                liststrLibraries.Add(lvmonLib);
 
             PublicAdditionalLibraries.AddRange(liststrLibraries);
             PublicSystemLibraries.AddRange(
@@ -174,7 +180,48 @@ public class ProjectAirSim : ModuleRules
                 RuntimeDependencies.Add("$(BinaryOutputDir)/" + fileName, PluginDirectory + "/SimLibs/shared_libs/" + fileName);
             }
         }
-        else
+        else if (isMac)
+        {
+            string[] onnxFiles = Directory.GetFiles(PluginDirectory + "/SimLibs/shared_libs", "libonnxruntime*.dylib");
+            if (onnxFiles.Length == 0)
+            {
+                throw new BuildException("Could not find a macOS ONNX Runtime dylib under SimLibs/shared_libs");
+            }
+
+            List<string> liststrLibraries = new List<string> {
+                    PluginDirectory + "/SimLibs/core_sim/" + buildType + "/libcore_sim.a",
+                    PluginDirectory + "/SimLibs/simserver/" + buildType + "/libsimserver.a",
+                    PluginDirectory + "/SimLibs/physics/" + buildType + "/libphysics.a",
+                    PluginDirectory + "/SimLibs/multirotor_api/" + buildType + "/libmultirotor_api.a",
+                    PluginDirectory + "/SimLibs/rover_api/" + buildType + "/librover_api.a",
+                    PluginDirectory + "/SimLibs/rendering_scene/" + buildType + "/librendering_scene.a",
+                    PluginDirectory + "/SimLibs/mavlinkcom/" + buildType + "/libmavlinkcom.a",
+                    PluginDirectory + "/SimLibs/nng/" + buildType + "/libnng.a",
+                    PluginDirectory + "/SimLibs/assimp/" + buildType + "/libassimp.a",
+                    PluginDirectory + "/SimLibs/assimp/" + buildType + "/libzlibstatic.a",
+                    onnxFiles[0],
+                };
+
+            string lvmonLib = PluginDirectory + "/SimLibs/lvmon/" + buildType + "/liblvmon.a";
+            if (buildType == "Debug" && File.Exists(lvmonLib))
+                liststrLibraries.Add(lvmonLib);
+
+            var onnx_files = Directory.GetFiles(PluginDirectory + "/SimLibs/shared_libs", "*.dylib*");
+            foreach (var file in onnx_files)
+            {
+                var fileName = Path.GetFileName(file);
+                RuntimeDependencies.Add("$(BinaryOutputDir)/" + fileName, PluginDirectory + "/SimLibs/shared_libs/" + fileName);
+            }
+
+            PublicAdditionalLibraries.AddRange(liststrLibraries);
+            PublicSystemLibraries.AddRange(
+                new string[] {
+                    "c++",
+                    "pthread"
+                }
+            );
+        }
+        else if (isLinux)
         {
             List<string> liststrLibraries = new List<string> {
                     PluginDirectory + "/SimLibs/core_sim/" + buildType + "/libcore_sim.a",
@@ -190,8 +237,9 @@ public class ProjectAirSim : ModuleRules
                     PluginDirectory + "/SimLibs/shared_libs/libonnxruntime.so",
                 };
 
-            if (buildType == "Debug")
-                liststrLibraries.Add(PluginDirectory + "/SimLibs/lvmon/" + buildType + "/liblvmon.a");
+            string lvmonLib = PluginDirectory + "/SimLibs/lvmon/" + buildType + "/liblvmon.a";
+            if (buildType == "Debug" && File.Exists(lvmonLib))
+                liststrLibraries.Add(lvmonLib);
 
             var onnx_files = Directory.GetFiles(PluginDirectory + "/SimLibs/shared_libs");
             foreach (var file in onnx_files)

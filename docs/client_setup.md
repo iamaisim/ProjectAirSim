@@ -53,7 +53,7 @@ A Python client uses the following to communicate with the Project AirSim simula
 
         python -m pip install --upgrade pip
         python -m pip install setuptools wheel
-    
+
     Developers must also install the cmake package:
         python -m pip install cmake
 
@@ -121,7 +121,7 @@ A Python client uses the following to communicate with the Project AirSim simula
 
         cd path\to\repo
         python -m pip install -e client\python\projectairsim
-    
+
     If you get this error:
         Error: Could not find a version that satisfies the requirement open3d
 
@@ -155,7 +155,7 @@ Currently, only Python clients are supported.
 
 ---
 
-Copyright (C) Microsoft Corporation.  
+Copyright (C) Microsoft Corporation.
 Copyright (C) 2025 IAMAI CONSULTING CORP
 
 MIT License. All rights reserved.

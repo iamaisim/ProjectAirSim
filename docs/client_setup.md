@@ -4,12 +4,12 @@
 
 A Python client uses the following to communicate with the Project AirSim simulation server:
 
-- Python 3.7 or newer, 64-bit
+- Python 3.7 through 3.11, 64-bit
 - **[pynng](https://github.com/codypiersall/pynng)** nanomsg-next-gen wrapper pip package
 
 ### Setting Up the Client on **Windows**
 
-1. Install Python 3.7 or newer for Windows. There are many options for installing Python, but one recommended way is to:
+1. Install Python 3.7 through 3.11 for Windows. There are many options for installing Python, but one recommended way is to:
 
     - Download the official **[Windows installer for Python](https://www.python.org/downloads/windows/)**.  Please note that the 64-bit version is required.
 

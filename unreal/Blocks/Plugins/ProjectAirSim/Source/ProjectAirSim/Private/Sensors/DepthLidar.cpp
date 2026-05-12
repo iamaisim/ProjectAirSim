@@ -228,12 +228,24 @@ void UDepthLidar::SetupDepthCapture() {
     }
 
     if (UnrealWorld) {
+#if UE_IS_5_2
+      // UE < 5.6: individual LineBatcher pointers on UWorld
       DepthCaptureComponent->HideComponent(
           Cast<UPrimitiveComponent>(UnrealWorld->LineBatcher));
       DepthCaptureComponent->HideComponent(
           Cast<UPrimitiveComponent>(UnrealWorld->PersistentLineBatcher));
       DepthCaptureComponent->HideComponent(
           Cast<UPrimitiveComponent>(UnrealWorld->ForegroundLineBatcher));
+#elif UE_IS_5_7
+      // UE 5.6+: LineBatcher/PersistentLineBatcher/ForegroundLineBatcher were
+      // replaced by GetLineBatcher(ELineBatcherType)
+      DepthCaptureComponent->HideComponent(
+          UnrealWorld->GetLineBatcher(UWorld::ELineBatcherType::World));
+      DepthCaptureComponent->HideComponent(
+          UnrealWorld->GetLineBatcher(UWorld::ELineBatcherType::WorldPersistent));
+      DepthCaptureComponent->HideComponent(
+          UnrealWorld->GetLineBatcher(UWorld::ELineBatcherType::Foreground));
+#endif
     }
 
     DepthCaptureComponent->RegisterComponent();
@@ -322,7 +334,7 @@ void UDepthLidar::ReadDepthPixels(TArray<FFloat16Color>& OutDepthPixels) const {
           return;
         }
 
-        FRHITexture2D* Texture2D = TextureRef->GetTexture2D();
+        FRHITexture* Texture2D = TextureRef->GetTexture2D();
         if (!Texture2D) {
           return;
         }

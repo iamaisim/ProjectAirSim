@@ -78,9 +78,9 @@ where "{version}" is the client version ID in the form "vX.Y.Z".  For instance, 
 
 *Note regarding LIDAR visualization by Open3D:*
 
-*In order to use the client library's LIDAR visualization `LidarDisplay` utility, the Open3D pip package is needed but since [Open3D doesn't have a Python 3.9 package posted yet](https://github.com/isl-org/Open3D/issues/3983), Open3D is not included as a dependency in the binary wheel so that the Project AirSim client can be used with Python 3.9.*
+*In order to use the client library's LIDAR visualization `LidarDisplay` utility, the Open3D package is needed. Open3D is installed as an optional dependency so that the base Project AirSim client can be installed in environments where Open3D does not publish compatible packages.*
 
-*To use the LIDAR visualizations and example scripts, Open3D needs to be manually installed. For Python 3.7-3.8, you can simply run `pip install open3d`. For Python 3.9, you can download the [Open3D development wheel](http://www.open3d.org/docs/latest/getting_started.html#development-version-pip) and install it directly.*
+*To use the LIDAR visualizations and example scripts, install the optional LIDAR dependencies with `pip install projectairsim[lidar]` or, from a local checkout, `pip install -e client/python/projectairsim[lidar]`. If Open3D is not available for your Python version or platform, use a supported 64-bit Python environment or install Open3D separately through a package manager such as conda.*
 
 Please see [Project AirSim Client Setup](client_setup.md) for more details about client setup.
 

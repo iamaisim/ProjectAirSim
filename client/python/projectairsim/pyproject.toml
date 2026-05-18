@@ -35,11 +35,13 @@ dependencies = [
   "junit-xml",
   "jsonlines",
   "Shapely",
-  "azure-storage-blob",
-  "open3d>=0.16.0"
+  "azure-storage-blob"
 ]
 
 [project.optional-dependencies]
+lidar = [
+  "open3d>=0.16.0",
+]
 autonomy = [
   "torch>=1.8.0",
   "torchvision>=0.9.0",

@@ -45,10 +45,10 @@ setup(
         "jsonlines",
         "Shapely",
         "azure-storage-blob",
-        "open3d==0.16.*"  # LidarDisplay view setting is broken from 0.17.0
     ],
     python_requires=">=3.7, <4",
     extras_require={
+        "lidar": ["open3d>=0.16.0"],
         "autonomy": [
             "torch>=1.8.0",
             "torchvision>=0.9.0",

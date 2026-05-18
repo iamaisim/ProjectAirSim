@@ -62,11 +62,16 @@ A Python client uses the following to communicate with the Project AirSim simula
         cd path\to\repo
         python -m pip install -e client\python\projectairsim
 
-    If you get this error:
+    The base client install does not include Open3D. To use the LIDAR visualization
+    utilities such as `LidarDisplay` and the LIDAR example scripts, install the
+    optional `lidar` extra:
 
-        Error: Could not find a version that satisfies the requirement open3d
+        python -m pip install -e client\python\projectairsim[lidar]
 
-    most likely your virtual environment is using a 32-bit build or an unsupported version of Python. In either case, delete and rebuild the virtual environment (see step 2A) using a supported 64-bit version of Python.
+    If Open3D cannot be installed, your environment is most likely using a 32-bit
+    build or a Python version that Open3D does not publish packages for. Rebuild
+    the virtual environment (see step 2A) using a supported 64-bit version of
+    Python, or install Open3D separately through a package manager such as conda.
 
 ---
 
@@ -121,11 +126,17 @@ A Python client uses the following to communicate with the Project AirSim simula
 
         cd path\to\repo
         python -m pip install -e client\python\projectairsim
-    
-    If you get this error:
-        Error: Could not find a version that satisfies the requirement open3d
 
-    most likely your virtual environment is using a 32-bit build or an unsupported version of Python. In either case, delete and rebuild the virtual environment (see step 2A) using a supported 64-bit version of Python.
+    The base client install does not include Open3D. To use the LIDAR visualization
+    utilities such as `LidarDisplay` and the LIDAR example scripts, install the
+    optional `lidar` extra:
+
+        python -m pip install -e client/python/projectairsim[lidar]
+
+    If Open3D cannot be installed, your environment is most likely using a 32-bit
+    build or a Python version that Open3D does not publish packages for. Rebuild
+    the virtual environment (see step 2A) using a supported 64-bit version of
+    Python, or install Open3D separately through a package manager such as conda.
 
 ---
 

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "projectairsim"
-version = "0.1.1"
+version = "0.2.0"
 description = "Project AirSim client package"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.7,<4"

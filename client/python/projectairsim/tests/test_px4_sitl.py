@@ -43,11 +43,23 @@ class PX4Drone(Drone):
 class TestPX4:
     def test_px4_hello_drone(self, robo_fixture):
         """Pytest test function entry point"""
-        asyncio.run(
-            self.fly_px4_drone(
-                robo_fixture.client, robo_fixture.world, robo_fixture.drone
+        try:
+            asyncio.run(
+                self.fly_px4_drone(
+                    robo_fixture.client, robo_fixture.world, robo_fixture.drone
+                )
             )
-        )
+        except RuntimeError as e:
+            # PX4 SITL integration can fail for various reasons (PX4 not running, connection issues, etc.)
+            # Provide more context in the error message
+            error_msg = str(e)
+            if "std::exception" in error_msg or not error_msg:
+                pytest.fail(
+                    "PX4 SITL test failed. Ensure PX4 SITL is running and properly configured. "
+                    f"Original error: {error_msg if error_msg else 'Unknown C++ exception'}"
+                )
+            else:
+                raise
 
     async def fly_px4_drone(
         self, client: ProjectAirSimClient, world: World, drone: PX4Drone

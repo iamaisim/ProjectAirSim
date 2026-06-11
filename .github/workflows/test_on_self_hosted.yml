@@ -1,3 +1,7 @@
+# Local run (self-hosted): from repo root export UE_ROOT and set DISPLAY 
+# (for example `export UE_ROOT=/path/to/UnrealEngine; export DISPLAY=:0`), 
+# then execute the same sequence used below: 
+# `git submodule sync; git submodule update --init --recursive; ./setup_linux_dev_tools.sh; rm -rf build; ./build.sh simlibs_release; "$UE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh" BlocksEditor Linux Development "$(pwd)/unreal/Blocks/Blocks.uproject" -waitmutex; python3 -m venv airsimenv; source airsimenv/bin/activate; python -m pip install --upgrade pip; python -m pip install "setuptools<81" wheel; python -m pip install -e "client/python/projectairsim[datacollection]"; python -m pip install pytest pytest-cov pytest-asyncio; launch Unreal headless on DISPLAY=:0; wait for ports 8989/8990; cd client/python/projectairsim/tests; python -m pytest -v --junitxml=pytest-results.xml`.
 name: ProjectAirSim CI (Self-Hosted)
 
 on:
@@ -26,6 +30,7 @@ jobs:
 
     env:
       UE_ROOT: ${{ secrets.UE_ROOT }}
+      PX4_ROOT: ${{ secrets.PX4_ROOT }}
       AIRSIM_PY_ENV: ${{ github.workspace }}/airsimenv
       DEBIAN_FRONTEND: noninteractive
 
@@ -164,7 +169,61 @@ jobs:
         run: |
           source "$AIRSIM_PY_ENV/bin/activate"
           cd client/python/projectairsim/tests
-          python -m pytest -v --junitxml=pytest-results.xml
+          python -m pytest -v --ignore=test_px4_sitl.py --junitxml=pytest-results.xml
+
+      - name: Resolve PX4 folder path
+        run: |
+          set -euo pipefail
+          PX4_DIR="${PX4_ROOT:-$GITHUB_WORKSPACE/PX4-Autopilot}"
+          if [ ! -d "$PX4_DIR" ]; then
+            echo "PX4 folder not found at: $PX4_DIR"
+            echo "Set secrets.PX4_ROOT or place PX4-Autopilot at $GITHUB_WORKSPACE/PX4-Autopilot"
+            exit 1
+          fi
+          echo "Using PX4 folder: $PX4_DIR"
+          echo "PX4_DIR=$PX4_DIR" >> "$GITHUB_ENV"
+
+      - name: Launch PX4 SITL
+        run: |
+          set -euo pipefail
+          rm -f px4.pid px4.log
+          (
+            cd "$PX4_DIR"
+            make px4_sitl_default none_iris
+          ) > px4.log 2>&1 &
+          echo $! > px4.pid
+          echo "PX4 launch PID: $(cat px4.pid)"
+          for i in {1..60}; do
+            if ps -p "$(cat px4.pid)" > /dev/null 2>&1; then
+              echo "PX4 SITL is running"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "PX4 SITL failed to start"
+          tail -n 300 px4.log || true
+          exit 1
+
+      - name: Run PX4 SITL tests
+        run: |
+          source "$AIRSIM_PY_ENV/bin/activate"
+          cd client/python/projectairsim/tests
+          python -m pytest -v test_px4_sitl.py --junitxml=pytest-results-px4_sitl.xml
+
+      - name: Stop PX4
+        if: always()
+        run: |
+          if [ -f px4.pid ]; then
+            kill "$(cat px4.pid)" || true
+          fi
+          pkill -f px4 || true
+          pkill -f none_iris || true
+
+      - name: Dump PX4 logs on failure
+        if: failure()
+        run: |
+          echo "==== PX4 Log Output ===="
+          cat px4.log || true
 
       - name: Stop Unreal
         if: always()

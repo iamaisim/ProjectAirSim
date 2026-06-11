@@ -5,6 +5,7 @@ MIT License.
 End-to-end tests for ProjectAirSim Services, request-response APIs used by the data collection module
 """
 import random
+from datetime import datetime
 
 import pytest
 from projectairsim import ProjectAirSimClient, World
@@ -61,6 +62,10 @@ def test_weather_api(data_generator: DataGenerator, world: World):
                 world, weather_value, pose.weather["intensity"]
             )
             assert success is True
+            params = world.get_weather_visual_effects_param()
+            assert params[weather_value] == pytest.approx(
+                pose.weather["intensity"], abs=0.05
+            )
 
 
 def test_time_api(data_generator: DataGenerator, world: World):
@@ -71,8 +76,22 @@ def test_time_api(data_generator: DataGenerator, world: World):
         location = geo_locations.get(location_name)
         for i in random.sample(range(0, len(location.trajectory)), 3):
             pose: WayPoint = location.trajectory[i]
+            if pose.time is None:
+                continue
             success, world = set_time(world, pose.time)
             assert success is True
+            tod = world.get_time_of_day()
+            assert tod is not None, "get_time_of_day() returned None"
+            sim_dt = None
+            for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M:%S.%f"):
+                try:
+                    sim_dt = datetime.strptime(tod.replace("Z", ""), fmt)
+                    break
+                except ValueError:
+                    continue
+            assert sim_dt is not None, f"Failed to parse time of day: {tod}"
+            assert sim_dt.date() == pose.time.date()
+            assert abs((sim_dt - pose.time).total_seconds()) < 120
 
 
 def test_env_actor_spawning_correct_locations(
@@ -102,6 +121,10 @@ def test_env_actor_spawning_correct_locations(
             location.name == "Blocks-random" or location.name == "Blocks-planned"
         ):  # random from config/ planned from API
             assert env_actor is not None
+            pose = world.get_object_pose("TestEnvActor")
+            assert pose is not None
+            t = pose.translation.to_list()
+            assert all(abs(v) < 1e6 for v in t)
 
 
 def test_env_actor_spawning_incorrect_locations(

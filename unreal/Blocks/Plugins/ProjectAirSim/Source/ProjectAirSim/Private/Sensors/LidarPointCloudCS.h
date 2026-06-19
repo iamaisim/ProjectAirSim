@@ -39,7 +39,7 @@ class FLidarPointCloudCS : public FGlobalShader {
   /// </summary>
   BEGIN_SHADER_PARAMETER_STRUCT(FParameters, )
   SHADER_PARAMETER_TEXTURE(Texture2D<float4>, DepthImage1)
-  SHADER_PARAMETER_RDG_TEXTURE(Texture2D<float4>, DepthImage2)
+  SHADER_PARAMETER_TEXTURE(Texture2D<float4>, DepthImage2)
   SHADER_PARAMETER_TEXTURE(Texture2D<float4>, DepthImage3)
   SHADER_PARAMETER_TEXTURE(Texture2D<float4>, DepthImage4)
   SHADER_PARAMETER(FMatrix44f, CamRotationMatrix1)
@@ -50,6 +50,8 @@ class FLidarPointCloudCS : public FGlobalShader {
   SHADER_PARAMETER(unsigned int, LaserNums)
   SHADER_PARAMETER(float, LaserRange)
   SHADER_PARAMETER(float, HorizontalFOV)
+  SHADER_PARAMETER(float, HorizontalFOVStartDeg)
+  SHADER_PARAMETER(float, HorizontalFOVEndDeg)
   SHADER_PARAMETER(float, CurrentHorizontalAngleDeg)
   SHADER_PARAMETER(float, VerticalFOV)
   SHADER_PARAMETER(unsigned int, CamFrustrumWidth)
@@ -99,7 +101,7 @@ struct FLidarPointCloudCSParameters {
   FMatrix44f RotationMatCam4;
 
   FTextureRHIRef DepthTexture1;
-  FRDGTextureRef DepthTexture2;
+  FTextureRHIRef DepthTexture2;
   FTextureRHIRef DepthTexture3;
   FTextureRHIRef DepthTexture4;
 
@@ -111,6 +113,10 @@ struct FLidarPointCloudCSParameters {
   uint32 CamFrustrumHeight;
   float CurrentHorizontalAngleDeg;
   float HorizontalFOV;
+  // Horizontal clipping window copied from LidarSettings so the shader can
+  // reject rays outside a partial-FOV sensor setup.
+  float HorizontalFOVStartDeg;
+  float HorizontalFOVEndDeg;
   float VerticalFOV;
 
   FMatrix ProjectionMat;

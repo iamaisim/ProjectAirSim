@@ -23,6 +23,8 @@ float LaserRange;
 float CurrentHorizontalAngleDeg;
 
 float HorizontalFOV;
+float HorizontalFOVStartDeg;
+float HorizontalFOVEndDeg;
 float VerticalFOV;
 uint CamFrustrumWidth;
 uint CamFrustrumHeight;
@@ -71,7 +73,44 @@ bool IsAngleInRange(float Angle, float StartAngle,
         return (StartAngle <= Angle || Angle <= EndAngle);
 }
 
-bool ProjectSphericalCoords(int projectionIndex, out uint2 ScreenPos)
+float4x4 GetCamRotationMatrix(int camIndex)
+{
+    // The GPU path renders four fixed cameras; select the one that owns the
+    // current azimuth sector.
+    if (camIndex == 0)
+    {
+        return CamRotationMatrix1;
+    }
+    if (camIndex == 1)
+    {
+        return CamRotationMatrix2;
+    }
+    if (camIndex == 2)
+    {
+        return CamRotationMatrix3;
+    }
+    return CamRotationMatrix4;
+}
+
+float ReadDepthByCam(int camIndex, uint2 screencoords)
+{
+    // Read depth from the render target associated with the selected sector.
+    if (camIndex == 0)
+    {
+        return DepthImage1[screencoords].r;
+    }
+    if (camIndex == 1)
+    {
+        return DepthImage2[screencoords].r;
+    }
+    if (camIndex == 2)
+    {
+        return DepthImage3[screencoords].r;
+    }
+    return DepthImage4[screencoords].r;
+}
+
+bool ProjectSphericalCoords(int camIndex, int projectionIndex, out uint2 ScreenPos)
 {
     float AngleDistanceOfLaserMeasureDeg = HorizontalFOV / HorizontalResolution;
 
@@ -93,7 +132,8 @@ bool ProjectSphericalCoords(int projectionIndex, out uint2 ScreenPos)
                       AngleDistanceOfLaserMeasureDeg * horizontal_angle_idx) % 360.0;
     float VerticalAngleDeg = vertical_fov_upper_deg - float(vertical_angle_idx) * DeltaAngleDeg;
 	
-    if (!IsAngleInRange(HorizontalAngleDeg, 45, 135))
+    // Respect the configured horizontal window before projecting into a camera.
+    if (!IsAngleInRange(HorizontalAngleDeg, HorizontalFOVStartDeg, HorizontalFOVEndDeg))
     {
         return false;
     }
@@ -102,11 +142,17 @@ bool ProjectSphericalCoords(int projectionIndex, out uint2 ScreenPos)
     float verRad = radians(VerticalAngleDeg);
 	
     float3 vecFromSphericalCoord = float3(sin(horRad), cos(horRad), sin(verRad));
+
+    // Rotate the ray from sensor space into the local frame of the camera that
+    // captured this sector so the screen projection stays consistent.
+    float4x4 CamRotation = GetCamRotationMatrix(camIndex);
+    float3 vecInCamFrame = mul((float3x3)transpose(CamRotation), vecFromSphericalCoord);
+
     float4 HVecFromSphericalCoord = float4(0.0, 0.0, 0.0, 1.0);
     if (length(HVecFromSphericalCoord) > 0.00001)
     {
 		// multiply by any number past the near plane (> 10)
-        HVecFromSphericalCoord.xyz = normalize(vecFromSphericalCoord) * 50.0;
+        HVecFromSphericalCoord.xyz = normalize(vecInCamFrame) * 50.0;
     }
 	
     return ProjectWorldToScreen(HVecFromSphericalCoord, ScreenPos);
@@ -177,13 +223,14 @@ void MainComputeShader(uint3 Gid : SV_GroupID, //atm: -, 0...256, - in rows (Y) 
     int camIndex = gtid / (HorizontalResolution * LaserNums);
     int projectionIndex = gtid % (HorizontalResolution * LaserNums);
     uint2 screencoords;
-    bool inScreen = ProjectSphericalCoords(projectionIndex, screencoords);
-    float intensity = 0.0;
+    bool inScreen = ProjectSphericalCoords(camIndex, projectionIndex, screencoords);
+    float intensity = 1.0;
 
-    if (camIndex == 0 && inScreen)
+    if (inScreen)
     {
-        float depthD1 = DepthImage1[screencoords].r;
-        intensity = DepthImage2[screencoords].r; //dot(DepthImage2[screencoords].rgb, float3(0.3333, 0.3333, 0.3333));
+        // Depth is sampled from the active sector camera instead of assuming a
+        // single forward-facing render target.
+        float depthD1 = ReadDepthByCam(camIndex, screencoords);
 		
         if (depthD1 > LaserRange)
         {
@@ -196,9 +243,12 @@ void MainComputeShader(uint3 Gid : SV_GroupID, //atm: -, 0...256, - in rows (Y) 
         {
 		// TODO: now that we're doing projection here too, we could keep the ray dir and pass here
             float3 pc = DeprojectScreenToWorld(ProjectionMatrixInv, screencoords, depthD1);
-            PointCloudBuffer[pointIndex + 0] = pc.x;
-            PointCloudBuffer[pointIndex + 1] = pc.y;
-            PointCloudBuffer[pointIndex + 2] = pc.z;
+            // Convert the hit back from the camera-local frame into the shared
+            // lidar sensor frame before publishing the point cloud.
+            float3 pcSensor = mul((float3x3)GetCamRotationMatrix(camIndex), pc);
+            PointCloudBuffer[pointIndex + 0] = pcSensor.x;
+            PointCloudBuffer[pointIndex + 1] = pcSensor.y;
+            PointCloudBuffer[pointIndex + 2] = pcSensor.z;
             PointCloudBuffer[pointIndex + 3] = intensity;
         }
     }

@@ -92,6 +92,10 @@ void UGPULidar::TickComponent(float DeltaTime, ELevelTick TickType,
 void UGPULidar::SetupLidarFromSettings(
     const projectairsim::LidarSettings& LidarSettings) {
   Settings = projectairsim::LidarSettings(LidarSettings);
+  // Start the sweep at the configured azimuth so partial-FOV sensors begin in
+  // the same sector requested by the scene config.
+  CurrentHorizontalAngleDeg =
+      std::fmod(Settings.horizontal_fov_start_deg + 360.0f, 360.0f);
 
   InitializePose();
   SetUpCams();
@@ -186,7 +190,8 @@ void UGPULidar::SetUpCams() {
   CamFrustrumHeight = HeightEachCam;
   CamFrustrumWidth = WidthEachCam;
 
-  NumCams = 1;  // TODO: add support for larger FOVs with more cams.
+  // Keep all cameras enabled so the GPU path can distribute the sweep across
+  // four 90-degree captures instead of collapsing back to a single forward view.
   for (int i = 0; i < NumCams; i++) {
     std::string dcamstr = "DepthCam_" + std::to_string(i);
     std::string capturestr = "SceneCapture_" + std::to_string(i);
@@ -323,15 +328,34 @@ void UGPULidar::Simulate(const float SimTimeDeltaSec) {
   PointCloudParams.LaserRange =
       projectairsim::TransformUtils::ToCentimeters(Settings.range);
   PointCloudParams.HorizontalFOV = AngleDistanceOfTickDeg;
+  // The shader still samples only the angular slice swept this tick, but it
+  // now clips that slice against the sensor's configured horizontal window.
+  PointCloudParams.HorizontalFOVStartDeg = Settings.horizontal_fov_start_deg;
+  PointCloudParams.HorizontalFOVEndDeg = Settings.horizontal_fov_end_deg;
   PointCloudParams.CurrentHorizontalAngleDeg = CurrentHorizontalAngleDeg;
   PointCloudParams.VerticalFOV = Settings.vertical_fov_upper_deg *
                                  2.f;  // assuming symmetrical < 30 for now
+  PointCloudParams.NumCams = DepthSceneCaptures.size();
   PointCloudParams.CamFrustrumHeight = CamFrustrumHeight;
   PointCloudParams.CamFrustrumWidth = CamFrustrumWidth;
+  // Bind one depth texture per quadrant so the compute shader can project each
+  // point into the camera that actually covers that azimuth.
   PointCloudParams.DepthTexture1 =
       DepthSceneCaptures[0]
           ->TextureTarget->GameThread_GetRenderTargetResource()
-          ->GetRenderTargetTexture();  // TODO: add rest for 360 fov
+          ->GetRenderTargetTexture();
+  PointCloudParams.DepthTexture2 =
+      DepthSceneCaptures[1]
+          ->TextureTarget->GameThread_GetRenderTargetResource()
+          ->GetRenderTargetTexture();
+  PointCloudParams.DepthTexture3 =
+      DepthSceneCaptures[2]
+          ->TextureTarget->GameThread_GetRenderTargetResource()
+          ->GetRenderTargetTexture();
+  PointCloudParams.DepthTexture4 =
+      DepthSceneCaptures[3]
+          ->TextureTarget->GameThread_GetRenderTargetResource()
+          ->GetRenderTargetTexture();
 
   PointCloudParams.RotationMatCam1 = FMatrix44f(CamRotationMats[0]);
   PointCloudParams.RotationMatCam2 = FMatrix44f(CamRotationMats[1]);

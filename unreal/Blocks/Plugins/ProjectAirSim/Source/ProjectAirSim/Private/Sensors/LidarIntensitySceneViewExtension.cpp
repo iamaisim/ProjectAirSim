@@ -268,6 +268,9 @@ void FLidarIntensitySceneViewExtension::PrePostProcessPass_RenderThread(
           }
 
           FMemory::Memcpy(LidarPointCloudData.data(), BufferData, CurrentSize);
+          LidarPointCloudTime = ReadbackMetadata[CurrentReadbackIndex].CaptureTime;
+          LidarPointCloudPose = ReadbackMetadata[CurrentReadbackIndex].LidarPose;
+          bHasUnreadLidarPointCloudData = true;
           CurrentReadback->Unlock();
       }
   }
@@ -294,37 +297,20 @@ void FLidarIntensitySceneViewExtension::PrePostProcessPass_RenderThread(
   PassParameters->PointCloudBuffer = PointCloudBufferUAV;
   PassParameters->HorizontalResolution = cachedParams.HorizontalResolution;
   PassParameters->LaserNums = cachedParams.LaserNums;
+  PassParameters->TotalPointCount = NumPoints;
   PassParameters->LaserRange = cachedParams.LaserRange;
   PassParameters->CurrentHorizontalAngleDeg =
       cachedParams.CurrentHorizontalAngleDeg;
   PassParameters->HorizontalFOV = cachedParams.HorizontalFOV;
-    // Forward the configured azimuth window so the compute pass uses the same
-    // FOV limits as the CPU-side sensor settings.
-    PassParameters->HorizontalFOVStartDeg = cachedParams.HorizontalFOVStartDeg;
-    PassParameters->HorizontalFOVEndDeg = cachedParams.HorizontalFOVEndDeg;
-  PassParameters->VerticalFOV = cachedParams.VerticalFOV;
+  // Forward the configured azimuth window so the compute pass uses the same
+  // FOV limits as the CPU-side sensor settings.
+  PassParameters->HorizontalFOVStartDeg = cachedParams.HorizontalFOVStartDeg;
+  PassParameters->HorizontalFOVEndDeg = cachedParams.HorizontalFOVEndDeg;
+  PassParameters->VerticalFOVUpperDeg = cachedParams.VerticalFOVUpperDeg;
+  PassParameters->VerticalFOVLowerDeg = cachedParams.VerticalFOVLowerDeg;
+  PassParameters->CameraHorizontalFOVDeg = cachedParams.CameraHorizontalFOVDeg;
   PassParameters->CamFrustrumHeight = cachedParams.CamFrustrumHeight;
   PassParameters->CamFrustrumWidth = cachedParams.CamFrustrumWidth;
-  PassParameters->ProjectionMatrixInv =
-      cachedParams.ViewProjectionMatInv.GetTransposed();
-
-  // Forward projection matrix used by the shader's ProjectWorldToScreen
-  // (spherical coords → screen). The spherical coord is camera-relative,
-  // so ViewOrigin = 0; the axis-swap rotation orients Unreal's world axes
-  // into the projection's view axes (z-forward). Transposed because HLSL
-  // mul(matrix, vector) treats the matrix as column-major.
-  {
-    FSceneViewProjectionData FwdProjData;
-    FwdProjData.ViewOrigin = FVector(0.f);
-    FwdProjData.ViewRotationMatrix =
-        FMatrix(FPlane(0, 0, 1, 0), FPlane(1, 0, 0, 0), FPlane(0, 1, 0, 0),
-                FPlane(0, 0, 0, 1));
-    FwdProjData.ProjectionMatrix = cachedParams.ProjectionMat;
-    FwdProjData.SetConstrainedViewRectangle(FIntRect(
-        0, 0, cachedParams.CamFrustrumWidth, cachedParams.CamFrustrumHeight));
-    PassParameters->ProjectionMatrix =
-        FMatrix44f(FwdProjData.ComputeViewProjectionMatrix().GetTransposed());
-  }
 
   PassParameters->CamRotationMatrix1 = cachedParams.RotationMatCam1;
   PassParameters->CamRotationMatrix2 = cachedParams.RotationMatCam2;
@@ -351,6 +337,7 @@ void FLidarIntensitySceneViewExtension::PrePostProcessPass_RenderThread(
 
   // Store the size for the next time we encounter this buffer slot
   ReadbackBuffersSizes[CurrentReadbackIndex] = BufferSize;
+  ReadbackMetadata[CurrentReadbackIndex] = cachedParams;
 
   // Advance index for next frame
   CurrentReadbackIndex = (CurrentReadbackIndex + 1) % NumReadbackBuffers;

@@ -4,11 +4,11 @@ import asyncio
 import time
 from pathlib import Path
 
-import cv2
 import numpy as np
 
 from projectairsim import Drone, ProjectAirSimClient, World
-from projectairsim.lidar_utils import LidarDisplay
+from projectairsim.image_utils import ImageDisplay
+from projectairsim.lidar_utils import LidarTopDownRenderer
 from projectairsim.utils import projectairsim_log
 
 
@@ -72,13 +72,12 @@ class PointCloudStats:
 async def main():
     client = ProjectAirSimClient()
     lidar_cloud_stats = PointCloudStats("lidar1.lidar")
-    lidar_cloud_display = LidarDisplay(
-        win_name="Lidar PointCloud",
-        color_mode=LidarDisplay.COLOR_INTENSITY,
+    image_display = ImageDisplay(num_subwin=1, subwin_width=640, subwin_height=640)
+    lidar_cloud_window = "Lidar PointCloud"
+    lidar_cloud_renderer = LidarTopDownRenderer(
         width=640,
-        height=360,
-        x=40,
-        y=420,
+        height=640,
+        range_m=60.0,
     )
     lidar_cloud_topic = None
     drone = None
@@ -100,14 +99,19 @@ async def main():
             f"Subscribing lidar pointcloud stream: {lidar_cloud_topic}"
         )
 
-        lidar_cloud_display.start()
+        image_display.add_image(lidar_cloud_window, subwin_idx=0)
+        image_display.start()
 
         client.subscribe(
             lidar_cloud_topic,
             safe_topic_callback(
                 "lidar_cloud",
                 lambda _, lidar_msg: handle_lidar_cloud(
-                    lidar_msg, lidar_cloud_stats, lidar_cloud_display
+                    lidar_msg,
+                    lidar_cloud_stats,
+                    lidar_cloud_renderer,
+                    image_display,
+                    lidar_cloud_window,
                 ),
             ),
         )
@@ -156,14 +160,22 @@ async def main():
             drone.disarm()
             drone.disable_api_control()
 
-        lidar_cloud_display.stop()
-        cv2.destroyAllWindows()
+        image_display.stop()
         client.disconnect()
 
 
-def handle_lidar_cloud(lidar_msg, lidar_cloud_stats, lidar_cloud_display):
+def handle_lidar_cloud(
+    lidar_msg,
+    lidar_cloud_stats,
+    lidar_cloud_renderer,
+    image_display,
+    lidar_cloud_window,
+):
     lidar_cloud_stats.receive(lidar_msg)
-    lidar_cloud_display.receive(lidar_msg)
+    image_display.receive(
+        lidar_cloud_renderer.render_image_msg(lidar_msg),
+        lidar_cloud_window,
+    )
 
 
 if __name__ == "__main__":

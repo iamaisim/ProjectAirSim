@@ -2,12 +2,81 @@ from argparse import ArgumentError
 import multiprocessing as mp
 import time
 
+import cv2
 import numpy as np
 import open3d as o3d
 from matplotlib import cm
 from projectairsim.image_utils import SEGMENTATION_PALLETE
 
 # from projectairsim.utils import projectairsim_log
+
+
+class LidarTopDownRenderer:
+    """Render lidar point clouds as top-down OpenCV-compatible image messages.
+
+    The output uses the sensor frame with forward plotted upward and right plotted
+    to the right. Point color is based on the down-axis value.
+    """
+
+    def __init__(self, width=640, height=640, range_m=60.0):
+        self.width = width
+        self.height = height
+        self.range_m = range_m
+
+    def make_blank_image(self):
+        image = np.zeros((self.height, self.width, 3), dtype=np.uint8)
+        center = (self.width // 2, self.height // 2)
+        cv2.circle(image, center, 3, (255, 255, 255), -1)
+        return image
+
+    def render_lidar(self, lidar_data):
+        point_cloud = lidar_data.get("point_cloud")
+        if point_cloud is None or len(point_cloud) == 0:
+            return self.make_blank_image()
+
+        points = np.asarray(point_cloud, dtype=np.float32).reshape((-1, 3))
+        image = self.make_blank_image()
+
+        scale = min(self.width, self.height) / (2.0 * self.range_m)
+        px = np.round(self.width / 2.0 + points[:, 1] * scale).astype(np.int32)
+        py = np.round(self.height / 2.0 - points[:, 0] * scale).astype(np.int32)
+
+        in_bounds = (px >= 0) & (px < self.width) & (py >= 0) & (py < self.height)
+        if not np.any(in_bounds):
+            return image
+
+        z_down = points[in_bounds, 2]
+        z_norm = np.clip((z_down - z_down.min()) / (np.ptp(z_down) + 1e-6), 0.0, 1.0)
+        colors = cv2.applyColorMap(
+            (255.0 * z_norm).astype(np.uint8), cv2.COLORMAP_TURBO
+        )
+        image[py[in_bounds], px[in_bounds]] = colors[:, 0, :]
+
+        cv2.line(
+            image,
+            (self.width // 2, 0),
+            (self.width // 2, self.height - 1),
+            (60, 60, 60),
+            1,
+        )
+        cv2.line(
+            image,
+            (0, self.height // 2),
+            (self.width - 1, self.height // 2),
+            (60, 60, 60),
+            1,
+        )
+        cv2.circle(image, (self.width // 2, self.height // 2), 4, (255, 255, 255), -1)
+        return image
+
+    def render_image_msg(self, lidar_data):
+        image = self.render_lidar(lidar_data)
+        return {
+            "encoding": "BGR",
+            "height": self.height,
+            "width": self.width,
+            "data": image.tobytes(),
+        }
 
 
 class LidarDisplay:

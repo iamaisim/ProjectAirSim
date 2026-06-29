@@ -424,25 +424,27 @@
     {
       "id": "lidar1",
       "type": "lidar",
+      "lidar-type": "gpu_cylindrical",
       "enabled": true,
       "parent-link": "Frame",
-      "number-of-channels": 16,
+      "number-of-channels": 32,
       "range": 100,
-      "points-per-second": 100000,
+      "points-per-second": 180000,
       "horizontal-rotation-frequency": 10,
-      "horizontal-fov-start-deg": 0.0,
+      "horizontal-fov-start-deg": 0,
       "horizontal-fov-end-deg": 360.0,
-      "vertical-fov-upper-deg": 0.0,
-      "vertical-fov-lower-deg": -90.0,
+      "vertical-fov-upper-deg": 15.0,
+      "vertical-fov-lower-deg": -15.0,
       "disable-self-hits": true,
       "draw-debug-points": false,
-      "origin": {
-        "xyz": "0 0 0.2",
-        "rpy-deg": "0 0 0"
-      },
+      "report-frequency": 0,
       "report-point-cloud": true,
       "report-azimuth-elevation-range": false,
-      "report-no-return-points": false
+      "report-no-return-points": false,
+      "origin": {
+        "xyz": "0 0 1.0",
+        "rpy-deg": "0 0 0"
+      }
     },
     {
       "id": "GPS",

@@ -21,14 +21,28 @@
 #include "Misc/FileHelper.h"
 #include "Runtime/Core/Public/Async/ParallelFor.h"
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
-#include "SceneView.h"
 #include "Serialization/BufferArchive.h"
 #include "UObject/ConstructorHelpers.h"
 #include "UnrealCameraRenderRequest.h"
 #include "UnrealLogger.h"
 #include "UnrealTransforms.h"
 
+#include <cmath>
+
 namespace projectairsim = microsoft::projectairsim;
+
+namespace {
+
+float NormalizeGPULidarAngleDeg(float AngleDeg) {
+  return std::fmod(360.0f + std::fmod(AngleDeg, 360.0f), 360.0f);
+}
+
+float GetHorizontalFovSpanDeg(float StartAngleDeg, float EndAngleDeg) {
+  const float SpanDeg = NormalizeGPULidarAngleDeg(EndAngleDeg - StartAngleDeg);
+  return FMath::IsNearlyZero(SpanDeg) ? 360.0f : SpanDeg;
+}
+
+}  // namespace
 
 UGPULidar::UGPULidar(const FObjectInitializer& ObjectInitializer)
     : UUnrealSensor(ObjectInitializer), IntensityExtension(nullptr) {
@@ -61,14 +75,6 @@ void UGPULidar::Initialize(const projectairsim::Lidar& SimLidar) {
   FCoreDelegates::OnEndFrameRT.AddUObject(this, &UGPULidar::EndFrameCallbackRT);
 }
 
-void ExecuteOnRenderThread1(const TFunctionRef<void()>& Function) {
-  check(IsInGameThread());
-
-  ENQUEUE_RENDER_COMMAND(ExecuteOnRenderThread1)
-  ([Function](FRHICommandListImmediate& /*RHICmdList*/) { Function(); });
-  FlushRenderingCommands();
-}
-
 void UGPULidar::TickComponent(float DeltaTime, ELevelTick TickType,
                               FActorComponentTickFunction* ThisTickFunction) {
   Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -77,48 +83,28 @@ void UGPULidar::TickComponent(float DeltaTime, ELevelTick TickType,
   const TimeSec SimTimeDeltaSec =
       projectairsim::SimClock::Get()->NanosToSec(CurSimTime - LastSimTime);
 
-  Simulate(SimTimeDeltaSec);
+  const bool bHasNewLidarData = Simulate(SimTimeDeltaSec, CurSimTime);
 
-  const auto LidarTransformStamped = UnrealTransform::GetPoseNed(this);
-  projectairsim::Pose LidarPose(LidarTransformStamped.translation_,
-                              LidarTransformStamped.rotation_);
+  if (bHasNewLidarData) {
+    projectairsim::LidarMessage LidarMsg(
+        PointCloudTime, PointCloud, AzimuthElevationRangeCloud,
+        SegmentationCloud, IntensityCloud, LaserIndexCloud, PointCloudPose);
+    Lidar.PublishLidarMsg(LidarMsg);
+  }
 
-  projectairsim::LidarMessage LidarMsg(CurSimTime, PointCloud, AzimuthElevationRangeCloud, SegmentationCloud,
-                                     IntensityCloud, LaserIndexCloud, LidarPose);
-  Lidar.PublishLidarMsg(LidarMsg);
   LastSimTime = CurSimTime;
 }
 
 void UGPULidar::SetupLidarFromSettings(
     const projectairsim::LidarSettings& LidarSettings) {
   Settings = projectairsim::LidarSettings(LidarSettings);
-  // Start the sweep at the configured azimuth so partial-FOV sensors begin in
-  // the same sector requested by the scene config.
-  CurrentHorizontalAngleDeg =
-      std::fmod(Settings.horizontal_fov_start_deg + 360.0f, 360.0f);
+  Settings.horizontal_fov_start_deg =
+      NormalizeGPULidarAngleDeg(Settings.horizontal_fov_start_deg);
+  Settings.horizontal_fov_end_deg =
+      NormalizeGPULidarAngleDeg(Settings.horizontal_fov_end_deg);
 
   InitializePose();
   SetUpCams();
-}
-
-FMatrix GetProjectionMat(USceneCaptureComponent2D* CaptureComp,
-                         float aspectRatio) {
-  FMinimalViewInfo ViewInfo;
-  ViewInfo.Location = CaptureComp->GetComponentTransform().GetLocation();
-  ViewInfo.Rotation =
-      CaptureComp->GetComponentTransform().GetRotation().Rotator();
-  ViewInfo.FOV = CaptureComp->FOVAngle;
-  ViewInfo.ProjectionMode = CaptureComp->ProjectionType;
-  ViewInfo.AspectRatio = aspectRatio;
-  ViewInfo.OrthoNearClipPlane = GNearClippingPlane;  // need for prespective?
-  ViewInfo.OrthoFarClipPlane = 10000;                // TODO
-  ViewInfo.bConstrainAspectRatio = true;
-
-  if (CaptureComp->bUseCustomProjectionMatrix == true) {
-    return CaptureComp->CustomProjectionMatrix;
-  } else {
-    return ViewInfo.CalculateProjectionMatrix();
-  }
 }
 
 void UGPULidar::SetupSceneCapture(
@@ -212,33 +198,6 @@ void UGPULidar::SetUpCams() {
     CameraComponent->FieldOfView = HorizontalAngle;
     CameraComponent->AspectRatio = aspectRatio;
 
-    // Projection matrix for all cams should be same
-    FMatrix proj = GetProjectionMat(SceneCapture, aspectRatio);
-    ProjectionMat = proj;
-
-    if (i == 0) {
-      FIntRect ScreenRect(0, 0, CamFrustrumWidth, CamFrustrumHeight);
-      FSceneViewProjectionData ProjectionData;
-      ProjectionData.ViewOrigin =
-          SceneCapture->GetComponentTransform().GetLocation();
-      // Apply rotation matrix of camera's pose plus the rotation matrix for
-      // converting Unreal's world axes to the camera's view axes (z forward,
-      // etc).
-      ProjectionData.ViewRotationMatrix =
-          FInverseRotationMatrix(
-              SceneCapture->GetComponentTransform().GetRotation().Rotator()) *
-          FMatrix(FPlane(0, 0, 1, 0), FPlane(1, 0, 0, 0), FPlane(0, 1, 0, 0),
-                  FPlane(0, 0, 0, 1));
-      ProjectionData.ProjectionMatrix = ProjectionMat;
-      ProjectionData.SetConstrainedViewRectangle(ScreenRect);
-      Cam1ProjData = ProjectionData;
-    }
-
-    if (i == 0) {
-      cam1loc = SceneCapture->GetComponentTransform().GetLocation();
-      cam1Rot = SceneCapture->GetComponentTransform().GetRotation();
-    }
-
     // Render intensity to target texture
     std::string IntensityCaptureStr = "IntensityCapture_" + std::to_string(i);
     auto IntensityCaptureComponent =
@@ -283,7 +242,8 @@ void UGPULidar::InitializePose() {
       InitializedRPY.x(), InitializedRPY.y(), InitializedRPY.z());
 }
 
-void UGPULidar::Simulate(const float SimTimeDeltaSec) {
+bool UGPULidar::Simulate(const float SimTimeDeltaSec,
+                         const TimeNano CurSimTime) {
   PointCloud.clear();
   AzimuthElevationRangeCloud.clear();
   SegmentationCloud.clear();
@@ -311,31 +271,35 @@ void UGPULidar::Simulate(const float SimTimeDeltaSec) {
     UnrealLogger::Log(projectairsim::LogLevel::kWarning,
                       TEXT("[UnrealLidar] No points requested this frame, "
                            "try increasing the number of points per second."));
-    return;
+    return false;
   }
 
-  bool useCPUVersion = false;
-
-  const float AngleDistanceOfTickDeg =
-      Settings.horizontal_rotation_frequency * 360.0f * SimTimeDeltaSec;
+  const float HorizontalFOVDeg =
+      GetHorizontalFovSpanDeg(Settings.horizontal_fov_start_deg,
+                              Settings.horizontal_fov_end_deg);
   // Create parameters & pass data
   FLidarPointCloudCSParameters PointCloudParams;
-  PointCloudParams.ProjectionMat = ProjectionMat;
-  PointCloudParams.ViewProjectionMatInv =
-      FMatrix44f(Cam1ProjData.ComputeViewProjectionMatrix().Inverse());
   PointCloudParams.HorizontalResolution = HorizontalResolution;
   PointCloudParams.LaserNums = Settings.number_of_channels;
   PointCloudParams.LaserRange =
       projectairsim::TransformUtils::ToCentimeters(Settings.range);
-  PointCloudParams.HorizontalFOV = AngleDistanceOfTickDeg;
-  // The shader still samples only the angular slice swept this tick, but it
-  // now clips that slice against the sensor's configured horizontal window.
+  PointCloudParams.HorizontalFOV = HorizontalFOVDeg;
+  // For this test path, do not rotate a simulated sweep over time. Sample the
+  // configured horizontal FOV from its configured start angle every frame.
   PointCloudParams.HorizontalFOVStartDeg = Settings.horizontal_fov_start_deg;
   PointCloudParams.HorizontalFOVEndDeg = Settings.horizontal_fov_end_deg;
-  PointCloudParams.CurrentHorizontalAngleDeg = CurrentHorizontalAngleDeg;
-  PointCloudParams.VerticalFOV = Settings.vertical_fov_upper_deg *
-                                 2.f;  // assuming symmetrical < 30 for now
+  PointCloudParams.CurrentHorizontalAngleDeg =
+      Settings.horizontal_fov_start_deg;
+  const auto LidarTransformStamped = UnrealTransform::GetPoseNed(this);
+  PointCloudParams.CaptureTime = CurSimTime;
+  PointCloudParams.LidarPose =
+      projectairsim::Pose(LidarTransformStamped.translation_,
+                          LidarTransformStamped.rotation_);
+  PointCloudParams.VerticalFOVUpperDeg = Settings.vertical_fov_upper_deg;
+  PointCloudParams.VerticalFOVLowerDeg = Settings.vertical_fov_lower_deg;
   PointCloudParams.NumCams = DepthSceneCaptures.size();
+  PointCloudParams.CameraHorizontalFOVDeg =
+      360.0f / static_cast<float>(PointCloudParams.NumCams);
   PointCloudParams.CamFrustrumHeight = CamFrustrumHeight;
   PointCloudParams.CamFrustrumWidth = CamFrustrumWidth;
   // Bind one depth texture per quadrant so the compute shader can project each
@@ -362,24 +326,22 @@ void UGPULidar::Simulate(const float SimTimeDeltaSec) {
   PointCloudParams.RotationMatCam3 = FMatrix44f(CamRotationMats[2]);
   PointCloudParams.RotationMatCam4 = FMatrix44f(CamRotationMats[3]);
 
-  auto RenderTargetResource =
-      DepthSceneCaptures[0]
-          ->TextureTarget->GameThread_GetRenderTargetResource();
-
   IntensityExtension->UpdateParameters(PointCloudParams);
 
   auto world = this->GetWorld();
 
-  static int startIndex = 0;
-  static int numPointsToDraw =
-      HorizontalResolution *
-      Settings.number_of_channels;  // TODO: extend for more cams
+  if (!IntensityExtension->bHasUnreadLidarPointCloudData) {
+    return false;
+  }
 
   auto pointCloudData = IntensityExtension->LidarPointCloudData;
+  PointCloudTime = IntensityExtension->LidarPointCloudTime;
+  PointCloudPose = IntensityExtension->LidarPointCloudPose;
+  IntensityExtension->bHasUnreadLidarPointCloudData = false;
   auto cameraTransform = DepthSceneCaptures[0]->GetComponentTransform();
 
   if (pointCloudData.size()) {
-    for (int i = startIndex; i < pointCloudData.size(); i++) {
+    for (int i = 0; i < pointCloudData.size(); i++) {
       auto point = FVector(pointCloudData[i].X, pointCloudData[i].Y,
                            pointCloudData[i].Z);
 
@@ -410,8 +372,7 @@ void UGPULidar::Simulate(const float SimTimeDeltaSec) {
     }
   }
 
-  CurrentHorizontalAngleDeg =
-      std::fmod(CurrentHorizontalAngleDeg + AngleDistanceOfTickDeg, 360.0f);
+  return true;
 }
 
 void UGPULidar::BeginFrameCallback() { bool f = false; }

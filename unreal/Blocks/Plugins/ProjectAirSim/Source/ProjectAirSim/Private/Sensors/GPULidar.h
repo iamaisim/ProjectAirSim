@@ -50,7 +50,7 @@ UCLASS() class UGPULidar : public UUnrealSensor {
  private:
   void InitializePose();
 
-  void Simulate(const float DeltaTime);
+  bool Simulate(const float DeltaTime, const TimeNano CurSimTime);
 
  private:
   void BeginFrameCallback();
@@ -61,15 +61,15 @@ UCLASS() class UGPULidar : public UUnrealSensor {
  private:
   microsoft::projectairsim::Lidar Lidar;
   microsoft::projectairsim::LidarSettings Settings;
-  float CurrentHorizontalAngleDeg = 0.0f;
   std::vector<float> PointCloud;
   std::vector<float> AzimuthElevationRangeCloud;
   std::vector<int> SegmentationCloud;
   std::vector<float> IntensityCloud;
   std::vector<int> LaserIndexCloud;
   TimeNano LastSimTime = 0;
+  TimeNano PointCloudTime = 0;
+  microsoft::projectairsim::Pose PointCloudPose;
 
-  void SaveImage();
   void SetUpCams();
   void SetupSceneCapture(UCameraComponent* CameraComponent,
                          float HorizontalAngle, float Width, float Height,
@@ -83,18 +83,11 @@ UCLASS() class UGPULidar : public UUnrealSensor {
   UPROPERTY() UMaterial* LidarIntensityMaterialStatic;
 
   uint32 HorizontalResolution;  // more like spherical horizontal width
-  uint32 LaserNums;             // more like spherical vertical height
-
   // Need camfrustrum as well?
   uint32 CamFrustrumWidth;
   uint32 CamFrustrumHeight;
 
-  FMatrix ProjectionMat;
-  FVector cam1loc;
-  FQuat cam1Rot;
-
   std::vector<FMatrix> CamRotationMats;
-  FSceneViewProjectionData Cam1ProjData;
 
   TSharedPtr<FLidarIntensitySceneViewExtension, ESPMode::ThreadSafe>
       IntensityExtension;

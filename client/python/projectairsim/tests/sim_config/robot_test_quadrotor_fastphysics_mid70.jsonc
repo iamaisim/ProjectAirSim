@@ -313,7 +313,7 @@
           "width": 1280,
           "height": 720,
           "fov-degrees": 90,
-          "capture-enabled": false,
+          "capture-enabled": true,
           "streaming-enabled": true,
           "pixels-as-float": false,
           "compress": false,
@@ -335,7 +335,7 @@
       "type": "camera",
       "enabled": true,
       "parent-link": "Frame",
-      "capture-interval": 0.001,
+      "capture-interval": 0.02,
       "capture-settings": [
         {
           "image-type": 0,
@@ -402,7 +402,7 @@
         "xyz": "0 0.0 0.0",
         "rpy-deg": "0 -90 0"
       }
-    },
+    },  
     {
       "id": "IMU1",
       "type": "imu",

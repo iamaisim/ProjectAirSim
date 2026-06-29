@@ -47,6 +47,9 @@ public:
   // (32 bytes), which mismatches the 16-byte-per-point layout the compute
   // shader writes and would cause silent stride misalignment.
   std::vector<FVector4f> LidarPointCloudData;
+  TimeNano LidarPointCloudTime = 0;
+  microsoft::projectairsim::Pose LidarPointCloudPose;
+  bool bHasUnreadLidarPointCloudData = false;
 
 private:
   std::queue<FLidarPointCloudCSParameters> CSParamsQ;
@@ -55,5 +58,6 @@ private:
   static constexpr int NumReadbackBuffers = 2;
   TUniquePtr<FRHIGPUBufferReadback> ReadbackBuffers[NumReadbackBuffers];
   uint32 ReadbackBuffersSizes[NumReadbackBuffers] = {};
+  FLidarPointCloudCSParameters ReadbackMetadata[NumReadbackBuffers];
   int CurrentReadbackIndex = 0;
 };

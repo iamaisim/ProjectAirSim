@@ -16,6 +16,8 @@
 #include "Runtime/Engine/Classes/Engine/TextureRenderTarget2D.h"
 #include "ShaderParameterStruct.h"
 #include "UnrealCameraRenderRequest.h"
+#include "core_sim/clock.hpp"
+#include "core_sim/physics_common_types.hpp"
 
 #define NUM_THREADS_PER_GROUP_DIMENSION_X 1024
 #define NUM_THREADS_PER_GROUP_DIMENSION_Y 1
@@ -48,18 +50,18 @@ class FLidarPointCloudCS : public FGlobalShader {
   SHADER_PARAMETER(FMatrix44f, CamRotationMatrix4)
   SHADER_PARAMETER(unsigned int, HorizontalResolution)
   SHADER_PARAMETER(unsigned int, LaserNums)
+  SHADER_PARAMETER(unsigned int, TotalPointCount)
   SHADER_PARAMETER(float, LaserRange)
   SHADER_PARAMETER(float, HorizontalFOV)
   SHADER_PARAMETER(float, HorizontalFOVStartDeg)
   SHADER_PARAMETER(float, HorizontalFOVEndDeg)
   SHADER_PARAMETER(float, CurrentHorizontalAngleDeg)
-  SHADER_PARAMETER(float, VerticalFOV)
+  SHADER_PARAMETER(float, VerticalFOVUpperDeg)
+  SHADER_PARAMETER(float, VerticalFOVLowerDeg)
+  SHADER_PARAMETER(float, CameraHorizontalFOVDeg)
   SHADER_PARAMETER(unsigned int, CamFrustrumWidth)
   SHADER_PARAMETER(unsigned int, CamFrustrumHeight)
-  SHADER_PARAMETER(FMatrix44f, ProjectionMatrix)
-  SHADER_PARAMETER(FMatrix44f, ProjectionMatrixInv)
   SHADER_PARAMETER_RDG_BUFFER_UAV(RWStructuredBuffer<float>, PointCloudBuffer)
-  // SHADER_PARAMETER_UAV(RWStructuredBuffer<float>, PointCloudBuffer)
   END_SHADER_PARAMETER_STRUCT()
 
  public:
@@ -117,10 +119,12 @@ struct FLidarPointCloudCSParameters {
   // reject rays outside a partial-FOV sensor setup.
   float HorizontalFOVStartDeg;
   float HorizontalFOVEndDeg;
-  float VerticalFOV;
-
-  FMatrix ProjectionMat;
-  FMatrix44f ViewProjectionMatInv;
+  float VerticalFOVUpperDeg;
+  float VerticalFOVLowerDeg;
+  float CameraHorizontalFOVDeg;
 
   int NumCams = 1;
+
+  TimeNano CaptureTime = 0;
+  microsoft::projectairsim::Pose LidarPose;
 };

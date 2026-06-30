@@ -21,6 +21,7 @@ classifiers = [
 ]
 
 dependencies = [
+  "importlib-resources>=5; python_version<'3.9'",
   "pynng>=0.5.0",
   "msgpack>=1.0.5",
   "opencv-python>=4.2.0.32",

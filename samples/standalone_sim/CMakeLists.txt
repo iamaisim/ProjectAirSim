@@ -90,6 +90,7 @@ else()
         multirotor_api
         rendering_scene
         nng
-        crypto # Client authorization
+        ${OPENSSL_CRYPTO_LIBRARY} # Client authorization
+        dl     # Required by static libcrypto (dlopen/dlsym)
 )
 endif()

@@ -1,0 +1,21 @@
+// Copyright (C) Microsoft Corporation.  
+// Copyright (C) 2025 IAMAI CONSULTING CORP
+//
+// MIT License. All rights reserved.
+
+#include "ProjectAirsimClient.h"
+
+#include <string>
+
+#include "pch.h"
+
+namespace microsoft {
+namespace projectairsim {
+namespace client {
+
+// Global objects
+ASC_DECL Log log;  // Log object
+
+}  // namespace client
+}  // namespace projectairsim
+}  // namespace microsoft

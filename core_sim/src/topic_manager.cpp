@@ -260,11 +260,11 @@ void TopicManager::Impl::Start() {
   // drop the send after this specified send_timeout to prevent the dispatcher
   // queue from stacking up
   const int send_timeout = 1000 / 60;  // 16.7 ms = 60 FPS
-  rv = nng_setopt_ms(topic_socket_, NNG_OPT_SENDTIMEO, send_timeout);
+  rv = nng_socket_set_ms(topic_socket_, NNG_OPT_SENDTIMEO, send_timeout);
   if (rv != 0) {
     auto errno_str = nng_strerror(rv);
     log_.LogError(Constant::Component::topic_manager,
-                  "nng_setopt_ms failed with '%s'.", errno_str);
+                  "nng_socket_set_ms failed with '%s'.", errno_str);
     throw Error("Error setting send timeout on server socket.");
   }
 

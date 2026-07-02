@@ -1,6 +1,7 @@
 #pragma once
 #include "NNGIDecl.h"
 #include <cstdint>
+#include <cstddef>
 
 
 
@@ -64,11 +65,11 @@ enum nng_errno_enum {
 
 NNGI_DECL int nng_close(nng_socket s);
 NNGI_DECL int nng_dial(nng_socket sid, const char *addr, nng_dialer *dp, int flags);
-NNGI_DECL void nng_free(void *buf, size_t sz);
+NNGI_DECL void nng_free(void *buf, std::size_t sz);
 NNGI_DECL int nng_pair0_open(nng_socket *);
-NNGI_DECL int nng_recv(nng_socket s, void *buf, size_t *szp, int flags);
+NNGI_DECL int nng_recv(nng_socket s, void *buf, std::size_t *szp, int flags);
 NNGI_DECL int nng_req0_open(nng_socket *);
-NNGI_DECL int nng_send(nng_socket s, void *buf, size_t len, int flags);
+NNGI_DECL int nng_send(nng_socket s, void *buf, std::size_t len, int flags);
 NNGI_DECL int nng_socket_set_ms(nng_socket id, const char *n, nng_duration v);
 NNGI_DECL const char *nng_strerror(int);
 NNGI_DECL const char* nng_version(void);

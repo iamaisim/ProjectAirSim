@@ -162,7 +162,47 @@ For more details about using the client to connect, send/receive signals, etc, s
 
 ## C++ Client
 
-Currently, only Python clients are supported.
+Project AirSim also includes a native C++17 client under `client/cpp/`.
+
+The C++ client uses the following to communicate with the Project AirSim
+simulation server:
+
+- A C++17 compiler
+- CMake 3.20 or newer
+- NNG-based transport through the `NNGI` wrapper
+- The `ProjectAirSimMessageLib` message serialization library
+- The high-level `ProjectAirsimClient` API library
+
+Build the C++ client from the repository root:
+
+```bash
+./build.sh cpp_client_debug
+./build.sh cpp_client_release
+```
+
+On Windows:
+
+```bat
+build.cmd cpp_client_debug
+build.cmd cpp_client_release
+```
+
+Compiled Linux libraries and example binaries are placed in:
+
+```text
+client/cpp/build_linux/Debug/
+client/cpp/build_linux/Release/
+```
+
+Windows library artifacts are placed in:
+
+```text
+client\cpp\libraries\x64\Debug\
+client\cpp\libraries\x64\Release\
+```
+
+For setup details, binary locations, and usage examples, see
+**[Project AirSim C++ Client](cpp_client.md)**.
 
 ---
 

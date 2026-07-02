@@ -89,6 +89,7 @@ physics/matlab_physics.md
 :caption: APIs & Programmatic Control
 
 api.md
+cpp_client.md
 ros/ros.md
 ```
 

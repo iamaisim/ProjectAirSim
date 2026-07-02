@@ -71,7 +71,7 @@ target_link_libraries(
         core_sim
         nng
         lvmon
-        crypto # Client authorization
+        ${OPENSSL_CRYPTO_LIBRARY} # Client authorization
 )
 endif()
 

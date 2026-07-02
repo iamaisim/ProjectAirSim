@@ -249,12 +249,10 @@ FetchContent_Declare(
     GIT_TAG        cpp-6.1.0
 )
 FetchContent_GetProperties(msgpack)
+add_definitions(-DMSGPACK_NO_BOOST)
 if(NOT msgpack_POPULATED)
     message("Checking if [msgpack] dependency needs to be fetched...")
     FetchContent_Populate(msgpack)
-    add_definitions(-DMSGPACK_NO_BOOST)
-    set(MSGPACK_INCLUDE_DIR ${msgpack_SOURCE_DIR}/include)
-    message("MSGPACK_INCLUDE_DIR set to ${MSGPACK_INCLUDE_DIR}")
     # Note: msgpack is only used internally by sim libs, so no need to package it with other sim libs
 
     # Copy msgpack headers to Matlab physics and control S-function folders for building in Matlab:
@@ -264,25 +262,42 @@ if(NOT msgpack_POPULATED)
     message("Packaging [msgpack] headers to ${MATLAB_CONTROL_DIR}/msgpack")
     file(COPY ${msgpack_SOURCE_DIR}/include/ DESTINATION ${MATLAB_CONTROL_DIR}/_deps/msgpack/include)
 endif()
+set(MSGPACK_INCLUDE_DIR ${msgpack_SOURCE_DIR}/include)
+message("MSGPACK_INCLUDE_DIR set to ${MSGPACK_INCLUDE_DIR}")
 
 # Set up dependency: Eigen3
 # Using latest stable release as of from 08/18/21
-FetchContent_Declare(
-    Eigen3
-    GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
-    GIT_TAG        3.4.0
-)
-FetchContent_GetProperties(Eigen3)
-string(TOLOWER "Eigen3" lc_eigen)
-if(NOT ${lc_eigen}_POPULATED)
-    message("Checking if [Eigen3] dependency needs to be fetched...")
-    FetchContent_Populate(Eigen3)
-    set(EIGEN_INCLUDE_DIR ${${lc_eigen}_SOURCE_DIR})
-    message("EIGEN_INCLUDE_DIR set to ${EIGEN_INCLUDE_DIR}")
-
-    message("Packaging [Eigen3] headers to ${UE_PLUGIN_SIMLIBS_DIR}/eigen")
-    file(COPY ${EIGEN_INCLUDE_DIR}/ DESTINATION ${UE_PLUGIN_SIMLIBS_DIR}/eigen/include)
+find_package(Eigen3 3.4.0 QUIET NO_MODULE)
+if(Eigen3_FOUND)
+    get_target_property(EIGEN_INCLUDE_DIR Eigen3::Eigen INTERFACE_INCLUDE_DIRECTORIES)
+    message("Using system [Eigen3] dependency")
+else()
+    if(EXISTS "/usr/include/eigen3/Eigen/Core")
+        set(EIGEN_INCLUDE_DIR "/usr/include/eigen3")
+    elseif(EXISTS "/usr/local/include/eigen3/Eigen/Core")
+        set(EIGEN_INCLUDE_DIR "/usr/local/include/eigen3")
+    endif()
+    if(EIGEN_INCLUDE_DIR)
+        message("Using local [Eigen3] headers")
+    else()
+        FetchContent_Declare(
+            Eigen3
+            GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+            GIT_TAG        3.4.0
+        )
+        FetchContent_GetProperties(Eigen3)
+        string(TOLOWER "Eigen3" lc_eigen)
+        if(NOT ${lc_eigen}_POPULATED)
+            message("Checking if [Eigen3] dependency needs to be fetched...")
+            FetchContent_Populate(Eigen3)
+            set(EIGEN_INCLUDE_DIR ${${lc_eigen}_SOURCE_DIR})
+        endif()
+    endif()
 endif()
+message("EIGEN_INCLUDE_DIR set to ${EIGEN_INCLUDE_DIR}")
+
+message("Packaging [Eigen3] headers to ${UE_PLUGIN_SIMLIBS_DIR}/eigen")
+file(COPY ${EIGEN_INCLUDE_DIR}/ DESTINATION ${UE_PLUGIN_SIMLIBS_DIR}/eigen/include)
 
 # Set up dependency: Google Test
 FetchContent_Declare(
@@ -323,19 +338,54 @@ if(UNIX)
     # so to force /MD non-debug CRT to match UE, build Debug config as Relwithdebinfo and
     # build Release as Release.
     set(OPENSSL_BUILD_TYPE $<IF:$<CONFIG:Debug>,debug,release>)
+
+    # Build OpenSSL with the same compiler/sysroot as the rest of the project so that all
+    # glibc symbol version requirements are consistent.  Use no-shared so only the static
+    # libraries (libcrypto.a / libssl.a) are produced, avoiding runtime dynamic-library
+    # glibc ABI mismatches when linking against the UE toolchain (CentOS 7 / glibc 2.17).
+    if(DEFINED ENV{UE_ROOT})
+        # UE cross-compiler targets a CentOS 7 sysroot (glibc 2.17).  Tell OpenSSL to use
+        # the same clang and sysroot so the compiled objects only reference old glibc symbols.
+        set(OPENSSL_CONFIGURE_COMMAND
+            ${CMAKE_COMMAND} -E env
+                CC=${CMAKE_C_COMPILER}
+                "CFLAGS=--sysroot=${CMAKE_SYSROOT}"
+            <SOURCE_DIR>/Configure linux-x86_64
+                --${OPENSSL_BUILD_TYPE}
+                --prefix=${CMAKE_BINARY_DIR}/_deps/openssl-install
+                no-tests no-shared no-module
+        )
+    else()
+        # System toolchain: still force static-only build for consistency.
+        set(OPENSSL_CONFIGURE_COMMAND
+            ${CMAKE_COMMAND} -E env
+                CC=${CMAKE_C_COMPILER}
+            <SOURCE_DIR>/Configure
+                --${OPENSSL_BUILD_TYPE}
+                --prefix=${CMAKE_BINARY_DIR}/_deps/openssl-install
+                no-tests no-shared no-module
+        )
+    endif()
+
+    set(OPENSSL_LIB_DIR ${CMAKE_BINARY_DIR}/_deps/openssl-install/lib64)
+    set(OPENSSL_CRYPTO_LIBRARY ${OPENSSL_LIB_DIR}/libcrypto.a)
+    set(OPENSSL_SSL_LIBRARY ${OPENSSL_LIB_DIR}/libssl.a)
+    set(OPENSSL_INCLUDE_DIR ${CMAKE_BINARY_DIR}/_deps/openssl-install/include)
+
     ExternalProject_Add(openssl-external
         GIT_REPOSITORY          https://github.com/openssl/openssl.git
         GIT_TAG                 openssl-3.1.1
         GIT_CONFIG              "advice.detachedHead=false"
         PREFIX                  ${CMAKE_BINARY_DIR}/_deps/openssl
         UPDATE_COMMAND          ""  # disable update step
-        CONFIGURE_COMMAND       <SOURCE_DIR>/Configure --${OPENSSL_BUILD_TYPE} --prefix=${CMAKE_BINARY_DIR}/_deps/openssl-install no-tests
-        BUILD_COMMAND           make
-        INSTALL_COMMAND         make install
+        CONFIGURE_COMMAND       ${OPENSSL_CONFIGURE_COMMAND}
+        # Build/install only static runtime + dev artifacts; avoid build_sw/install_sw
+        # which attempt to link provider DSOs (e.g., providers/legacy.so).
+        BUILD_COMMAND           make build_libs
+        INSTALL_COMMAND         make install_dev
+        INSTALL_BYPRODUCTS      ${OPENSSL_CRYPTO_LIBRARY} ${OPENSSL_SSL_LIBRARY}
         TEST_COMMAND            ""  # disable test step
     )
-    set(OPENSSL_LIB_DIR ${CMAKE_BINARY_DIR}/_deps/openssl-install/lib64)
-    set(OPENSSL_INCLUDE_DIR ${CMAKE_BINARY_DIR}/_deps/openssl-install/include)
     message("OPENSSL_LIB_DIR set to ${OPENSSL_LIB_DIR}")
     message("OPENSSL_INCLUDE_DIR set to ${OPENSSL_INCLUDE_DIR}")
     ExternalProject_Add_Step(openssl-external post-install

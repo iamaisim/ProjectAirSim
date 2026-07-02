@@ -75,7 +75,7 @@ target_link_libraries(
         gtest_main
         physics
         nng
-        crypto # Client authorization
+        ${OPENSSL_CRYPTO_LIBRARY} # Client authorization
         core_sim
         lvmon
 )

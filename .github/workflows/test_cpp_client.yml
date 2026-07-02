@@ -1,0 +1,257 @@
+name: C++ Client Build and Package
+
+"on":
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/test_cpp_client.yml"
+      - "client/cpp/**"
+      - "build.cmd"
+      - "build.sh"
+      - "build_windows.mk"
+      - "build_linux.mk"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/test_cpp_client.yml"
+      - "client/cpp/**"
+      - "build.cmd"
+      - "build.sh"
+      - "build_windows.mk"
+      - "build_linux.mk"
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    name: Windows package
+    runs-on: windows-2022
+    timeout-minutes: 90
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Enable Developer Command Prompt
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Configure
+        shell: cmd
+        run: >
+          cmake -S client/cpp
+          -B client/cpp/build_windows/Release
+          -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        shell: cmd
+        run: cmake --build client/cpp/build_windows/Release --config Release --parallel
+
+      - name: Package
+        shell: cmd
+        run: cmake --build client/cpp/build_windows/Release --target package --config Release
+
+      - name: Extract package
+        shell: pwsh
+        run: |
+          $archive = Get-ChildItem packages/projectairsim_cpp_client -Filter "ProjectAirSimCppClient-*-win64.zip" | Select-Object -First 1
+          if (-not $archive) {
+            throw "ProjectAirSim C++ client package was not created."
+          }
+
+          New-Item -ItemType Directory -Force _cpp_client_ci/package | Out-Null
+          Expand-Archive -Path $archive.FullName -DestinationPath _cpp_client_ci/package -Force
+
+          $packageRoot = Get-ChildItem _cpp_client_ci/package -Directory | Select-Object -First 1
+          if (-not $packageRoot) {
+            throw "ProjectAirSim C++ client package did not contain a top-level directory."
+          }
+
+          $packageConfig = Get-ChildItem $packageRoot.FullName -Recurse -Filter "ProjectAirSimCppClientConfig.cmake" | Select-Object -First 1
+          if (-not $packageConfig) {
+            Get-ChildItem $packageRoot.FullName -Recurse | Select-Object -ExpandProperty FullName
+            throw "ProjectAirSim C++ client CMake config was not found in the package."
+          }
+
+          "PACKAGE_ROOT=$($packageRoot.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "PACKAGE_CONFIG_DIR=$($packageConfig.Directory.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Smoke-test CMake package
+        shell: pwsh
+        run: |
+          $packageConfig = Get-ChildItem _cpp_client_ci/package -Recurse -Filter "ProjectAirSimCppClientConfig.cmake" | Select-Object -First 1
+          if (-not $packageConfig) {
+            Get-ChildItem _cpp_client_ci/package -Recurse | Select-Object -ExpandProperty FullName
+            throw "ProjectAirSim C++ client CMake config was not found before smoke test."
+          }
+
+          $packageConfigDir = $packageConfig.Directory.FullName
+          Write-Host "Using ProjectAirSimCppClient_DIR=$packageConfigDir"
+
+          New-Item -ItemType Directory -Force _cpp_client_ci/consumer | Out-Null
+
+          $cmakeLists = @'
+          cmake_minimum_required(VERSION 3.20)
+          project(ProjectAirSimCppClientConsumer LANGUAGES CXX)
+
+          set(CMAKE_CXX_STANDARD 17)
+          set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+          find_package(ProjectAirSimCppClient REQUIRED)
+
+          add_executable(consumer main.cpp)
+          target_link_libraries(consumer PRIVATE ProjectAirSim::Client)
+          '@
+
+          $cmakeLists | Set-Content _cpp_client_ci/consumer/CMakeLists.txt
+          $mainSource = @'
+          #include <ProjectAirsimClient/Client.h>
+
+          int main() {
+            return microsoft::projectairsim::client::Client::GetVersion() == nullptr;
+          }
+          '@
+
+          $mainSource | Set-Content _cpp_client_ci/consumer/main.cpp
+
+          cmake -S _cpp_client_ci/consumer `
+            -B _cpp_client_ci/consumer/build `
+            -G Ninja `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DProjectAirSimCppClient_DIR="$packageConfigDir" `
+            -DCMAKE_PREFIX_PATH="$packageConfigDir"
+
+          cmake --build _cpp_client_ci/consumer/build --config Release --parallel
+
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: projectairsim-cpp-client-win64
+          path: |
+            packages/projectairsim_cpp_client/ProjectAirSimCppClient-*-win64.zip
+            packages/projectairsim_cpp_client/ProjectAirSimCppClient-*-win64.zip.sha256
+          if-no-files-found: error
+
+  linux:
+    name: Linux package (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-22.04
+          - ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux Prerequisites
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install --no-install-recommends \
+            build-essential cmake ninja-build
+
+      - name: Configure
+        shell: bash
+        run: |
+          cmake -S client/cpp \
+            -B client/cpp/build_linux/Release \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        shell: bash
+        run: cmake --build client/cpp/build_linux/Release --config Release --parallel
+
+      - name: Package
+        shell: bash
+        run: cmake --build client/cpp/build_linux/Release --target package --config Release
+
+      - name: Extract package
+        shell: bash
+        run: |
+          archive="$(find packages/projectairsim_cpp_client -maxdepth 1 -name 'ProjectAirSimCppClient-*-linux64.tar.gz' -print -quit)"
+          if [ -z "$archive" ]; then
+            echo "ProjectAirSim C++ client package was not created." >&2
+            exit 1
+          fi
+
+          mkdir -p _cpp_client_ci/package
+          tar -xzf "$archive" -C _cpp_client_ci/package
+
+          package_root="$(find _cpp_client_ci/package -mindepth 1 -maxdepth 1 -type d -print -quit)"
+          if [ -z "$package_root" ]; then
+            echo "ProjectAirSim C++ client package did not contain a top-level directory." >&2
+            exit 1
+          fi
+
+          package_config="$(find "$package_root" -name 'ProjectAirSimCppClientConfig.cmake' -print -quit)"
+          if [ -z "$package_config" ]; then
+            find "$package_root" -maxdepth 5 -print
+            echo "ProjectAirSim C++ client CMake config was not found in the package." >&2
+            exit 1
+          fi
+
+          echo "PACKAGE_ROOT=$package_root" >> "$GITHUB_ENV"
+          echo "PACKAGE_CONFIG_DIR=$(dirname "$package_config")" >> "$GITHUB_ENV"
+
+      - name: Smoke-test CMake package
+        shell: bash
+        run: |
+          package_config="$(find _cpp_client_ci/package -name 'ProjectAirSimCppClientConfig.cmake' -print -quit)"
+          if [ -z "$package_config" ]; then
+            find _cpp_client_ci/package -maxdepth 6 -print
+            echo "ProjectAirSim C++ client CMake config was not found before smoke test." >&2
+            exit 1
+          fi
+
+          package_config="$(realpath "$package_config")"
+          package_config_dir="$(dirname "$package_config")"
+          echo "Using ProjectAirSimCppClient_DIR=$package_config_dir"
+
+          mkdir -p _cpp_client_ci/consumer
+
+          cat > _cpp_client_ci/consumer/CMakeLists.txt <<'EOF'
+          cmake_minimum_required(VERSION 3.20)
+          project(ProjectAirSimCppClientConsumer LANGUAGES CXX)
+
+          set(CMAKE_CXX_STANDARD 17)
+          set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+          find_package(ProjectAirSimCppClient REQUIRED)
+
+          add_executable(consumer main.cpp)
+          target_link_libraries(consumer PRIVATE ProjectAirSim::Client)
+          EOF
+
+          cat > _cpp_client_ci/consumer/main.cpp <<'EOF'
+          #include <ProjectAirsimClient/Client.h>
+
+          int main() {
+            return microsoft::projectairsim::client::Client::GetVersion() == nullptr;
+          }
+          EOF
+
+          cmake -S _cpp_client_ci/consumer \
+            -B _cpp_client_ci/consumer/build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DProjectAirSimCppClient_DIR="$package_config_dir" \
+            -DCMAKE_PREFIX_PATH="$package_config_dir"
+
+          cmake --build _cpp_client_ci/consumer/build --config Release --parallel
+
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: projectairsim-cpp-client-${{ matrix.os }}-linux64
+          path: |
+            packages/projectairsim_cpp_client/ProjectAirSimCppClient-*-linux64.tar.gz
+            packages/projectairsim_cpp_client/ProjectAirSimCppClient-*-linux64.tar.gz.sha256
+          if-no-files-found: error

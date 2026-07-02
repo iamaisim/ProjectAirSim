@@ -572,16 +572,37 @@ std::vector<uint8_t> Camera::Impl::RunOnnxModelOnImages(ImageMessage imgMsg) {
   try {
     if (!camera_settings.post_process_model_settings.session_initialized) {
       logger_.LogVerbose(name_, "[%s] Entered onnx section'.", id_.c_str());
+      auto throw_on_onnx_status = [](OrtStatus* status,
+                                     const char* provider_name) {
+        if (status == nullptr) {
+          return;
+        }
+
+        std::string error_message =
+            std::string("Failed to add ONNX execution provider ") +
+            provider_name + ": " + Ort::GetApi().GetErrorMessage(status);
+        Ort::GetApi().ReleaseStatus(status);
+        throw Error(error_message);
+      };
+
       if (camera_settings.post_process_model_settings.execution_provider ==
           "cuda") {
         logger_.LogVerbose(name_, "Trying to add CUDA EP since it is enabled.");
-        OrtSessionOptionsAppendExecutionProvider_CUDA(onnx_.session_options, 0);
+        throw_on_onnx_status(
+            OrtSessionOptionsAppendExecutionProvider_CUDA(
+                onnx_.session_options, 0),
+            "CUDA");
         logger_.LogVerbose(name_, "onnx CUDA session declared");
       } else if (camera_settings.post_process_model_settings
                      .execution_provider == "tensorrt") {
-        OrtSessionOptionsAppendExecutionProvider_Tensorrt(onnx_.session_options,
-                                                          0);
-        OrtSessionOptionsAppendExecutionProvider_CUDA(onnx_.session_options, 0);
+        throw_on_onnx_status(
+            OrtSessionOptionsAppendExecutionProvider_Tensorrt(
+                onnx_.session_options, 0),
+            "TensorRT");
+        throw_on_onnx_status(
+            OrtSessionOptionsAppendExecutionProvider_CUDA(
+                onnx_.session_options, 0),
+            "CUDA");
         logger_.LogVerbose(name_, "onnx TensorRT session declared");
       }
       logger_.LogVerbose(name_, "onnx Creating session");

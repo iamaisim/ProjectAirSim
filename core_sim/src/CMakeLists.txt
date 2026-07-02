@@ -155,7 +155,7 @@ else()
         ${TARGET_NAME}
         PRIVATE
             nng
-            crypto # Client authorization
+            ${OPENSSL_CRYPTO_LIBRARY} # Client authorization
     )
 endif()
 

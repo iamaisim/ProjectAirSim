@@ -130,7 +130,7 @@ else()
             gtest_main
             core_sim
             nng
-            crypto # Client authorization
+            ${OPENSSL_CRYPTO_LIBRARY} # Client authorization
     )
 endif()
 

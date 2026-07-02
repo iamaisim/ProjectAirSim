@@ -74,7 +74,7 @@ target_link_libraries(
         nng
         mavlinkcom
         lvmon
-        crypto # Client authorization
+        ${OPENSSL_CRYPTO_LIBRARY} # Client authorization
 )
 endif()
 

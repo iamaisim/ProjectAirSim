@@ -5,14 +5,37 @@ Project AirSim simulation through the Project AirSim C++ client library.
 
 
 ## Building:
+
+### Windows (Visual Studio)
 1. Open the solution file "HelloDrone.sln" in Visual Studio 2019.
 2. Build the project (Build-->"Build Solution".)
 3. The executable `hello_drone.exe` is in the project output directory.
-4. Note that `hello_drone.exe` imports the `AirSimClient.dll` and `NNGI.dll`
+4. Note that `hello_drone.exe` imports the `ProjectAirsimClient.dll` and `NNGI.dll`
 dynamically-loaded libraries.  These two files are in the
 <code>client\cpp\libraries\\<i>build_platform</i>\\<i>build_configuration</i>\\</code>
 directory. Add this directory to the `PATH` environment variable or copy those
 DLL's to the directory containing `hello_drone.exe`.
+
+### Linux (CMake)
+From the repository root:
+
+```bash
+cd client/cpp
+cmake -S . -B build_linux -DCMAKE_BUILD_TYPE=Debug
+cmake --build build_linux -j$(nproc)
+```
+
+The executable is generated at:
+
+```text
+client/cpp/build_linux/hello_drone
+```
+
+Run help to verify:
+
+```bash
+./client/cpp/build_linux/hello_drone --help
+```
 
 ## Running:
 1. Before running the Hello Drone application, launch a basic Project AirSim simulation

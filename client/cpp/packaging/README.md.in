@@ -1,0 +1,65 @@
+# Project AirSim C++ Client @PROJECT_VERSION@
+
+Native C++17 client package for Project AirSim.
+
+## Package Contents
+
+```text
+bin/                         Example executables
+include/                     Public headers and bundled third-party headers
+lib/                         Static libraries
+lib/cmake/ProjectAirSimCppClient/
+                             CMake package files
+examples/                    Example source files and sample sim_config files
+scripts/                     Helper scripts
+license.md                   License
+```
+
+## Libraries
+
+The package exposes one final static library:
+
+- `ProjectAirSimCppClient`
+
+It contains the high-level client, message library, NNGI wrapper, and NNG static
+library. On Windows, consumers also link the Windows SDK/system libraries
+declared by the CMake package, including `Version`, `ws2_32`, `mswsock`, and
+`advapi32`.
+
+## Use From CMake
+
+Point `CMAKE_PREFIX_PATH` at the package root, or pass
+`-DProjectAirSimCppClient_DIR=<package>/lib/cmake/ProjectAirSimCppClient`.
+
+```cmake
+cmake_minimum_required(VERSION 3.20)
+project(MyProjectAirSimApp LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+find_package(ProjectAirSimCppClient REQUIRED)
+
+add_executable(my_app main.cpp)
+target_link_libraries(my_app PRIVATE ProjectAirSim::Client)
+```
+
+## Run HelloDrone
+
+Start a Project AirSim simulation server first, then run:
+
+```bash
+bin/hello_drone --simhost 127.0.0.1 --simconfig examples/sim_config
+```
+
+On Windows:
+
+```bat
+bin\hello_drone.exe --simhost 127.0.0.1 --simconfig examples\sim_config
+```
+
+## Build Metadata
+
+- Version: `@PROJECT_VERSION@`
+- Platform package: `@PROJECTAIRSIM_CPP_CLIENT_PACKAGE_PLATFORM@`
+- Build type: `@CMAKE_BUILD_TYPE@`

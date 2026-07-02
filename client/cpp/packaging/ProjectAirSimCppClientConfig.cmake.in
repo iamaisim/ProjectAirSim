@@ -1,0 +1,38 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+if(NOT WIN32)
+  find_dependency(Threads)
+endif()
+
+set(ProjectAirSimCppClient_VERSION "@PROJECT_VERSION@")
+set(ProjectAirSimCppClient_PLATFORM "@PROJECTAIRSIM_CPP_CLIENT_PACKAGE_PLATFORM@")
+set(ProjectAirSimCppClient_ROOT_DIR "${PACKAGE_PREFIX_DIR}")
+set(ProjectAirSimCppClient_INCLUDE_DIR "${PACKAGE_PREFIX_DIR}/include")
+set(ProjectAirSimCppClient_LIB_DIR "${PACKAGE_PREFIX_DIR}/lib")
+set(ProjectAirSimCppClient_BIN_DIR "${PACKAGE_PREFIX_DIR}/bin")
+
+set(_projectairsim_cpp_client_lib_name
+  "@PROJECTAIRSIM_CPP_CLIENT_LIB_PREFIX@ProjectAirSimCppClient@PROJECTAIRSIM_CPP_CLIENT_LIB_SUFFIX@"
+)
+
+set(_projectairsim_cpp_client_link_libs)
+
+if(WIN32)
+  list(APPEND _projectairsim_cpp_client_link_libs Version ws2_32 mswsock advapi32)
+else()
+  list(APPEND _projectairsim_cpp_client_link_libs Threads::Threads)
+endif()
+
+if(NOT TARGET ProjectAirSim::Client)
+  add_library(ProjectAirSim::Client STATIC IMPORTED)
+  set_target_properties(ProjectAirSim::Client PROPERTIES
+    IMPORTED_LOCATION "${ProjectAirSimCppClient_LIB_DIR}/${_projectairsim_cpp_client_lib_name}"
+    INTERFACE_INCLUDE_DIRECTORIES "${ProjectAirSimCppClient_INCLUDE_DIR}"
+    INTERFACE_COMPILE_DEFINITIONS "PROJECTAIRSIMCLIENT_STATIC;NNGI_STATIC_LIB;NNG_STATIC_LIB;MSGPACK_NO_BOOST"
+    INTERFACE_LINK_LIBRARIES "${_projectairsim_cpp_client_link_libs}"
+  )
+endif()
+
+check_required_components(ProjectAirSimCppClient)

@@ -1,0 +1,5 @@
+string topic
+string json_message
+---
+bool success
+string status

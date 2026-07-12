@@ -1,0 +1,8 @@
+string method
+string json_parameters
+---
+bool success
+string status
+int32 error_code
+string result_json
+string raw_response

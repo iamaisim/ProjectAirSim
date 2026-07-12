@@ -1,0 +1,5 @@
+string[] topics
+bool all
+---
+bool success
+string status

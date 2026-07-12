@@ -1,0 +1,9 @@
+uint8 SOURCE_URL=0
+uint8 SOURCE_FILE=1
+uint8 SOURCE_PACKAGED_ASSET=2
+string object_name
+uint8 source
+string texture
+---
+bool success
+string status

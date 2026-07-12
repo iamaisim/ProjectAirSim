@@ -1,0 +1,5 @@
+string object_name
+string material_asset_path
+---
+bool success
+string status

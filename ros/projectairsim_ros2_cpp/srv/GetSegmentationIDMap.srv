@@ -1,0 +1,4 @@
+---
+bool success
+string segmentation_map_json
+string status

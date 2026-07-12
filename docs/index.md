@@ -90,7 +90,7 @@ physics/matlab_physics.md
 
 api.md
 cpp_client.md
-ros/ros.md
+ros/ros2.md
 ```
 
 ```{toctree}

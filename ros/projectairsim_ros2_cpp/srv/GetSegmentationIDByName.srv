@@ -1,0 +1,6 @@
+string mesh_name
+bool use_owner_name
+---
+bool success
+int32 segmentation_id
+string status

@@ -50,6 +50,9 @@ jobs:
             ros2:
               - '.github/workflows/test_cpp_client.yml'
               - 'ros/projectairsim_ros2_cpp/**'
+              - 'client/cpp/**'
+              - 'client/python/example_user_scripts/sim_config/**'
+              - 'core_sim/**'
 
   windows:
     name: Windows package
@@ -323,10 +326,10 @@ jobs:
         shell: bash
         run: |
           source /opt/ros/humble/setup.bash
-          source ros/install/setup.bash
+          source install/setup.bash
           colcon test \
             --base-paths ros \
             --packages-select projectairsim_ros2_cpp \
             --return-code-on-test-failure \
             --event-handlers console_direct+
-          colcon test-result --test-result-base ros/build --verbose
+          colcon test-result --test-result-base build --verbose

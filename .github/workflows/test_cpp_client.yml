@@ -8,22 +8,18 @@ name: C++ Client and ROS 2 C++ Node CI
     paths:
       - ".github/workflows/test_cpp_client.yml"
       - "client/cpp/**"
+      - "client/python/example_user_scripts/sim_config/**"
+      - "core_sim/**"
       - "ros/projectairsim_ros2_cpp/**"
-      - "build.cmd"
-      - "build.sh"
-      - "build_windows.mk"
-      - "build_linux.mk"
   push:
     branches:
       - main
     paths:
       - ".github/workflows/test_cpp_client.yml"
       - "client/cpp/**"
+      - "client/python/example_user_scripts/sim_config/**"
+      - "core_sim/**"
       - "ros/projectairsim_ros2_cpp/**"
-      - "build.cmd"
-      - "build.sh"
-      - "build_windows.mk"
-      - "build_linux.mk"
 
 permissions:
   contents: read
@@ -49,10 +45,8 @@ jobs:
             client:
               - '.github/workflows/test_cpp_client.yml'
               - 'client/cpp/**'
-              - 'build.cmd'
-              - 'build.sh'
-              - 'build_windows.mk'
-              - 'build_linux.mk'
+              - 'client/python/example_user_scripts/sim_config/**'
+              - 'core_sim/**'
             ros2:
               - '.github/workflows/test_cpp_client.yml'
               - 'ros/projectairsim_ros2_cpp/**'

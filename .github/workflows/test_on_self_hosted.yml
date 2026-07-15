@@ -4,6 +4,24 @@ on:
   pull_request:
     branches:
       - main
+    paths:
+      - ".github/workflows/test_on_self_hosted.yml"
+      - "CMakeLists.txt"
+      - "build.sh"
+      - "build_linux.mk"
+      - "setup_linux_dev_tools.sh"
+      - "unreal-linux-toolchain.cmake"
+      - "client/python/**"
+      - "core_sim/**"
+      - "mavlinkcom/**"
+      - "physics/**"
+      - "rendering/**"
+      - "samples/**"
+      - "simserver/**"
+      - "tools/**"
+      - "unity/**"
+      - "unreal/**"
+      - "vehicle_apis/**"
     # Only run when the self-hosted label is added; the job itself still
     # rejects draft PRs and PRs without run-self-hosted.
     types: [labeled]

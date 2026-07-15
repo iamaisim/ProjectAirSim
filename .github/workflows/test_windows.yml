@@ -2,12 +2,41 @@ name: Windows Build and Tests
 
 # Controls when the action will run.
 on:
+  workflow_dispatch:
   pull_request:
     branches:
       - main
+    paths:
+      - ".github/workflows/test_windows.yml"
+      - "CMakeLists.txt"
+      - "build.cmd"
+      - "build_windows.mk"
+      - "core_sim/**"
+      - "mavlinkcom/**"
+      - "physics/**"
+      - "rendering/**"
+      - "samples/**"
+      - "simserver/**"
+      - "tools/**"
+      - "unity/**"
+      - "vehicle_apis/**"
   push:
     branches:
       - main
+    paths:
+      - ".github/workflows/test_windows.yml"
+      - "CMakeLists.txt"
+      - "build.cmd"
+      - "build_windows.mk"
+      - "core_sim/**"
+      - "mavlinkcom/**"
+      - "physics/**"
+      - "rendering/**"
+      - "samples/**"
+      - "simserver/**"
+      - "tools/**"
+      - "unity/**"
+      - "vehicle_apis/**"
 
 jobs:
   build:

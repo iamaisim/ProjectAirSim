@@ -1,4 +1,4 @@
-name: C++ Client Build and Package
+name: C++ Client and ROS 2 C++ Node CI
 
 "on":
   workflow_dispatch:
@@ -8,6 +8,7 @@ name: C++ Client Build and Package
     paths:
       - ".github/workflows/test_cpp_client.yml"
       - "client/cpp/**"
+      - "ros/projectairsim_ros2_cpp/**"
       - "build.cmd"
       - "build.sh"
       - "build_windows.mk"
@@ -18,6 +19,7 @@ name: C++ Client Build and Package
     paths:
       - ".github/workflows/test_cpp_client.yml"
       - "client/cpp/**"
+      - "ros/projectairsim_ros2_cpp/**"
       - "build.cmd"
       - "build.sh"
       - "build_windows.mk"
@@ -25,10 +27,40 @@ name: C++ Client Build and Package
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
+  changes:
+    name: Detect changed components
+    runs-on: ubuntu-22.04
+    outputs:
+      client: ${{ steps.filter.outputs.client }}
+      ros2: ${{ steps.filter.outputs.ros2 }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect relevant changes
+        id: filter
+        if: github.event_name != 'workflow_dispatch'
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            client:
+              - '.github/workflows/test_cpp_client.yml'
+              - 'client/cpp/**'
+              - 'build.cmd'
+              - 'build.sh'
+              - 'build_windows.mk'
+              - 'build_linux.mk'
+            ros2:
+              - '.github/workflows/test_cpp_client.yml'
+              - 'ros/projectairsim_ros2_cpp/**'
+
   windows:
     name: Windows package
+    needs: changes
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.client == 'true'
     runs-on: windows-2022
     timeout-minutes: 90
 
@@ -137,6 +169,8 @@ jobs:
 
   linux:
     name: Linux package (${{ matrix.os }})
+    needs: changes
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.client == 'true'
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90
 
@@ -255,3 +289,50 @@ jobs:
             packages/projectairsim_cpp_client/ProjectAirSimCppClient-*-linux64.tar.gz
             packages/projectairsim_cpp_client/ProjectAirSimCppClient-*-linux64.tar.gz.sha256
           if-no-files-found: error
+
+  ros2-humble:
+    name: ROS 2 Humble node build and unit tests
+    needs: changes
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.ros2 == 'true'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up ROS 2 Humble
+        uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: humble
+
+      - name: Install package dependencies
+        shell: bash
+        run: |
+          rosdep update
+          rosdep install \
+            --from-paths ros/projectairsim_ros2_cpp \
+            --ignore-src \
+            --rosdistro humble \
+            --yes
+
+      - name: Build node
+        shell: bash
+        run: |
+          source /opt/ros/humble/setup.bash
+          colcon build \
+            --base-paths ros \
+            --packages-select projectairsim_ros2_cpp \
+            --cmake-args -DBUILD_TESTING=ON \
+            --event-handlers console_direct+
+
+      - name: Run unit tests
+        shell: bash
+        run: |
+          source /opt/ros/humble/setup.bash
+          source ros/install/setup.bash
+          colcon test \
+            --base-paths ros \
+            --packages-select projectairsim_ros2_cpp \
+            --return-code-on-test-failure \
+            --event-handlers console_direct+
+          colcon test-result --test-result-base ros/build --verbose

@@ -307,7 +307,7 @@ jobs:
             --from-paths ros/projectairsim_ros2_cpp \
             --ignore-src \
             --rosdistro humble \
-            --yes
+            -y
 
       - name: Build node
         shell: bash

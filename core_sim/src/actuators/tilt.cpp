@@ -62,7 +62,7 @@ class Tilt::Impl : public ActuatorImpl {
 
   const std::string& GetTargetID(void) const { return (settings_.target_id); }
 
-  void UpdateActuatorOutput(std::vector<float> && control_signals,
+  void UpdateActuatorOutput(const ControlSignals& control_signals,
                             const TimeNano sim_dt_nanos);
 
  private:
@@ -125,10 +125,10 @@ const std::string& Tilt::GetTargetID(void) const {
   return static_cast<Tilt::Impl*>(pimpl_.get())->GetTargetID();
 }
 
-void Tilt::UpdateActuatorOutput(std::vector<float> && control_signals,
-                            const TimeNano sim_dt_nanos){
+void Tilt::UpdateActuatorOutput(const ControlSignals& control_signals,
+                                const TimeNano sim_dt_nanos) {
   static_cast<Tilt::Impl*>(pimpl_.get())
-      -> UpdateActuatorOutput(std::move(control_signals), sim_dt_nanos);
+      ->UpdateActuatorOutput(control_signals, sim_dt_nanos);
 }
 
 //------------------------------------------------------------------------------
@@ -176,8 +176,8 @@ const ActuatedTransforms& Tilt::Impl::GetActuatedTransforms() const {
   return actuated_transforms_;
 }
 
-void Tilt::Impl::UpdateActuatorOutput(std::vector<float> && control_signals,
-                            const TimeNano sim_dt_nanos){
+void Tilt::Impl::UpdateActuatorOutput(const ControlSignals& control_signals,
+                                      const TimeNano sim_dt_nanos) {
   float radians;
   Quaternion quat;
 

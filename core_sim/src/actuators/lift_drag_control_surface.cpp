@@ -57,7 +57,8 @@ class LiftDragControlSurface::Impl : public ActuatorImpl {
 
   const float& GetControlAngle() const;
 
-  void UpdateActuatorOutput(std::vector<float> && control_signals, const TimeNano sim_dt_nanos);
+  void UpdateActuatorOutput(const ControlSignals& control_signals,
+                            const TimeNano sim_dt_nanos);
 
  private:
   friend class LiftDragControlSurface::Loader;
@@ -111,10 +112,10 @@ const float& LiftDragControlSurface::GetControlAngle() const {
       ->GetControlAngle();
 }
 
-void LiftDragControlSurface::UpdateActuatorOutput(std::vector<float> && control_signals,
-  const TimeNano sim_dt_nanos){
+void LiftDragControlSurface::UpdateActuatorOutput(
+    const ControlSignals& control_signals, const TimeNano sim_dt_nanos) {
   static_cast<LiftDragControlSurface::Impl*>(pimpl_.get())
-      ->UpdateActuatorOutput(std::move(control_signals), sim_dt_nanos);
+      ->UpdateActuatorOutput(control_signals, sim_dt_nanos);
 }
 
 //------------------------------------------------------------------------------
@@ -156,8 +157,8 @@ const float& LiftDragControlSurface::Impl::GetControlAngle() const {
   return control_angle_;
 }
 
-void LiftDragControlSurface::Impl::UpdateActuatorOutput(std::vector<float> && control_signals,
-  const TimeNano sim_dt_nanos){
+void LiftDragControlSurface::Impl::UpdateActuatorOutput(
+    const ControlSignals& control_signals, const TimeNano sim_dt_nanos) {
   // Convert -1.0 ~ +1.0 control signal to control surface angle (like a servo
   // motor but without any dynamics)
   auto control_signal = control_signals[0];

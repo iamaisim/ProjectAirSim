@@ -52,6 +52,49 @@ class Scene {  // : public ::testing::Test {
   }
 };
 
+class FakeController : public IController {
+ public:
+  void BeginUpdate() override {}
+  void EndUpdate() override {}
+  void Reset() override {}
+  void SetKinematics(const Kinematics* kinematics) override {}
+  void Update() override {}
+
+  int GetControlSignalIndex(const std::string& actuator_id) override {
+    return GetControlSignalIndex(actuator_id, 0);
+  }
+
+  int GetControlSignalIndex(const std::string& actuator_id,
+                            size_t signal_offset) override {
+    ++index_lookup_count;
+    last_actuator_id = actuator_id;
+    return 7 + static_cast<int>(signal_offset);
+  }
+
+  void GetControlSignalSnapshot(std::vector<float>& control_signals) override {
+    control_signals = {0.0f};
+  }
+
+  std::vector<float> GetControlSignals(int signal_index) override {
+    return {static_cast<float>(signal_index)};
+  }
+
+  std::vector<float> GetControlSignals(
+      const std::string& actuator_id) override {
+    return GetControlSignals(GetControlSignalIndex(actuator_id));
+  }
+
+  const GimbalState& GetGimbalSignal(const std::string& gimbal_id) override {
+    return gimbal_state_;
+  }
+
+  int index_lookup_count = 0;
+  std::string last_actuator_id;
+
+ private:
+  GimbalState gimbal_state_;
+};
+
 }  // namespace projectairsim
 }  // namespace microsoft
 
@@ -99,6 +142,42 @@ TEST(Actuator, LoadsOneActuator) {
   auto& actuators = robot.GetActuators();
   // Assert: check result from `EXPECT_EQ(actuators.size(), 1);`.
   EXPECT_EQ(actuators.size(), 1);
+}
+
+TEST(Actuator, CachesControllerSignalIndex) {
+  auto config_json = projectairsim::Scene::get_actuator_config();
+  auto robot = projectairsim::Scene::MakeRobot("TestRobot");
+  projectairsim::Scene::LoadRobot(robot, config_json);
+  auto controller = std::make_unique<projectairsim::FakeController>();
+  auto* controller_ptr = controller.get();
+
+  robot.SetController(std::move(controller));
+
+  auto& actuator = robot.GetActuators().at(0).get();
+  EXPECT_EQ(actuator.GetSignalIndex(), 7);
+  EXPECT_EQ(controller_ptr->index_lookup_count, 1);
+  EXPECT_EQ(controller_ptr->last_actuator_id, actuator.GetId());
+  EXPECT_EQ(controller_ptr->GetControlSignals(actuator.GetSignalIndex()).at(0),
+            7.0f);
+  EXPECT_EQ(controller_ptr->index_lookup_count, 1);
+}
+
+TEST(Actuator, CachesAllWheelSignalIndices) {
+  auto config_json = projectairsim::Scene::get_actuator_config();
+  config_json["actuators"][0]["type"] = "wheel";
+  auto robot = projectairsim::Scene::MakeRobot("TestRobot");
+  projectairsim::Scene::LoadRobot(robot, config_json);
+  auto controller = std::make_unique<projectairsim::FakeController>();
+  auto* controller_ptr = controller.get();
+
+  robot.SetController(std::move(controller));
+
+  auto& actuator = robot.GetActuators().at(0).get();
+  EXPECT_EQ(actuator.GetSignalCount(), 3);
+  EXPECT_EQ(actuator.GetSignalIndex(0), 7);
+  EXPECT_EQ(actuator.GetSignalIndex(1), 8);
+  EXPECT_EQ(actuator.GetSignalIndex(2), 9);
+  EXPECT_EQ(controller_ptr->index_lookup_count, 3);
 }
 
 TEST(Actuator, LoadsTwoActuatorsSameID) {

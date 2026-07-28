@@ -152,17 +152,37 @@ void SimpleFlightApi::Update() {
   firmware_->Update();
 };
 
-std::vector<float> SimpleFlightApi::GetControlSignals(const std::string& actuator_id) {
+int SimpleFlightApi::GetControlSignalIndex(const std::string& actuator_id) {
   auto actuator_map_itr = actuator_id_to_output_idx_map_.find(actuator_id);
   if (actuator_map_itr == actuator_id_to_output_idx_map_.end()) {
     GetLogger().LogWarning(
         GetControllerName(),
         "SimpleFlightApi::GetControlSignal() called for invalid actuator: %s",
         actuator_id.c_str());
-    return std::vector<float>(1,0.f);
+    return -1;
   }
 
-  return std::vector<float>(1, board_->GetMotorControlSignal(actuator_map_itr->second));
+  return actuator_map_itr->second;
+}
+
+void SimpleFlightApi::GetControlSignalSnapshot(
+    std::vector<float>& control_signals) {
+  control_signals.resize(actuator_id_to_output_idx_map_.size());
+  for (size_t signal_index = 0; signal_index < control_signals.size();
+       ++signal_index) {
+    control_signals[signal_index] = board_->GetMotorControlSignal(signal_index);
+  }
+}
+
+std::vector<float> SimpleFlightApi::GetControlSignals(int signal_index) {
+  if (signal_index < 0) return std::vector<float>(1, 0.f);
+
+  return std::vector<float>(1, board_->GetMotorControlSignal(signal_index));
+}
+
+std::vector<float> SimpleFlightApi::GetControlSignals(
+    const std::string& actuator_id) {
+  return GetControlSignals(GetControlSignalIndex(actuator_id));
 }
 
 //---------------------------------------------------------------------------

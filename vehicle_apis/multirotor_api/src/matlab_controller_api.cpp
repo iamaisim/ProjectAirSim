@@ -208,18 +208,38 @@ void MatlabControllerApi::Update() {
   }
 }
 
-std::vector<float> MatlabControllerApi::GetControlSignals(const std::string& actuator_id) {
-  std::lock_guard<std::mutex> lock(update_lock_);
-
+int MatlabControllerApi::GetControlSignalIndex(const std::string& actuator_id) {
   auto actuator_map_itr = actuator_id_to_output_idx_map_.find(actuator_id);
   if (actuator_map_itr == actuator_id_to_output_idx_map_.end()) {
     GetLogger().LogWarning("MatlabControllerApi",
                            "MatlabControllerApi::GetControlSignal() called for "
                            "invalid actuator: %s",
                            actuator_id.c_str());
+    return -1;
+  }
+
+  return actuator_map_itr->second;
+}
+
+void MatlabControllerApi::GetControlSignalSnapshot(
+    std::vector<float>& control_signals) {
+  std::lock_guard<std::mutex> lock(update_lock_);
+  control_signals.assign(motor_output_.begin(), motor_output_.end());
+}
+
+std::vector<float> MatlabControllerApi::GetControlSignals(int signal_index) {
+  std::lock_guard<std::mutex> lock(update_lock_);
+  if (signal_index < 0 ||
+      signal_index >= static_cast<int>(motor_output_.size())) {
     return std::vector<float>(1, 0.f);
   }
-  return std::vector<float>(1, motor_output_.at(actuator_map_itr->second));
+
+  return std::vector<float>(1, motor_output_[signal_index]);
+}
+
+std::vector<float> MatlabControllerApi::GetControlSignals(
+    const std::string& actuator_id) {
+  return GetControlSignals(GetControlSignalIndex(actuator_id));
 }
 
 const IController::GimbalState& MatlabControllerApi::GetGimbalSignal(

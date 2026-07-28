@@ -50,6 +50,9 @@ class MavLinkApi : public VTOLFWApiBase {
   void Reset() override;
   void SetKinematics(const Kinematics* kinematics) override;
   void Update() override;
+  int GetControlSignalIndex(const std::string& actuator_id) override;
+  void GetControlSignalSnapshot(std::vector<float>& control_signals) override;
+  std::vector<float> GetControlSignals(int signal_index) override;
   std::vector<float> GetControlSignals(const std::string& actuator_id) override;
   const IController::GimbalState& GetGimbalSignal(
       const std::string& gimbal_id) override;

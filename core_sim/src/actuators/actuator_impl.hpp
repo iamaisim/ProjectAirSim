@@ -43,7 +43,8 @@ class ActuatorImpl : public ComponentWithTopicsAndServiceMethods {
         type_(type),
         enabled_(enabled),
         parent_link_(parent_link),
-        child_link_(child_link) {}
+        child_link_(child_link),
+        signal_indices_({-1, -1, -1}) {}
 
   const bool IsEnabled() const { return enabled_; }
 
@@ -52,6 +53,18 @@ class ActuatorImpl : public ComponentWithTopicsAndServiceMethods {
   const std::string& GetParentLink() const { return parent_link_; }
 
   const std::string& GetChildLink() const { return child_link_; }
+
+  size_t GetSignalCount() const {
+    return type_ == ActuatorType::kWheel ? 3 : 1;
+  }
+
+  int GetSignalIndex(size_t signal_offset) const {
+    return signal_indices_.at(signal_offset);
+  }
+
+  void SetSignalIndex(int signal_index, size_t signal_offset) {
+    signal_indices_.at(signal_offset) = signal_index;
+  }
 
   bool UpdateFaultInjectionEnabledState(bool enabled) {
     is_fault_injected_ = enabled;
@@ -255,6 +268,7 @@ class ActuatorImpl : public ComponentWithTopicsAndServiceMethods {
   bool enabled_;
   std::string parent_link_;
   std::string child_link_;
+  std::array<int, Actuator::kMaxControlSignalCount> signal_indices_;
 };
 
 }  // namespace projectairsim

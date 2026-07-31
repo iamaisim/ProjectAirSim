@@ -110,7 +110,7 @@ set_target_properties(${TARGET_NAME} PROPERTIES
 if(WIN32)
     add_dependencies(${TARGET_NAME} nng-external)
 else()
-    add_dependencies(${TARGET_NAME} nng-external openssl-external)
+    add_dependencies(${TARGET_NAME} nng-external openssl-external zlib-external)
 endif()
 
 # Set up nng and openssl for linking

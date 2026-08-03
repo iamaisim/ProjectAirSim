@@ -35,7 +35,7 @@ include(FetchContent)
 include(ExternalProject)
 
 if (UNIX)
-    if(DEFINED ENV{UE_ROOT})
+    if(DEFINED ENV{UE_ROOT} AND NOT "$ENV{UE_ROOT}" STREQUAL "")
         # Build/link against UE's packaged Linux toolchain instead of system-installed toolchain
         # Note: This must be set BEFORE `project()` is called
         message("Building/linking against Unreal packaged toolchain from UE_ROOT=$ENV{UE_ROOT}")

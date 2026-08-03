@@ -30,6 +30,7 @@ class AUnrealScene : public AActor {
 
  public:
   explicit AUnrealScene(const FObjectInitializer& ObjectInitialize);
+  ~AUnrealScene() override;
 
   void LoadUnrealScene(
       UWorld* World, microsoft::projectairsim::Scene& Scene,

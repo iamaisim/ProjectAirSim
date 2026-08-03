@@ -17,10 +17,12 @@
 #include "ProjectAirSim.h"
 #include "Robot/UnrealEnvActor.h"
 #include "Robot/UnrealRobot.h"
+#include "Sensors/UnrealCamera.h"
 #include "UObject/ConstructorHelpers.h"
 #include "UnrealHelpers.h"
 #include "UnrealLogger.h"
 #include "World/WeatherLib.h"
+#include "World/WorldSimApi.h"
 #include "core_sim/clock.hpp"
 
 namespace projectairsim = microsoft::projectairsim;
@@ -35,6 +37,8 @@ AUnrealScene::AUnrealScene(const FObjectInitializer& ObjectInitialize)
   // Add InputComponent for keyboard input bindings
   InputComponent = CreateDefaultSubobject<UInputComponent>("UnrealScene");
 }
+
+AUnrealScene::~AUnrealScene() = default;
 
 void AUnrealScene::LoadUnrealScene(
     UWorld* World, projectairsim::Scene& Scene,

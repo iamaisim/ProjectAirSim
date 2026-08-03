@@ -19,20 +19,32 @@ cmake_minimum_required(VERSION 3.15.0)
 
 # Before making projects, set CMake policy to use MSVC_RUNTIME_LIBRARY property
 cmake_policy(SET CMP0091 NEW)
+# CMake 3.24+ warns unless URL-based FetchContent downloads use extraction-time
+# timestamps, which avoids stale rebuild decisions when downloaded contents change.
+if(POLICY CMP0135)
+    cmake_policy(SET CMP0135 NEW)
+endif()
+# CMake 3.30+ deprecates the current FetchContent_Populate() pattern used below.
+# Keep OLD behavior until this file is refactored to FetchContent_MakeAvailable().
+if(POLICY CMP0169)
+    cmake_policy(SET CMP0169 OLD)
+endif()
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")  # Have to match UE (uses /MD non-debug CRT for all configs)
 
 include(FetchContent)
 include(ExternalProject)
 
 if (UNIX)
-    if(DEFINED ENV{UE_ROOT})
+    if(DEFINED ENV{UE_ROOT} AND NOT "$ENV{UE_ROOT}" STREQUAL "")
         # Build/link against UE's packaged Linux toolchain instead of system-installed toolchain
         # Note: This must be set BEFORE `project()` is called
         message("Building/linking against Unreal packaged toolchain from UE_ROOT=$ENV{UE_ROOT}")
+        set(PROJECTAIRSIM_USE_UE_TOOLCHAIN ON)
         set(CMAKE_TOOLCHAIN_FILE "unreal-linux-toolchain.cmake")
         link_directories("$ENV{UE_ROOT}/Engine/Source/ThirdParty/Unix/LibCxx/lib/Unix/x86_64-unknown-linux-gnu")
     else()
         message("Building/linking against system-installed toolchain")
+        set(PROJECTAIRSIM_USE_UE_TOOLCHAIN OFF)
         set(CMAKE_C_COMPILER clang-13)
         set(CMAKE_CXX_COMPILER clang++-13)
     endif()
@@ -334,10 +346,11 @@ endif()
 if(UNIX)
     # Set up dependency: openssl
     message("Setting up [openssl] dependency as an external project...")
-    # CMake external projects don't adopt the parent's CMAKE_MSVC_RUNTIME_LIBRARY setting,
-    # so to force /MD non-debug CRT to match UE, build Debug config as Relwithdebinfo and
-    # build Release as Release.
-    set(OPENSSL_BUILD_TYPE $<IF:$<CONFIG:Debug>,debug,release>)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set(OPENSSL_BUILD_TYPE debug)
+    else()
+        set(OPENSSL_BUILD_TYPE release)
+    endif()
 
     # Build OpenSSL with the same compiler/sysroot as the rest of the project so that all
     # glibc symbol version requirements are consistent.  Use no-shared so only the static
@@ -382,8 +395,8 @@ if(UNIX)
         # Build/install only static runtime + dev artifacts; avoid build_sw/install_sw
         # which attempt to link provider DSOs (e.g., providers/legacy.so).
         BUILD_COMMAND           make build_libs
+        BUILD_BYPRODUCTS        ${OPENSSL_CRYPTO_LIBRARY} ${OPENSSL_SSL_LIBRARY}
         INSTALL_COMMAND         make install_dev
-        INSTALL_BYPRODUCTS      ${OPENSSL_CRYPTO_LIBRARY} ${OPENSSL_SSL_LIBRARY}
         TEST_COMMAND            ""  # disable test step
     )
     message("OPENSSL_LIB_DIR set to ${OPENSSL_LIB_DIR}")
@@ -401,6 +414,52 @@ endif()
 if(UNIX)
     set(onnx_url https://github.com/microsoft/onnxruntime/releases/download/v1.12.1/onnxruntime-linux-x64-gpu-1.12.1.tgz)
     set(onnx_hash MD5=27adfa51648d2713608f35c3c6957a4f)
+
+    message("Setting up [zlib] dependency as an external project for ONNX Runtime...")
+    set(ZLIB_TOOLCHAIN_CMAKE_ARGS "")
+    if(PROJECTAIRSIM_USE_UE_TOOLCHAIN)
+        list(APPEND ZLIB_TOOLCHAIN_CMAKE_ARGS
+            -DCMAKE_SYSROOT=${CMAKE_SYSROOT}
+            -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=${CMAKE_FIND_ROOT_PATH_MODE_PROGRAM}
+            -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=${CMAKE_FIND_ROOT_PATH_MODE_LIBRARY}
+            -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=${CMAKE_FIND_ROOT_PATH_MODE_INCLUDE}
+            -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=${CMAKE_FIND_ROOT_PATH_MODE_PACKAGE}
+        )
+    endif()
+    set(ZLIB_BUILD_TYPE RelWithDebInfo)
+    set(ZLIB_BINARY_DIR ${CMAKE_BINARY_DIR}/_deps/zlib/src/zlib-external-build)
+    set(ZLIB_INSTALL_DIR ${CMAKE_BINARY_DIR}/_deps/zlib-install)
+    set(ZLIB_LIB_DIR ${ZLIB_BINARY_DIR})
+    set(ZLIB_INSTALL_LIB_DIR ${ZLIB_INSTALL_DIR}/lib)
+    set(ZLIB_SHARED_LIBRARY ${ZLIB_BINARY_DIR}/libz.so.1)
+    ExternalProject_Add(zlib-external
+        GIT_REPOSITORY          https://github.com/madler/zlib.git
+        GIT_TAG                 v1.3.1
+        GIT_CONFIG              "advice.detachedHead=false"
+        PREFIX                  ${CMAKE_BINARY_DIR}/_deps/zlib
+        UPDATE_COMMAND          ""  # disable update step
+        BUILD_COMMAND           ${CMAKE_COMMAND} --build <BINARY_DIR> --config ${ZLIB_BUILD_TYPE}
+        BUILD_BYPRODUCTS        ${ZLIB_SHARED_LIBRARY}
+        INSTALL_COMMAND         ${CMAKE_COMMAND} --build <BINARY_DIR> --config ${ZLIB_BUILD_TYPE} --target install
+        TEST_COMMAND            ""  # disable test step
+        CMAKE_ARGS
+            ${ZLIB_TOOLCHAIN_CMAKE_ARGS}
+            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+            -DCMAKE_POSITION_INDEPENDENT_CODE=True
+            -DBUILD_SHARED_LIBS=ON
+            -DCMAKE_INSTALL_PREFIX:PATH=${ZLIB_INSTALL_DIR}
+            -DCMAKE_INSTALL_MESSAGE=LAZY
+            -DCMAKE_BUILD_TYPE:STRING=${ZLIB_BUILD_TYPE}
+        EXCLUDE_FROM_ALL        True
+    )
+    message("ZLIB_LIB_DIR set to ${ZLIB_LIB_DIR}")
+    ExternalProject_Add_Step(zlib-external post-install
+        COMMAND ${CMAKE_COMMAND} -E echo "Packaging [zlib] installed outputs to ${UE_PLUGIN_SIMLIBS_DIR}/shared_libs"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${ZLIB_INSTALL_LIB_DIR}" "${UE_PLUGIN_SIMLIBS_DIR}/shared_libs"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${ZLIB_INSTALL_LIB_DIR}" "${UNITY_WRAPPER_DLL_DIR}"
+        DEPENDEES install
+    )
 else()
     set(onnx_url https://github.com/microsoft/onnxruntime/releases/download/v1.12.1/onnxruntime-win-x64-gpu-1.12.1.zip)
     set(onnx_hash MD5=dd6d6ba7aaaa58dd9ef8528dfcb822d2)
@@ -432,6 +491,33 @@ if(NOT onnxruntime_POPULATED)
 
     add_definitions(-DUSE_CUDA)
     add_definitions(-DUSE_TENSORRT)
+endif()
+
+if(UNIX)
+    set(ONNXRUNTIME_LIBRARY "${ONNX_LIB_DIR}/libonnxruntime.so")
+    if(PROJECTAIRSIM_USE_UE_TOOLCHAIN)
+        set(ONNXRUNTIME_CXX_RUNTIME_LIBRARIES
+            "-Wl,--start-group"
+            "${CMAKE_SYSROOT}/lib64/libc++.a"
+            "${CMAKE_SYSROOT}/lib64/libc++abi.a"
+            "${CMAKE_SYSROOT}/lib64/libstdc++.so.6"
+            "-Wl,--end-group"
+        )
+        foreach(ONNXRUNTIME_CXX_RUNTIME_LIBRARY IN LISTS ONNXRUNTIME_CXX_RUNTIME_LIBRARIES)
+            if(ONNXRUNTIME_CXX_RUNTIME_LIBRARY MATCHES "^/" AND NOT EXISTS "${ONNXRUNTIME_CXX_RUNTIME_LIBRARY}")
+                message(FATAL_ERROR "ONNX Runtime C++ runtime dependency not found: ${ONNXRUNTIME_CXX_RUNTIME_LIBRARY}")
+            endif()
+        endforeach()
+    else()
+        set(ONNXRUNTIME_CXX_RUNTIME_LIBRARIES stdc++)
+    endif()
+
+    add_library(onnxruntime SHARED IMPORTED GLOBAL)
+    set_target_properties(onnxruntime PROPERTIES
+        IMPORTED_LOCATION "${ONNXRUNTIME_LIBRARY}"
+        INTERFACE_LINK_LIBRARIES "${ZLIB_SHARED_LIBRARY};${ONNXRUNTIME_CXX_RUNTIME_LIBRARIES};dl;rt;pthread"
+        INTERFACE_LINK_OPTIONS "-Wl,-rpath-link,${ZLIB_LIB_DIR}"
+    )
 endif()
 
 # if(WIN32)

@@ -17,7 +17,6 @@
 #include "Runtime/Engine/Classes/Engine/Engine.h"
 #include "TextureShuffleActor.h"
 #include "UnrealHelpers.h"
-#include "UnrealScene.h"
 #include "UnrealTransforms.h"
 #include "LightActorBase.h"
 #include "World/TimeofDay.hpp"

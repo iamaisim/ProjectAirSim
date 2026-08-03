@@ -19,6 +19,16 @@ cmake_minimum_required(VERSION 3.15.0)
 
 # Before making projects, set CMake policy to use MSVC_RUNTIME_LIBRARY property
 cmake_policy(SET CMP0091 NEW)
+# CMake 3.24+ warns unless URL-based FetchContent downloads use extraction-time
+# timestamps, which avoids stale rebuild decisions when downloaded contents change.
+if(POLICY CMP0135)
+    cmake_policy(SET CMP0135 NEW)
+endif()
+# CMake 3.30+ deprecates the current FetchContent_Populate() pattern used below.
+# Keep OLD behavior until this file is refactored to FetchContent_MakeAvailable().
+if(POLICY CMP0169)
+    cmake_policy(SET CMP0169 OLD)
+endif()
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")  # Have to match UE (uses /MD non-debug CRT for all configs)
 
 include(FetchContent)
@@ -29,10 +39,12 @@ if (UNIX)
         # Build/link against UE's packaged Linux toolchain instead of system-installed toolchain
         # Note: This must be set BEFORE `project()` is called
         message("Building/linking against Unreal packaged toolchain from UE_ROOT=$ENV{UE_ROOT}")
+        set(PROJECTAIRSIM_USE_UE_TOOLCHAIN ON)
         set(CMAKE_TOOLCHAIN_FILE "unreal-linux-toolchain.cmake")
         link_directories("$ENV{UE_ROOT}/Engine/Source/ThirdParty/Unix/LibCxx/lib/Unix/x86_64-unknown-linux-gnu")
     else()
         message("Building/linking against system-installed toolchain")
+        set(PROJECTAIRSIM_USE_UE_TOOLCHAIN OFF)
         set(CMAKE_C_COMPILER clang-13)
         set(CMAKE_CXX_COMPILER clang++-13)
     endif()
@@ -404,6 +416,16 @@ if(UNIX)
     set(onnx_hash MD5=27adfa51648d2713608f35c3c6957a4f)
 
     message("Setting up [zlib] dependency as an external project for ONNX Runtime...")
+    set(ZLIB_TOOLCHAIN_CMAKE_ARGS "")
+    if(PROJECTAIRSIM_USE_UE_TOOLCHAIN)
+        list(APPEND ZLIB_TOOLCHAIN_CMAKE_ARGS
+            -DCMAKE_SYSROOT=${CMAKE_SYSROOT}
+            -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=${CMAKE_FIND_ROOT_PATH_MODE_PROGRAM}
+            -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=${CMAKE_FIND_ROOT_PATH_MODE_LIBRARY}
+            -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=${CMAKE_FIND_ROOT_PATH_MODE_INCLUDE}
+            -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=${CMAKE_FIND_ROOT_PATH_MODE_PACKAGE}
+        )
+    endif()
     set(ZLIB_BUILD_TYPE RelWithDebInfo)
     set(ZLIB_BINARY_DIR ${CMAKE_BINARY_DIR}/_deps/zlib/src/zlib-external-build)
     set(ZLIB_INSTALL_DIR ${CMAKE_BINARY_DIR}/_deps/zlib-install)
@@ -421,11 +443,7 @@ if(UNIX)
         INSTALL_COMMAND         ${CMAKE_COMMAND} --build <BINARY_DIR> --config ${ZLIB_BUILD_TYPE} --target install
         TEST_COMMAND            ""  # disable test step
         CMAKE_ARGS
-            -DCMAKE_SYSROOT=${CMAKE_SYSROOT}
-            -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=${CMAKE_FIND_ROOT_PATH_MODE_PROGRAM}
-            -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=${CMAKE_FIND_ROOT_PATH_MODE_LIBRARY}
-            -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=${CMAKE_FIND_ROOT_PATH_MODE_INCLUDE}
-            -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=${CMAKE_FIND_ROOT_PATH_MODE_PACKAGE}
+            ${ZLIB_TOOLCHAIN_CMAKE_ARGS}
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
             -DCMAKE_POSITION_INDEPENDENT_CODE=True
@@ -477,23 +495,27 @@ endif()
 
 if(UNIX)
     set(ONNXRUNTIME_LIBRARY "${ONNX_LIB_DIR}/libonnxruntime.so")
-    set(UE_LIBCXX_LIBRARY "${CMAKE_SYSROOT}/lib64/libc++.a")
-    set(UE_LIBCXXABI_LIBRARY "${CMAKE_SYSROOT}/lib64/libc++abi.a")
-    set(UE_LIBSTDCXX_LIBRARY "${CMAKE_SYSROOT}/lib64/libstdc++.so.6")
-    if(NOT EXISTS "${UE_LIBCXX_LIBRARY}")
-        message(FATAL_ERROR "UE libc++ runtime not found: ${UE_LIBCXX_LIBRARY}")
-    endif()
-    if(NOT EXISTS "${UE_LIBCXXABI_LIBRARY}")
-        message(FATAL_ERROR "UE libc++abi runtime not found: ${UE_LIBCXXABI_LIBRARY}")
-    endif()
-    if(NOT EXISTS "${UE_LIBSTDCXX_LIBRARY}")
-        message(FATAL_ERROR "UE libstdc++ runtime not found: ${UE_LIBSTDCXX_LIBRARY}")
+    if(PROJECTAIRSIM_USE_UE_TOOLCHAIN)
+        set(ONNXRUNTIME_CXX_RUNTIME_LIBRARIES
+            "-Wl,--start-group"
+            "${CMAKE_SYSROOT}/lib64/libc++.a"
+            "${CMAKE_SYSROOT}/lib64/libc++abi.a"
+            "${CMAKE_SYSROOT}/lib64/libstdc++.so.6"
+            "-Wl,--end-group"
+        )
+        foreach(ONNXRUNTIME_CXX_RUNTIME_LIBRARY IN LISTS ONNXRUNTIME_CXX_RUNTIME_LIBRARIES)
+            if(ONNXRUNTIME_CXX_RUNTIME_LIBRARY MATCHES "^/" AND NOT EXISTS "${ONNXRUNTIME_CXX_RUNTIME_LIBRARY}")
+                message(FATAL_ERROR "ONNX Runtime C++ runtime dependency not found: ${ONNXRUNTIME_CXX_RUNTIME_LIBRARY}")
+            endif()
+        endforeach()
+    else()
+        set(ONNXRUNTIME_CXX_RUNTIME_LIBRARIES stdc++)
     endif()
 
     add_library(onnxruntime SHARED IMPORTED GLOBAL)
     set_target_properties(onnxruntime PROPERTIES
         IMPORTED_LOCATION "${ONNXRUNTIME_LIBRARY}"
-        INTERFACE_LINK_LIBRARIES "${ZLIB_SHARED_LIBRARY};-Wl,--start-group;${UE_LIBCXX_LIBRARY};${UE_LIBCXXABI_LIBRARY};${UE_LIBSTDCXX_LIBRARY};-Wl,--end-group;dl;rt;pthread"
+        INTERFACE_LINK_LIBRARIES "${ZLIB_SHARED_LIBRARY};${ONNXRUNTIME_CXX_RUNTIME_LIBRARIES};dl;rt;pthread"
         INTERFACE_LINK_OPTIONS "-Wl,-rpath-link,${ZLIB_LIB_DIR}"
     )
 endif()

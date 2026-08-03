@@ -23,6 +23,7 @@
 #include "core_sim/physics_common_types.hpp"
 #include "core_sim/sensors/camera.hpp"
 #include "core_sim/sensors/sensor.hpp"
+#include "unreal_vehicle_api.hpp"
 #include "unreal_physics.hpp"
 
 // comment so that generated.h is always the last include file with clang-format
@@ -103,6 +104,10 @@ class AUnrealRobot : public AActor {
 
   void SetExternalWrench(microsoft::projectairsim::Wrench InWrench);
 
+  void InitializeProjectAirSimVehicle();
+
+  void TickProjectAirSimVehicle(float DeltaTime);
+
   std::set<std::string> GetRootLinks(
       const std::vector<microsoft::projectairsim::Link>& InLinks,
       const std::vector<microsoft::projectairsim::Joint>& InJoints);
@@ -130,4 +135,27 @@ class AUnrealRobot : public AActor {
   TimeNano UnrealPoseUpdatedTimeStamp = 0;
 
   TMap<FString, ActuatedFTransform> RobotActuatedTransforms;
+
+  // For unreal-physics robots with unreal-vehicle-class: reference to the
+  // ProjectAirSim vehicle AActor that provides its own physics simulation.
+  UPROPERTY()
+  AActor* ProjectAirSimVehicleActor = nullptr;
+
+  // Cached pointer to the first physics-simulating UPrimitiveComponent on the
+  // ProjectAirSim vehicle.  In many Blueprints the root is a plain USceneComponent
+  // (DefaultSceneRoot) while the actual mesh that simulates physics is a child.
+  UPROPERTY()
+  UPrimitiveComponent* ProjectAirSimVehicleComponent = nullptr;
+
+  // Whether the ProjectAirSimVehicleActor implements IProjectAirSimVehicle.
+  // If false, kinematics are read via standard UE API (GetVelocity, etc.)
+  bool bProjectAirSimVehicleHasInterface = false;
+
+  // Previous-tick state for finite-difference velocity/acceleration estimation
+  // when the ProjectAirSim vehicle does not use Chaos physics.
+  FVector PrevExtPosition = FVector::ZeroVector;
+  FQuat   PrevExtQuat     = FQuat::Identity;
+  FVector PrevEstLinearVelocity = FVector::ZeroVector;
+  FVector PrevEstAngularVelocity = FVector::ZeroVector;
+  bool bHasPrevExtState = false;
 };

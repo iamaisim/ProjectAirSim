@@ -10,5 +10,6 @@ from .drone import Drone
 from .rover import Rover
 from .env_actor import EnvActor
 from .static_sensor_actor import StaticSensorActor
+from .unreal_vehicle import UnrealVehicle
 
-__all__ = ["Drone", "ProjectAirSimClient", "World", "Rover","EnvActor"]
+__all__ = ["Drone", "ProjectAirSimClient", "World", "Rover", "EnvActor", "UnrealVehicle"]

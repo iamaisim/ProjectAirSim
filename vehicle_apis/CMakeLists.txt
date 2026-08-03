@@ -17,3 +17,4 @@
 
 add_subdirectory(multirotor_api)
 add_subdirectory(rover_api)
+add_subdirectory(generic_vehicle_api)

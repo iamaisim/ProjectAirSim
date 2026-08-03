@@ -35,6 +35,18 @@
 		{
 			"Name": "SunPosition",
 			"Enabled": true
+		},
+		{
+			"Name": "ChaosVehiclesPlugin",
+			"Enabled": true
+		},
+		{
+			"Name": "Drone",
+			"Enabled": true
+		},
+		{
+			"Name": "Rover",
+			"Enabled": true
 		}
 	],
 	"TargetPlatforms": [

@@ -7,7 +7,11 @@
     "physics-type": {
       "description": "Defines the physics type for the robot",
       "type": "string",
-      "enum": [ "fast-physics", "non-physics", "matlab-physics" ]
+      "enum": [ "fast-physics", "non-physics", "matlab-physics", "unreal-physics" ]
+    },
+    "unreal-vehicle-class": {
+      "description": "UE5 Blueprint or C++ class path for the unreal vehicle (must implement IProjectAirSimVehicle)",
+      "type": "string"
     },
     "links": {
       "description": "Define the links for the robot",
@@ -68,7 +72,7 @@
         },
         "type": {
           "type": "string",
-          "enum": [ "simple-flight-api", "simple-drive-api","px4-api", "ardupilot-api", "manual-controller-api", "matlab-controller-api"]
+          "enum": [ "simple-flight-api", "simple-drive-api","px4-api", "ardupilot-api", "manual-controller-api", "matlab-controller-api", "unreal-vehicle-api"]
         },
         "simple-flight-api-settings": {
           "type": "object",
@@ -104,7 +108,6 @@
       "allOf": [
         { "$ref": "#/definitions/simple-flight-required" }, //make simple-flight-settings required for simple-flight
         { "$ref": "#/definitions/simple-drive-required" }, //make simple-drive-settings required for simple-drive
-        { "$ref": "#/definitions/simple-drive-required" }, //make simple-drive-settings required for simple-drive
         { "$ref": "#/definitions/px4-required" }, //make px4-settings required for px4
         { "$ref": "#/definitions/ardupilot-required" } //make ardupilot-settings required for ardupilot
       ]
@@ -134,7 +137,7 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": [ "id", "type", "enabled", "parent-link" ],
+        "required": [ "id", "type", "enabled" ],
         "properties": {
           "id": { "type": "string" },
           "type": {
@@ -396,7 +399,7 @@
       }
     }
   },
-  "required": [ "physics-type", "links" ],
+  "required": [ "physics-type" ],
 
   //Standard Definitions used in the Schema
   "definitions": {

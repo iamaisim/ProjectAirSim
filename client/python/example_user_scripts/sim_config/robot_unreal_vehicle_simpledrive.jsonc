@@ -1,0 +1,48 @@
+{
+  // Unreal vehicle (Chaos physics in UE) controlled by SimpleDrive.
+  // ProjectAirSim mirrors kinematics and applies SimpleDrive throttle /
+  // steering / brake outputs to the UE vehicle each tick.
+
+  "$schema": "../../projectairsim/src/projectairsim/schema/robot_config_schema.jsonc",
+
+  "physics-type": "unreal-physics",
+
+  // UE5 Blueprint or C++ class path for the unreal vehicle.
+  "unreal-vehicle-class": "/ProjectAirSim/VehicleAdv/SUV/SuvCarPawn.SuvCarPawn_C",
+
+  "controller": {
+    "id": "Simple_Drive_Controller",
+    "vehicle-setup": "ackermann",
+    "type": "simple-drive-api",
+    "simple-drive-api-settings": {
+      // No Project AirSim wheel actuators — UE owns the dynamics.
+      "actuator-order": []
+    }
+  },
+
+  "sensors": [
+    {
+      "id": "Chase",
+      "type": "camera",
+      "enabled": true,
+      "capture-interval": 0.03,
+      "capture-settings": [
+        {
+          "image-type": 0,
+          "width": 640,
+          "height": 480,
+          "fov-degrees": 90,
+          "capture-enabled": true,
+          "streaming-enabled": true,
+          "pixels-as-float": false,
+          "compress": false,
+          "target-gamma": 2.5
+        }
+      ],
+      "origin": {
+        "xyz": "-10.0 1.5 -3.0",
+        "rpy-deg": "0 -15 0"
+      }
+    }
+  ]
+}

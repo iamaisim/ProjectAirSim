@@ -36,6 +36,7 @@ add_dependencies(
     physics
     multirotor_api
     rover_api
+    generic_vehicle_api
     rendering_scene
 )
 
@@ -66,6 +67,7 @@ if(WIN32)
             mavlinkcom
             multirotor_api
             rover_api
+            generic_vehicle_api
             rendering_scene
             nng
             ws2_32  # req by nng on Win
@@ -82,6 +84,7 @@ else()
         mavlinkcom
         multirotor_api
         rover_api
+        generic_vehicle_api
         rendering_scene
         nng
     )

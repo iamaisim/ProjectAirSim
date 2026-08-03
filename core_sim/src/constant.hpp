@@ -390,6 +390,7 @@ class Constant {
     static constexpr const char* control_connection = "control-connection";
     static constexpr const char* start_landed = "start-landed";
     static constexpr const char* unreal_physics = "unreal-physics";
+    static constexpr const char* unreal_vehicle_class = "unreal-vehicle-class";
     static constexpr const char* restitution = "restitution";
     static constexpr const char* friction = "friction";
     static constexpr const char* body_box_xyz = "body-box-xyz";

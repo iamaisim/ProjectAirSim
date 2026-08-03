@@ -44,6 +44,12 @@ void PhysicsWorld::AddRobot(const Robot& robot) {
                               std::in_place_type<MatlabPhysicsModel>);
     }
   } else if (robot.GetPhysicsType() == PhysicsType::kUnrealPhysics) {
+    if (!robot.GetUnrealVehicleClass().empty()) {
+      // Unreal vehicle actors own their Chaos physics in UE. ProjectAirSim only
+      // mirrors kinematics and sensor state, so no core sim body is needed.
+      return;
+    }
+
     // Make an UnrealPhysicsBody to aggregate actuator outputs and pass wrench
     // to UnrealRobot to be applied at Unreal's next physics step
     auto unreal_physics_body = std::make_shared<UnrealPhysicsBody>(robot);

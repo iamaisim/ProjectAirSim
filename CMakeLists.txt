@@ -337,7 +337,11 @@ if(UNIX)
     # CMake external projects don't adopt the parent's CMAKE_MSVC_RUNTIME_LIBRARY setting,
     # so to force /MD non-debug CRT to match UE, build Debug config as Relwithdebinfo and
     # build Release as Release.
-    set(OPENSSL_BUILD_TYPE $<IF:$<CONFIG:Debug>,debug,release>)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set(OPENSSL_BUILD_TYPE debug)
+    else()
+        set(OPENSSL_BUILD_TYPE release)
+    endif()
 
     # Build OpenSSL with the same compiler/sysroot as the rest of the project so that all
     # glibc symbol version requirements are consistent.  Use no-shared so only the static
@@ -382,8 +386,8 @@ if(UNIX)
         # Build/install only static runtime + dev artifacts; avoid build_sw/install_sw
         # which attempt to link provider DSOs (e.g., providers/legacy.so).
         BUILD_COMMAND           make build_libs
+        BUILD_BYPRODUCTS        ${OPENSSL_CRYPTO_LIBRARY} ${OPENSSL_SSL_LIBRARY}
         INSTALL_COMMAND         make install_dev
-        INSTALL_BYPRODUCTS      ${OPENSSL_CRYPTO_LIBRARY} ${OPENSSL_SSL_LIBRARY}
         TEST_COMMAND            ""  # disable test step
     )
     message("OPENSSL_LIB_DIR set to ${OPENSSL_LIB_DIR}")

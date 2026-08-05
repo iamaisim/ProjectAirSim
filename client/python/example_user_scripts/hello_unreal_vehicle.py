@@ -2,11 +2,12 @@
 Copyright (C) 2025 IAMAI CONSULTING CORP
 MIT License.
 
-Minimal Project AirSim Unreal vehicle example.
+Project AirSim Unreal vehicle motion and sensor example.
 
 Loads scene_unreal_vehicle.jsonc, sends throttle/brake/steering actuator
 commands, and prints ground-truth kinematics to confirm that the Unreal/Chaos
-vehicle is moving and synchronizing state back into Project AirSim.
+vehicle is moving, synchronizing state back into Project AirSim, and publishing
+its configured sensor streams.
 """
 
 import asyncio
@@ -15,6 +16,45 @@ from pathlib import Path
 from projectairsim import ProjectAirSimClient, World
 from projectairsim.unreal_vehicle import UnrealVehicle
 from projectairsim.utils import projectairsim_log
+
+
+sample_counts = {}
+
+
+def summarize_sensor_sample(sample):
+    if not isinstance(sample, dict):
+        return sample
+
+    summary = {}
+    for key, value in sample.items():
+        if key in ("data", "point_cloud"):
+            summary[key] = f"<{len(value)} values>"
+        else:
+            summary[key] = value
+    return summary
+
+
+def make_sensor_logger(sensor_id: str, stream_name: str, every: int = 20):
+    key = f"{sensor_id}.{stream_name}"
+    sample_counts[key] = 0
+
+    def log_sample(_, sample):
+        sample_counts[key] += 1
+        if sample_counts[key] % every == 0:
+            projectairsim_log().info(f"{key}: {summarize_sensor_sample(sample)}")
+
+    return log_sample
+
+
+def subscribe_sensors(client: ProjectAirSimClient, vehicle: UnrealVehicle):
+    for sensor_id, streams in vehicle.sensors.items():
+        for stream_name, topic in streams.items():
+            if stream_name.endswith("_info"):
+                continue
+
+            every = 60 if stream_name.endswith("_camera") else 20
+            client.subscribe(topic, make_sensor_logger(sensor_id, stream_name, every))
+            projectairsim_log().info(f"Subscribed to {sensor_id}.{stream_name}")
 
 
 def set_controls(
@@ -106,6 +146,7 @@ async def main():
             projectairsim_log().info("Switched simulator viewport to vehicle camera")
 
         vehicle = UnrealVehicle(client, world, "UnrealVehicle")
+        subscribe_sensors(client, vehicle)
 
         await run_motion_test(vehicle)
         projectairsim_log().info("Done")

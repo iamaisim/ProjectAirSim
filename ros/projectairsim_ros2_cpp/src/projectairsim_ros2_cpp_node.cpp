@@ -113,6 +113,25 @@ std_msgs::msg::Header MakeHeader(rclcpp::Node& node,
   return header;
 }
 
+// Every Project AirSim sensor/pose message carries the sim clock in its
+// "time_stamp" field (nanoseconds). Prefer it over the bridge's receive-time
+// wall clock so messages rendered on the same sim tick (e.g. an RGB/depth
+// pair) share an exact stamp and downstream time-synchronizers see sim time
+// consistent with /clock.
+std_msgs::msg::Header MakeHeader(rclcpp::Node& node,
+                                 const std::string& frame_id,
+                                 const nlohmann::json& msg) {
+  std_msgs::msg::Header header = MakeHeader(node, frame_id);
+  const auto it = msg.find("time_stamp");
+  if (it != msg.end() && it->is_number()) {
+    const auto nanos = it->get<int64_t>();
+    if (nanos > 0) {
+      header.stamp = rclcpp::Time(nanos);
+    }
+  }
+  return header;
+}
+
 }  // namespace
 
 class ProjectAirSimROS2CppNode final : public rclcpp::Node {
@@ -323,11 +342,17 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
   void MaybeBroadcastTransform(const std::string& parent_frame_id,
                                const std::string& child_frame_id,
                                const json& position,
-                               const json& orientation) {
+                               const json& orientation,
+                               const std::optional<builtin_interfaces::msg::Time>&
+                                   stamp = std::nullopt) {
     if (!tf_broadcaster_ || child_frame_id.empty()) return;
 
     geometry_msgs::msg::TransformStamped transform;
-    transform.header.stamp = get_clock()->now();
+    if (stamp.has_value()) {
+      transform.header.stamp = *stamp;
+    } else {
+      transform.header.stamp = get_clock()->now();
+    }
     transform.header.frame_id = parent_frame_id;
     transform.child_frame_id = child_frame_id;
     transform.transform.translation = ToRosVector3(position);
@@ -342,7 +367,7 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
     return [this, publisher, frame_id = TopicToFrameId(topic), topic](
                const std::string&, const json& msg) {
       sensor_msgs::msg::NavSatFix ros_msg;
-      ros_msg.header = MakeHeader(*this, frame_id);
+      ros_msg.header = MakeHeader(*this, frame_id, msg);
       ros_msg.status.status =
           NumberOr(msg, "fix_type") >= 2.0
               ? sensor_msgs::msg::NavSatStatus::STATUS_SBAS_FIX
@@ -364,13 +389,14 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
     return [this, publisher, child_frame_id = TopicToFrameId(topic)](
                const std::string&, const json& msg) {
       geometry_msgs::msg::PoseStamped ros_msg;
-      ros_msg.header = MakeHeader(*this, tf_world_frame_id_);
+      ros_msg.header = MakeHeader(*this, tf_world_frame_id_, msg);
       ros_msg.pose.position = ToRosPoint(msg.value("position", json::object()));
       ros_msg.pose.orientation =
           ToRosQuaternion(msg.value("orientation", json::object()));
       MaybeBroadcastTransform(tf_world_frame_id_, child_frame_id,
                               msg.value("position", json::object()),
-                              msg.value("orientation", json::object()));
+                              msg.value("orientation", json::object()),
+                              ros_msg.header.stamp);
       publisher->publish(ros_msg);
     };
   }
@@ -382,7 +408,7 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
     return [this, publisher, frame_id = TopicToFrameId(topic), topic](
                const std::string&, const json& msg) {
       sensor_msgs::msg::Imu ros_msg;
-      ros_msg.header = MakeHeader(*this, frame_id);
+      ros_msg.header = MakeHeader(*this, frame_id, msg);
       ros_msg.orientation =
           ToRosQuaternion(msg.value("orientation", json::object()));
       ros_msg.angular_velocity =
@@ -403,7 +429,7 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
     return [this, publisher, frame_id = TopicToFrameId(topic)](
                const std::string&, const json& msg) {
       sensor_msgs::msg::FluidPressure ros_msg;
-      ros_msg.header = MakeHeader(*this, frame_id);
+      ros_msg.header = MakeHeader(*this, frame_id, msg);
       ros_msg.fluid_pressure = NumberOr(msg, "pressure");
       ros_msg.variance = 0.0;
       publisher->publish(ros_msg);
@@ -417,7 +443,7 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
     return [this, publisher, frame_id = TopicToFrameId(topic)](
                const std::string&, const json& msg) {
       sensor_msgs::msg::MagneticField ros_msg;
-      ros_msg.header = MakeHeader(*this, frame_id);
+      ros_msg.header = MakeHeader(*this, frame_id, msg);
       ros_msg.magnetic_field =
           ToRosVector3(msg.value("magnetic_field_body", json::array()));
       ros_msg.magnetic_field_covariance.fill(0.0);
@@ -438,7 +464,7 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
                const std::string&, const json& msg) {
       const auto points = ArrayNumbers(msg.value("point_cloud", json::array()));
       sensor_msgs::msg::PointCloud2 cloud;
-      cloud.header = MakeHeader(*this, msg.value("frame_id", frame_id));
+      cloud.header = MakeHeader(*this, msg.value("frame_id", frame_id), msg);
       cloud.height = 1;
       cloud.width = static_cast<uint32_t>(points.size() / 3);
       cloud.is_bigendian = false;
@@ -467,7 +493,7 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
     return [this, publisher, frame_id = TopicToFrameId(topic)](
                const std::string&, const json& msg) {
       projectairsim_ros2_cpp::msg::RadarScan ros_msg;
-      ros_msg.header = MakeHeader(*this, frame_id);
+      ros_msg.header = MakeHeader(*this, frame_id, msg);
       AppendRadarReturnsFromJson(msg.value("radar_detections", json::array()),
                                  &ros_msg);
       publisher->publish(ros_msg);
@@ -481,7 +507,7 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
     return [this, publisher, frame_id = TopicToFrameId(topic)](
                const std::string&, const json& msg) {
       projectairsim_ros2_cpp::msg::RadarTracks ros_msg;
-      ros_msg.header = MakeHeader(*this, frame_id);
+      ros_msg.header = MakeHeader(*this, frame_id, msg);
       AppendRadarTracksFromJson(msg.value("radar_tracks", json::array()), &ros_msg);
       publisher->publish(ros_msg);
     };
@@ -495,7 +521,7 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
     return [this, publisher, frame_id = CameraFrameId(topic)](
                const std::string&, const json& msg) {
       sensor_msgs::msg::CameraInfo ros_msg;
-      ros_msg.header = MakeHeader(*this, frame_id);
+      ros_msg.header = MakeHeader(*this, frame_id, msg);
       PopulateCameraInfoFromJson(msg, &ros_msg);
       publisher->publish(ros_msg);
     };
@@ -508,7 +534,7 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
     return [this, publisher, frame_id = CameraFrameId(topic), topic](
                const std::string&, const json& msg) {
       sensor_msgs::msg::Image ros_msg;
-      ros_msg.header = MakeHeader(*this, msg.value("frame_id", frame_id));
+      ros_msg.header = MakeHeader(*this, msg.value("frame_id", frame_id), msg);
       if (!PopulateImagePayloadFromJson(msg, &ros_msg)) {
         RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000,
                              "Unsupported image encoding on %s: %s",
@@ -519,7 +545,8 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
       if (msg.contains("position") && msg.contains("orientation")) {
         MaybeBroadcastTransform(tf_world_frame_id_, ros_msg.header.frame_id,
                                 msg.value("position", json::object()),
-                                msg.value("orientation", json::object()));
+                                msg.value("orientation", json::object()),
+                                ros_msg.header.stamp);
       } else if (msg.contains("pos_x") && msg.contains("rot_w")) {
         MaybeBroadcastTransform(tf_world_frame_id_, ros_msg.header.frame_id,
                                 json{{"x", NumberOr(msg, "pos_x")},
@@ -528,7 +555,8 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
                                 json{{"x", NumberOr(msg, "rot_x")},
                                      {"y", NumberOr(msg, "rot_y")},
                                      {"z", NumberOr(msg, "rot_z")},
-                                     {"w", NumberOr(msg, "rot_w", 1.0)}});
+                                     {"w", NumberOr(msg, "rot_w", 1.0)}},
+                                ros_msg.header.stamp);
       }
       publisher->publish(ros_msg);
     };

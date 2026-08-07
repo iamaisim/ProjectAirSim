@@ -34,7 +34,11 @@ template <typename TAncestor>
 class TAsyncResultProviderBase : public TRefCounted<TAncestor> {
  public:
   TAsyncResultProviderBase(void)
-      : cv_done_(), fis_done_(false), mutex_(), status_(Status::InProgress) {}
+      : cv_done_(),
+        fis_canceled_(false),
+        fis_done_(false),
+        mutex_(),
+        status_(Status::InProgress) {}
 
   // Returns whether the task has been requested to cancel the operation
   bool FIsCanceled(void) const { return (fis_canceled_); }

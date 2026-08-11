@@ -64,6 +64,7 @@ development/sensors/display.md
 
 controllers/controllers.md
 controllers/simple_flight.md
+controllers/ardupilot.md
 controllers/px4/px4.md
 controllers/px4/px4_build.md
 controllers/px4/px4_hitl.md

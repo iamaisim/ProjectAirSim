@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation. 
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI CONSULTING CORP
 
 // MIT License. All rights reserved.
@@ -168,6 +168,8 @@ class Scene::Impl : public ComponentWithTopicsAndServiceMethods {
   TimeNano ContinueForNSteps(int n_steps, bool wait_until_complete = false);
   TimeNano ContinueForSingleStep(bool wait_until_complete = false);
   std::vector<std::string> SimGetActors();
+
+  GeoPoint GetHomeGeoPointForService();
 
   bool SetWindVelocity(float v_x, float v_y, float v_z);
   Vector3 GetWindVelocity();
@@ -801,6 +803,10 @@ bool Scene::Impl::SetWindVelocity(float v_x, float v_y, float v_z) {
   return true;
 }
 
+GeoPoint Scene::Impl::GetHomeGeoPointForService() {
+  return home_geo_point_.geo_point;
+}
+
 Vector3 Scene::Impl::GetWindVelocity() { return Environment::wind_velocity; }
 
 std::string Scene::Impl::CallBackAfter(int t_secs) {
@@ -874,6 +880,11 @@ void Scene::Impl::RegisterServiceMethods() {
   auto sim_get_actors_handler =
       sim_get_actors.CreateMethodHandler(&Scene::Impl::SimGetActors, *this);
   RegisterServiceMethod(sim_get_actors, sim_get_actors_handler);
+
+  auto get_home_geo_point = ServiceMethod("GetHomeGeoPoint", {""});
+  auto get_home_geo_point_handler = get_home_geo_point.CreateMethodHandler(
+      &Scene::Impl::GetHomeGeoPointForService, *this);
+  RegisterServiceMethod(get_home_geo_point, get_home_geo_point_handler);
 
   auto set_wind_vel = ServiceMethod("SetWindVelocity", {"v_x", "v_y", "v_z"});
   auto set_wind_vel_handler =

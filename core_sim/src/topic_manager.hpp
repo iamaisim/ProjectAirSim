@@ -39,6 +39,8 @@ class TopicManager {
 
   bool Unsubscribe(const std::vector<std::string>& topic_paths);
 
+  bool HasConnectedClient();
+
   void PublishTopic(const Topic& topic, const Message& message);
 
   void UnregisterTopic(const Topic& topic);

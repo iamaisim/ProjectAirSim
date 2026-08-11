@@ -243,6 +243,11 @@ void Simulator::Impl::RegisterServiceMethods() {
       &TopicManager::Unsubscribe, topic_manager_);
   RegisterServiceMethod(unsubscribe_topic, unsubscribe_topic_handler);
 
+  auto has_topic_client = ServiceMethod("HasTopicClient", {});
+  auto has_topic_client_handler = has_topic_client.CreateMethodHandler(
+      &TopicManager::HasConnectedClient, topic_manager_);
+  RegisterServiceMethod(has_topic_client, has_topic_client_handler);
+
   client_authorization_.RegisterServiceMethods(
       topic_path_,
       [this](const ServiceMethod& method, MethodHandler method_handler) {

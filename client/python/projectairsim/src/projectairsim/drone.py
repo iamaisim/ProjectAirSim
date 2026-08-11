@@ -64,28 +64,66 @@ class Drone(object):
         self.set_sensor_topics(world)
         self.set_robot_info_topics()
 
-    def set_sensor_topics(self, world: World):
+    def set_sensor_topics(self, world: World) -> None:
         """Sets up sensor topics for the drone. Called automatically.
-
-        Args:
-            world (World): the associated ProjectAirSim World object
+        If config is missing, uses passive
+        discovery from already-cached topic info only (no new subscriptions).
+        Always logs and prints known topics for this drone.
         """
         self.sensors = {}
+
+        # 1) Try from Scene configuration
         scene_config_data = world.get_configuration()
-        data = None
+        actor_cfg = None
+        if scene_config_data and isinstance(scene_config_data, dict):
+            for actor in scene_config_data.get("actors", []):
+                if actor.get("name") == self.name:
+                    actor_cfg = actor.get("robot-config")
+                    break
 
-        for actor in scene_config_data["actors"]:
-            if actor["name"] == self.name:
-                data = actor["robot-config"]
+        source = "config"
+        if (
+            actor_cfg
+            and isinstance(actor_cfg, dict)
+            and isinstance(actor_cfg.get("sensors"), list)
+            and actor_cfg["sensors"]
+        ):
+            self._set_sensor_topics_from_config(actor_cfg)
+        else:
+            # 2) Fallback: passive discovery from preloaded topic cache only.
+            topics_cache = getattr(self.client, "topics", {})
+            if isinstance(topics_cache, dict) and topics_cache:
+                projectairsim_log().warning(
+                    f"[Drone.set_sensor_topics] No config sensors for '{self.name}'. "
+                    "Using passive discovery from cached topics."
+                )
+                self._set_sensor_topics_from_discovery()
+                source = "discovery-cached"
+            else:
+                projectairsim_log().warning(
+                    f"[Drone.set_sensor_topics] No config sensors for '{self.name}' and no cached "
+                    "topics available. Running in service-only mode (no topic discovery)."
+                )
+                source = "service-only"
 
-        if data is None:
-            raise Exception("Actor " + self.name + " not found in the config")
+        # 3) Optional diagnostics for topics that belong to this drone
+        if getattr(self.client, "verbose_topic_diagnostics", False):
+            self._print_topics_for_this_drone(with_meta=True)
 
-        if "sensors" not in data:
-            return
+        total_endpoints = sum(len(v) for v in self.sensors.values() if isinstance(v, dict))
+        if total_endpoints == 0:
+            projectairsim_log().warning(
+                f"[Drone.set_sensor_topics] No sensor endpoints mapped (source={source})."
+            )
+        projectairsim_log().info(
+            f"[Drone.set_sensor_topics] Topic setup finished "
+            f"(source={source}, sensors={len(self.sensors)}, endpoints={total_endpoints})."
+        )
 
+    def _set_sensor_topics_from_config(self, actor_cfg: Dict) -> None:
+        """Build self.sensors from the scene configuration."""
         capture_setting_dict = {
-            0: "scene_camera",  # TODO rename scene_camera topic to rgb_camera
+            0: "scene_camera",               # TODO: rename to 'rgb_camera' in future
             1: "depth_planar_camera",
             2: "depth_camera",
             3: "segmentation_camera",
@@ -94,51 +132,155 @@ class Drone(object):
             6: "surface_normals_camera",
         }
 
-        for sensor in data["sensors"]:
-            name = sensor["id"]
-            sensor_type = sensor["type"]
+        sensors_list = actor_cfg.get("sensors", [])
+        if not isinstance(sensors_list, list):
+            projectairsim_log().warning("[Config] 'sensors' is not a list; skipping sensor mapping.")
+            return
+
+        for sensor in sensors_list:
+            if not isinstance(sensor, dict):
+                projectairsim_log().warning("[Config] Ignoring non-dict sensor entry.")
+                continue
+
+            name = sensor.get("id")
+            sensor_type = sensor.get("type")
+            if not name or not sensor_type:
+                projectairsim_log().warning("[Config] Sensor missing 'id' or 'type'; skipping.")
+                continue
+
             sensor_root_topic = f"{self.sensors_topic}/{name}"
             self.sensors[name] = {}
+
             if sensor_type == "camera":
-                sub_cameras = sensor["capture-settings"]
-                # Based on 'image-type' within the camera, set up the topic paths
+                sub_cameras = sensor.get("capture-settings", [])
+                if not isinstance(sub_cameras, list):
+                    projectairsim_log().warning(
+                        f"[Config] 'capture-settings' for camera '{name}' is not a list; skipping."
+                    )
+                    sub_cameras = []
+
                 for sub_camera in sub_cameras:
-                    if sub_camera["capture-enabled"]:
-                        image_type = capture_setting_dict[sub_camera["image-type"]]
+                    if not isinstance(sub_camera, dict):
+                        projectairsim_log().warning(f"[Config] Ignoring non-dict sub_camera in '{name}'.")
+                        continue
+                    if sub_camera.get("capture-enabled"):
+                        image_type_id = sub_camera.get("image-type")
+                        image_type = capture_setting_dict.get(image_type_id)
+                        if image_type is None:
+                            projectairsim_log().warning(
+                                f"[Config] Unsupported image-type '{image_type_id}' in camera '{name}'; skipping."
+                            )
+                            continue
                         self.sensors[name][image_type] = f"{sensor_root_topic}/{image_type}"
-                        self.sensors[name][
-                            f"{image_type}_info"
-                        ] = f"{sensor_root_topic}/{image_type}_info"
+                        self.sensors[name][f"{image_type}_info"] = f"{sensor_root_topic}/{image_type}_info"
+
             elif sensor_type == "radar":
-                self.sensors[name][
-                    "radar_detections"
-                ] = f"{sensor_root_topic}/radar_detections"
+                self.sensors[name]["radar_detections"] = f"{sensor_root_topic}/radar_detections"
                 self.sensors[name]["radar_tracks"] = f"{sensor_root_topic}/radar_tracks"
+
             elif sensor_type == "imu":
-                self.sensors[name][
-                    "imu_kinematics"
-                ] = f"{sensor_root_topic}/imu_kinematics"
+                self.sensors[name]["imu_kinematics"] = f"{sensor_root_topic}/imu_kinematics"
+
             elif sensor_type == "gps":
                 self.sensors[name]["gps"] = f"{sensor_root_topic}/gps"
+
             elif sensor_type == "airspeed":
                 self.sensors[name]["airspeed"] = f"{sensor_root_topic}/airspeed"
+
             elif sensor_type == "barometer":
                 self.sensors[name]["barometer"] = f"{sensor_root_topic}/barometer"
+
             elif sensor_type == "magnetometer":
                 self.sensors[name]["magnetometer"] = f"{sensor_root_topic}/magnetometer"
+
             elif sensor_type == "lidar":
                 self.sensors[name]["lidar"] = f"{sensor_root_topic}/lidar"
+
             elif sensor_type == "distance-sensor":
-                self.sensors[name][
-                    "distance_sensor"
-                ] = f"{sensor_root_topic}/distance_sensor"
+                self.sensors[name]["distance_sensor"] = f"{sensor_root_topic}/distance_sensor"
+
             elif sensor_type == "battery":
                 self.sensors[name]["battery"] = f"{sensor_root_topic}/battery"
+
             else:
-                raise Exception(
-                    f"Unknown sensor type '{sensor_type}' found in config "
-                    f"for sensor '{name}'"
-                )
+                raise Exception(f"Unknown sensor type '{sensor_type}' in config for sensor '{name}'")
+
+
+    def _set_sensor_topics_from_discovery(self) -> None:
+        """Populate self.sensors from currently cached topic metadata.
+
+           This method is intentionally passive: it never asks the server to
+           refresh `r"/\$topics"` and therefore does not trigger new topic
+           subscriptions.
+        """
+        topics: Dict[str, object] = getattr(self.client, "topics", {})
+        if not isinstance(topics, dict) or not topics:
+            projectairsim_log().warning("[Discovery] No cached topics available.")
+            return
+
+        self.sensors = {}
+        prefix = f"{self.sensors_topic}/"  # .../robots/<name>/sensors/
+
+        for path, topic_meta in topics.items():
+            if not isinstance(path, str) or not path.startswith(prefix):
+                continue
+
+            topic_type = str(getattr(topic_meta, "topic_type", "")).lower()
+            if topic_type and topic_type != "published":
+                continue
+
+            tail = path[len(prefix):]  # "<sensor_id>/.../leaf"
+            parts = [p for p in tail.split("/") if p]
+            if len(parts) < 2:
+                continue
+            sensor_id, leaf = parts[0], parts[-1]
+
+            # Keep real data leaves dynamically and ignore RPC methods
+            # such as GetImages/SetPose (typically contain uppercase chars).
+            if any(ch.isupper() for ch in leaf):
+                continue
+
+            self.sensors.setdefault(sensor_id, {})[leaf] = path
+
+        total = sum(len(v) for v in self.sensors.values())
+        projectairsim_log().info(
+            f"[Discovery] sensors={len(self.sensors)}, endpoints={total} under '{self.sensors_topic}'."
+        )
+
+
+    def _print_topics_for_this_drone(self, with_meta: bool = True) -> None:
+        """Log all topics that belong to this drone (diagnostics).
+        Uses cached self.client.topics (path -> ProjectAirSimTopic).
+        """
+        topics_dict = getattr(self.client, "topics", None)
+        if not isinstance(topics_dict, dict) or not topics_dict:
+            projectairsim_log().debug("[print_topics] No cached topics available.")
+            return
+
+        prefix = f"{self.world_parent_topic}/robots/{self.name}"
+        paths = sorted(
+            p for p in topics_dict.keys()
+            if isinstance(p, str) and p.startswith(prefix)
+        )
+
+        projectairsim_log().debug(f"=== Topics for drone: {self.name} ===")
+        if not paths:
+            projectairsim_log().debug("(none)")
+            return
+
+        if with_meta:
+            for p in paths:
+                t = topics_dict[p]  # ProjectAirSimTopic
+                # Be tolerant if attributes are missing
+                t_type = getattr(t, "topic_type", "?")
+                msg = getattr(t, "message_type", "?")
+                hz = getattr(t, "frequency", "?")
+                projectairsim_log().debug(f"{p}  [type={t_type}, msg={msg}, Hz={hz}]")
+        else:
+            for p in paths:
+                projectairsim_log().debug(p)
+
+        projectairsim_log().debug(f"--- {len(paths)} topic(s) ---")
 
     def set_robot_info_topics(self):
         """Sets up robot info topics for the Drone. Called automatically"""
@@ -150,6 +292,13 @@ class Drone(object):
     def log_topics(self):
         """Logs a human-readable list of all topics associated with the drone"""
         projectairsim_log().info("-------------------------------------------------")
+        if self.client.is_service_only_mode():
+            projectairsim_log().info(
+                "Client is service-only; topic subscriptions are disabled."
+            )
+            projectairsim_log().info("-------------------------------------------------")
+            return
+
         projectairsim_log().info(
             f"The following topics can be subscribed to for robot '{self.name}':",
         )

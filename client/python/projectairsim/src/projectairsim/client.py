@@ -43,14 +43,11 @@ class ProjectAirSimClient:
         self.socket_topics = None
         self.socket_services = None
         self.request_id = None
+        self.topics_enabled = False
 
     def connect(self):
         """Connects to the server"""
         projectairsim_log().info(f"Connecting to simulation server at {self.address}")
-        # Socket for comm via ProjectAirSim topics
-        self.socket_topics = pynng.Pair0(
-            send_timeout=1000,  # Timeout after 1 second
-        )
         # Socket for comm via ProjectAirSim services
         # TODO: Revisit timeout for service methods
         # TODO: Enable resend_time & handle on the server-side to prevent cancellation
@@ -62,28 +59,61 @@ class ProjectAirSimClient:
         )
         self.request_id = self.request_id_generator()
         if "win" in platform:
-            # todo check linux API for socket.set_int_option()
-            self.socket_topics.dial(
-                f"tcp://{self.address}:{self.port_topics}".encode(), block=True
-            )
             self.socket_services.dial(
                 f"tcp://{self.address}:{self.port_services}".encode(), block=True
             )
         if "linux" in platform:
-            self.socket_topics.dial(
-                address=f"tcp://{self.address}:{self.port_topics}", block=True
-            )
             self.socket_services.dial(
                 address=f"tcp://{self.address}:{self.port_services}", block=True
             )
+
+        topic_client_already_connected = False
+        try:
+            topic_client_already_connected = self.has_topic_client()
+        except Exception as e:
+            projectairsim_log().warning(
+                f"Unable to query topic client state; enabling topics anyway: {e}"
+            )
+
+        if topic_client_already_connected:
+            projectairsim_log().warning(
+                "A pub-sub topic client is already connected. "
+                "Starting this client in service-only mode."
+            )
+        else:
+            # Socket for comm via ProjectAirSim topics
+            self.socket_topics = pynng.Pair0(
+                send_timeout=1000,  # Timeout after 1 second
+            )
+            if "win" in platform:
+                # todo check linux API for socket.set_int_option()
+                self.socket_topics.dial(
+                    f"tcp://{self.address}:{self.port_topics}".encode(), block=True
+                )
+            if "linux" in platform:
+                self.socket_topics.dial(
+                    address=f"tcp://{self.address}:{self.port_topics}", block=True
+                )
+            self.topics_enabled = True
+
         projectairsim_log().info("Connection opened.")
         self.state = True
-        self.recv_topic_thread = threading.Thread(target=self.__recv_topic)
-        self.recv_topic_thread.start()
-        projectairsim_log().info("Started the pub-sub topic receiving thread.")
+        if self.topics_enabled:
+            self.recv_topic_thread = threading.Thread(target=self.__recv_topic)
+            self.recv_topic_thread.start()
+            projectairsim_log().info("Started the pub-sub topic receiving thread.")
 
     def get_topic_info(self):
         """This is used by World to get the list of topic info on reload scene."""
+        if not self.topics_enabled:
+            projectairsim_log().warning(
+                "Skipping topic info discovery because this client is running "
+                "in service-only mode."
+            )
+            self.topics = {}
+            self.topic_info_updated = False
+            return
+
         projectairsim_log().info(
             "Getting the list of available topic info from the sim server..."
         )
@@ -125,6 +155,13 @@ class ProjectAirSimClient:
             topic (str): the name of the topic
             callback (callable): function to call when data is received
         """
+        if not self.topics_enabled:
+            projectairsim_log().warning(
+                f"Skipping subscription to '{topic}' because this client is "
+                "running in service-only mode."
+            )
+            return
+
         if topic in self.subs:
             self.subs[topic]["callbacks"].append(callback)
             self.subs[topic]["reliability"] = reliability
@@ -144,6 +181,13 @@ class ProjectAirSimClient:
 
     def publish(self, topic, message):
         """Publishes a message to a given server topic"""
+        if not self.topics_enabled:
+            projectairsim_log().warning(
+                f"Skipping publish to '{topic}' because this client is running "
+                "in service-only mode."
+            )
+            return
+
         frame = self.__make_message_frame(topic, message)
         # self.socket_topics.send(frame)
         self.try_send(frame)
@@ -172,6 +216,19 @@ class ProjectAirSimClient:
         }
         return self.request(hash_req)
 
+    def has_topic_client(self) -> bool:
+        """Returns whether the server already has a pub-sub topic client."""
+        has_topic_client_req: Dict = {
+            "method": "/Sim/HasTopicClient",
+            "params": {},
+            "version": 1.0,
+        }
+        return bool(self.request(has_topic_client_req))
+
+    def is_service_only_mode(self) -> bool:
+        """Returns whether this client is connected without pub-sub topics."""
+        return not self.topics_enabled
+
     def unsubscribe(self, topics):
         """Unsubscribes from one or more server topics
 
@@ -179,6 +236,10 @@ class ProjectAirSimClient:
             topics (str or List): the topics. can be given as a string for one topic
                 or a list for multiple
         """
+        if not self.topics_enabled:
+            self.subs.clear()
+            return
+
         if not isinstance(topics, list):
             topics = [topics]
 
@@ -211,6 +272,9 @@ class ProjectAirSimClient:
 
     def try_send(self, msg, max_retries=5):
         """Attempts to send a message up to max_retries times"""
+        if not self.topics_enabled or self.socket_topics is None:
+            return
+
         num_retries = 0
 
         while num_retries < max_retries:
@@ -399,8 +463,13 @@ class ProjectAirSimClient:
         # Unsubscribe after stopping the receive loop that processes the
         # incoming subscription messages.
         self.unsubscribe_all()
-        self.socket_topics.close()
-        self.socket_services.close()
+        if self.socket_topics is not None:
+            self.socket_topics.close()
+            self.socket_topics = None
+        if self.socket_services is not None:
+            self.socket_services.close()
+            self.socket_services = None
+        self.topics_enabled = False
         projectairsim_log().info("Disconnected.")
 
     def __get_authorization_token_public_key(self) -> str:

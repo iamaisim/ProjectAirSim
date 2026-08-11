@@ -5,7 +5,7 @@ MIT License.
 Python API class for ProjectAirSim World.
 """
 import commentjson
-from typing import Dict, List
+from typing import Dict, List, Optional
 import time
 from datetime import datetime
 import numpy as np
@@ -41,7 +41,7 @@ class World(object):
         scene_config_name: str = "",
         delay_after_load_sec: int = 0,
         sim_config_path: str = "sim_config/",
-        sim_instance_idx: int = -1,
+        sim_instance_idx: int = -1
     ):
         """ProjectAirSim World Interface.
 
@@ -55,7 +55,7 @@ class World(object):
         self.client = client
         self.sim_config_path = sim_config_path
         self.sim_instance_idx = sim_instance_idx
-        self.parent_topic = "/Sim/SceneBasicDrone"  # default-scene's ID
+        self.parent_topic = "/Sim/Scene"
 
         self.sim_config = None
         self.home_geo_point = None
@@ -66,21 +66,33 @@ class World(object):
                 sim_instance_idx,
             )
             config_dict = config_loaded
+            config_dict["id"] = "Scene"
             self.scene_config_path = config_paths[0]
             self.robot_config_paths = config_paths[1]
             self.envactor_config_paths = config_paths[2]
             self.load_scene(config_dict, delay_after_load_sec=delay_after_load_sec)
+        else:
+            self.client.get_topic_info()
+            self.home_geo_point = self.get_home_geo_point()
+            projectairsim_log().info("Attaching to existing simulation session")
+
         random.seed()
         self.import_ned_trajectory(
             "null_trajectory", [0, 1], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]
         )
 
-    def get_configuration(self) -> Dict:
+    def get_configuration(self) -> Optional[Dict]:
         """Get the current configuration that has been loaded to the sim server
 
         Returns:
-            Dict: the configuration
+            Optional[Dict]: the loaded configuration, or None when attached to an existing session
         """
+        # self.sim_config is not set when World is created without parameters
+        if self.sim_config is None:
+            projectairsim_log().info(
+                f"Connected to existing simulation session"
+            )
+            return None
         return self.sim_config
 
     def get_sim_clock_type(self) -> str:
@@ -220,6 +232,21 @@ class World(object):
         wind_vel = self.client.request(get_wind)
         assert len(wind_vel) == 3
         return (wind_vel[0], wind_vel[1], wind_vel[2])
+
+    def get_home_geo_point(self) -> Dict:
+        """Get the home geo point for the loaded scene.
+
+        Returns:
+            Dict: the home geo point with latitude, longitude, and altitude keys
+        """
+        get_home_geo_point_req: Dict = {
+            "method": f"{self.parent_topic}/GetHomeGeoPoint",
+            "params": {},
+            "version": 1.0,
+        }
+        home_geo_point = self.client.request(get_home_geo_point_req)
+        self.home_geo_point = home_geo_point
+        return home_geo_point
 
     def resume(self) -> str:
         """Resume simulation
@@ -1019,9 +1046,7 @@ class World(object):
 
         # Force sim to pause on start if there are objects to spawn
         clock_is_steppable = scene_config_dict["clock"]["type"] == "steppable"
-        pause_on_start_by_user = False
-        if scene_config_dict["clock"].get("pause-on-start") is not None:
-            pause_on_start_by_user = scene_config_dict["clock"]["pause-on-start"]
+        pause_on_start_by_user = scene_config_dict["clock"].get("pause-on-start", False)
 
         if scene_config_dict.get("spawn-objects") is not None:
             if clock_is_steppable:
@@ -1046,7 +1071,7 @@ class World(object):
         self.client.get_topic_info()  # get new scene's list of registered topic info
         time.sleep(delay_after_load_sec)
         self.parent_topic = f"/Sim/{scene_id}"
-        self.home_geo_point: Dict = scene_config_dict.get("home-geo-point", {})
+        self.home_geo_point = self.get_home_geo_point()
 
         if scene_config_dict.get("spawn-objects") is not None:
             objects_loaded = self.load_scene_objects_from_config(

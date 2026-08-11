@@ -52,6 +52,8 @@ class TopicManager::Impl {
 
   bool Unsubscribe(const std::vector<std::string>& topic_paths);
 
+  bool HasConnectedClient() const;
+
   void PublishTopic(const Topic& topic, const Message& message);
 
   void UnregisterTopic(const Topic& topic);
@@ -133,6 +135,7 @@ class TopicManager::Impl {
   std::thread recv_thread_;
   Dispatcher send_dispatcher_;
   nng_socket topic_socket_;
+  std::atomic<int> connected_client_count_;
   std::atomic<bool> state_;
   std::map<std::string, std::shared_ptr<TopicBlock>> topic_table_;
   std::function<void(const std::string&, const MessageType&,
@@ -171,6 +174,10 @@ void TopicManager::SubscribeTopic(
 
 bool TopicManager::Unsubscribe(const std::vector<std::string>& topic_paths) {
   return pimpl_->Unsubscribe(topic_paths);
+}
+
+bool TopicManager::HasConnectedClient() {
+  return pimpl_->HasConnectedClient();
 }
 
 void TopicManager::PublishTopic(const Topic& topic, const Message& message) {
@@ -217,6 +224,7 @@ TopicManager::Impl::Impl(const Logger& logger,
       recv_thread_(),
       send_dispatcher_("send_dispatcher", logger),
       topic_socket_(NNG_SOCKET_INITIALIZER),
+      connected_client_count_(0),
       state_(false),
       topic_table_(),
       topic_published_callback_(nullptr),
@@ -230,11 +238,16 @@ void TopicManager::Impl::Load(const json& config_json) {
 }
 
 void TopicManager::Impl::HandleNNGPipeEvent(nng_pipe pipe, nng_pipe_ev ev) {
-  if (ev == NNG_PIPE_EV_REM_POST) {
+  if (ev == NNG_PIPE_EV_ADD_POST) {
+    connected_client_count_.fetch_add(1);
+    log_.LogVerbose(name_, "Pub-sub client connected.");
+  } else if (ev == NNG_PIPE_EV_REM_POST) {
+    auto previous_count = connected_client_count_.fetch_sub(1);
+    if (previous_count <= 0) connected_client_count_ = 0;
+
     // Client disconnected--reset client authorization
     log_.LogVerbose(
-        name_, "Pub-sub client disconnected--resetting client authorization",
-        ev);
+        name_, "Pub-sub client disconnected--resetting client authorization");
     client_authorization_.SetToken(nullptr, 0);
 
     // Clear topics queues and unsubscribe all topics
@@ -274,6 +287,16 @@ void TopicManager::Impl::Start() {
   // of messages, just leave it unset to use the default value.
 
   // Register callback for client disconnects
+  rv = nng_pipe_notify(topic_socket_, NNG_PIPE_EV_ADD_POST,
+                       &TopicManager::Impl::HandleNNGPipeEventProxy, this);
+  if (rv != 0) {
+    auto errno_str = nng_strerror(rv);
+    log_.LogError(name_, "nng_pipe_notify failed with '%s'.", errno_str);
+    throw Error(
+        "Error installing event listener on topic socket for serving "
+        "requests.");
+  }
+
   rv = nng_pipe_notify(topic_socket_, NNG_PIPE_EV_REM_POST,
                        &TopicManager::Impl::HandleNNGPipeEventProxy, this);
   if (rv != 0) {
@@ -556,6 +579,10 @@ bool TopicManager::Impl::Unsubscribe(
     success = Unsubscribe(topic_path) && success;
   }
   return success;
+}
+
+bool TopicManager::Impl::HasConnectedClient() const {
+  return connected_client_count_.load() > 0;
 }
 
 void TopicManager::Impl::Unsubscribe(const Topic& topic) {

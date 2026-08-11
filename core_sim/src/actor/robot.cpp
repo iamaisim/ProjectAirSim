@@ -677,49 +677,45 @@ void Robot::Impl::RegisterServiceMethod(const ServiceMethod& method,
 
 void Robot::Impl::RegisterServiceMethods() {
   // Register internal Service Methods offered by the Robot Class
-  auto get_gt_kinematics =
-      ServiceMethod(topic_path_ + "/GetGroundTruthKinematics", {""});
+  auto get_gt_kinematics = ServiceMethod("GetGroundTruthKinematics", {""});
   auto get_gt_kinematics_handler = get_gt_kinematics.CreateMethodHandler(
       &Robot::Impl::GetGroundTruthKinematics, *this);
-  service_manager_.RegisterMethod(get_gt_kinematics, get_gt_kinematics_handler);
+  RegisterServiceMethod(get_gt_kinematics, get_gt_kinematics_handler);
 
   auto set_gt_kinematics =
-      ServiceMethod(topic_path_ + "/SetGroundTruthKinematics", {"kinematics"});
+      ServiceMethod("SetGroundTruthKinematics", {"kinematics"});
   auto set_gt_kinematics_handler = set_gt_kinematics.CreateMethodHandler(
       &Robot::Impl::SetGroundTruthKinematics, *this);
-  service_manager_.RegisterMethod(set_gt_kinematics, set_gt_kinematics_handler);
+  RegisterServiceMethod(set_gt_kinematics, set_gt_kinematics_handler);
 
-  auto get_pose = ServiceMethod(topic_path_ + "/GetGroundTruthPose", {""});
+  auto get_pose = ServiceMethod("GetGroundTruthPose", {""});
   auto get_pose_handler =
       get_pose.CreateMethodHandler(&Robot::Impl::GetGroundTruthPose, *this);
-  service_manager_.RegisterMethod(get_pose, get_pose_handler);
+  RegisterServiceMethod(get_pose, get_pose_handler);
 
-  auto get_geo_location =
-      ServiceMethod(topic_path_ + "/GetGroundTruthGeoLocation", {""});
+  auto get_geo_location = ServiceMethod("GetGroundTruthGeoLocation", {""});
   auto get_geo_location_handler = get_geo_location.CreateMethodHandler(
       &Robot::Impl::GetGroundTruthGeoLocation, *this);
-  service_manager_.RegisterMethod(get_geo_location, get_geo_location_handler);
+  RegisterServiceMethod(get_geo_location, get_geo_location_handler);
 
-  auto set_pose =
-      ServiceMethod(topic_path_ + "/SetPose", {"pose", "reset_kinematics"});
+  auto set_pose = ServiceMethod("SetPose", {"pose", "reset_kinematics"});
   auto set_pose_handler =
       set_pose.CreateMethodHandler(&Robot::Impl::SetPose, *this);
-  service_manager_.RegisterMethod(set_pose, set_pose_handler);
+  RegisterServiceMethod(set_pose, set_pose_handler);
 
-  auto set_ext_force =
-      ServiceMethod(topic_path_ + "/SetExternalForce", {"ext_force"});
+  auto set_ext_force = ServiceMethod("SetExternalForce", {"ext_force"});
   auto set_ext_force_handler =
       set_ext_force.CreateMethodHandler(&Robot::Impl::SetExternalForce, *this);
-  service_manager_.RegisterMethod(set_ext_force, set_ext_force_handler);
+  RegisterServiceMethod(set_ext_force, set_ext_force_handler);
 
   auto get_camera_ray =
-      // ServiceMethod(topic_path_ + "/GetCameraRay", {"camera_id",
+      // ServiceMethod("GetCameraRay", {"camera_id",
       // "image_type", "position"});
-      ServiceMethod(topic_path_ + "/GetCameraRay",
+      ServiceMethod("GetCameraRay",
                     {"camera_id", "image_type", "x", "y"});
   auto get_camera_ray_handler =
       get_camera_ray.CreateMethodHandler(&Robot::Impl::GetCameraRay, *this);
-  service_manager_.RegisterMethod(get_camera_ray, get_camera_ray_handler);
+  RegisterServiceMethod(get_camera_ray, get_camera_ray_handler);
 }
 
 bool Robot::Impl::SetExternalForce(const std::vector<float>& ext_force) {

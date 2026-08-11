@@ -1105,6 +1105,21 @@ def test_wind_velocity(client):
         raise Exception(str(err))
 
 
+def test_get_home_geo_point(client):
+    try:
+        world = World(client, "scene_test_drone.jsonc", 0)
+
+        home_geo_point = world.get_home_geo_point()
+
+        assert home_geo_point["latitude"] == pytest.approx(47.641468)
+        assert home_geo_point["longitude"] == pytest.approx(-122.140165)
+        assert home_geo_point["altitude"] == pytest.approx(122.0)
+        assert world.home_geo_point == home_geo_point
+
+    except NNGException as err:
+        raise Exception(str(err))
+
+
 def test_set_object_material(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)

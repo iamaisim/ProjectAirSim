@@ -60,6 +60,8 @@ if "%UE_MINOR%"=="2" (
   set "MSVC_VER=14.37"
 ) else if "%UE_MINOR%"=="7" (
   set "MSVC_VER=14.39"
+) else if "%UE_MINOR%"=="8" (
+  set "MSVC_VER=14.44"
 ) else (
   echo:
   echo Unsupported Unreal Engine version 5.%UE_MINOR%

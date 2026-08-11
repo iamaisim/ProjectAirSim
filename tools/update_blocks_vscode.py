@@ -40,7 +40,10 @@ def write_json(path: Path, data: dict) -> None:
 
 def update_launch_json(vscode_dir: Path) -> None:
     launch_path = vscode_dir / "launch.json"
-    launch = json.loads(launch_path.read_text(encoding="utf-8"))
+    if launch_path.exists():
+        launch = json.loads(launch_path.read_text(encoding="utf-8"))
+    else:
+        launch = {"version": "0.2.0", "configurations": []}
     configurations = launch.setdefault("configurations", [])
 
     by_name = {config.get("name"): index for index, config in enumerate(configurations)}

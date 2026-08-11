@@ -151,7 +151,7 @@ void UUnrealCamera::LoadCameraMaterials() {
 
 void HideDebugDrawComponent(USceneCaptureComponent2D* CaptureComponent,
                             UWorld* UnrealWorld) {
-  #if UE_IS_5_7
+  #if UE_IS_5_7_OR_5_8
     CaptureComponent->HideComponent(Cast<UPrimitiveComponent>(
         UnrealWorld->GetLineBatcher(UWorld::ELineBatcherType::World)));
     CaptureComponent->HideComponent(Cast<UPrimitiveComponent>(

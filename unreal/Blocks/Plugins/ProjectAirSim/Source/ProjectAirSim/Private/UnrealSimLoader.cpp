@@ -63,12 +63,12 @@ void AUnrealSimLoader::LaunchSimulation(UWorld* World) {
            "in Unreal Engine version %d.%d."),
       ENGINE_MAJOR_VERSION, ENGINE_MINOR_VERSION);
 
-  if (ENGINE_MAJOR_VERSION != SupportedUnrealVersionMajor ||
-      ENGINE_MINOR_VERSION != SupportedUnrealVersionMinor) {
+  if (ENGINE_MAJOR_VERSION != 5 ||
+      (ENGINE_MINOR_VERSION != 2 && ENGINE_MINOR_VERSION != 7 &&
+       ENGINE_MINOR_VERSION != 8)) {
     UnrealLogger::Log(
         projectairsim::LogLevel::kWarning,
-        TEXT("Unreal Engine version is not the supported version of %d.%d."),
-        SupportedUnrealVersionMajor, SupportedUnrealVersionMinor);
+        TEXT("Unreal Engine version is unsupported; expected 5.2, 5.7, or 5.8."));
   }
 
   // Save Unreal world pointer

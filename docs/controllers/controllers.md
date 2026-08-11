@@ -2,7 +2,7 @@
 
 A flight controller provides automatic control of the vehicle.  The amount of automatic control can vary from fully autonomous flight to assisted manual flight.
 
-Project AirSim supports the following flight controllers: Simple Flight, PX4 Autopilot, and Manual Controller.
+Project AirSim supports the following flight controllers: Simple Flight, PX4 Autopilot, ArduPilot, and Manual Controller.
 
 ## Simple Flight
 
@@ -14,6 +14,10 @@ Project AirSim supports the following flight controllers: Simple Flight, PX4 Aut
 
 If you are not familiar with setting up PX4, you may find it easier to start with Simple Flight if your airframe is supported.
 
+## ArduPilot
+
+[ArduPilot](ardupilot.md) is an open-source flight controller supported through a UDP/IP Software-In-The-Loop (SITL) connection. Project AirSim includes ready-to-run quadrotor and hexarotor examples. Its Client API flight commands are not supported; control the vehicle through ArduPilot or a ground control station such as Mission Planner or QGroundControl.
+
 ## Manual Controller
 
 Manual Controller is a pass-through controller type with control signal outputs that are set completely manually by API and optionally starts with initial values set by config. See [Manual Controller settings](../config_robot.md#manual-controller-settings) and [Manual Controller commands](../api.md#manual-controller-commands) for more details.
@@ -22,13 +26,13 @@ Manual Controller is a pass-through controller type with control signal outputs 
 
 The following chart compares the flight controllers when used with Project AirSim:
 
-Feature | Simple Flight | PX4 | Manual Controller
-------- | ------------- | --- | ---
-Project AirSim Airframes | Quadrotor, hexarotor, VTOL quad-x tailsitter, VTOL quad tiltrotor | Quadrotor, hexarotor, VTOL quad-x tailsitter, VTOL quad tiltrotor in SITL, quadrotor only in HITL | Any
-Controller Hardware | None | None for SITL, required for HITL | None
-Setup | Easy | Harder | Easy
-Use | Easy | Harder | Manual
-Tuning Support | No | Yes | N/A
+Feature | Simple Flight | PX4 | ArduPilot | Manual Controller
+------- | ------------- | --- | --------- | ---
+Project AirSim Airframes | Quadrotor, hexarotor, VTOL quad-x tailsitter, VTOL quad tiltrotor | Quadrotor, hexarotor, VTOL quad-x tailsitter, VTOL quad tiltrotor in SITL, quadrotor only in HITL | Quadrotor, hexarotor in SITL | Any
+Controller Hardware | None | None for SITL, required for HITL | None for SITL | None
+Setup | Easy | Harder | Harder | Easy
+Use | Easy | Harder | Harder | Manual
+Tuning Support | No | Yes | Yes | N/A
 
 ---
 

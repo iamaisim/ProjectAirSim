@@ -320,10 +320,11 @@ A controller is used to decide how to command the robot's actuators in order to 
 | Parameter | Value | Description |
 | --------- | ----- | ----------- |
 | `id` | string | Name identifier for the controller. |
-| `airframe-setup` | string | Type of airframe. Simple Flight currently supports `quadrotor-x`, `hexarotor-x`, `vtol-quad-x-tailsitter`, and `vtol-quad-tiltrotor`, defaulting to `quadrotor-x` if omitted. PX4 ignores this setting because the airframe type is determined by the PX4 firmware that is running. |
-| `type` | string | Type of the controller. Currently, **[`simple-flight-api`](controllers/simple_flight.md)**, **[`px4-api`](controllers/px4/px4.md)**, and `manual-controller-api` are supported. |
+| `airframe-setup` | string | Type of airframe. Simple Flight currently supports `quadrotor-x`, `hexarotor-x`, `vtol-quad-x-tailsitter`, and `vtol-quad-tiltrotor`, defaulting to `quadrotor-x` if omitted. PX4 and ArduPilot obtain the airframe type from their running firmware. |
+| `type` | string | Type of the controller. Currently, **[`simple-flight-api`](controllers/simple_flight.md)**, **[`px4-api`](controllers/px4/px4.md)**, **[`ardupilot-api`](controllers/ardupilot.md)**, and `manual-controller-api` are supported. |
 | `simple-flight-api-settings` | See [Simple Flight settings](#simple-flight-settings) | Settings specific to the `simple-flight-api` controller type. |
 | `px4-settings` | See [PX4 settings](#px4-settings) | Settings specific to the `px4-api` controller type. |
+| `ardupilot-settings` | See [ArduPilot settings](#ardupilot-settings) | Settings specific to the `ardupilot-api` controller type. |
 | `manual-controller-api-settings` | See [Manual Controller settings](#manual-controller-settings) | Settings specific to the `manual-controller-api` controller type. |
 
 ### Simple Flight settings
@@ -341,6 +342,34 @@ The `simple-flight-api-settings` collection contains the settings for the Simple
 | Parameter | Value | Description |
 | --------- | ----- | ----------- |
 | `actuator-order` | Array of actuator `id` tags | The actuator name identifiers to link to the controller's commanded outputs.  See [Actuator order settings](#actuator-order-settings) below for the order. |
+
+### ArduPilot settings
+
+The `ardupilot-settings` collection contains the settings for the ArduPilot SITL controller:
+
+```json
+"ardupilot-settings": {
+  "local-host-ip": "127.0.0.1",
+  "ardupilot-ip": "127.0.0.1",
+  "ardupilot-udp-port": 9003,
+  "local-host-udp-port": 9002,
+  "use-distance-sensor": true,
+  "actuator-order": [
+    ...
+  ]
+}
+```
+
+| Parameter | Value | Description |
+| --------- | ----- | ----------- |
+| `local-host-ip` | string | IP address of the Project AirSim network adapter used for the ArduPilot UDP connection. Usually `127.0.0.1` when both run on the same computer. |
+| `ardupilot-ip` | string | IP address of the host running ArduPilot. Usually `127.0.0.1` when both run on the same computer. |
+| `ardupilot-udp-port` | integer | UDP port on the ArduPilot host. The supplied examples use `9003`. |
+| `local-host-udp-port` | integer | UDP port on the Project AirSim host. The supplied examples use `9002`. |
+| `use-distance-sensor` | bool | Sends distance-sensor data to ArduPilot when true. |
+| `actuator-order` | Array of actuator `id` tags | Ordered actuator identifiers linked to ArduPilot control outputs. See [Actuator order settings](#actuator-order-settings). |
+
+See [ArduPilot Flight Controller](controllers/ardupilot.md) for SITL setup, networking, and example flight sessions.
 
 ### PX4 settings
 
@@ -439,7 +468,7 @@ Project AirSim's GCS proxy also allows the GCS application can be run on a remot
 
 ### Actuator order settings
 
-Under `simple-flight-api-settings` and `px4-settings` this array maps the control outputs from the controller to the robot's actuators.
+Under `simple-flight-api-settings`, `px4-settings`, and `ardupilot-settings`, this array maps controller outputs to the robot's actuators.
 
 ``` json
 "simple-flight-api-settings": {

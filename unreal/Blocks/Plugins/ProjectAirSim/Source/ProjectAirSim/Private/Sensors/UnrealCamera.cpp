@@ -18,6 +18,7 @@
 #include "Engine/TextureRenderTarget2D.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
+#include "HAL/IConsoleManager.h"
 #include "ImagePackingAsyncTask.h"
 #include "ImageUtils.h"
 #include "Materials/MaterialInstanceDynamic.h"
@@ -166,6 +167,58 @@ void HideDebugDrawComponent(USceneCaptureComponent2D* CaptureComponent,
   CaptureComponent->HideComponent(
       Cast<UPrimitiveComponent>(UnrealWorld->ForegroundLineBatcher));
 #endif
+}
+
+// Resolves the tri-state lumen-gi-enabled / lumen-reflections-enabled
+// capture settings into the concrete methods to pin on this capture's
+// post-process overrides:
+//   auto (key absent): Scene (RGB) captures mirror the project's methods
+//     (r.DynamicGlobalIlluminationMethod / r.ReflectionMethod) so the
+//     captured image matches what the viewport renders; every other image
+//     type resolves to None — their output comes from a replacement
+//     material, so dynamic GI underneath is pure GPU/VRAM waste (each
+//     Lumen-enabled capture maintains its own Lumen scene).
+//   true:  force Lumen for this capture regardless of the project default.
+//   false: force None. This must be an active override — a capture's view
+//     inherits the project CVar when un-overridden, so doing nothing does
+//     not mean "no Lumen".
+static void ResolveCaptureLumenMethods(
+    const projectairsim::CaptureSettings& CaptureSettings,
+    EDynamicGlobalIlluminationMethod::Type& OutGIMethod,
+    EReflectionMethod::Type& OutReflectionMethod) {
+  const bool bIsSceneCapture =
+      CaptureSettings.image_type ==
+      projectairsim::MathUtils::ToNumeric(projectairsim::ImageType::kScene);
+
+  if (CaptureSettings.lumen_gi_enabled ==
+      projectairsim::CaptureSettings::kLumenAuto) {
+    static const auto* GIMethodCVar =
+        IConsoleManager::Get().FindTConsoleVariableDataInt(
+            TEXT("r.DynamicGlobalIlluminationMethod"));
+    OutGIMethod = (bIsSceneCapture && GIMethodCVar)
+                      ? static_cast<EDynamicGlobalIlluminationMethod::Type>(
+                            GIMethodCVar->GetValueOnGameThread())
+                      : EDynamicGlobalIlluminationMethod::None;
+  } else {
+    OutGIMethod = CaptureSettings.lumen_gi_enabled
+                      ? EDynamicGlobalIlluminationMethod::Lumen
+                      : EDynamicGlobalIlluminationMethod::None;
+  }
+
+  if (CaptureSettings.lumen_reflections_enabled ==
+      projectairsim::CaptureSettings::kLumenAuto) {
+    static const auto* ReflectionMethodCVar =
+        IConsoleManager::Get().FindTConsoleVariableDataInt(
+            TEXT("r.ReflectionMethod"));
+    OutReflectionMethod = (bIsSceneCapture && ReflectionMethodCVar)
+                              ? static_cast<EReflectionMethod::Type>(
+                                    ReflectionMethodCVar->GetValueOnGameThread())
+                              : EReflectionMethod::None;
+  } else {
+    OutReflectionMethod = CaptureSettings.lumen_reflections_enabled
+                              ? EReflectionMethod::Lumen
+                              : EReflectionMethod::None;
+  }
 }
 
 void UUnrealCamera::CreateComponents() {
@@ -431,6 +484,17 @@ void UUnrealCamera::UpdateCaptureComponentSetting(
   if (!std::isnan(CaptureSettings.target_gamma))
     RenderTarget->TargetGamma = CaptureSettings.target_gamma;
 
+  // Lumen needs ray tracing data in the capture's scene render when the
+  // project uses hardware ray tracing; without this flag the capture's rays
+  // miss everything even though the resolved GI method says Lumen. Harmless
+  // otherwise (software Lumen works without it).
+  EDynamicGlobalIlluminationMethod::Type GIMethod;
+  EReflectionMethod::Type ReflectionMethod;
+  ResolveCaptureLumenMethods(CaptureSettings, GIMethod, ReflectionMethod);
+  Capture->bUseRayTracingIfEnabled =
+      GIMethod == EDynamicGlobalIlluminationMethod::Lumen ||
+      ReflectionMethod == EReflectionMethod::Lumen;
+
   Capture->ProjectionType =
       static_cast<ECameraProjectionMode::Type>(CaptureSettings.projection_mode);
 
@@ -449,6 +513,22 @@ void UUnrealCamera::UpdateCaptureComponentSetting(
 void UUnrealCamera::UpdateCameraPostProcessingSetting(
     FPostProcessSettings& PostProcessSettings,
     const projectairsim::CaptureSettings& CaptureSettings) {
+  // Pin this capture's global illumination / reflection method explicitly
+  // (see ResolveCaptureLumenMethods). When the method resolves to Lumen the
+  // engine maintains a dedicated Lumen scene for the capture's persistent
+  // view state (UE 5.5+; earlier engines ignore this for captures) — this is
+  // what makes the captured image match the Lumen-lit editor/game viewport
+  // instead of losing all indirect light.
+  {
+    EDynamicGlobalIlluminationMethod::Type GIMethod;
+    EReflectionMethod::Type ReflectionMethod;
+    ResolveCaptureLumenMethods(CaptureSettings, GIMethod, ReflectionMethod);
+    PostProcessSettings.bOverride_DynamicGlobalIlluminationMethod = true;
+    PostProcessSettings.DynamicGlobalIlluminationMethod = GIMethod;
+    PostProcessSettings.bOverride_ReflectionMethod = true;
+    PostProcessSettings.ReflectionMethod = ReflectionMethod;
+  }
+
   if (CaptureSettings.auto_exposure_method >= 0) {
     PostProcessSettings.bOverride_AutoExposureMethod = true;
     PostProcessSettings.AutoExposureMethod =

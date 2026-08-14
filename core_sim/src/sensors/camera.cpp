@@ -1345,6 +1345,22 @@ void Camera::Loader::LoadCaptureSetting(const json& json) {
   setting.motion_blur_amount = JsonUtils::GetNumber<float>(
       json, Constant::Config::motion_blur_amount, setting.motion_blur_amount);
 
+  // Tri-state: absent key = kLumenAuto (match the project/viewport method),
+  // explicit true/false forces the method on/off for this capture.
+  if (JsonUtils::HasKey(json, Constant::Config::lumen_gi_enabled)) {
+    setting.lumen_gi_enabled =
+        JsonUtils::GetBoolean(json, Constant::Config::lumen_gi_enabled, false)
+            ? 1
+            : 0;
+  }
+  if (JsonUtils::HasKey(json, Constant::Config::lumen_reflections_enabled)) {
+    setting.lumen_reflections_enabled =
+        JsonUtils::GetBoolean(json, Constant::Config::lumen_reflections_enabled,
+                              false)
+            ? 1
+            : 0;
+  }
+
   setting.target_gamma = JsonUtils::GetNumber<float>(
       json, Constant::Config::target_gamma, setting.target_gamma);
 

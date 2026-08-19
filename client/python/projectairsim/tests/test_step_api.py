@@ -18,7 +18,7 @@ def test_step_sends_correct_request():
     world = _make_world()
     world.client.request.return_value = {
         "sim_time_ns": 100_000_000,
-        "drones": {},
+        "robots": {},
     }
 
     result = world.step(dt_ns=100_000_000)
@@ -30,11 +30,11 @@ def test_step_sends_correct_request():
     assert req["version"] == 1.0
 
 
-def test_step_returns_sim_time_and_drones():
+def test_step_returns_sim_time_and_robots():
     world = _make_world()
     expected = {
         "sim_time_ns": 200_000_000,
-        "drones": {
+        "robots": {
             "Drone1": {
                 "state": {
                     "position": {"x": 1.0, "y": 2.0, "z": -3.0},
@@ -51,16 +51,16 @@ def test_step_returns_sim_time_and_drones():
     result = world.step(dt_ns=100_000_000)
 
     assert result["sim_time_ns"] == 200_000_000
-    assert "Drone1" in result["drones"]
-    assert result["drones"]["Drone1"]["state"]["position"]["x"] == 1.0
-    assert result["drones"]["Drone1"]["events"] == []
+    assert "Drone1" in result["robots"]
+    assert result["robots"]["Drone1"]["state"]["position"]["x"] == 1.0
+    assert result["robots"]["Drone1"]["events"] == []
 
 
 def test_step_returns_collision_events():
     world = _make_world()
     expected = {
         "sim_time_ns": 300_000_000,
-        "drones": {
+        "robots": {
             "Drone1": {
                 "state": {
                     "position": {"x": 0.0, "y": 0.0, "z": 0.0},
@@ -84,7 +84,7 @@ def test_step_returns_collision_events():
 
     result = world.step(dt_ns=100_000_000)
 
-    events = result["drones"]["Drone1"]["events"]
+    events = result["robots"]["Drone1"]["events"]
     assert len(events) == 1
     assert events[0]["type"] == "collision"
     assert events[0]["object_name"] == "gate_frame"
@@ -94,7 +94,7 @@ def test_step_returns_gate_pass_events():
     world = _make_world()
     expected = {
         "sim_time_ns": 400_000_000,
-        "drones": {
+        "robots": {
             "Drone1": {
                 "state": {
                     "position": {"x": 20.0, "y": 0.0, "z": -2.0},
@@ -118,7 +118,7 @@ def test_step_returns_gate_pass_events():
 
     result = world.step(dt_ns=100_000_000)
 
-    events = result["drones"]["Drone1"]["events"]
+    events = result["robots"]["Drone1"]["events"]
     assert len(events) == 1
     assert events[0]["type"] == "gate_pass"
     assert events[0]["gate_index"] == 3
@@ -130,7 +130,7 @@ def test_step_preserves_event_ordering():
     world = _make_world()
     expected = {
         "sim_time_ns": 500_000_000,
-        "drones": {
+        "robots": {
             "Drone1": {
                 "state": {
                     "position": {"x": 0.0, "y": 0.0, "z": 0.0},
@@ -161,7 +161,7 @@ def test_step_preserves_event_ordering():
 
     result = world.step(dt_ns=100_000_000)
 
-    events = result["drones"]["Drone1"]["events"]
+    events = result["robots"]["Drone1"]["events"]
     assert len(events) == 2
     assert events[0]["sim_time_ns"] < events[1]["sim_time_ns"]
     assert events[0]["type"] == "gate_pass"

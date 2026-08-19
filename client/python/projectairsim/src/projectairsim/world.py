@@ -341,7 +341,7 @@ class World(object):
         per-drone kinematics and any events (collisions) that
         occurred during the step.
 
-        Actions should be sent to individual drones via their existing move
+        Actions should be sent to individual robots via their existing move
         methods before calling step().
 
         Args:
@@ -350,7 +350,7 @@ class World(object):
         Returns:
             dict with keys:
                 sim_time_ns (int): current sim time after the step
-                drones (dict): per-drone data keyed by drone ID, each containing:
+                robots (dict): per-drone data keyed by drone ID, each containing:
                     state (dict): position, orientation, linear_velocity, angular_velocity
                     events (list): collision and gate_pass events with sim_time_ns ordering
         """

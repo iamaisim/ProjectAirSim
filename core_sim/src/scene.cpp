@@ -816,7 +816,7 @@ json Scene::Impl::Step(TimeNano dt_ns) {
   TimeNano current_sim_time = SimClock::Get()->NowSimNanos();
 
   // Build response with per-drone state and events
-  json drones = json::object();
+  json robots = json::object();
   for (auto& actor : actors_) {
     if (actor->GetType() == ActorType::kRobot) {
       auto& robot = static_cast<Robot&>(*actor);
@@ -843,11 +843,11 @@ json Scene::Impl::Step(TimeNano dt_ns) {
 
       json events = robot.DrainStepEvents();
 
-      drones[robot.GetID()] = json{{"state", state}, {"events", events}};
+      robots[robot.GetID()] = json{{"state", state}, {"events", events}};
     }
   }
 
-  return json{{"sim_time_ns", current_sim_time}, {"drones", drones}};
+  return json{{"sim_time_ns", current_sim_time}, {"robots", robots}};
 }
 
 std::vector<std::string> Scene::Impl::SimGetActors() {

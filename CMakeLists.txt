@@ -102,7 +102,11 @@ elseif(UNIX)
     add_compile_definitions(__CLANG__)
     add_compile_options(-stdlib=libc++ -ferror-limit=10)
     # Note: Linking -lanl (for getaddrinfo) and -pthread are required because of nng
-    add_link_options(-stdlib=libc++ -lanl -pthread)
+    # -lc++abi pairs with -stdlib=libc++, mirroring UnrealBuildTool's own LinuxToolChain.cs
+    # (libc++.a + libc++abi.a linked together from the same toolchain directory). Needed against
+    # UE 5.7's v26 clang toolchain, whose driver does not implicitly add it; without it, linking
+    # against libc++.a fails with an undefined GLIBCXX-versioned std::logic_error vtable symbol.
+    add_link_options(-stdlib=libc++ -lc++abi -lanl -pthread)
 
     # set(CESIUM_CXX_FLAGS "-std=c++17 -stdlib=libc++")
     # set(CESIUM_LINKER_FLAGS "-stdlib=libc++ -lc++abi")

@@ -33,21 +33,38 @@ void ManualControllerApi::SetKinematics(const Kinematics* kinematics) {}
 
 void ManualControllerApi::Update() {}
 
-std::vector<float> ManualControllerApi::GetControlSignals(const std::string& actuator_id) {
-  std::lock_guard<std::mutex> lock(update_lock_);
-
+int ManualControllerApi::GetControlSignalIndex(const std::string& actuator_id) {
   auto actuator_map_itr = actuator_id_to_output_idx_map_.find(actuator_id);
   if (actuator_map_itr == actuator_id_to_output_idx_map_.end()) {
     GetLogger().LogWarning("ManualControllerApi",
                            "ManualControllerApi::GetControlSignal() called for "
                            "invalid actuator: %s",
                            actuator_id.c_str());
-    return std::vector<float>(1,0.0f);
+    return -1;
   }
 
-  float output = motor_output_.at(actuator_map_itr->second);
+  return actuator_map_itr->second;
+}
 
-  return std::vector<float>(1, output);
+void ManualControllerApi::GetControlSignalSnapshot(
+    std::vector<float>& control_signals) {
+  std::lock_guard<std::mutex> lock(update_lock_);
+  control_signals.assign(motor_output_.begin(), motor_output_.end());
+}
+
+std::vector<float> ManualControllerApi::GetControlSignals(int signal_index) {
+  std::lock_guard<std::mutex> lock(update_lock_);
+  if (signal_index < 0 ||
+      signal_index >= static_cast<int>(motor_output_.size())) {
+    return std::vector<float>(1, 0.f);
+  }
+
+  return std::vector<float>(1, motor_output_[signal_index]);
+}
+
+std::vector<float> ManualControllerApi::GetControlSignals(
+    const std::string& actuator_id) {
+  return GetControlSignals(GetControlSignalIndex(actuator_id));
 }
 
 const IController::GimbalState& ManualControllerApi::GetGimbalSignal(

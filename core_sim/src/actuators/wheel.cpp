@@ -85,7 +85,7 @@ class Wheel::Impl : public ActuatorImpl {
 
   const float GetPowerConsumption() const;
 
-  void UpdateActuatorOutput(std::vector<float>&& control_signals,
+  void UpdateActuatorOutput(const ControlSignals& control_signals,
                             const TimeNano sim_dt_nanos);
 
   void SetTilt(Quaternion quat);
@@ -210,10 +210,10 @@ const ActuatedTransforms& Wheel::GetActuatedTransforms() const {
   return static_cast<Wheel::Impl*>(pimpl_.get())->GetActuatedTransforms();
 }
 
-void Wheel ::UpdateActuatorOutput(std::vector<float>&& control_signals,
+void Wheel ::UpdateActuatorOutput(const ControlSignals& control_signals,
                                   const TimeNano sim_dt_nanos) {
   static_cast<Wheel::Impl*>(pimpl_.get())
-      ->UpdateActuatorOutput(std::move(control_signals), sim_dt_nanos);
+      ->UpdateActuatorOutput(control_signals, sim_dt_nanos);
 }
 
 Wheel::operator TransformTree::RefFrame&(void) {
@@ -317,7 +317,7 @@ const ActuatedTransforms& Wheel::Impl::GetActuatedTransforms() const {
 
 const float Wheel::Impl::GetPowerConsumption() const { return power_; }
 
-void Wheel::Impl::UpdateActuatorOutput(std::vector<float>&& control_signals,
+void Wheel::Impl::UpdateActuatorOutput(const ControlSignals& control_signals,
                                        const TimeNano sim_dt_nanos) {
   // Getting the control signals necessary for movement
   auto engine_signal = (engine_connected_) ? control_signals[0] : 0;

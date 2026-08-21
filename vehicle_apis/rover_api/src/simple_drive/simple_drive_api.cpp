@@ -5,6 +5,8 @@
 
 #include "simple_drive/simple_drive_api.hpp"
 
+#include <algorithm>
+
 #include "json.hpp"
 #include "simple_drive/ackermann_controller.hpp"
 #include "simple_drive/utils.hpp"
@@ -113,32 +115,50 @@ void SimpleDriveApi::Update(void) {
     pisimple_drive_controller_->Update();
 }
 
+int SimpleDriveApi::GetControlSignalIndex(const std::string& actuator_id) {
+  return GetControlSignalIndex(actuator_id, 0);
+}
+
+int SimpleDriveApi::GetControlSignalIndex(const std::string& actuator_id,
+                                          size_t signal_offset) {
+  // Simple-drive provides the same throttle/steering/brake channels to every
+  // wheel. The offset selects the scalar channel within that shared output.
+  return signal_offset < 3 ? static_cast<int>(signal_offset) : -1;
+}
+
+void SimpleDriveApi::GetControlSignalSnapshot(
+    std::vector<float>& control_signals) {
+  constexpr size_t kControlSignalCount = 3;
+  control_signals.assign(kControlSignalCount, 0.0f);
+  if ((vehicle_state_ != VehicleStateType::kArmed) ||
+      (pisimple_drive_controller_ == nullptr)) {
+    return;
+  }
+
+  const auto& controller_output = pisimple_drive_controller_->GetOutput();
+  const auto copy_count =
+      std::min(control_signals.size(), controller_output.size());
+  std::copy_n(controller_output.begin(), copy_count, control_signals.begin());
+}
+
+std::vector<float> SimpleDriveApi::GetControlSignals(int signal_index) {
+  if (signal_index < 0 || signal_index >= 3 ||
+      vehicle_state_ != VehicleStateType::kArmed ||
+      pisimple_drive_controller_ == nullptr) {
+    return std::vector<float>(1, 0.0f);
+  }
+
+  const auto& controller_output = pisimple_drive_controller_->GetOutput();
+  if (signal_index >= static_cast<int>(controller_output.size())) {
+    return std::vector<float>(1, 0.0f);
+  }
+
+  return std::vector<float>(1, controller_output[signal_index]);
+}
+
 std::vector<float> SimpleDriveApi::GetControlSignals(
     const std::string& actuator_id) {
-  // auto actuator_map_itr = actuator_id_to_output_idx_map_.find(actuator_id);
-
-  if ((vehicle_state_ != VehicleStateType::kArmed) ||
-      (pisimple_drive_controller_ == nullptr))
-    return std::vector<float>{0, 0, 0};
-  else {
-    static int kNumValueReturn =
-        3;  // Number of values to return: throttle, steering, and brake
-
-    std::vector<float> vecrRet;
-
-    auto& vecr = pisimple_drive_controller_->GetOutput();
-    auto cr = vecr.size();
-
-    if (cr == kNumValueReturn)
-      return (vecr);
-    else if (cr < kNumValueReturn) {
-      vecrRet = vecr;
-      vecrRet.resize(kNumValueReturn);
-    } else
-      vecrRet.assign(vecr.begin(), vecr.begin() + kNumValueReturn);
-
-    return vecrRet;
-  }
+  return GetControlSignals(GetControlSignalIndex(actuator_id));
 }
 
 const projectairsim::IController::GimbalState& SimpleDriveApi::GetGimbalSignal(

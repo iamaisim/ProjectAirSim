@@ -373,23 +373,45 @@ void MavLinkApi::InitializeGimbalStatus(const Robot& robot) {
   }
 }
 
-std::vector<float> MavLinkApi::GetControlSignals(const std::string& actuator_id) {
-  if (!is_simulation_mode_) {
-    throw std::logic_error(
-        "Attempt to read motor controls while not in simulation mode");
-  }
-
+int MavLinkApi::GetControlSignalIndex(const std::string& actuator_id) {
   auto actuator_map_itr = actuator_id_to_output_idx_map_.find(actuator_id);
   if (actuator_map_itr == actuator_id_to_output_idx_map_.end()) {
     GetLogger().LogWarning(
         GetControllerName(),
         "MavLinkApi::GetControlSignal() called for invalid actuator: %s",
         actuator_id.c_str());
+    return -1;
+  }
+
+  return actuator_map_itr->second;
+}
+
+void MavLinkApi::GetControlSignalSnapshot(std::vector<float>& control_signals) {
+  if (!is_simulation_mode_) {
+    throw std::logic_error(
+        "Attempt to read motor controls while not in simulation mode");
+  }
+  std::lock_guard<std::mutex> guard(hil_controls_mutex_);
+  control_signals.assign(control_outputs_,
+                         control_outputs_ + kControlOutputsCount);
+}
+
+std::vector<float> MavLinkApi::GetControlSignals(int signal_index) {
+  if (!is_simulation_mode_) {
+    throw std::logic_error(
+        "Attempt to read motor controls while not in simulation mode");
+  }
+  if (signal_index < 0 || signal_index >= kControlOutputsCount) {
     return std::vector<float>(1, 0.f);
   }
 
   std::lock_guard<std::mutex> guard(hil_controls_mutex_);
-  return std::vector<float>(1, control_outputs_[actuator_map_itr->second]);
+  return std::vector<float>(1, control_outputs_[signal_index]);
+}
+
+std::vector<float> MavLinkApi::GetControlSignals(
+    const std::string& actuator_id) {
+  return GetControlSignals(GetControlSignalIndex(actuator_id));
 }
 
 const IController::GimbalState& MavLinkApi::GetGimbalSignal(

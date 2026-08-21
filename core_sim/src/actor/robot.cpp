@@ -198,6 +198,7 @@ class Robot::Impl : public ActorImpl {
   float total_power_ = 0.0f;
 
   std::unique_ptr<IController> controller_;
+  std::vector<float> control_signal_snapshot_;
 
   std::vector<std::unique_ptr<Actuator>> actuators_;
   std::vector<std::reference_wrapper<Actuator>> actuators_ref_;
@@ -742,6 +743,18 @@ bool Robot::Impl::SetGroundTruthKinematics(
 }
 
 void Robot::Impl::SetController(std::unique_ptr<IController> controller) {
+  for (auto& actuator : actuators_) {
+    if (actuator->GetType() != ActuatorType::kGimbal) {
+      for (size_t signal_offset = 0; signal_offset < actuator->GetSignalCount();
+           ++signal_offset) {
+        const int signal_index = controller == nullptr
+                                     ? -1
+                                     : controller->GetControlSignalIndex(
+                                           actuator->GetId(), signal_offset);
+        actuator->SetSignalIndex(signal_index, signal_offset);
+      }
+    }
+  }
   controller_ = std::move(controller);
 }
 
@@ -1056,16 +1069,29 @@ void Robot::Impl::UpdateActuators(const TimeNano sim_time,
                                   const TimeNano sim_dt_nanos) {
   std::lock_guard<std::mutex> lock(update_lock_);
 
-  if (actuators_.empty()) return;
+  if (actuators_.empty() || controller_ == nullptr) return;
+
+  controller_->GetControlSignalSnapshot(control_signal_snapshot_);
+  const auto get_control_signals =
+      [this](const Actuator& actuator) -> Actuator::ControlSignals {
+    Actuator::ControlSignals control_signals = {};
+    for (size_t signal_offset = 0; signal_offset < actuator.GetSignalCount();
+         ++signal_offset) {
+      const int signal_index = actuator.GetSignalIndex(signal_offset);
+      if (signal_index >= 0 &&
+          signal_index < static_cast<int>(control_signal_snapshot_.size())) {
+        control_signals[signal_offset] = control_signal_snapshot_[signal_index];
+      }
+    }
+    return control_signals;
+  };
 
   // Update tilt actuator first since they affect other actuators
   for (auto& actuator : actuators_) {
     if (actuator->GetType() == ActuatorType::kTilt) {
       // Call actuator to update its output for its current control signal
-      std::vector<float> control_signals =
-          controller_->GetControlSignals(actuator->GetId());
-
-      actuator->UpdateActuatorOutput(std::move(control_signals), sim_dt_nanos);
+      actuator->UpdateActuatorOutput(get_control_signals(*actuator),
+                                     sim_dt_nanos);
     }
   }
 
@@ -1096,10 +1122,8 @@ void Robot::Impl::UpdateActuators(const TimeNano sim_time,
       }
 
       // Call actuator to update its output for its current control signal
-      std::vector<float> control_signals =
-          controller_->GetControlSignals(actuator->GetId());
-
-      actuator->UpdateActuatorOutput(std::move(control_signals), sim_dt_nanos);
+      actuator->UpdateActuatorOutput(get_control_signals(*actuator),
+                                     sim_dt_nanos);
     }
 
     // Do post-processing specific to actuator type

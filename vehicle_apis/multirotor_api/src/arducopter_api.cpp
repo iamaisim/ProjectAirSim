@@ -221,23 +221,45 @@ void ArduCopterApi::ReciveRotorsControls() {
   // HandleLockStep();
 }
 
-std::vector<float> ArduCopterApi::GetControlSignals(const std::string& actuator_id) {
-  if (!is_simulation_mode_) {
-    throw std::logic_error(
-        "Attempt to read motor controls while not in simulation mode");
-  }
-
+int ArduCopterApi::GetControlSignalIndex(const std::string& actuator_id) {
   auto actuator_map_itr = actuator_id_to_output_idx_map_.find(actuator_id);
   if (actuator_map_itr == actuator_id_to_output_idx_map_.end()) {
     GetLogger().LogWarning(
         GetControllerName(),
         "ArduCopterApi::GetControlSignal() called for invalid actuator: %s",
         actuator_id.c_str());
-    return std::vector<float>(1,0.f);
+    return -1;
+  }
+
+  return actuator_map_itr->second;
+}
+
+void ArduCopterApi::GetControlSignalSnapshot(
+    std::vector<float>& control_signals) {
+  if (!is_simulation_mode_) {
+    throw std::logic_error(
+        "Attempt to read motor controls while not in simulation mode");
+  }
+  control_signals.assign(control_outputs_,
+                         control_outputs_ + k_control_outputs_count_);
+}
+
+std::vector<float> ArduCopterApi::GetControlSignals(int signal_index) {
+  if (!is_simulation_mode_) {
+    throw std::logic_error(
+        "Attempt to read motor controls while not in simulation mode");
+  }
+  if (signal_index < 0 || signal_index >= k_control_outputs_count_) {
+    return std::vector<float>(1, 0.f);
   }
 
   // std::lock_guard<std::mutex> guard(hil_controls_mutex_);
-  return std::vector<float>(1, control_outputs_[actuator_map_itr->second]);
+  return std::vector<float>(1, control_outputs_[signal_index]);
+}
+
+std::vector<float> ArduCopterApi::GetControlSignals(
+    const std::string& actuator_id) {
+  return GetControlSignals(GetControlSignalIndex(actuator_id));
 }
 
 //---------------------------------------------------------------------------

@@ -52,7 +52,7 @@ class Tilt : public Actuator {
 
   const std::string& GetTargetID(void) const;
 
- void UpdateActuatorOutput(std::vector<float> && control_signals,
+  void UpdateActuatorOutput(const ControlSignals& control_signals,
                             const TimeNano sim_dt_nanos) override;
 
  private:

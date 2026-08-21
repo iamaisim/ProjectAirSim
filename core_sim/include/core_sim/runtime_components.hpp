@@ -52,6 +52,18 @@ class IController : public IRuntimeComponent {
   // TODO: Should this be in the base IRuntimeComponent?
   virtual void Update() = 0;
 
+  virtual int GetControlSignalIndex(const std::string& actuator_id) = 0;
+
+  virtual int GetControlSignalIndex(const std::string& actuator_id,
+                                    size_t signal_offset) {
+    return signal_offset == 0 ? GetControlSignalIndex(actuator_id) : -1;
+  }
+
+  virtual void GetControlSignalSnapshot(
+      std::vector<float>& control_signals) = 0;
+
+  virtual std::vector<float> GetControlSignals(int signal_index) = 0;
+
   virtual std::vector<float> GetControlSignals(const std::string& actuator_id) = 0;
 
   virtual const GimbalState& GetGimbalSignal(const std::string& gimbal_id) = 0;

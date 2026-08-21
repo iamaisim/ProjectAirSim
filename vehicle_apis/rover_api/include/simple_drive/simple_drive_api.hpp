@@ -69,6 +69,11 @@ class SimpleDriveApi : public AckermannApiBase {
   void Reset(void) override;
   void SetKinematics(const Kinematics* kinematics) override;
   void Update(void) override;
+  int GetControlSignalIndex(const std::string& actuator_id) override;
+  int GetControlSignalIndex(const std::string& actuator_id,
+                            size_t signal_offset) override;
+  void GetControlSignalSnapshot(std::vector<float>& control_signals) override;
+  std::vector<float> GetControlSignals(int signal_index) override;
   std::vector<float> GetControlSignals(const std::string& actuator_id) override;
   const IController::GimbalState& GetGimbalSignal(
       const std::string& gimbal_id) override;

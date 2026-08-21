@@ -44,7 +44,6 @@ jobs:
     timeout-minutes: 120
 
     env:
-      UE_ROOT: ${{ secrets.UE_ROOT }}
       AIRSIM_PY_ENV: ${{ github.workspace }}/airsimenv
       DEBIAN_FRONTEND: noninteractive
 

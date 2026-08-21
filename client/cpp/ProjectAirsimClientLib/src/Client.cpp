@@ -7,6 +7,7 @@
 
 #include <ProjectAirSimMessage/request_message.hpp>
 #include <ProjectAirSimMessage/response_message.hpp>
+#include <atomic>
 #include <chrono>
 #include <sstream>
 #include <string>
@@ -304,8 +305,9 @@ class Client::Impl {
   std::unique_ptr<std::thread> pthread_receiving_;  // Response receiving thread
   std::unique_ptr<std::thread> pthread_sending_;    // Request sending thread
   RequestID request_id_next_;                       // Next service request ID
-  bool run_request_threads_;  // If true, the sending & receiving threads should
-                              // keep running
+  std::atomic_bool
+      run_request_threads_;  // If true, the sending & receiving threads should
+                             // keep running
   internal::Topics topics_;   // Topic handler
   UMStrVecPSubscriptionToken
       um_str_vecpsubscription_token_;  // Mapping from topic name to

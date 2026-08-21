@@ -55,7 +55,7 @@ Choose your development tool:
 - **[VS Code (Windows/Linux)](#vs-code-windows-linux)**
 - **[Visual Studio 2019 (Windows only)](#visual-studio-2019-windows-only)**
 
-**Note:** Project AirSim sim libs uses CMake which saves build configuration information in a cache, so **if you switch tools** between using command line, VS Code, or Visual Studio 2019 to drive the CMake project in the same folder, you should **clear the cache** by running `build clean` so the next tool can reset the configuration and build again properly.
+**Note:** Project AirSim sim libs uses CMake which saves build configuration information in a cache, so **if you switch tools** between using command line, VS Code, or Visual Studio 2019 to drive the CMake project in the same folder, you should **clear the cache** by running `build clean` so the next tool can reset the configuration and build again properly. The standalone C++ client uses its own build directories under `client/cpp/`.
 
 ---
 
@@ -77,15 +77,12 @@ On Linux, run the `build.sh` shell script.
 
 ```
 all = Clean + Build + Test + Package everything
-clean = Clean sim libs, C++ client + Blocks build files
+clean = Clean sim libs + Blocks build files
 
-simlibs_debug = Build + Package sim libs for Debug
-simlibs_release = Build + Package sim libs for Release
+simlibs_debug = Build sim libs for Debug
+simlibs_release = Build sim libs for Release
 test_simlibs_debug = Test sim libs for Debug
 test_simlibs_release = Test sim libs for Release
-
-cpp_client_debug = Build C++ client artifacts for Debug
-cpp_client_release = Build C++ client artifacts for Release
 
 blocks_debuggame = Build Plugin + Blocks for DebugGame (uses Debug sim libs)
 blocks_development = Build Plugin + Blocks for Development (uses Release sim libs)
@@ -95,7 +92,10 @@ package_blocks_debuggame = Package stand-alone Blocks environment executable for
 package_blocks_development = Package stand-alone Blocks environment executable for Development
 ```
 
-On Windows, the C++ client build reuses the existing ProjectAirsimClientLib and HelloDrone solution artifacts under `client/cpp/`.
+Build the C++ client separately, without SimLibs, with `build_cpp_client.sh` on
+Linux or `build_cpp_client.cmd` on Windows. Both wrappers accept `debug` or
+`release`, and `--tests` runs the mocked unit tests that do not require a
+running simulator.
 
 The sim lib components and unit test executables are built in the `projectairsim/build/` folder using CMake, and are automatically copied to the Unreal Blocks environment folder to be ready for building the plugin.
 

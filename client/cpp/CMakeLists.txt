@@ -380,6 +380,11 @@ add_executable(cpp_client_unit_tests
     tests/CppClientIntegrationTests.cpp
 )
 
+include(CTest)
+if(BUILD_TESTING AND CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+    add_test(NAME cpp_client_mocked_unit_tests COMMAND cpp_client_mocked_unit_tests)
+endif()
+
 target_link_libraries(hello_drone
     PRIVATE
         ProjectAirsimClient

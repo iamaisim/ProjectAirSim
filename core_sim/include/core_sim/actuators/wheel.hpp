@@ -7,6 +7,7 @@
 #define CORE_SIM_INCLUDE_CORE_SIM_ACTUATORS_WHEEL_HPP_
 
 #include <cmath>
+#include <memory>
 #include <string>
 
 #include "core_sim/actuators/actuator.hpp"
@@ -23,6 +24,16 @@ class ActuatorImpl;
 class TopicManager;
 class ServiceManager;
 class StateManager;
+
+}  // namespace projectairsim
+}  // namespace microsoft
+
+namespace JSBSim {
+class FGFDMExec;
+}
+
+namespace microsoft {
+namespace projectairsim {
 
 struct WheelSetting {
   Transform origin_setting;
@@ -42,6 +53,9 @@ struct WheelSetting {
   bool engine_connected_ = true;
   bool steering_connected_ = true;
   bool brake_connected_ = true;
+  std::string jsbsim_cmd_engine;
+  std::string jsbsim_cmd_steering;
+  std::string jsbsim_cmd_brake;
 
   WheelSetting() {
     origin_setting.translation_ = Vector3(0, 0, 0);
@@ -95,6 +109,8 @@ class Wheel : public Actuator {
   const ActuatedTransforms& GetActuatedTransforms() const;
 
   const float GetPowerConsumption() const;
+
+  void SetJSBSimModel(std::shared_ptr<::JSBSim::FGFDMExec> model);
 
   void UpdateActuatorOutput(std::vector<float>&& control_signals,
                             const TimeNano sim_dt_nanos) override;

@@ -55,7 +55,7 @@ if(NOT Eigen3_FOUND)
     if(NOT EIGEN_INCLUDE_DIR)
         FetchContent_Declare(
             Eigen3
-            GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+            GIT_REPOSITORY https://github.com/eigen-mirror/eigen.git
             GIT_TAG        3.4.0
         )
         FetchContent_GetProperties(Eigen3)

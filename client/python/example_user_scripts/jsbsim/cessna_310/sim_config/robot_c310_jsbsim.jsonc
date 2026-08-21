@@ -1,0 +1,359 @@
+// Copyright (C) IAMAI CONSULTING CORP
+//
+// MIT License. All rights reserved.
+
+{
+  "$schema": "../../../../projectairsim/src/projectairsim/schema/robot_config_schema.jsonc",
+  "physics-type": "jsbsim-physics",
+  "jsbsim-ground-mode": "terrain",
+  "jsbsim-root-path": "/SimLibs/jsbsim/models/",
+  "jsbsim-aircraft-path": "aircraft",
+  "jsbsim-engine-path": "engine",
+  "jsbsim-systems-path": "systems",
+  "jsbsim-model": "c310",
+  "links": [
+    {
+      "name": "Frame",
+      "inertial": {
+        "mass": 1.0,
+        "inertia": {
+          "type": "geometry",
+          "geometry": {
+            "box": {
+              "size": "0.180 0.110 0.040"
+            }
+          }
+        },
+        "aerodynamics": {
+          "drag-coefficient": 0.325,
+          "type": "geometry",
+          "geometry": {
+            "box": {
+              "size": "0.180 0.110 0.040"
+            }
+          }
+        }
+      },
+      "collision": {
+        "enabled": true,
+        "restitution": 0.1,
+        "friction": 0.5
+      },
+      "visual": {
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Drone/c172/c172_body"
+        }
+      }
+    },
+    {
+      "name": "Prop",
+      "inertial": {
+        "origin": {
+          "xyz": "0.0 0.0 0.0",
+          "rpy": "0 0 0"
+        },
+        "mass": 0.055,
+        "inertia": {
+          "type": "point-mass"
+        },
+        "aerodynamics": {
+          "drag-coefficient": 0.325,
+          "type": "geometry",
+          "geometry": {
+            "cylinder": {
+              "radius": 1,
+              "length": 0.01
+            }
+          }
+        }
+      },
+      "visual": {
+        "origin": {
+          "xyz": "0.0 0.0 1.0",
+          "rpy": "0 0.0 0"
+        },
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Drone/c172/c172_propeller"
+        }
+      }
+    },
+    {
+      "name": "Aileron_L",
+      "inertial": {
+        "origin": {
+          "xyz": "0.0 -1.6 0.0",
+          "rpy": "0 0 0"
+        },
+        "mass": 0.01,
+        "inertia": {
+          "type": "point-mass"
+        }
+      }
+    },
+    {
+      "name": "Aileron_R",
+      "inertial": {
+        "origin": {
+          "xyz": "0.0 1.6 0.0",
+          "rpy": "0 0 0"
+        },
+        "mass": 0.01,
+        "inertia": {
+          "type": "point-mass"
+        }
+      }
+    },
+    {
+      "name": "Elevator",
+      "inertial": {
+        "origin": {
+          "xyz": "-2.1 0.0 0.05",
+          "rpy": "0 0 0"
+        },
+        "mass": 0.01,
+        "inertia": {
+          "type": "point-mass"
+        }
+      }
+    },
+    {
+      "name": "Rudder",
+      "inertial": {
+        "origin": {
+          "xyz": "-2.2 0.0 0.35",
+          "rpy": "0 0 0"
+        },
+        "mass": 0.01,
+        "inertia": {
+          "type": "point-mass"
+        }
+      }
+    }
+  ],
+  "joints": [
+    {
+      "id": "Frame_Prop",
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Prop",
+      "axis": "1 0 0",
+      "origin": {
+        "xyz": "1.36 0.0 -0.71",
+        "rpy": "0 0 0"
+      }
+    },
+    {
+      "id": "Frame_Aileron_L",
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Aileron_L",
+      "axis": "0 1 0"
+    },
+    {
+      "id": "Frame_Aileron_R",
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Aileron_R",
+      "axis": "0 1 0"
+    },
+    {
+      "id": "Frame_Elevator",
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Elevator",
+      "axis": "0 1 0"
+    },
+    {
+      "id": "Frame_Rudder",
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Rudder",
+      "axis": "0 0 1"
+    }
+  ],
+  "controller": {
+    "id": "JSBSim_Controller",
+    "airframe-setup": "fixed-wing",
+    "type": "jsbsim-api"
+  },
+  "actuators": [
+    {
+      "name": "Throttle_actuator",
+      "type": "rotor",
+      "enabled": true,
+      "parent-link": "Frame",
+      "child-link": "Prop",
+      "rotor-settings": {
+        "turning-direction": "clock-wise",
+        "normal-vector": "1.0 0.0 0.0",
+        "coeff-of-thrust": 0.109919,
+        "coeff-of-torque": 0.040164,
+        "max-rpm": 6396.667,
+        "propeller-diameter": 0.2286,
+        "smoothing-tc": 0.005,
+        "jsbsim-state": "fcs/throttle-cmd-norm"
+      }
+    },
+    {
+      "name": "AileronLeft_actuator",
+      "type": "lift-drag-control-surface",
+      "enabled": true,
+      "parent-link": "Frame",
+      "child-link": "Aileron_L",
+      "lift-drag-control-surface-settings": {
+        "rotation-rate": 1.0,
+        "smoothing-tc": 0.02,
+        "jsbsim-state": "fcs/left-aileron-pos-rad"
+      }
+    },
+    {
+      "name": "AileronRight_actuator",
+      "type": "lift-drag-control-surface",
+      "enabled": true,
+      "parent-link": "Frame",
+      "child-link": "Aileron_R",
+      "lift-drag-control-surface-settings": {
+        "rotation-rate": 1.0,
+        "smoothing-tc": 0.02,
+        "jsbsim-state": "fcs/right-aileron-pos-rad"
+      }
+    },
+    {
+      "name": "Elevator_actuator",
+      "type": "lift-drag-control-surface",
+      "enabled": true,
+      "parent-link": "Frame",
+      "child-link": "Elevator",
+      "lift-drag-control-surface-settings": {
+        "rotation-rate": 1.0,
+        "smoothing-tc": 0.02,
+        "jsbsim-state": "fcs/elevator-pos-rad"
+      }
+    },
+    {
+      "name": "Rudder_actuator",
+      "type": "lift-drag-control-surface",
+      "enabled": true,
+      "parent-link": "Frame",
+      "child-link": "Rudder",
+      "lift-drag-control-surface-settings": {
+        "rotation-rate": 1.0,
+        "smoothing-tc": 0.02,
+        "jsbsim-state": "fcs/rudder-pos-rad"
+      }
+    }
+  ],
+  "sensors": [
+    {
+      "id": "Airspeed",
+      "type": "airspeed",
+      "enabled": true,
+      "parent-link": "Frame",
+      "pressure-factor-sigma": 0.001825,
+      "pressure-factor-tau": 3600,
+      "uncorrelated-noise-sigma": 1.052,
+      "forward-xyz": "1.0 0.0 0.0"
+    },
+    {
+      "id": "Chase",
+      "type": "camera",
+      "enabled": true,
+      "parent-link": "Frame",
+      "capture-interval": 0.03,
+      "capture-settings": [
+        {
+          "image-type": 0,
+          "width": 1280,
+          "height": 720,
+          "fov-degrees": 90,
+          "capture-enabled": true,
+          "streaming-enabled": true,
+          "pixels-as-float": false,
+          "compress": false,
+          "target-gamma": 2.5
+        }
+      ],
+      "gimbal": {
+        "lock-roll": true,
+        "lock-pitch": true,
+        "lock-yaw": false
+      },
+      "origin": {
+        "xyz": "-50.0 0.0 0.0",
+        "rpy": "0 0 0"
+      }
+    },
+    {
+      "id": "DownCamera",
+      "type": "camera",
+      "enabled": true,
+      "parent-link": "Frame",
+      "capture-interval": 0.02,
+      "capture-settings": [
+        {
+          "image-type": 0,
+          "width": 400,
+          "height": 225,
+          "fov-degrees": 90,
+          "capture-enabled": true,
+          "streaming-enabled": false,
+          "pixels-as-float": false,
+          "compress": false,
+          "target-gamma": 2.5
+        },
+        {
+          "image-type": 2,
+          "width": 400,
+          "height": 225,
+          "fov-degrees": 90,
+          "capture-enabled": true,
+          "streaming-enabled": false,
+          "pixels-as-float": true,
+          "compress": false
+        }
+      ],
+      "origin": {
+        "xyz": "0 0.0 0.0",
+        "rpy": "0 -1.5708 0"
+      }
+    },
+    {
+      "id": "IMU1",
+      "type": "imu",
+      "enabled": true,
+      "parent-link": "Frame",
+      "accelerometer": {
+        "velocity-random-walk": 2.353e-3,
+        "tau": 800,
+        "bias-stability": 3.53e-4,
+        "turn-on-bias": "0 0 0"
+      },
+      "gyroscope": {
+        "angle-random-walk": 8.72644e-5,
+        "tau": 500,
+        "bias-stability": 2.23014e-5,
+        "turn-on-bias": "0 0 0"
+      }
+    },
+    {
+      "id": "GPS",
+      "type": "gps",
+      "enabled": true,
+      "parent-link": "Frame"
+    },
+    {
+      "id": "Barometer",
+      "type": "barometer",
+      "enabled": true,
+      "parent-link": "Frame"
+    },
+    {
+      "id": "Magnetometer",
+      "type": "magnetometer",
+      "enabled": true,
+      "parent-link": "Frame"
+    }
+  ]
+}

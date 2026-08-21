@@ -103,6 +103,8 @@ class AUnrealRobot : public AActor {
 
   void SetExternalWrench(microsoft::projectairsim::Wrench InWrench);
 
+  void UpdateCachedTerrainElevation();
+
   std::set<std::string> GetRootLinks(
       const std::vector<microsoft::projectairsim::Link>& InLinks,
       const std::vector<microsoft::projectairsim::Joint>& InJoints);

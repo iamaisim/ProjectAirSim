@@ -6,6 +6,7 @@ on:
   pull_request:
     branches:
       - main
+      - main_public
     paths:
       - ".github/workflows/test_windows.yml"
       - "CMakeLists.txt"
@@ -23,6 +24,7 @@ on:
   push:
     branches:
       - main
+      - main_public
     paths:
       - ".github/workflows/test_windows.yml"
       - "CMakeLists.txt"

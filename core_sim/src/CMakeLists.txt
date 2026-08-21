@@ -108,10 +108,13 @@ set_target_properties(${TARGET_NAME} PROPERTIES
 )
 
 if(WIN32)
-    add_dependencies(${TARGET_NAME} nng-external)
+    add_dependencies(${TARGET_NAME} nng-external jsbsim-repo copy_jsbsim_models)
 else()
-    add_dependencies(${TARGET_NAME} nng-external openssl-external zlib-external)
+    add_dependencies(${TARGET_NAME} nng-external jsbsim-repo copy_jsbsim_models openssl-external zlib-external)
 endif()
+
+# Set up JSBSim for linking
+target_link_directories(${TARGET_NAME} PRIVATE ${JSBSIM_STATIC_LIB_DIR})
 
 # Set up nng and openssl for linking
 target_link_directories(${TARGET_NAME} PRIVATE ${NNG_LIB_DIR})
@@ -128,6 +131,7 @@ target_include_directories(
     PUBLIC
         $<INSTALL_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+        ${JSBSIM_INCLUDE_DIR}
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${JSON_INCLUDE_DIR}
@@ -149,6 +153,7 @@ if(WIN32)
             Crypt32 # Client authorization
             Ncrypt # Client authorization
             lvmon
+            jsbsim
     )
 else()
     target_link_libraries(
@@ -156,6 +161,7 @@ else()
         PRIVATE
             nng
             ${OPENSSL_CRYPTO_LIBRARY} # Client authorization
+            jsbsim
     )
 endif()
 
@@ -164,8 +170,13 @@ add_custom_command(TARGET ${TARGET_NAME}
     COMMAND ${CMAKE_COMMAND} -E echo "Packaging [${TARGET_NAME}] build outputs to ${UE_PLUGIN_SIMLIBS_DIR}/${TARGET_NAME}/$<IF:$<CONFIG:Release>,Release,Debug>"
     COMMAND ${CMAKE_COMMAND} -E copy_directory $<TARGET_FILE_DIR:${TARGET_NAME}> ${UE_PLUGIN_SIMLIBS_DIR}/${TARGET_NAME}/$<IF:$<CONFIG:Release>,Release,Debug>
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/../include ${UE_PLUGIN_SIMLIBS_DIR}/${TARGET_NAME}/include
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${UE_PLUGIN_SIMLIBS_DIR}/${TARGET_NAME}/jsbsim
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/../jsbsim/lib ${UE_PLUGIN_SIMLIBS_DIR}/${TARGET_NAME}/jsbsim/lib
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${UE_PLUGIN_SIMLIBS_DIR}/${TARGET_NAME}/jsbsim/include
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${JSBSIM_INCLUDE_DIR} ${UE_PLUGIN_SIMLIBS_DIR}/${TARGET_NAME}/jsbsim/include
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_BINARY_DIR}/commit_hash.txt ${UE_PLUGIN_SIMLIBS_DIR}/commit_hash.txt
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${UE_PLUGIN_SIMLIBS_DIR}/${TARGET_NAME}/$<IF:$<CONFIG:Release>,Release,Debug>/CMakeFiles
     COMMAND ${CMAKE_COMMAND} -E remove -f ${UE_PLUGIN_SIMLIBS_DIR}/${TARGET_NAME}/$<IF:$<CONFIG:Release>,Release,Debug>/cmake_install.cmake
     COMMAND ${CMAKE_COMMAND} -E remove -f ${UE_PLUGIN_SIMLIBS_DIR}/${TARGET_NAME}/$<IF:$<CONFIG:Release>,Release,Debug>/CTestTestfile.cmake
+
 )

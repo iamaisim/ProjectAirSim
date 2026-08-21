@@ -6,11 +6,13 @@
 #ifndef MULTIROTOR_API_INCLUDE_MAVLINK_API_HPP_
 #define MULTIROTOR_API_INCLUDE_MAVLINK_API_HPP_
 
+#include <atomic>
 #include <condition_variable>
 #include <memory>
 #include <mutex>
 #include <queue>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "MavLinkConnection.hpp"
@@ -313,6 +315,7 @@ class MavLinkApi : public VTOLFWApiBase {
 
  private:  // variables
   std::unordered_map<std::string, int> actuator_id_to_output_idx_map_;
+  std::unordered_map<std::string, float> actuator_id_to_output_scale_map_;
   std::unordered_map<std::string, int> gimbal_id_to_component_id_;
   std::unordered_map<int, GimbalState> gimbal_component_id_to_state_;
   // How many can we support with a single connection?
@@ -357,6 +360,9 @@ class MavLinkApi : public VTOLFWApiBase {
   std::shared_ptr<mavlinkcom::MavLinkNode> hil_node_;
   std::shared_ptr<mavlinkcom::MavLinkNode> gimbal_node_;
   std::shared_ptr<mavlinkcom::MavLinkConnection> connection_;
+  // Serializes lifecycle of connection_/hil_node_/gimbal_node_/mav_vehicle_
+  // between the scene-tick thread send path and teardown.
+  mutable std::mutex connection_mutex_;
   // std::shared_ptr<mavlinkcom::MavLinkVideoServer> video_server_;
   std::shared_ptr<MultirotorApiBase> mav_vehicle_control_;
 
@@ -408,8 +414,13 @@ class MavLinkApi : public VTOLFWApiBase {
   std::thread connect_thread_;
   bool connecting_ = false;  // If true, we're trying to establish a connection
                              // to the controller
-  bool connected_ = false;   // If true, we've established a connection to the
-                             // controller and started vehicle setup
+  std::atomic<bool> connected_{false};  // If true, we've established a
+                             // connection to the controller and started vehicle
+                             // setup. Atomic: read on the tick thread, written
+                             // on the connect/game threads.
+  std::atomic<bool> stopping_{false};  // If true, teardown is in progress
+                             // (EndUpdate); Update() must not auto-reconnect and
+                             // its lockstep wait must bail out promptly.
   bool connected_vehicle_ =
       false;  // If true, we've completed the connection and vehicle setup and
               // the vehicle is ready for use
@@ -421,6 +432,7 @@ class MavLinkApi : public VTOLFWApiBase {
       0;  // Timestamp when we received last control/actuator message from PX4
   uint64_t last_gimbal_time_ = 0;
   uint64_t last_gps_time_ = 0;
+  uint64_t hil_gps_period_us_ = 0;
   uint64_t last_hil_sensor_time_ = 0;
   uint64_t last_sys_time_ = 0;
   uint64_t last_update_time_ = 0;

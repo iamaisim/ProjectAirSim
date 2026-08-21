@@ -101,7 +101,6 @@ void FastPhysicsBody::InitializeFastPhysicsBody() {
   }
 }
 
-// TODO Rename this to "SetActuationOutputs"?
 void FastPhysicsBody::CalculateExternalWrench() {
   // 1. Process external wrenches from actuators (like rotors)
 

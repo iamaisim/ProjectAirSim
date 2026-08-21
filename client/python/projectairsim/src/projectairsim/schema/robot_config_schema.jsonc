@@ -7,7 +7,40 @@
     "physics-type": {
       "description": "Defines the physics type for the robot",
       "type": "string",
-      "enum": [ "fast-physics", "non-physics", "matlab-physics" ]
+      "enum": [ "fast-physics", "non-physics", "matlab-physics",  "jsbsim-physics"]
+    },
+    "jsbsim-root-path": {
+      "description": "Path to the JSBSim models root, relative to the simulation working path",
+      "type": "string",
+      "default": "/SimLibs/core_sim/jsbsim/models/"
+    },
+    "jsbsim-aircraft-path": {
+      "description": "Path to aircraft models, relative to the JSBSim root path",
+      "type": "string",
+      "default": "aircraft"
+    },
+    "jsbsim-engine-path": {
+      "description": "Path to engine models, relative to the JSBSim root path",
+      "type": "string",
+      "default": "engine"
+    },
+    "jsbsim-systems-path": {
+      "description": "Path to systems models, relative to the JSBSim root path",
+      "type": "string",
+      "default": "systems"
+    },
+    "jsbsim-dt": {
+      "description": "Maximum JSBSim integration substep in seconds. Project AirSim still publishes one updated state per physics tick.",
+      "type": "number",
+      "minimum": 0.0,
+      "exclusiveMinimum": true,
+      "default": 0.008333333333333333
+    },
+    "jsbsim-ground-mode": {
+      "description": "Defines how JSBSim ground height is modeled. 'constant' uses scene home-geo-point.altitude for the whole simulation. 'terrain' samples terrain height.",
+      "type": "string",
+      "enum": [ "constant", "terrain" ],
+      "default": "constant"
     },
     "links": {
       "description": "Define the links for the robot",
@@ -64,11 +97,11 @@
         "id": { "type": "string" },
         "airframe-setup": {
           "type": "string",
-          "enum": [ "quadrotor-x", "hexarotor-x", "vtol-quad-x-tailsitter", "vtol-quad-tiltrotor", "ackermann"]
+          "enum": [ "quadrotor-x", "hexarotor-x", "vtol-quad-x-tailsitter", "vtol-quad-tiltrotor", "ackermann", "fixed-wing"]
         },
         "type": {
           "type": "string",
-          "enum": [ "simple-flight-api", "simple-drive-api","px4-api", "ardupilot-api", "manual-controller-api", "matlab-controller-api"]
+          "enum": [ "simple-flight-api", "simple-drive-api","px4-api", "ardupilot-api", "manual-controller-api", "matlab-controller-api", "jsbsim-api" ]
         },
         "simple-flight-api-settings": {
           "type": "object",
@@ -125,6 +158,7 @@
           "child-link": { "type": "string" },
           "origin": { "$ref": "#/definitions/origin" },
           "rotor-settings": { "$ref": "#/definitions/rotor-settings" },
+          "lift-drag-control-surface-settings": { "$ref": "#/definitions/lift-drag-control-surface-settings" },
           "wheel-settings": { "$ref": "#/definitions/wheel-settings" },
           "tilt-settings": { "$ref": "#/definitions/tilt-settings" }
         }
@@ -509,7 +543,8 @@
         "required": [ "id" ],
         "properties": {
           "id": { "type": "string" },
-          "initial-value": { "type": "number" }
+          "initial-value": { "type": "number" },
+          "scale": { "type": "number", "default": 1.0 }
         }
       }
     },
@@ -528,6 +563,7 @@
         "timeout-lock-step-update-ms": { "type": "integer" },
         "timeout-lock-step-actuator-ms": { "type": "integer" },
         "timeout-lock-step-hil-actuator-control-ms": { "type": "integer" },
+        "hil-gps-update-rate-hz": { "type": "number", "minimum": 0 },
         "actuator-order": { "$ref": "#/definitions/actuator-order" },
         "parameters": { "$ref": "#/definitions/px4-params" }
       },
@@ -550,11 +586,11 @@
     },
     "px4-params": {
       "type": "object",
-      "required": [ "NAV_RCL_ACT", "NAV_DLL_ACT", "COM_OBL_ACT", "LPE_LAT", "LPE_LON" ],
+      "required": [ "NAV_RCL_ACT", "NAV_DLL_ACT", "COM_OBL_RC_ACT", "LPE_LAT", "LPE_LON" ],
       "properties": {
         "NAV_RCL_ACT": { "type": "number" },
         "NAV_DLL_ACT": { "type": "number" },
-        "COM_OBL_ACT": { "type": "number" },
+        "COM_OBL_RC_ACT": { "type": "number" },
         "LPE_LAT": { "type": "number" },
         "LPE_LON": { "type": "number" }
       }
@@ -572,19 +608,36 @@
         "coeff-of-torque": { "type": "number" },
         "max-rpm": { "type": "number" },
         "propeller-diameter": { "type": "number" },
-        "smoothing-tc": { "type": "number" }
+        "smoothing-tc": { "type": "number" },
+        "jsbsim-cmd": { "type": "string" },
+        "jsbsim-state": { "type": "string" }
+      }
+    },
+    "lift-drag-control-surface-settings": {
+      "type": "object",
+      "required": [ "rotation-rate", "smoothing-tc" ],
+      "properties": {
+        "rotation-rate": { "type": "number" },
+        "smoothing-tc": { "type": "number" },
+        "jsbsim-cmd": { "type": "string" },
+        "jsbsim-state": { "type": "string" }
       }
     },
     "wheel-settings": {
       "type": "object",
       "required": ["wheel-type", "coeff-of-friction", "coeff-of-wheel-torque", "engine", "steering", "brake"],
       "properties": {
+        "normal-vector": { "type": "string" },
+        "smoothing-tc": { "type": "number" },
         "wheel-type": { "type": "number" },
         "coeff-of-friction":{"type":"number"},
         "coeff-of-wheel-torque":{"type":"number"},
         "engine": {"type": "boolean"},
         "steering": {"type": "boolean"},
-        "brake": {"type": "boolean"}
+        "brake": {"type": "boolean"},
+        "jsbsim-cmd-engine": { "type": "string" },
+        "jsbsim-cmd-steering": { "type": "string" },
+        "jsbsim-cmd-brake": { "type": "string" }
       }
     },
     "tilt-settings": {
@@ -596,7 +649,9 @@
         "axis": { "type": "string" },
         "input-map": { "$ref": "#/definitions/input-map" },
         "smoothing-tc": { "type": "number" },
-        "target": { "type": "string" }
+        "target": { "type": "string" },
+        "jsbsim-cmd": { "type": "string" },
+        "jsbsim-state": { "type": "string" }
       }
     },
     "is-simple-flight": {

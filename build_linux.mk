@@ -75,6 +75,60 @@ simlibs_debug: config_simlibs_debug
 	@echo "Building the ProjectAirSimLibs project for Linux64-Debug..."
 	$(CMAKE_DBG_BUILD_CMD)
 
+.PHONY: config_simlibs_debug_asan
+config_simlibs_debug_asan:
+	@echo "======================================================================="
+	@echo "Configuring the ProjectAirSimLibs project for Linux64-Debug with ASan..."
+	mkdir -p $(CMAKE_BUILD_DIR)/Debug_asan $(REDIRECT_OUTPUT)
+	cd $(CMAKE_BUILD_DIR)/Debug_asan && $(CMAKE_CMD) -DCMAKE_BUILD_TYPE=Debug \
+		-DCMAKE_C_FLAGS="$(ASAN_FLAGS)" \
+		-DCMAKE_CXX_FLAGS="$(ASAN_FLAGS)" \
+		-DCMAKE_EXE_LINKER_FLAGS="$(ASAN_FLAGS)" \
+		-DCMAKE_SHARED_LINKER_FLAGS="$(ASAN_FLAGS)" \
+		../../..
+
+.PHONY: simlibs_debug_asan
+simlibs_debug_asan: config_simlibs_debug_asan
+	@echo "======================================================================="
+	@echo "Building the ProjectAirSimLibs project for Linux64-Debug with ASan..."
+	cmake --build $(CMAKE_BUILD_DIR)/Debug_asan
+
+.PHONY: config_simlibs_debug_ubsan
+config_simlibs_debug_ubsan:
+	@echo "======================================================================="
+	@echo "Configuring the ProjectAirSimLibs project for Linux64-Debug with UBSan..."
+	mkdir -p $(CMAKE_BUILD_DIR)/Debug_ubsan $(REDIRECT_OUTPUT)
+	cd $(CMAKE_BUILD_DIR)/Debug_ubsan && $(CMAKE_CMD) -DCMAKE_BUILD_TYPE=Debug \
+		-DCMAKE_C_FLAGS="$(UBSAN_FLAGS)" \
+		-DCMAKE_CXX_FLAGS="$(UBSAN_FLAGS)" \
+		-DCMAKE_EXE_LINKER_FLAGS="$(UBSAN_FLAGS)" \
+		-DCMAKE_SHARED_LINKER_FLAGS="$(UBSAN_FLAGS)" \
+		../../..
+
+.PHONY: simlibs_debug_ubsan
+simlibs_debug_ubsan: config_simlibs_debug_ubsan
+	@echo "======================================================================="
+	@echo "Building the ProjectAirSimLibs project for Linux64-Debug with UBSan..."
+	cmake --build $(CMAKE_BUILD_DIR)/Debug_ubsan
+
+.PHONY: config_simlibs_debug_tsan
+config_simlibs_debug_tsan:
+	@echo "======================================================================="
+	@echo "Configuring the ProjectAirSimLibs project for Linux64-Debug with TSan..."
+	mkdir -p $(CMAKE_BUILD_DIR)/Debug_tsan $(REDIRECT_OUTPUT)
+	cd $(CMAKE_BUILD_DIR)/Debug_tsan && $(CMAKE_CMD) -DCMAKE_BUILD_TYPE=Debug \
+		-DCMAKE_C_FLAGS="$(TSAN_FLAGS)" \
+		-DCMAKE_CXX_FLAGS="$(TSAN_FLAGS)" \
+		-DCMAKE_EXE_LINKER_FLAGS="$(TSAN_FLAGS)" \
+		-DCMAKE_SHARED_LINKER_FLAGS="$(TSAN_FLAGS)" \
+		../../..
+
+.PHONY: simlibs_debug_tsan
+simlibs_debug_tsan: config_simlibs_debug_tsan
+	@echo "======================================================================="
+	@echo "Building the ProjectAirSimLibs project for Linux64-Debug with TSan..."
+	cmake --build $(CMAKE_BUILD_DIR)/Debug_tsan
+
 .PHONY: config_simlibs_release
 config_simlibs_release:
 	@echo "======================================================================="

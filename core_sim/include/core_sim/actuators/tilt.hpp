@@ -7,6 +7,7 @@
 #define CORE_SIM_INCLUDE_CORE_SIM_ACTUATORS_TILT_HPP_
 
 #include <cmath>
+#include <memory>
 #include <string>
 
 #include "core_sim/actuators/actuator.hpp"
@@ -24,10 +25,22 @@ class TopicManager;
 class ServiceManager;
 class StateManager;
 
+}  // namespace projectairsim
+}  // namespace microsoft
+
+namespace JSBSim {
+class FGFDMExec;
+}
+
+namespace microsoft {
+namespace projectairsim {
+
 struct TiltSettings {
   float radians_min = 0.0f;                   // Minimum angle (radians)
   float dradians = static_cast<float>(M_PI);  // Rotation amount (radians)
   float smoothing_tc = 0.0f;  // Time constant for low pass filter
+    std::string jsbsim_cmd;    // JSBSim property to write control signal to
+    std::string jsbsim_state;  // JSBSim property to read actuator state from
   Vector3 vec3_axis = Vector3(
       0.0f, 1.0f, 0.0f);  // Direction axis around which rotation is done
   std::string target_id;  // ID of target to tilt
@@ -51,6 +64,10 @@ class Tilt : public Actuator {
   const TiltSettings& GetSettings(void) const;
 
   const std::string& GetTargetID(void) const;
+
+  void SetJSBSimModel(std::shared_ptr<::JSBSim::FGFDMExec> model);
+
+  float GetJSBSimState() const;
 
  void UpdateActuatorOutput(std::vector<float> && control_signals,
                             const TimeNano sim_dt_nanos) override;

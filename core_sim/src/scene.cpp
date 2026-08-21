@@ -79,7 +79,8 @@ class Scene::Impl : public ComponentWithTopicsAndServiceMethods {
   Impl(const Logger& logger, const TopicManager& topic_manager,
        const std::string& parent_topic_path,
        const ServiceManager& service_manager,
-       const StateManager& state_manager);
+       const StateManager& state_manager,
+       const std::string& working_simulation_path);
 
   void LoadSceneWithJSON(ConfigJson config_json);
 
@@ -169,6 +170,14 @@ class Scene::Impl : public ComponentWithTopicsAndServiceMethods {
   TimeNano ContinueForSingleStep(bool wait_until_complete = false);
   std::vector<std::string> SimGetActors();
 
+  bool ImportNEDTrajectory(
+      const std::string& traj_name, const std::vector<float>& time,
+      const std::vector<float>& pose_x, const std::vector<float>& pose_y,
+      const std::vector<float>& pose_z, const std::vector<float>& pose_roll,
+      const std::vector<float>& pose_pitch, const std::vector<float>& pose_yaw,
+      const std::vector<float>& vel_x_lin, const std::vector<float>& vel_y_lin,
+      const std::vector<float>& vel_z_lin);
+
   bool SetWindVelocity(float v_x, float v_y, float v_z);
   Vector3 GetWindVelocity();
   void UpdateWindVelocity();
@@ -220,6 +229,7 @@ class Scene::Impl : public ComponentWithTopicsAndServiceMethods {
   int tiles_lod_min_;
   TransformTree transform_tree_;
   std::vector<std::shared_ptr<Trajectory>> trajectories_;
+  const std::string& working_simulation_path_;
   std::shared_ptr<ViewportCamera> viewport_camera_;
   std::shared_ptr<GeodeticConverter> geodetic_converter_;
 };
@@ -232,9 +242,10 @@ Scene::Scene() : pimpl_(std::shared_ptr<Impl>(nullptr)) {}
 Scene::Scene(const Logger& logger, const TopicManager& topic_manager,
              const std::string& parent_topic_path,
              const ServiceManager& service_manager,
-             const StateManager& state_manager)
+             const StateManager& state_manager,
+             const std::string& working_simulation_path)
     : pimpl_(std::make_shared<Impl>(logger, topic_manager, parent_topic_path,
-                                    service_manager, state_manager)) {}
+                                    service_manager, state_manager, working_simulation_path)) {}
 
 void Scene::LoadWithJSON(ConfigJson config_json) {
   pimpl_->LoadSceneWithJSON(config_json);
@@ -410,10 +421,12 @@ void Scene::Stop() {
 Scene::Impl::Impl(const Logger& logger, const TopicManager& topic_manager,
                   const std::string& parent_topic_path,
                   const ServiceManager& service_manager,
-                  const StateManager& state_manager)
+                  const StateManager& state_manager,
+                  const std::string& working_simulation_path)
     : ComponentWithTopicsAndServiceMethods(Constant::Component::scene, logger,
                                            topic_manager, parent_topic_path,
                                            service_manager, state_manager),
+      working_simulation_path_(working_simulation_path),
       loader_(*this),
       geodetic_converter_(std::make_shared<GeodeticConverter>()) {}
 
@@ -795,6 +808,26 @@ std::vector<std::string> Scene::Impl::SimGetActors() {
   return actor_ids;
 }
 
+bool Scene::Impl::ImportNEDTrajectory(
+    const std::string& traj_name, const std::vector<float>& time,
+    const std::vector<float>& pose_x, const std::vector<float>& pose_y,
+    const std::vector<float>& pose_z, const std::vector<float>& pose_roll,
+    const std::vector<float>& pose_pitch, const std::vector<float>& pose_yaw,
+    const std::vector<float>& vel_x_lin, const std::vector<float>& vel_y_lin,
+    const std::vector<float>& vel_z_lin) {
+  if (GetTrajectoryPtrByName(traj_name) == nullptr) {
+    AddNEDTrajectory(traj_name, time, pose_x, pose_y, pose_z, pose_roll,
+                     pose_pitch, pose_yaw, vel_x_lin, vel_y_lin, vel_z_lin);
+    return true;
+  }
+
+  logger_.LogWarning(name_,
+                     "'%s' was not imported. A duplicate trajectory name "
+                     "already exists.",
+                     traj_name.c_str());
+  return false;
+}
+
 bool Scene::Impl::SetWindVelocity(float v_x, float v_y, float v_z) {
   Environment::wind_velocity = Vector3(v_x, v_y, v_z);
   UpdateWindVelocity();
@@ -874,6 +907,15 @@ void Scene::Impl::RegisterServiceMethods() {
   auto sim_get_actors_handler =
       sim_get_actors.CreateMethodHandler(&Scene::Impl::SimGetActors, *this);
   RegisterServiceMethod(sim_get_actors, sim_get_actors_handler);
+
+    auto import_ned_trajectory = ServiceMethod(
+      "ImportNEDTrajectory",
+      {"traj_name", "time", "pose_x", "pose_y", "pose_z", "pose_roll",
+       "pose_pitch", "pose_yaw", "vel_x_lin", "vel_y_lin", "vel_z_lin"});
+    auto import_ned_trajectory_handler =
+      import_ned_trajectory.CreateMethodHandler(
+        &Scene::Impl::ImportNEDTrajectory, *this);
+    RegisterServiceMethod(import_ned_trajectory, import_ned_trajectory_handler);
 
   auto set_wind_vel = ServiceMethod("SetWindVelocity", {"v_x", "v_y", "v_z"});
   auto set_wind_vel_handler =
@@ -959,7 +1001,7 @@ bool Scene::Impl::SceneTick() {
       // After kinematics have been updated, update each actor's environment
       // to match the new state, and then update the sensor state to match the
       // new environments.
-      for (auto& actor : actors_) {
+        for (auto& actor : actors_) {
         if (actor->GetType() == ActorType::kRobot) {
           auto& robot = static_cast<Robot&>(*actor);
 
@@ -1008,7 +1050,6 @@ bool Scene::Impl::SceneTick() {
       }
 
       // 5. Set wrenches on physics bodies
-      // TODO Rename this to "SetActuationOutputs"
       // After the actuator outputs are updated, set their wrenches on the
       // physics bodies to be applied at the next physics step.
       std::function<void()> set_wrenches_physics_func = nullptr;
@@ -1397,7 +1438,8 @@ std::unique_ptr<Actor> Scene::Loader::LoadActorWithJSON(const json& json) {
     auto robot =
         new Robot(id, origin, impl_.logger_, impl_.topic_manager_,
                   impl_.topic_path_ + "/robots", impl_.service_manager_,
-                  impl_.state_manager_, impl_.home_geo_point_);
+                  impl_.state_manager_, impl_.home_geo_point_,
+                  impl_.working_simulation_path_);
     robot->Load(robot_config);
     robot->SetPhysicsConnectionSettings(physics_connection_json.dump());
     robot->SetControlConnectionSettings(control_connection_json.dump());

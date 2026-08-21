@@ -92,7 +92,15 @@ extern "C" EXPORT bool CameraResetPose(int actor_index, int sensor_index, bool w
 
 extern "C" EXPORT void CameraMarkPoseUpdateAsCompleted(int actor_index, int sensor_index);
 
+// InteropPose is trivially copyable and safe to return from C-linkage functions
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreturn-type-c-linkage"
+#endif
 extern "C" EXPORT UnityInterop::InteropPose CameraGetDesiredPose(int actor_index, int sensor_index);
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 ////////////////////////////// WorldSimApi ///////////////////////////////////
 

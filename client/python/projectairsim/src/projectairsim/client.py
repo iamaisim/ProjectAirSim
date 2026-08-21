@@ -95,15 +95,15 @@ class ProjectAirSimClient:
         while self.topic_info_updated is False:
             time.sleep(0.01)  # wait until subscription message is received
             if time.time() > timeout:
-                # TODO raise pynng.exceptions.Timeout exception?
                 utils.projectairsim_log().warning(
                     "Timeout waiting to get topic info, disconnecting client."
                 )
                 self.disconnect()
-                break
+                raise RuntimeError(
+                    "Timeout waiting to get topic info from sim server."
+                )
 
-        if self.topic_info_updated:
-            projectairsim_log().info("Successfully received topic info list.")
+        projectairsim_log().info("Successfully received topic info list.")
 
     def get_subscriptions_summary(self):
         return self.subs.copy()

@@ -43,7 +43,7 @@ Project AirSim currently comes with some base configurations for quadrotor drone
 "physics-type": "non-physics"
 ```
 
-**Non-physics** mode means that the robot will not move unless its pose is set directly with API calls from the client. This can be useful for "Computer Vision" mode to gather sensor data at manually-specified poses in the simulation world, or if the robot's motion will be determined by an external algorithm.
+**[No Physics](physics/no_physics.md)** mode means that the robot will not move unless its pose is set directly with API calls from the client. This can be useful for "Computer Vision" mode to gather sensor data at manually-specified poses in the simulation world, or if the robot's motion will be determined by an external algorithm.
 
 ### Fast Physics
 
@@ -51,17 +51,8 @@ Project AirSim currently comes with some base configurations for quadrotor drone
 "physics-type": "fast-physics"
 ```
 
-**[Fast Physics](physics/fast_physics.md)** is a basic light-weight physics model made for aerial drone flight. Fast Physics makes it easy to get started with flying a drone out-of-the-box.
+**[Fast Physics](physics/fast-physics.md)** (`fast-physics`) is a basic light-weight physics model made for aerial drone flight. It makes it easy to get started with flying a drone out-of-the-box.
 
-### Unreal Physics
-
-``` json
-"physics-type": "unreal-physics"
-```
-
-**[Unreal physics](tbd)** uses the **[PhysX](https://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Introduction.html)** engine that's built-in to Unreal. PhysX can calculate motion for multi-jointed robots with constraints on each joint, as well as rigid body dynamics for aerial drone flight.
-
-*Note: The simulation will automatically detect when any actor in the scene is configured to use Unreal Physics, and this will link the physics calculation step to Unreal's rendering step, so the [sim clock setting](config_scene.md#steppable-clock) for `step-ns` may need to be much slower (20 ms = ~50 FPS) to maintain reasonable simulation advancement rate.*
 
 ## Link settings
 
@@ -269,7 +260,7 @@ A joint is a connection between two links (a single parent link and a single chi
 | `limit` | float | Rotation angle limit in **radians**. |
 | `damping-constant` | float | Damping coefficient for rotation motion over time. |
 
-Example of fixed joint for drone propellers using **[Fast Physics](physics/fast_physics.md)** which visually rotates the propeller meshes without using joint physics:
+Example of fixed joint for drone propellers using **[Fast Physics](physics/fast-physics.md)** which visually rotates the propeller meshes without using joint physics:
 
 ``` json
 "joints": [
@@ -279,26 +270,6 @@ Example of fixed joint for drone propellers using **[Fast Physics](physics/fast_
     "parent-link": "Frame",
     "child-link": "Prop_FL",
     "axis": "0 0 1"
-  },
-  ...
-]
-```
-
-Example of continuous rotation joint for drone propellers using **[Unreal Physics](internal/physics/unreal_physics.md)** which rotates the propeller meshes using some applied torque on the propellers:
-
-``` json
-"joints": [
-  {
-    "id": "Frame_Prop_FL",
-    "origin": {
-      "xyz": "0.253 -0.253 -0.01",
-      "rpy-deg": "0 0 0"
-    },
-    "type": "continuous",
-    "parent-link": "Frame",
-    "child-link": "Prop_FL",
-    "axis": "0 0 1",
-    "damping-constant": 1
   },
   ...
 ]
@@ -391,7 +362,7 @@ The `px4-settings` collection contains the settings for the PX4 flight controlle
   "parameters": {
     "NAV_RCL_ACT": 0,
     "NAV_DLL_ACT": 0,
-    "COM_OBL_ACT": 1,
+    "COM_OBL_RC_ACT": 1,
     "LPE_LAT": 47.641468,
     "LPE_LON": -122.140165
   },

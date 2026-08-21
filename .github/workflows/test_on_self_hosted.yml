@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main
+      - main_public
     paths:
       - ".github/workflows/test_on_self_hosted.yml"
       - "CMakeLists.txt"
@@ -22,9 +23,9 @@ on:
       - "unity/**"
       - "unreal/**"
       - "vehicle_apis/**"
-    # Only run when the self-hosted label is added; the job itself still
+    # Run when the self-hosted label is added or the labeled PR is updated; the job still
     # rejects draft PRs and PRs without run-self-hosted.
-    types: [labeled]
+    types: [labeled, synchronize]
 
 # Restrict GITHUB_TOKEN permissions (least privilege).
 # This workflow needs read access to checkout code and write access to
@@ -36,7 +37,7 @@ permissions:
 jobs:
   build-and-test:
     if: |
-      github.event.pull_request.base.ref == 'main' &&
+      (github.event.pull_request.base.ref == 'main' || github.event.pull_request.base.ref == 'main_public') &&
       !github.event.pull_request.draft &&
       contains(github.event.pull_request.labels.*.name, 'run-self-hosted')
     runs-on: [self-hosted]
@@ -75,7 +76,11 @@ jobs:
             lsof \
             ninja-build \
             vulkan-tools \
-            libvulkan1
+            libvulkan1 \
+            clang-15 \
+            libc++-15-dev \
+            libc++abi-15-dev \
+            libunwind-15-dev
           echo "System dependencies installed"
 
       - name: Setup AirSim development tools
@@ -89,8 +94,19 @@ jobs:
       - name: Build simlibs Release
         run: ./build.sh simlibs_release
 
+      - name: Verify JSBSim SimLibs artifacts
+        run: |
+          test -d unreal/Blocks/Plugins/ProjectAirSim/SimLibs/core_sim/jsbsim/include
+          test -f unreal/Blocks/Plugins/ProjectAirSim/SimLibs/core_sim/jsbsim/lib/Release/libJSBSim.so
+
       - name: Build Unreal Editor (Blocks)
         run: |
+          "$UE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh" \
+            ShaderCompileWorker Linux Development \
+            -waitmutex
+
+          test -x "$UE_ROOT/Engine/Binaries/Linux/ShaderCompileWorker"
+
           "$UE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh" \
             BlocksEditor Linux Development \
             "$(pwd)/unreal/Blocks/Blocks.uproject" \
@@ -104,7 +120,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install "setuptools<81" wheel
           python -m pip install -e "client/python/projectairsim[datacollection]"
-          python -m pip install pytest pytest-cov
+          python -m pip install pytest pytest-cov pexpect
 
       - name: Clean stale simulator processes and ports
         run: |
@@ -158,7 +174,8 @@ jobs:
         run: |
           source "$AIRSIM_PY_ENV/bin/activate"
           echo "Waiting for ProjectAirSim sockets on ports 8989/8990..."
-          for i in {1..180}; do
+          readiness_timeout_seconds=600
+          for ((i = 1; i <= readiness_timeout_seconds; i++)); do
             if ps -p "$(cat unreal.pid)" > /dev/null 2>&1; then
               if lsof -i :8989 >/dev/null 2>&1 && lsof -i :8990 >/dev/null 2>&1; then
                 echo "Ports 8989/8990 are listening, validating client handshake..."
@@ -174,7 +191,7 @@ jobs:
             fi
             sleep 1
           done
-          echo "Simulator failed to start within timeout (180 sec)"
+          echo "Simulator failed to start within timeout (${readiness_timeout_seconds} sec)"
           tail -n 300 unreal.log
           exit 1
 

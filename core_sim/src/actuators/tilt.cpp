@@ -18,6 +18,9 @@
 #include "core_sim/physics_common_types.hpp"
 #include "json.hpp"
 
+// JSBSim include (requires RTTI, must be in .cpp not .hpp)
+#include "FGFDMExec.h"
+
 namespace microsoft {
 namespace projectairsim {
 
@@ -62,6 +65,10 @@ class Tilt::Impl : public ActuatorImpl {
 
   const std::string& GetTargetID(void) const { return (settings_.target_id); }
 
+  void SetJSBSimModel(std::shared_ptr<JSBSim::FGFDMExec> model);
+
+  float GetJSBSimState() const;
+
   void UpdateActuatorOutput(std::vector<float> && control_signals,
                             const TimeNano sim_dt_nanos);
 
@@ -74,6 +81,7 @@ class Tilt::Impl : public ActuatorImpl {
   FirstOrderFilter<float> first_order_filter_;  // Output angle low-pass filter
   Quaternion quat_output_;  // Output rotation from this actuator
   TiltSettings settings_;   // Actuator settings
+  std::shared_ptr<JSBSim::FGFDMExec> jsbsim_model_;
 
   // TODO make a topic
   // topic control_surface_topic;
@@ -125,6 +133,14 @@ const std::string& Tilt::GetTargetID(void) const {
   return static_cast<Tilt::Impl*>(pimpl_.get())->GetTargetID();
 }
 
+void Tilt::SetJSBSimModel(std::shared_ptr<JSBSim::FGFDMExec> model) {
+  static_cast<Tilt::Impl*>(pimpl_.get())->SetJSBSimModel(model);
+}
+
+float Tilt::GetJSBSimState() const {
+  return static_cast<Tilt::Impl*>(pimpl_.get())->GetJSBSimState();
+}
+
 void Tilt::UpdateActuatorOutput(std::vector<float> && control_signals,
                             const TimeNano sim_dt_nanos){
   static_cast<Tilt::Impl*>(pimpl_.get())
@@ -148,6 +164,7 @@ Tilt::Impl::Impl(const std::string& id, bool is_enabled,
       first_order_filter_(),
       quat_output_(),
       settings_(),
+      jsbsim_model_(nullptr),
       topics_(),
       loader_(*this) {
   SetTopicPath();
@@ -172,6 +189,18 @@ const Quaternion& Tilt::Impl::GetControlRotation() const {
   return quat_output_;
 }
 
+void Tilt::Impl::SetJSBSimModel(std::shared_ptr<JSBSim::FGFDMExec> model) {
+  jsbsim_model_ = model;
+}
+
+float Tilt::Impl::GetJSBSimState() const {
+  if (!settings_.jsbsim_state.empty() && jsbsim_model_ != nullptr) {
+    return static_cast<float>(
+        jsbsim_model_->GetPropertyValue(settings_.jsbsim_state));
+  }
+  return -1.0f;
+}
+
 const ActuatedTransforms& Tilt::Impl::GetActuatedTransforms() const {
   return actuated_transforms_;
 }
@@ -184,10 +213,27 @@ void Tilt::Impl::UpdateActuatorOutput(std::vector<float> && control_signals,
   // Convert -1.0 ~ +1.0 control signal to control surface angle (like a servo
   // motor but without any dynamics)
   auto control_signal = control_signals[0];
-  first_order_filter_.SetInput(control_mapper_(control_signal));
-  first_order_filter_.UpdateOutput(SimClock::Get()->NanosToSec(sim_dt_nanos));
+  auto control_signal_mapped = control_mapper_(control_signal);
+  auto dt_sec = SimClock::Get()->NanosToSec(sim_dt_nanos);
+  float control_signal_filtered = 0.0f;
+
+  if (!settings_.jsbsim_cmd.empty() && jsbsim_model_ != nullptr) {
+    jsbsim_model_->SetPropertyValue(settings_.jsbsim_cmd,
+                                    static_cast<double>(control_signal_mapped));
+
+    float state = GetJSBSimState();
+    if (state < 0.0f) {
+      state = control_signal_mapped;
+    }
+    control_signal_filtered = std::clamp(state, 0.0f, 1.0f);
+  } else {
+    first_order_filter_.SetInput(control_signal_mapped);
+    first_order_filter_.UpdateOutput(dt_sec);
+    control_signal_filtered = first_order_filter_.GetOutput();
+  }
+
   radians = settings_.radians_min +
-            (settings_.dradians) * first_order_filter_.GetOutput();
+            (settings_.dradians) * control_signal_filtered;
   quat = AngleAxis(radians, settings_.vec3_axis);
 
   quat_output_ = quat;
@@ -248,6 +294,13 @@ void Tilt::Loader::LoadSettings(const json& json) {
   // Load control input map
   impl_.control_mapper_.Load(
       JsonUtils::GetJsonObject(settings_json, Constant::Config::input_map));
+
+    impl_.settings_.jsbsim_cmd = JsonUtils::GetString(
+      settings_json, Constant::Config::jsbsim_cmd, "");
+
+    impl_.settings_.jsbsim_state = JsonUtils::GetString(
+      settings_json, Constant::Config::jsbsim_state,
+      impl_.settings_.jsbsim_cmd);
 
   impl_.logger_.LogVerbose(impl_.name_, "'tilt_settings' loaded.");
 }

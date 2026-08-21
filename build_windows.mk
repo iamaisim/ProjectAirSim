@@ -24,13 +24,10 @@ default:
 	@echo. all = Build + Test + Package everything
 	@echo. rebuild_all = Clean + Build + Test + Package everything
 	@echo. all_no_test = Build + Package everything
-	@echo. clean = Clean sim libs, C++ client, and Blocks build files
+	@echo. clean = Clean sim libs and Blocks build files
 	@echo.
-	@echo. simlibs_debug = Build + Package sim libs for Debug
-	@echo. simlibs_release = Build + Package sim libs for Release
-	@echo. cpp_client_debug = Build C++ client artifacts for Debug
-	@echo. cpp_client_release = Build C++ client artifacts for Release
-	@echo. package_cpp_client = Build Release C++ client and create versioned package
+	@echo. simlibs_debug = Build sim libs for Debug
+	@echo. simlibs_release = Build sim libs for Release
 	@echo. test_simlibs_debug = Test sim libs for Debug
 	@echo. test_simlibs_release = Test sim libs for Release
 	@echo.
@@ -66,49 +63,6 @@ CMAKE_CMD = cmake -G "Ninja" \
 CMAKE_DBG_BUILD_CMD = cmake --build $(CMAKE_BUILD_DIR)\Debug
 CMAKE_REL_BUILD_CMD = cmake --build $(CMAKE_BUILD_DIR)\Release
 
-CPP_CLIENT_DIR = client\cpp
-CPP_CLIENT_BUILD_DIR = $(CPP_CLIENT_DIR)\build_windows
-CPP_CLIENT_DBG_BUILD_DIR = $(CPP_CLIENT_BUILD_DIR)\Debug
-CPP_CLIENT_REL_BUILD_DIR = $(CPP_CLIENT_BUILD_DIR)\Release
-CPP_CLIENT_CMAKE_CMD = cmake -G "Ninja" \
-				  -DCMAKE_C_COMPILER=cl.exe \
-				  -DCMAKE_CXX_COMPILER=cl.exe
-CPP_CLIENT_DBG_BUILD_CMD = cmake --build $(CPP_CLIENT_DBG_BUILD_DIR)
-CPP_CLIENT_REL_BUILD_CMD = cmake --build $(CPP_CLIENT_REL_BUILD_DIR)
-CPP_CLIENT_PACKAGE_CMD = cmake --build $(CPP_CLIENT_REL_BUILD_DIR) --target package
-
-.PHONY: config_cpp_client_debug
-config_cpp_client_debug:
-	@echo =======================================================================
-	@echo Configuring the C++ client project for Win64-Debug...
-	-mkdir $(CPP_CLIENT_DBG_BUILD_DIR) $(REDIRECT_OUTPUT)
-	cd $(CPP_CLIENT_DBG_BUILD_DIR) && $(CPP_CLIENT_CMAKE_CMD) -DCMAKE_BUILD_TYPE=Debug "%CD%\$(CPP_CLIENT_DIR)"
-
-.PHONY: cpp_client_debug
-cpp_client_debug: config_cpp_client_debug
-	@echo =======================================================================
-	@echo Building the C++ client artifacts for Win64-Debug...
-	$(CPP_CLIENT_DBG_BUILD_CMD)
-
-.PHONY: config_cpp_client_release
-config_cpp_client_release:
-	@echo =======================================================================
-	@echo Configuring the C++ client project for Win64-Release...
-	-mkdir $(CPP_CLIENT_REL_BUILD_DIR) $(REDIRECT_OUTPUT)
-	cd $(CPP_CLIENT_REL_BUILD_DIR) && $(CPP_CLIENT_CMAKE_CMD) -DCMAKE_BUILD_TYPE=Release "%CD%\$(CPP_CLIENT_DIR)"
-
-.PHONY: cpp_client_release
-cpp_client_release: config_cpp_client_release
-	@echo =======================================================================
-	@echo Building the C++ client artifacts for Win64-Release...
-	$(CPP_CLIENT_REL_BUILD_CMD)
-
-.PHONY: package_cpp_client
-package_cpp_client: cpp_client_release
-	@echo =======================================================================
-	@echo Packaging the C++ client for Win64-Release...
-	$(CPP_CLIENT_PACKAGE_CMD)
-
 .PHONY: config_simlibs_debug
 config_simlibs_debug:
 	@echo =======================================================================
@@ -123,7 +77,7 @@ build_simlibs_debug: config_simlibs_debug
 	$(CMAKE_DBG_BUILD_CMD)
 
 .PHONY: simlibs_debug
-simlibs_debug: build_simlibs_debug cpp_client_debug
+simlibs_debug: build_simlibs_debug
 
 .PHONY: config_simlibs_release
 config_simlibs_release:
@@ -139,7 +93,7 @@ build_simlibs_release: config_simlibs_release
 	$(CMAKE_REL_BUILD_CMD)
 
 .PHONY: simlibs_release
-simlibs_release: build_simlibs_release cpp_client_release
+simlibs_release: build_simlibs_release
 
 .PHONY: package_simlibs
 package_simlibs: simlibs_debug simlibs_release
@@ -155,12 +109,8 @@ clean:
 	@echo =======================================================================
 	@echo Cleaning build files...
 	-rmdir /S /Q $(CMAKE_BUILD_DIR) $(REDIRECT_OUTPUT)
-	-rmdir /S /Q $(CPP_CLIENT_BUILD_DIR) $(REDIRECT_OUTPUT)
 	-rmdir /S /Q physics\matlab_sfunc\_deps $(REDIRECT_OUTPUT)
 	-rmdir /S /Q physics\matlab_sfunc\message $(REDIRECT_OUTPUT)
-	-rmdir /S /Q client\cpp\libraries $(REDIRECT_OUTPUT)
-	-rmdir /S /Q client\cpp\example_user_apps\HelloDrone\x64 $(REDIRECT_OUTPUT)
-	-rmdir /S /Q client\cpp\example_user_apps\HelloDrone\HelloDrone $(REDIRECT_OUTPUT)
 	-rmdir /S /Q packages\projectairsim_simlibs $(REDIRECT_OUTPUT)
 	-rmdir /S /Q packages\projectairsim_cpp_client $(REDIRECT_OUTPUT)
 	-rmdir /S /Q unreal\Blocks\Plugins\ProjectAirSim\SimLibs $(REDIRECT_OUTPUT)

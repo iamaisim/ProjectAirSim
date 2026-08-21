@@ -46,8 +46,10 @@ To build the C++ client, install:
 
 - CMake 3.20 or newer
 - A C++17 compiler
-- Ninja on Linux, when using the repository `build.sh` targets
-- Visual Studio 2022 C++ build tools on Windows, when using `build.cmd`
+- Ninja when using the repository build wrapper. It is installed by
+  `setup_linux_dev_tools.sh` on Linux and must be available on `PATH` on Windows.
+- The MSVC C++ toolchain from Visual Studio 2022 Build Tools on Windows. The
+  Visual Studio IDE is not required.
 
 The Linux CMake build fetches third-party dependencies such as NNG,
 `nlohmann-json`, and msgpack on first configure. Eigen3 is used from the system
@@ -58,15 +60,11 @@ when available, or fetched automatically.
 From the repository root, build the C++ client with:
 
 ```bash
-./build.sh cpp_client_debug
-./build.sh cpp_client_release
-```
+./build_cpp_client.sh debug
+./build_cpp_client.sh release
 
-The C++ client is also built as part of the simulation library targets:
-
-```bash
-./build.sh simlibs_debug
-./build.sh simlibs_release
+# Build and run the mocked unit tests (no simulator required)
+./build_cpp_client.sh debug --tests
 ```
 
 Build outputs are placed under:
@@ -104,27 +102,20 @@ cmake --build client/cpp/build_linux/Debug -j$(nproc)
 From a Windows command prompt, use the repository build wrapper:
 
 ```bat
-build.cmd cpp_client_debug
-build.cmd cpp_client_release
+build_cpp_client.cmd debug
+build_cpp_client.cmd release
+build_cpp_client.cmd debug --tests
 ```
 
-The Windows Visual Studio projects place C++ client library artifacts under:
+Build artifacts are placed under:
 
 ```text
-client\cpp\libraries\x64\Debug\
-client\cpp\libraries\x64\Release\
+client\cpp\build_windows\Debug\
+client\cpp\build_windows\Release\
 ```
 
-The `HelloDrone` example executable is placed under:
-
-```text
-client\cpp\example_user_apps\HelloDrone\x64\Debug\
-client\cpp\example_user_apps\HelloDrone\x64\Release\
-```
-
-When running `hello_drone.exe`, make sure the corresponding
-`client\cpp\libraries\x64\<Configuration>\` directory is on `PATH`, or copy the
-required DLLs next to the executable.
+The client links statically; no client DLL directory needs to be added to
+`PATH` for `hello_drone.exe`.
 
 ## Running HelloDrone
 
@@ -146,7 +137,7 @@ On Linux:
 On Windows:
 
 ```bat
-client\cpp\example_user_apps\HelloDrone\x64\Debug\hello_drone.exe ^
+client\cpp\build_windows\Debug\hello_drone.exe ^
   --simhost 127.0.0.1 ^
   --simconfig client\python\example_user_scripts\sim_config
 ```

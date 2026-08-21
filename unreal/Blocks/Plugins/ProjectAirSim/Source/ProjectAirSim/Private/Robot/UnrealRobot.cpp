@@ -7,7 +7,10 @@
 #include "UnrealRobot.h"
 
 #include <algorithm>
+#include <array>
+#include <cmath>
 #include <iterator>
+#include <limits>
 #include <string>
 #include <utility>
 #include <vector>
@@ -29,6 +32,100 @@
 #include "core_sim/transforms/transform_utils.hpp"
 
 namespace projectairsim = microsoft::projectairsim;
+
+namespace {
+
+constexpr float kGroundClampTraceDistanceCm = 1000000.0f;
+constexpr float kGroundClampOffsetCm = 1.0f;
+
+bool TryGetGroundZAtXY(UWorld* World, AActor* IgnoredActor,
+                       const FVector& Location, float& OutGroundZ) {
+  if (World == nullptr) return false;
+
+  const FVector StartTrace(Location.X, Location.Y,
+                           Location.Z + kGroundClampTraceDistanceCm);
+  const FVector EndTrace(Location.X, Location.Y,
+                         Location.Z - kGroundClampTraceDistanceCm);
+
+  FCollisionQueryParams TraceParams;
+  TraceParams.bTraceComplex = true;
+  TraceParams.bReturnPhysicalMaterial = false;
+  if (IgnoredActor != nullptr) {
+    TraceParams.AddIgnoredActor(IgnoredActor);
+  }
+
+  FHitResult HitResult(ForceInit);
+  bool bWasHit = World->LineTraceSingleByChannel(
+      HitResult, StartTrace, EndTrace, ECC_Visibility, TraceParams,
+      FCollisionResponseParams::DefaultResponseParam);
+  if (!bWasHit) {
+    bWasHit = World->LineTraceSingleByChannel(
+        HitResult, StartTrace, EndTrace, ECC_WorldStatic, TraceParams,
+        FCollisionResponseParams::DefaultResponseParam);
+  }
+
+  if (!bWasHit || !HitResult.bBlockingHit) return false;
+
+  OutGroundZ = HitResult.ImpactPoint.Z;
+  return std::isfinite(OutGroundZ);
+}
+
+float GetMeshBoundsMinWorldZ(UStaticMeshComponent* Component,
+                             const FVector& Location,
+                             const FRotator& Rotation) {
+  if (Component == nullptr || Component->GetStaticMesh() == nullptr) {
+    return Location.Z;
+  }
+
+  FVector MinBounds;
+  FVector MaxBounds;
+  Component->GetLocalBounds(MinBounds, MaxBounds);
+
+  const FTransform TargetTransform(Rotation.Quaternion(), Location,
+                                   Component->GetComponentScale());
+  const std::array<FVector, 8> Corners = {
+      FVector(MinBounds.X, MinBounds.Y, MinBounds.Z),
+      FVector(MinBounds.X, MinBounds.Y, MaxBounds.Z),
+      FVector(MinBounds.X, MaxBounds.Y, MinBounds.Z),
+      FVector(MinBounds.X, MaxBounds.Y, MaxBounds.Z),
+      FVector(MaxBounds.X, MinBounds.Y, MinBounds.Z),
+      FVector(MaxBounds.X, MinBounds.Y, MaxBounds.Z),
+      FVector(MaxBounds.X, MaxBounds.Y, MinBounds.Z),
+      FVector(MaxBounds.X, MaxBounds.Y, MaxBounds.Z),
+  };
+
+  float MinWorldZ = std::numeric_limits<float>::max();
+  for (const FVector& Corner : Corners) {
+    const float CornerWorldZ =
+        static_cast<float>(TargetTransform.TransformPosition(Corner).Z);
+    MinWorldZ = std::min(MinWorldZ, CornerWorldZ);
+  }
+
+  return MinWorldZ;
+}
+
+FVector ClampRootMeshToGround(UUnrealRobotLink* RootLink,
+                              const FVector& Location,
+                              const FRotator& Rotation) {
+  float GroundZ = 0.0f;
+  if (RootLink == nullptr ||
+      !TryGetGroundZAtXY(RootLink->GetWorld(), RootLink->GetOwner(), Location,
+                         GroundZ)) {
+    return Location;
+  }
+
+  const float MinWorldZ = GetMeshBoundsMinWorldZ(RootLink, Location, Rotation);
+  const float MinAllowedZ = GroundZ + kGroundClampOffsetCm;
+  if (MinWorldZ >= MinAllowedZ) {
+    return Location;
+  }
+
+  FVector ClampedLocation = Location;
+  ClampedLocation.Z += MinAllowedZ - MinWorldZ;
+  return ClampedLocation;
+}
+
+}  // namespace
 
 AUnrealRobot::AUnrealRobot(const FObjectInitializer& ObjectInitialize)
     : AActor(ObjectInitialize) {
@@ -416,10 +513,14 @@ void AUnrealRobot::MoveRobotToUnrealPose(bool bUseCollisionSweep) {
   bHasKinematicsUpdated = false;  // done processing kinematics, clear flag
 
   // Use local copy of target pose to do actual robot pose update
-  const FVector TgtLocNEU =
+  FVector TgtLocNEU =
       UnrealHelpers::ToFVector(projectairsim::TransformUtils::NedToNeuLinear(
           projectairsim::TransformUtils::ToCentimeters(TgtPose.position)));
   const FRotator TgtRot = UnrealHelpers::ToFRotator(TgtPose.orientation);
+
+  if (SimRobot.GetPhysicsType() == projectairsim::PhysicsType::kJSBSimPhysics) {
+    TgtLocNEU = ClampRootMeshToGround(RobotRootLink, TgtLocNEU, TgtRot);
+  }
 
   // Move UE position
   RobotRootLink->SetWorldLocationAndRotation(TgtLocNEU, TgtRot,
@@ -496,7 +597,6 @@ void AUnrealRobot::SetActuatedTransforms(
 }
 
 void AUnrealRobot::SetExternalWrench(projectairsim::Wrench InWrench) {
-  // Apply rigid body wrench from physics body to root link's origin
   // NED_m -> NED_cm -> NEU_cm
   projectairsim::Vector3 ForceNEU =
       projectairsim::TransformUtils::NedToNeuLinear(
@@ -519,6 +619,30 @@ void AUnrealRobot::SetExternalWrench(projectairsim::Wrench InWrench) {
   // ApplyActuatedTransforms(), but this might not work for robot's with Unreal
   // Physics active. Leaving it for now, as Unreal Physics is no longer
   // supported and may be deprecated.
+}
+
+void AUnrealRobot::UpdateCachedTerrainElevation() {
+  if (SimRobot.GetPhysicsType() !=
+      projectairsim::PhysicsType::kJSBSimPhysics) {
+    return;
+  }
+
+  if (SimRobot.GetJSBSimGroundSettings().mode ==
+      projectairsim::JSBSimGroundMode::kConstant) {
+    return;
+  }
+
+  const auto terrain_cb = SimRobot.GetTerrainElevationCallback();
+  if (terrain_cb == nullptr) {
+    return;
+  }
+
+  const auto& position = SimRobot.GetKinematics().pose.position;
+  const auto terrain_asl_m = terrain_cb(static_cast<double>(position.x()),
+                                      static_cast<double>(position.y()));
+  if (std::isfinite(terrain_asl_m)) {
+    SimRobot.SetCachedTerrainElevationASL(terrain_asl_m);
+  }
 }
 
 void AUnrealRobot::BeginPlay() {
@@ -569,12 +693,16 @@ void AUnrealRobot::BeginPlay() {
              TimeNano DeltaSimtime) {
         this->SetActuatedTransforms(InActuatedTransforms, DeltaSimtime);
       });
+
+  UpdateCachedTerrainElevation();
 }
 
 void AUnrealRobot::Tick(float DeltaTime) {
   Super::Tick(DeltaTime);
   // In case of a tick coming through while it should be paused, just return
   if (UGameplayStatics::IsGamePaused(this)) return;
+
+  UpdateCachedTerrainElevation();
 
   // Main conditions by physics type
   if (SimRobot.GetPhysicsType() == projectairsim::PhysicsType::kUnrealPhysics &&

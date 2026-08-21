@@ -444,8 +444,9 @@ const char* CameraGetLookAtObject(int actor_index, int sensor_index) {
   if (GetRobotByActorIndex(actor_index, robot)) {
     if (GetSensorByIndex<projectairsim::Camera>(actor_index, sensor_index, camera))
     {
-      const char* result = camera.GetLookAtObject().c_str();
-      return result;
+      static std::string look_at_object;
+      look_at_object = camera.GetLookAtObject();
+      return look_at_object.c_str();
     }
   }
   

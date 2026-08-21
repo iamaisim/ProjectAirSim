@@ -85,6 +85,10 @@ async def main(
             delay_after_load_sec=2,
             sim_config_path=sim_config_path,
         )
+        if not client.state:
+            raise RuntimeError(
+                "Sim client disconnected during scene load (get_topic_info timeout)"
+            )
 
         # Create a Drone object to interact with a drone in the loaded sim world
         drone = Drone(client, world, drone_name)
@@ -125,6 +129,7 @@ async def main(
 
     except Exception as err:
         projectairsim_log().error(f"Exception occurred: {err}", exc_info=True)
+        raise
 
     finally:
         # Always disconnect from the simulation environment to allow next connection

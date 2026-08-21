@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation. 
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI CONSULTING CORP
 
 // MIT License. All rights reserved.
@@ -13,12 +13,12 @@
 
 #include "core_sim/actor.hpp"
 #include "core_sim/actuators/actuator.hpp"
+#include "core_sim/actuators/wheel.hpp"
 #include "core_sim/clock.hpp"
 #include "core_sim/earth_utils.hpp"
 #include "core_sim/environment.hpp"
 #include "core_sim/joint.hpp"
 #include "core_sim/link.hpp"
-#include "core_sim/actuators/wheel.hpp"
 #include "core_sim/logger.hpp"
 #include "core_sim/message/pose_stamped_message.hpp"
 #include "core_sim/runtime_components.hpp"
@@ -26,6 +26,13 @@
 #include "core_sim/service_method.hpp"
 #include "core_sim/transforms/transform.hpp"
 #include "core_sim/transforms/transform_tree.hpp"
+
+
+// Forward declaration to avoid including JSBSim headers with RTTI requirements
+// in Unreal Engine plugin code (UE is compiled without RTTI)
+namespace JSBSim {
+class FGFDMExec;
+}
 
 namespace microsoft {
 namespace projectairsim {
@@ -42,6 +49,8 @@ class Robot : public Actor {
 
   typedef std::function<void(const ActuatedTransforms&, TimeNano)>
       ActuatedTransformsCallback;
+
+  typedef std::function<double(double, double)> TerrainElevationCallback;
 
  public:
   Robot();
@@ -62,6 +71,10 @@ class Robot : public Actor {
 
   const PhysicsType& GetPhysicsType() const;
   void SetPhysicsType(const PhysicsType& phys_type);
+  // used only by JSBSim physics and controller
+  std::shared_ptr<JSBSim::FGFDMExec> GetJSBSimModel() const;
+  double GetJSBSimDtSec() const;
+  const JSBSimGroundSettings& GetJSBSimGroundSettings() const;
   const std::string& GetPhysicsConnectionSettings() const;
   void SetPhysicsConnectionSettings(const std::string& phys_conn_settings);
   const std::string& GetControlConnectionSettings() const;
@@ -97,6 +110,15 @@ class Robot : public Actor {
 
   void SetCallbackActuatorOutputUpdated(
       const ActuatedTransformsCallback& callback);
+
+  void SetCallbackTerrainElevationUpdated(
+      const TerrainElevationCallback& callback);
+
+  TerrainElevationCallback GetTerrainElevationCallback();
+
+  // Game-thread terrain sample cached for JSBSim ground queries (ASL meters).
+  void SetCachedTerrainElevationASL(double elevation_asl_m);
+  double GetCachedTerrainElevationASL() const;
 
   const Kinematics& GetKinematics() const;
   const Environment& GetEnvironment() const;
@@ -146,12 +168,14 @@ class Robot : public Actor {
   Robot(const std::string& id, const Transform& origin, const Logger& logger,
         const TopicManager& topic_manager, const std::string& parent_topic_path,
         const ServiceManager& service_manager,
-        const StateManager& state_manager);
+        const StateManager& state_manager,
+        const std::string& working_simulation_path);
 
   Robot(const std::string& id, const Transform& origin, const Logger& logger,
         const TopicManager& topic_manager, const std::string& parent_topic_path,
         const ServiceManager& service_manager,
-        const StateManager& state_manager, HomeGeoPoint home_geo_point);
+        const StateManager& state_manager, HomeGeoPoint home_geo_point,
+        const std::string& working_simulation_path);
 
   void Load(ConfigJson config_json) override;
 

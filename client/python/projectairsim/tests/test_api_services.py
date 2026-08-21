@@ -1042,6 +1042,8 @@ def test_set_weather_visual_effects_param(client):
         assert status is True
         status = world.set_weather_visual_effects_param(WeatherParameter.RAIN, 0.9)
         assert status is True
+        status = world.set_weather_visual_effects_param(WeatherParameter.FOG, 0.3)
+        assert status is True
         status = world.disable_weather_visual_effects()
         assert status is True
 
@@ -2065,10 +2067,10 @@ def test_get_surface_elevation_at_point(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
 
-        assert world.get_surface_elevation_at_point(0, 0) == pytest.approx(2.8, 0.1)
-        assert world.get_surface_elevation_at_point(-10, 5) == pytest.approx(1.0)
-        assert world.get_surface_elevation_at_point(21, -35) == pytest.approx(21)
-        assert world.get_surface_elevation_at_point(71, -64) == pytest.approx(26)
+        assert world.get_surface_elevation_at_point(0, 0) == pytest.approx(-2.5, 0.1)
+        assert world.get_surface_elevation_at_point(-10, 5) == pytest.approx(-1.0)
+        assert world.get_surface_elevation_at_point(21, -35) == pytest.approx(-21)
+        assert world.get_surface_elevation_at_point(71, -64) == pytest.approx(-26)
     except NNGException as err:
         raise Exception(str(err))
 

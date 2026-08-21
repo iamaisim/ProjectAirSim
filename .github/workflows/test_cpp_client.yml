@@ -5,6 +5,7 @@ name: C++ Client and ROS 2 C++ Node CI
   pull_request:
     branches:
       - main
+      - main_public
     paths:
       - ".github/workflows/test_cpp_client.yml"
       - "build_cpp_client.cmd"
@@ -16,6 +17,7 @@ name: C++ Client and ROS 2 C++ Node CI
   push:
     branches:
       - main
+      - main_public
     paths:
       - ".github/workflows/test_cpp_client.yml"
       - "build_cpp_client.cmd"

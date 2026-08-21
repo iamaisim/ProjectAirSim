@@ -1,0 +1,177 @@
+{
+  "$schema": "../../../../projectairsim/src/projectairsim/schema/robot_config_schema.jsonc",
+  "physics-type": "jsbsim-physics",
+  "jsbsim-ground-mode": "constant",
+  "jsbsim-root-path": "/SimLibs/core_sim/jsbsim/models/",
+  "jsbsim-aircraft-path": "aircraft",
+  "jsbsim-engine-path": "engine",
+  "jsbsim-systems-path": "systems",
+  "jsbsim-model": "x8",
+  "jsbsim-dt": 0.004,
+  "links": [
+    {
+      "name": "Frame",
+      "inertial": {
+        "mass": 3.364,
+        "inertia": {
+          "type": "geometry",
+          "geometry": {
+            "box": {
+              "size": "0.82 2.10 0.18"
+            }
+          }
+        }
+      },
+      "collision": {
+        "enabled": true,
+        "restitution": 0.1,
+        "friction": 0.5
+      },
+      "visual": {
+        "origin": {
+          // The body orientation is baked into X8_Wing_Body.
+          "xyz": "0 0 0",
+          "rpy-deg": "0 0 0"
+        },
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Drone/X8/X8_Wing_Body"
+        }
+      }
+    },
+    {
+      "name": "Prop",
+      "inertial": {
+        "mass": 0.01,
+        "inertia": {
+          "type": "point-mass"
+        }
+      },
+      "visual": {
+        "origin": {
+          // Exact relative rotation measured in Unreal. Project AirSim rpy is
+          // roll/pitch/yaw; yaw keeps its sign in the NED-to-Unreal mapping.
+          "xyz": "0 0 0",
+          "rpy-deg": "0 0 -90"
+        },
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Drone/X8/X8_Propeller"
+        }
+      }
+    },
+  ],
+  "joints": [
+    {
+      "id": "Frame_Prop",
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Prop",
+      "axis": "1 0 0",
+      "origin": {
+        // Hub position measured in Unreal after centering the propeller pivot.
+        // UE centimetres/NEU (-32.069071, -0.000001, -2.166665) -> metres/NED.
+        "xyz": "-0.32069071 -0.00000001 0.02166665",
+        "rpy": "0 0 0"
+      }
+    }
+  ],
+  "controller": {
+    "id": "JSBSim_Controller",
+    "airframe-setup": "fixed-wing",
+    "type": "jsbsim-api"
+  },
+  "actuators": [
+    {
+      "name": "fcs/throttle-cmd-norm",
+      "type": "rotor",
+      "enabled": true,
+      "parent-link": "Frame",
+      "child-link": "Prop",
+      "rotor-settings": {
+        "turning-direction": "clock-wise",
+        "normal-vector": "1 0 0",
+        "coeff-of-thrust": 0.0,
+        "coeff-of-torque": 0.0,
+        "max-rpm": 9000,
+        "propeller-diameter": 0.305,
+        "smoothing-tc": 0.001
+      }
+    }
+  ],
+  "sensors": [
+    {
+      "id": "Chase",
+      "type": "camera",
+      "enabled": true,
+      "parent-link": "Frame",
+      "capture-interval": 0.033333,
+      "capture-settings": [
+        {
+          "image-type": 0,
+          "width": 1280,
+          "height": 720,
+          "fov-degrees": 75,
+          "capture-enabled": true,
+          "streaming-enabled": true,
+          "pixels-as-float": false,
+          "compress": false,
+          "target-gamma": 2.2
+        }
+      ],
+      "gimbal": {
+        "lock-roll": true,
+        "lock-pitch": true,
+        "lock-yaw": false
+      },
+      "origin": {
+        // Five metres behind and one metre above the X8 (NED: negative Z is up).
+        "xyz": "-5.0 0 -1.0",
+        "rpy-deg": "0 0 0"
+      }
+    },
+    {
+      "id": "Airspeed",
+      "type": "airspeed",
+      "enabled": true,
+      "parent-link": "Frame",
+      "forward-xyz": "1 0 0"
+    },
+    {
+      "id": "IMU1",
+      "type": "imu",
+      "enabled": true,
+      "parent-link": "Frame",
+      "accelerometer": {
+        "velocity-random-walk": 2.353e-3,
+        "tau": 800,
+        "bias-stability": 3.53e-4,
+        "turn-on-bias": "0 0 0"
+      },
+      "gyroscope": {
+        "angle-random-walk": 8.72644e-5,
+        "tau": 500,
+        "bias-stability": 2.23014e-5,
+        "turn-on-bias": "0 0 0"
+      }
+    },
+    {
+      "id": "GPS",
+      "type": "gps",
+      "enabled": true,
+      "parent-link": "Frame"
+    },
+    {
+      "id": "Barometer",
+      "type": "barometer",
+      "enabled": true,
+      "parent-link": "Frame"
+    },
+    {
+      "id": "Magnetometer",
+      "type": "magnetometer",
+      "enabled": true,
+      "parent-link": "Frame"
+    }
+  ]
+}

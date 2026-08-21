@@ -37,12 +37,14 @@ add_dependencies(
     multirotor_api
     rover_api
     rendering_scene
+    jsbsim-repo
 )
 
 # Set up nng for linking
 target_link_directories(${TARGET_NAME} PRIVATE ${NNG_LIB_DIR})
 target_compile_definitions(${TARGET_NAME} PRIVATE NNG_STATIC_LIB=ON)
 target_link_directories(${TARGET_NAME} PRIVATE ${ONNX_LIB_DIR})
+target_link_directories(${TARGET_NAME} PRIVATE ${JSBSIM_STATIC_LIB_DIR})
 
 target_include_directories(
     ${TARGET_NAME}
@@ -55,6 +57,7 @@ target_include_directories(
         ${JSON_INCLUDE_DIR}
         ${NNG_INCLUDE_DIR}
         ${MSGPACK_INCLUDE_DIR}
+        ${JSBSIM_INCLUDE_DIR}
 )
 
 if(WIN32)
@@ -72,6 +75,7 @@ if(WIN32)
             mswsock  # req by nng on Win
             advapi32  # req by nng on Win
             lvmon
+            jsbsim
     )
 else()
     target_link_libraries(
@@ -84,6 +88,7 @@ else()
         rover_api
         rendering_scene
         nng
+        jsbsim
     )
 endif()
 

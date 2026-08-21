@@ -19,7 +19,16 @@ enum class PhysicsType {
   kNonPhysics = 0,
   kFastPhysics = 1,
   kUnrealPhysics = 2,
-  kMatlabPhysics = 3
+  kMatlabPhysics = 3,
+  kJSBSimPhysics = 4
+};
+
+enum class JSBSimGroundMode { kConstant = 0, kTerrain = 1 };
+
+static constexpr double kDefaultJSBSimDtSec = 0.008333333333333333;
+
+struct JSBSimGroundSettings {
+  JSBSimGroundMode mode = JSBSimGroundMode::kConstant;
 };
 
 struct Pose {

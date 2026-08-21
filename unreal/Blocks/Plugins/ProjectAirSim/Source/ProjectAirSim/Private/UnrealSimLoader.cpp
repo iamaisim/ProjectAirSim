@@ -28,9 +28,14 @@ namespace projectairsim = microsoft::projectairsim;
 
 DEFINE_LOG_CATEGORY(SimPlugin);
 
-AUnrealSimLoader::AUnrealSimLoader(const FString& SimLogDir)
-    : SimServer(std::make_shared<projectairsim::SimServer>(
-          UnrealLogger::LogSim, projectairsim::LogLevel::kVerbose)) {
+AUnrealSimLoader::AUnrealSimLoader(const FString& SimLogDir) {
+  
+  auto PluginDir = IPluginManager::Get().FindPlugin(Constant::SimPluginName)->GetBaseDir();
+
+  SimServer = std::make_shared<projectairsim::SimServer>(
+      UnrealLogger::LogSim, projectairsim::LogLevel::kVerbose,
+      TCHAR_TO_UTF8(*PluginDir));
+  
   // Open log file output stream to start capturing clog
   FString SimLogPath =
       FPaths::Combine(SimLogDir, TEXT("projectairsim_server.log"));

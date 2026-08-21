@@ -11,6 +11,9 @@ public class ProjectAirSim : ModuleRules
 {
     public ProjectAirSim(ReadOnlyTargetRules Target) : base(Target)
     {
+		bEnableUndefinedIdentifierWarnings = false;
+        bool bUseCpp20 = Target.Version.MajorVersion > 5 || (Target.Version.MajorVersion == 5 && Target.Version.MinorVersion >= 7);
+        CppStandard = bUseCpp20 ? CppStandardVersion.Cpp20 : CppStandardVersion.Cpp17;
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
         // Allow Unreal's default setting for IWYU instead of setting explicitly
@@ -19,10 +22,26 @@ public class ProjectAirSim : ModuleRules
 
         bEnableExceptions = true;
 
+        // RTTI is disabled because Unreal Engine is compiled without RTTI.
+        // JSBSim headers that use typeid (props.hxx) are not included in headers
+        // exposed to Unreal code - they are only in .cpp files compiled into libcore_sim.a
+        bUseRTTI = false;
+
+        // Silence MSVC 14.25.28610 deprecation warning from Eigen
+        PublicDefinitions.Add("_SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING");
+
         string buildType = (Target.Configuration == UnrealTargetConfiguration.Debug ||
                             Target.Configuration == UnrealTargetConfiguration.DebugGame)
                             ? "Debug"
                             : "Release";
+
+        // JSBSim loads its XML model data directly from disk, so it must remain
+        // outside the pak and keep the same layout relative to the plugin root.
+        // Stage both trees produced by copy_jsbsim_models: the top-level tree can
+        // be selected with jsbsim-root-path, while core_sim is the default path.
+        RuntimeDependencies.Add(PluginDirectory + "/SimLibs/jsbsim/...", StagedFileType.NonUFS);
+        RuntimeDependencies.Add(PluginDirectory + "/SimLibs/core_sim/jsbsim/models/...", StagedFileType.NonUFS);
+        RuntimeDependencies.Add(PluginDirectory + "/SimLibs/core_sim/jsbsim/JSBSim_LICENSE.txt", StagedFileType.NonUFS);
 
         PublicIncludePaths.AddRange(
             new string[] {
@@ -39,6 +58,9 @@ public class ProjectAirSim : ModuleRules
 
         // TODO: Can we do something to add includes and libraries for features
         // in a less manual fashion?
+        // JSBSim headers need to be treated as system includes (like the official JSBSim UE plugin does)
+        PublicSystemIncludePaths.Add(PluginDirectory + "/SimLibs/core_sim/jsbsim/include");
+
         if (Target.Platform == UnrealTargetPlatform.Win64)
         {
             List<string> liststrIncludes = new List<string> {
@@ -142,6 +164,7 @@ public class ProjectAirSim : ModuleRules
                     PluginDirectory + "/SimLibs/core_sim/" + buildType + "/core_sim.lib",
                     PluginDirectory + "/SimLibs/simserver/" + buildType + "/simserver.lib",
                     PluginDirectory + "/SimLibs/physics/" + buildType + "/physics.lib",
+                    PluginDirectory + "/SimLibs/core_sim/jsbsim/lib/" + buildType + "/jsbsim.lib",
                     PluginDirectory + "/SimLibs/multirotor_api/" + buildType + "/multirotor_api.lib",
                     PluginDirectory + "/SimLibs/rover_api/" + buildType + "/rover_api.lib",
                     PluginDirectory + "/SimLibs/rendering_scene/" + buildType + "/rendering_scene.lib",
@@ -173,6 +196,9 @@ public class ProjectAirSim : ModuleRules
                 var fileName = Path.GetFileName(file);
                 RuntimeDependencies.Add("$(BinaryOutputDir)/" + fileName, PluginDirectory + "/SimLibs/shared_libs/" + fileName);
             }
+
+            // JSBSim dll
+            RuntimeDependencies.Add("$(BinaryOutputDir)/" + "JSBSim.dll", PluginDirectory + "/SimLibs/core_sim/jsbsim/lib/" + buildType + "/" + "JSBSim.dll");
         }
         else
         {
@@ -180,6 +206,7 @@ public class ProjectAirSim : ModuleRules
                     PluginDirectory + "/SimLibs/core_sim/" + buildType + "/libcore_sim.a",
                     PluginDirectory + "/SimLibs/simserver/" + buildType + "/libsimserver.a",
                     PluginDirectory + "/SimLibs/physics/" + buildType + "/libphysics.a",
+                    PluginDirectory + "/SimLibs/core_sim/jsbsim/lib/" + buildType + "/libJSBSim.so",
                     PluginDirectory + "/SimLibs/multirotor_api/" + buildType + "/libmultirotor_api.a",
                     PluginDirectory + "/SimLibs/rover_api/" + buildType + "/librover_api.a",
                     PluginDirectory + "/SimLibs/rendering_scene/" + buildType + "/librendering_scene.a",
@@ -200,6 +227,9 @@ public class ProjectAirSim : ModuleRules
                 RuntimeDependencies.Add("$(BinaryOutputDir)/" + fileName, PluginDirectory + "/SimLibs/shared_libs/" + fileName);
             }
 
+            // JSBSim so
+            RuntimeDependencies.Add("$(BinaryOutputDir)/" + "libJSBSim.so", PluginDirectory + "/SimLibs/core_sim/jsbsim/lib/" + buildType + "/" + "libJSBSim.so");
+
             PublicAdditionalLibraries.AddRange(liststrLibraries);
             PublicSystemLibraries.AddRange(
                 new string[] {
@@ -209,6 +239,7 @@ public class ProjectAirSim : ModuleRules
                     "anl"
                 }
             );
+
         }
     }
 }

@@ -41,7 +41,7 @@ However, the provided script does not let us view the PX4 console. If you want t
                     "parameters": {
                         "NAV_RCL_ACT": 0,
                         "NAV_DLL_ACT": 0,
-                        "COM_OBL_ACT": 1,
+                        "COM_OBL_RC_ACT": 1,
                     }
                 }
             },
@@ -64,7 +64,7 @@ However, the provided script does not let us view the PX4 console. If you want t
                     "parameters": {
                         "NAV_RCL_ACT": 0,
                         "NAV_DLL_ACT": 0,
-                        "COM_OBL_ACT": 1,
+                        "COM_OBL_RC_ACT": 1,
                     }
                 }
             },

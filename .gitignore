@@ -387,3 +387,9 @@ env/
 *.slxc
 
 venv
+
+# Public release tooling (not a build output).
+!/tools/release/
+!/tools/release/**
+/tools/release/**/__pycache__/
+/tools/release/**/*.pyc

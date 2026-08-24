@@ -123,7 +123,7 @@ void UGPULidar::SetupSceneCapture(
   }
 
   // Hide debug points in case "draw-debug-points" is set to true
-  #if UE_IS_5_7 
+  #if UE_IS_5_7_OR_5_8
     OutSceneCaptureComp->HideComponent(Cast<UPrimitiveComponent>(
         UnrealWorld->GetLineBatcher(UWorld::ELineBatcherType::World)));
     OutSceneCaptureComp->HideComponent(Cast<UPrimitiveComponent>(

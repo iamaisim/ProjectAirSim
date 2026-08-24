@@ -86,13 +86,18 @@ See **[Installing system prerequisites](docs/system_specs.md#installing-system-p
 
 Follow these steps to set up and run Project AirSim from source:
 
-### 1. Install Unreal Engine versions 5.2 or 5.7
+### 1. Install Unreal Engine version 5.2, 5.7, or 5.8
 - Download and install **[Unreal Engine](https://www.unrealengine.com/en-US/download)**.
 - Set the `UE_ROOT` environment variable to the Unreal Engine installation path:
   ```bash
   export UE_ROOT=/path/to/UnrealEngine
   ```
-**Note**: Project AirSim currently supports Unreal Engine versions 5.2 and 5.7 only.
+**Note**: Project AirSim currently supports Unreal Engine versions 5.2, 5.7, and 5.8. Keep the installations side by side and set `UE_ROOT` to the version you want to build with.
+
+For example, on Linux select UE 5.8 for the current shell with:
+```bash
+export UE_ROOT=/path/to/UnrealEngine-5.8
+```
 
 ### 2. Install Dependencies (Linux Only)
 - Run the setup script to install required development tools:

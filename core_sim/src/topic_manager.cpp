@@ -268,6 +268,18 @@ void TopicManager::Impl::Start() {
     throw Error("Error setting send timeout on server socket.");
   }
 
+  // Recv timeout so RecvLoop blocks instead of polling with NNG_FLAG_NONBLOCK.
+  // 100ms is short enough for responsive shutdown (state_ check) while
+  // eliminating the 1ms poll wakeup overhead.
+  const int recv_timeout = 100;
+  rv = nng_setopt_ms(topic_socket_, NNG_OPT_RECVTIMEO, recv_timeout);
+  if (rv != 0) {
+    auto errno_str = nng_strerror(rv);
+    log_.LogError(Constant::Component::topic_manager,
+                  "nng_setopt_ms failed with '%s'.", errno_str);
+    throw Error("Error setting recv timeout on server socket.");
+  }
+
   // Previously with Nanomsg the send buffer size NN_SNDBUF was set to 4 MB,
   // but NNG's send buffer size parameter NNG_OPT_SENDBUF is in number of
   // messages rather than bytes, so instead of choosing some arbitrary number
@@ -419,13 +431,11 @@ void TopicManager::Impl::UnregisterTopic(const Topic& topic) {
 void TopicManager::Impl::RecvLoop() {
   while (state_.load()) {
     int rv = nng_recv(topic_socket_, &recv_buffer_, &recv_buffer_size_,
-                      NNG_FLAG_ALLOC | NNG_FLAG_NONBLOCK);
+                      NNG_FLAG_ALLOC);
 
     if (rv != 0) {
-      if (rv == NNG_EAGAIN) {
-        // No data is ready yet, spin to retry
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        continue;
+      if (rv == NNG_ETIMEDOUT) {
+        continue;  // recv timeout — re-check state_ and retry
       } else {
         auto errno_str = nng_strerror(rv);
         log_.LogWarning(name_, "nng_recv failed with '%s'.", errno_str);

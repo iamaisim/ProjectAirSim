@@ -125,6 +125,10 @@ class Robot : public Actor {
   const CollisionInfo& GetCollisionInfo() const;
   const Vector3& GetExternalForce() const;
 
+  // Pull API event accumulation: events are buffered during sim steps and
+  // drained into the Step() response.
+  json DrainStepEvents();
+
   // Manually sets actuated rotations on the robot links (such as spinning
   // propeller link meshes) that are not moved through the physics model
   void SetActuatedRotations(const ActuatedRotations& actuated_rots,

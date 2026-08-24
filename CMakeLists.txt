@@ -772,18 +772,54 @@ endif()
 if(UNIX)
     set(ONNXRUNTIME_LIBRARY "${ONNX_LIB_DIR}/libonnxruntime.so")
     if(PROJECTAIRSIM_USE_UE_TOOLCHAIN)
+        function(projectairsim_resolve_ue_runtime_library OUTPUT_VARIABLE LIBRARY_NAME)
+            set(SEARCH_DIRECTORIES ${ARGN})
+            foreach(SEARCH_DIRECTORY IN LISTS SEARCH_DIRECTORIES)
+                set(LIBRARY_PATH "${SEARCH_DIRECTORY}/${LIBRARY_NAME}")
+                if(EXISTS "${LIBRARY_PATH}")
+                    message(STATUS "Using Unreal C++ runtime library: ${LIBRARY_PATH}")
+                    set(${OUTPUT_VARIABLE} "${LIBRARY_PATH}" PARENT_SCOPE)
+                    return()
+                endif()
+            endforeach()
+
+            list(JOIN SEARCH_DIRECTORIES "\n  " SEARCHED_DIRECTORIES)
+            message(FATAL_ERROR
+                "ONNX Runtime C++ runtime dependency '${LIBRARY_NAME}' not found.\n"
+                "Searched Unreal-owned directories:\n  ${SEARCHED_DIRECTORIES}"
+            )
+        endfunction()
+
+        set(UE_SYSROOT_RUNTIME_DIR "${CMAKE_SYSROOT}/lib64")
+        set(UE_LEGACY_LIBCXX_DIR
+            "$ENV{UE_ROOT}/Engine/Source/ThirdParty/Unix/LibCxx/lib/Unix/x86_64-unknown-linux-gnu"
+        )
+        projectairsim_resolve_ue_runtime_library(
+            UE_LIBCXX_LIBRARY
+            "libc++.a"
+            "${UE_SYSROOT_RUNTIME_DIR}"
+            "${UE_LEGACY_LIBCXX_DIR}"
+        )
+        projectairsim_resolve_ue_runtime_library(
+            UE_LIBCXXABI_LIBRARY
+            "libc++abi.a"
+            "${UE_SYSROOT_RUNTIME_DIR}"
+            "${UE_LEGACY_LIBCXX_DIR}"
+        )
+        projectairsim_resolve_ue_runtime_library(
+            UE_LIBSTDCXX_LIBRARY
+            "libstdc++.so.6"
+            "${UE_SYSROOT_RUNTIME_DIR}"
+            "${CMAKE_SYSROOT}/lib"
+        )
+
         set(ONNXRUNTIME_CXX_RUNTIME_LIBRARIES
             "-Wl,--start-group"
-            "${UE_LIBCXX_LIB_DIR}/libc++.a"
-            "${UE_LIBCXX_LIB_DIR}/libc++abi.a"
-            "${CMAKE_SYSROOT}/lib64/libstdc++.so.6"
+            "${UE_LIBCXX_LIBRARY}"
+            "${UE_LIBCXXABI_LIBRARY}"
+            "${UE_LIBSTDCXX_LIBRARY}"
             "-Wl,--end-group"
         )
-        foreach(ONNXRUNTIME_CXX_RUNTIME_LIBRARY IN LISTS ONNXRUNTIME_CXX_RUNTIME_LIBRARIES)
-            if(ONNXRUNTIME_CXX_RUNTIME_LIBRARY MATCHES "^/" AND NOT EXISTS "${ONNXRUNTIME_CXX_RUNTIME_LIBRARY}")
-                message(FATAL_ERROR "ONNX Runtime C++ runtime dependency not found: ${ONNXRUNTIME_CXX_RUNTIME_LIBRARY}")
-            endif()
-        endforeach()
     else()
         set(ONNXRUNTIME_CXX_RUNTIME_LIBRARIES stdc++)
     endif()

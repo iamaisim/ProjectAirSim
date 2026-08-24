@@ -52,7 +52,17 @@ set(CMAKE_SYSROOT
 
 set(CMAKE_C_COMPILER   "${CMAKE_SYSROOT}/bin/clang")
 set(CMAKE_CXX_COMPILER "${CMAKE_SYSROOT}/bin/clang++")
-set(CMAKE_CXX_FLAGS "-I$ENV{UE_ROOT}/Engine/Source/ThirdParty/Unix/LibCxx/include -I$ENV{UE_ROOT}/Engine/Source/ThirdParty/Unix/LibCxx/include/c++/v1")
+
+set(UE_LEGACY_LIBCXX_ROOT "$ENV{UE_ROOT}/Engine/Source/ThirdParty/Unix/LibCxx")
+if(EXISTS "${UE_LEGACY_LIBCXX_ROOT}/include/c++/v1")
+    set(UE_LIBCXX_LIB_DIR "${UE_LEGACY_LIBCXX_ROOT}/lib/Unix/x86_64-unknown-linux-gnu")
+    set(CMAKE_CXX_FLAGS "-I${UE_LEGACY_LIBCXX_ROOT}/include -I${UE_LEGACY_LIBCXX_ROOT}/include/c++/v1 -stdlib=libc++ -L${UE_LIBCXX_LIB_DIR}")
+elseif(EXISTS "${CMAKE_SYSROOT}/include/c++/v1")
+    set(UE_LIBCXX_LIB_DIR "${CMAKE_SYSROOT}/lib64")
+    set(CMAKE_CXX_FLAGS "-I${CMAKE_SYSROOT}/include -I${CMAKE_SYSROOT}/include/c++/v1 -stdlib=libc++ -L${UE_LIBCXX_LIB_DIR}")
+else()
+    message(FATAL_ERROR "Unreal libc++ headers not found under legacy LibCxx or ${CMAKE_SYSROOT}")
+endif()
 
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)

@@ -42,8 +42,6 @@ if (UNIX)
         set(PROJECTAIRSIM_USE_UE_TOOLCHAIN ON)
         set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/unreal-linux-toolchain.cmake")
         set(UNREAL_LINUX_TOOLCHAIN "${CMAKE_SOURCE_DIR}/unreal-linux-toolchain.cmake")
-        set(UE_LIBCXX_LIB_DIR "$ENV{UE_ROOT}/Engine/Source/ThirdParty/Unix/LibCxx/lib/Unix/x86_64-unknown-linux-gnu")
-        link_directories("${UE_LIBCXX_LIB_DIR}")
     else()
         message("Building/linking against system-installed toolchain")
         set(CMAKE_C_COMPILER clang-13)
@@ -53,6 +51,30 @@ endif()
 
 # Set up project
 project("ProjectAirSimLibs")
+
+if(PROJECTAIRSIM_USE_UE_TOOLCHAIN)
+    set(UE_LEGACY_LIBCXX_ROOT "$ENV{UE_ROOT}/Engine/Source/ThirdParty/Unix/LibCxx")
+    set(UE_LIBCXX_INCLUDE_DIR "${UE_LEGACY_LIBCXX_ROOT}/include")
+    set(UE_LIBCXX_CXX_INCLUDE_DIR "${UE_LEGACY_LIBCXX_ROOT}/include/c++/v1")
+    set(UE_LIBCXX_LIB_DIR "${UE_LEGACY_LIBCXX_ROOT}/lib/Unix/x86_64-unknown-linux-gnu")
+
+    if(NOT EXISTS "${UE_LIBCXX_LIB_DIR}/libc++.a")
+        set(UE_LIBCXX_INCLUDE_DIR "${CMAKE_SYSROOT}/include")
+        set(UE_LIBCXX_CXX_INCLUDE_DIR "${CMAKE_SYSROOT}/include/c++/v1")
+        set(UE_LIBCXX_LIB_DIR "${CMAKE_SYSROOT}/lib64")
+    endif()
+
+    if(NOT EXISTS "${UE_LIBCXX_CXX_INCLUDE_DIR}" OR
+       NOT EXISTS "${UE_LIBCXX_LIB_DIR}/libc++.a" OR
+       NOT EXISTS "${UE_LIBCXX_LIB_DIR}/libc++abi.a")
+        message(FATAL_ERROR "Could not find Unreal libc++ headers/libraries. "
+                            "Checked legacy LibCxx and SDK sysroot paths for UE_ROOT=$ENV{UE_ROOT}")
+    endif()
+
+    message("Using Unreal libc++ includes from ${UE_LIBCXX_CXX_INCLUDE_DIR}")
+    message("Using Unreal libc++ libraries from ${UE_LIBCXX_LIB_DIR}")
+    link_directories("${UE_LIBCXX_LIB_DIR}")
+endif()
 
 # Capture build commit hash once during configure. Fallback to "unknown"
 # when git is unavailable (or source is not a git checkout).

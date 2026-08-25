@@ -11,4 +11,6 @@ from .rover import Rover
 from .env_actor import EnvActor
 from .static_sensor_actor import StaticSensorActor
 
+__version__ = "0.3.0"
+
 __all__ = ["Drone", "ProjectAirSimClient", "World", "Rover","EnvActor"]

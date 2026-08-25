@@ -1,5 +1,7 @@
 # Welcome to Project AirSim
 
+[![Build and Deploy Sphinx Docs](https://github.com/iamaisim/ProjectAirSim/actions/workflows/sphinx-docs.yml/badge.svg)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/sphinx-docs.yml) [![Linux SimLibs Debug Tests](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_linux_simlibs_debug.yml/badge.svg)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_linux_simlibs_debug.yml) [![ProjectAirSim CI (Self-Hosted)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_on_self_hosted.yml/badge.svg)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_on_self_hosted.yml) [![Windows Build and Tests](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_windows.yml/badge.svg)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_windows.yml)
+
 Project AirSim is a simulation platform for drones, robots, and other autonomous systems.
 
 Building on the previous work of **[AirSim](https://github.com/microsoft/AirSim)**, it leverages **[Unreal Engine 5](https://www.unrealengine.com/)** to provide photo-realistic visuals, while providing the simulation framework needed to integrate custom physics, controllers, actuators, and sensors to develop an autonomous system.
@@ -19,6 +21,7 @@ For more details on the architecture, see **[Project AirSim Architecture Overvie
 Project AirSim currently supports Windows 11 and Ubuntu 22. For more info about hardware specs for working with Project AirSim, see **[System Specifications](docs/system_specs.md)**.
 
 ![Drone flying in Urban environment](docs/images/airtaxi_in_dynamic_city.jpg)
+![Skywalker X8 aircraft flying in V formation](docs/images/PAS_JSBSim_x8_swarm.png)
 
 ## Open Source Commitment
 
@@ -158,9 +161,22 @@ These arguments can also be used while debugging in VS Code by modifying the `la
 
 See **[Transitioning from AirSim](docs/transition_from_airsim.md)** for guidance on converting an AirSim Unreal environment and client code from AirSim to Project AirSim.
 
+## Third-Party Interoperability and Licensing
+
+Project AirSim interoperates with third-party engines, libraries, models, and
+tooling. When redistributing or extending those integrations, review the
+applicable license terms in **[docs/license.md](docs/license.md)**,
+`NOTICE.txt`, and the files under `thirdparty/Licenses/`.
+
 ## License
 
 Please see the [License page](docs/license.md) for Project AirSim license information.
+
+## Third-Party Interoperability and Licensing
+
+Project AirSim may interoperate at runtime with third-party tools and data files, including JSBSim-compatible aircraft model definitions.
+
+Those third-party components and assets remain licensed under their respective open-source licenses by their original authors.
 
 ---
 

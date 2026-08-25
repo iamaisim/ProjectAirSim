@@ -3,10 +3,12 @@
 #include <ProjectAirSimMessage/response_message.hpp>
 
 #include <chrono>
+#include <cstring>
 #include <functional>
 #include <iostream>
 #include <map>
 #include <memory>
+#include <new>
 #include <string>
 #include <thread>
 #include <vector>
@@ -14,6 +16,7 @@
 #include "msgpack.hpp"
 
 #include "FakeNNGI.h"
+#include "src/AsyncResultInternal.h"
 
 namespace asc = microsoft::projectairsim::client;
 namespace pas = microsoft::projectairsim;
@@ -28,6 +31,20 @@ bool Expect(bool condition, const std::string& message) {
     return false;
   }
   return true;
+}
+
+bool TestAsyncResultStartsNotCanceled() {
+  using Provider = asc::internal::TAsyncResultProvider<asc::Message>;
+
+  void* storage = ::operator new(sizeof(Provider));
+  std::memset(storage, 0xff, sizeof(Provider));
+  auto* provider = new (storage) Provider();
+
+  const bool starts_not_canceled = !provider->FIsCanceled();
+  provider->Release();
+
+  return Expect(starts_not_canceled,
+                "Async result provider should start not canceled");
 }
 
 std::string SuccessResponse(int id, const json& result) {
@@ -1532,6 +1549,7 @@ bool TestStaticSensorActorAPIsUseExpectedServiceMethods() {
 int main() {
   int failed = 0;
 
+  failed += TestAsyncResultStartsNotCanceled() ? 0 : 1;
   failed += TestRequestBeforeConnectFails() ? 0 : 1;
   failed += TestConnectAndRequest() ? 0 : 1;
   failed += TestGetBuildCommitHashUsesExpectedServiceMethod() ? 0 : 1;

@@ -220,7 +220,7 @@ void Gps::Impl::Update(const TimeNano sim_time, const TimeNano sim_dt_nanos) {
 
   output_.time_stamp = current_time;
   output_.time_utc_millis =
-      static_cast<uint64_t>(current_time / 1.0e3);  // in millisec
+      static_cast<uint64_t>(current_time / 1.0e6);  // nanoseconds to millisec
   output_.geo_point = ground_truth_.environment->env_info.geo_point;
   output_.velocity = ground_truth_.kinematics->twist.linear;
 

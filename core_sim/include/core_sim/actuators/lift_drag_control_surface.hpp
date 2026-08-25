@@ -7,6 +7,7 @@
 #define CORE_SIM_INCLUDE_CORE_SIM_ACTUATORS_LIFT_DRAG_CONTROL_SURFACE_HPP_
 
 #include <cmath>
+#include <memory>
 #include <string>
 
 #include "core_sim/actuators/actuator.hpp"
@@ -23,9 +24,21 @@ class TopicManager;
 class ServiceManager;
 class StateManager;
 
+}  // namespace projectairsim
+}  // namespace microsoft
+
+namespace JSBSim {
+class FGFDMExec;
+}
+
+namespace microsoft {
+namespace projectairsim {
+
 struct LiftDragControlSurfaceSettings {
   float rotation_rate = 0.0f;  // rad per 1.0 control signal
   float smoothing_tc = 0.0f;   // time constant for low pass filter
+  std::string jsbsim_cmd;    // JSBSim property to write control signal to
+  std::string jsbsim_state;  // JSBSim property to read actuator state from
 };
 
 //------------------------------------------------------------------------------
@@ -42,6 +55,10 @@ class LiftDragControlSurface : public Actuator {
   const LiftDragControlSurfaceSettings& GetSettings() const;
 
   const float& GetControlAngle() const;
+
+  void SetJSBSimModel(std::shared_ptr<::JSBSim::FGFDMExec> model);
+
+  float GetJSBSimState() const;
 
  void UpdateActuatorOutput(std::vector<float> && control_signals,
                             const TimeNano sim_dt_nanos)override;

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-set(PROJECTAIRSIM_CPP_CLIENT_VERSION 0.2.0)
+set(PROJECTAIRSIM_CPP_CLIENT_VERSION 0.3.0)
 project(ProjectAirSimCppClient VERSION ${PROJECTAIRSIM_CPP_CLIENT_VERSION} LANGUAGES CXX)
 
 include(FetchContent)
@@ -55,7 +55,7 @@ if(NOT Eigen3_FOUND)
     if(NOT EIGEN_INCLUDE_DIR)
         FetchContent_Declare(
             Eigen3
-            GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+            GIT_REPOSITORY https://github.com/eigen-mirror/eigen.git
             GIT_TAG        3.4.0
         )
         FetchContent_GetProperties(Eigen3)
@@ -379,6 +379,11 @@ add_executable(cpp_client_mocked_unit_tests
 add_executable(cpp_client_unit_tests
     tests/CppClientIntegrationTests.cpp
 )
+
+include(CTest)
+if(BUILD_TESTING AND CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+    add_test(NAME cpp_client_mocked_unit_tests COMMAND cpp_client_mocked_unit_tests)
+endif()
 
 target_link_libraries(hello_drone
     PRIVATE

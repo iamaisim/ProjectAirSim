@@ -17,6 +17,9 @@
 #include "core_sim/physics_common_types.hpp"
 #include "json.hpp"
 
+// JSBSim include (requires RTTI, must be in .cpp not .hpp)
+#include "FGFDMExec.h"
+
 namespace microsoft {
 namespace projectairsim {
 
@@ -57,6 +60,10 @@ class LiftDragControlSurface::Impl : public ActuatorImpl {
 
   const float& GetControlAngle() const;
 
+  void SetJSBSimModel(std::shared_ptr<JSBSim::FGFDMExec> model);
+
+  float GetJSBSimState() const;
+
   void UpdateActuatorOutput(std::vector<float> && control_signals, const TimeNano sim_dt_nanos);
 
  private:
@@ -67,6 +74,7 @@ class LiftDragControlSurface::Impl : public ActuatorImpl {
 
   FirstOrderFilter<float> first_order_filter_;
   float control_angle_;
+  std::shared_ptr<JSBSim::FGFDMExec> jsbsim_model_;
 
   // TODO make a topic
   // topic control_surface_topic;
@@ -111,6 +119,17 @@ const float& LiftDragControlSurface::GetControlAngle() const {
       ->GetControlAngle();
 }
 
+void LiftDragControlSurface::SetJSBSimModel(
+    std::shared_ptr<JSBSim::FGFDMExec> model) {
+  static_cast<LiftDragControlSurface::Impl*>(pimpl_.get())
+      ->SetJSBSimModel(model);
+}
+
+float LiftDragControlSurface::GetJSBSimState() const {
+  return static_cast<LiftDragControlSurface::Impl*>(pimpl_.get())
+      ->GetJSBSimState();
+}
+
 void LiftDragControlSurface::UpdateActuatorOutput(std::vector<float> && control_signals,
   const TimeNano sim_dt_nanos){
   static_cast<LiftDragControlSurface::Impl*>(pimpl_.get())
@@ -130,7 +149,8 @@ LiftDragControlSurface::Impl::Impl(
                    topic_manager, parent_topic_path, service_manager,
                    state_manager),
       loader_(*this),
-      control_angle_(0.0f) {
+      control_angle_(0.0f),
+      jsbsim_model_(nullptr) {
   SetTopicPath();
   CreateTopics();
 }
@@ -156,14 +176,43 @@ const float& LiftDragControlSurface::Impl::GetControlAngle() const {
   return control_angle_;
 }
 
+void LiftDragControlSurface::Impl::SetJSBSimModel(
+    std::shared_ptr<JSBSim::FGFDMExec> model) {
+  jsbsim_model_ = model;
+}
+
+float LiftDragControlSurface::Impl::GetJSBSimState() const {
+  if (!settings_.jsbsim_state.empty() && jsbsim_model_ != nullptr) {
+    return static_cast<float>(
+        jsbsim_model_->GetPropertyValue(settings_.jsbsim_state));
+  }
+  return std::numeric_limits<float>::quiet_NaN();
+}
+
 void LiftDragControlSurface::Impl::UpdateActuatorOutput(std::vector<float> && control_signals,
   const TimeNano sim_dt_nanos){
   // Convert -1.0 ~ +1.0 control signal to control surface angle (like a servo
   // motor but without any dynamics)
   auto control_signal = control_signals[0];
-  first_order_filter_.SetInput(control_signal);
-  first_order_filter_.UpdateOutput(SimClock::Get()->NanosToSec(sim_dt_nanos));
-  control_angle_ = settings_.rotation_rate * first_order_filter_.GetOutput();
+  float control_signal_effective = control_signal;
+
+  if (!settings_.jsbsim_cmd.empty() &&
+      jsbsim_model_ != nullptr &&
+      !settings_.jsbsim_state.empty()) {
+    jsbsim_model_->SetPropertyValue(settings_.jsbsim_cmd,
+                                    static_cast<double>(control_signal));
+
+    float state = GetJSBSimState();
+    if (std::isfinite(state)) {
+      control_signal_effective = state;
+    }
+  } else {
+    first_order_filter_.SetInput(control_signal);
+    first_order_filter_.UpdateOutput(SimClock::Get()->NanosToSec(sim_dt_nanos));
+    control_signal_effective = first_order_filter_.GetOutput();
+  }
+
+  control_angle_ = settings_.rotation_rate * control_signal_effective;
 }
 
 //------------------------------------------------------------------------------
@@ -201,6 +250,13 @@ void LiftDragControlSurface::Loader::LoadSettings(const json& json) {
   impl_.settings_.smoothing_tc =
       JsonUtils::GetNumber<float>(settings_json, Constant::Config::smoothing_tc,
                                   default_settings.smoothing_tc);
+
+    impl_.settings_.jsbsim_cmd = JsonUtils::GetString(
+      settings_json, Constant::Config::jsbsim_cmd, "");
+
+    impl_.settings_.jsbsim_state = JsonUtils::GetString(
+      settings_json, Constant::Config::jsbsim_state,
+      impl_.settings_.jsbsim_cmd);
 
   impl_.logger_.LogVerbose(impl_.name_,
                            "'lift_drag_control_surface_settings' loaded.");

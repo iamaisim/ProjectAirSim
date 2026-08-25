@@ -78,7 +78,13 @@ endif()
 
 # Set up nng and openssl for linking
 target_link_directories(${TARGET_NAME} PRIVATE ${NNG_LIB_DIR} ${OPENSSL_LIB_DIR})
-target_compile_definitions(${TARGET_NAME} PRIVATE NNG_STATIC_LIB=ON OPENSSL_STATIC_LIB=ON)
+target_compile_definitions(
+    ${TARGET_NAME}
+    PRIVATE
+        NNG_STATIC_LIB=ON
+        OPENSSL_STATIC_LIB=ON
+        PROJECTAIRSIM_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
+)
 
 if(WIN32)
 target_include_directories(
@@ -122,6 +128,7 @@ if(WIN32)
             Crypt32 # Client authorization
             Ncrypt # Client authorization
             lvmon
+            jsbsim
     )
 else()
     target_link_libraries(
@@ -131,19 +138,25 @@ else()
             core_sim
             nng
             ${OPENSSL_CRYPTO_LIBRARY} # Client authorization
+            jsbsim
     )
 endif()
 
 
 target_include_directories(${TARGET_NAME} PRIVATE "${ONNXRUNTIME_ROOTDIR}/include")
 target_link_directories(${TARGET_NAME} PRIVATE "${ONNX_LIB_DIR}")
-target_link_libraries(${TARGET_NAME} PRIVATE onnxruntime)
-
+target_link_libraries(${TARGET_NAME} PRIVATE onnxruntime jsbsim)
 
 add_custom_command(
     TARGET ${TARGET_NAME}
     PRE_LINK
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${UE_PLUGIN_SIMLIBS_DIR}/shared_libs/ ${SIMLIBS_TEST_DIR}
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${UE_PLUGIN_SIMLIBS_DIR}/shared_libs/ ${SIMLIBS_TEST_DIR} 
+)
+
+add_custom_command(
+    TARGET ${TARGET_NAME}
+    PRE_LINK
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${JSBSIM_CORESIM_DIR}/lib/$<IF:$<CONFIG:Release>,Release,Debug>/ ${SIMLIBS_TEST_DIR}
 )
 
 # Include CMake's GoogleTest module to use gtest_discover_tests() helper

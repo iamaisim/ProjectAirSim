@@ -4,6 +4,7 @@
 // MIT License. All rights reserved.
 
 #pragma once
+#include <atomic>
 #include <condition_variable>
 #include <functional>
 #include <memory>
@@ -137,7 +138,8 @@ class Topics {
  protected:
   std::condition_variable
       cv_topic_info_;  // Condition variable for topic_info_is_received_
-  bool fis_running_;  // If true, we're receiving topic messages from the server
+  std::atomic_bool
+      fis_running_;  // If true, we're receiving topic messages from the server
   bool ftopic_info_is_received_;  // If true, the topic list has been received
   std::mutex mutex_topic_info_;   // Access guard to topic_info_is_received
   std::mutex mutex_um_topic_;     // Access guard to um_str_topic_entry

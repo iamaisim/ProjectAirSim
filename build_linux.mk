@@ -26,11 +26,8 @@ default:
 	@echo " all_no_test = Build + Package everything"
 	@echo " clean = Clean sim libs + Blocks build files"
 	@echo
-	@echo " simlibs_debug = Build sim libs + C++ client for Debug"
-	@echo " simlibs_release = Build sim libs + C++ client for Release"
-	@echo " cpp_client_debug = Build C++ client only for Debug"
-	@echo " cpp_client_release = Build C++ client only for Release"
-	@echo " package_cpp_client = Build Release C++ client and create versioned package"
+	@echo " simlibs_debug = Build sim libs for Debug"
+	@echo " simlibs_release = Build sim libs for Release"
 	@echo " test_simlibs_debug = Test sim libs for Debug"
 	@echo " test_simlibs_release = Test sim libs for Release"
 	@echo
@@ -65,14 +62,6 @@ CMAKE_CMD = cmake -G "Ninja"
 CMAKE_DBG_BUILD_CMD = cmake --build $(CMAKE_BUILD_DIR)/Debug
 CMAKE_REL_BUILD_CMD = cmake --build $(CMAKE_BUILD_DIR)/Release
 
-CPP_CLIENT_DIR = client/cpp
-CPP_CLIENT_DBG_BUILD_DIR = $(CPP_CLIENT_DIR)/build_linux/Debug
-CPP_CLIENT_REL_BUILD_DIR = $(CPP_CLIENT_DIR)/build_linux/Release
-CPP_CLIENT_CMAKE_CMD = cmake -G "Ninja"
-CPP_CLIENT_DBG_BUILD_CMD = cmake --build $(CPP_CLIENT_DBG_BUILD_DIR) -j$(shell nproc)
-CPP_CLIENT_REL_BUILD_CMD = cmake --build $(CPP_CLIENT_REL_BUILD_DIR) -j$(shell nproc)
-CPP_CLIENT_PACKAGE_CMD = cmake --build $(CPP_CLIENT_REL_BUILD_DIR) --target package
-
 .PHONY: config_simlibs_debug
 config_simlibs_debug:
 	@echo "======================================================================="
@@ -80,43 +69,65 @@ config_simlibs_debug:
 	mkdir -p $(CMAKE_BUILD_DIR)/Debug $(REDIRECT_OUTPUT)
 	cd $(CMAKE_BUILD_DIR)/Debug && $(CMAKE_CMD) -DCMAKE_BUILD_TYPE=Debug ../../..
 
-.PHONY: config_cpp_client_debug
-config_cpp_client_debug:
-	@echo "======================================================================="
-	@echo "Configuring the C++ client project for Linux64-Debug..."
-	mkdir -p $(CPP_CLIENT_DBG_BUILD_DIR) $(REDIRECT_OUTPUT)
-	cd $(CPP_CLIENT_DBG_BUILD_DIR) && $(CPP_CLIENT_CMAKE_CMD) -DCMAKE_BUILD_TYPE=Debug $(CURDIR)/$(CPP_CLIENT_DIR)
-
-.PHONY: cpp_client_debug
-cpp_client_debug: config_cpp_client_debug
-	@echo "======================================================================="
-	@echo "Building the C++ client project for Linux64-Debug..."
-	$(CPP_CLIENT_DBG_BUILD_CMD)
-
-.PHONY: config_cpp_client_release
-config_cpp_client_release:
-	@echo "======================================================================="
-	@echo "Configuring the C++ client project for Linux64-Release..."
-	mkdir -p $(CPP_CLIENT_REL_BUILD_DIR) $(REDIRECT_OUTPUT)
-	cd $(CPP_CLIENT_REL_BUILD_DIR) && $(CPP_CLIENT_CMAKE_CMD) -DCMAKE_BUILD_TYPE=Release $(CURDIR)/$(CPP_CLIENT_DIR)
-
-.PHONY: cpp_client_release
-cpp_client_release: config_cpp_client_release
-	@echo "======================================================================="
-	@echo "Building the C++ client project for Linux64-Release..."
-	$(CPP_CLIENT_REL_BUILD_CMD)
-
-.PHONY: package_cpp_client
-package_cpp_client: cpp_client_release
-	@echo "======================================================================="
-	@echo "Packaging the C++ client for Linux64-Release..."
-	$(CPP_CLIENT_PACKAGE_CMD)
-
 .PHONY: simlibs_debug
-simlibs_debug: config_simlibs_debug cpp_client_debug
+simlibs_debug: config_simlibs_debug
 	@echo "======================================================================="
 	@echo "Building the ProjectAirSimLibs project for Linux64-Debug..."
 	$(CMAKE_DBG_BUILD_CMD)
+
+.PHONY: config_simlibs_debug_asan
+config_simlibs_debug_asan:
+	@echo "======================================================================="
+	@echo "Configuring the ProjectAirSimLibs project for Linux64-Debug with ASan..."
+	mkdir -p $(CMAKE_BUILD_DIR)/Debug_asan $(REDIRECT_OUTPUT)
+	cd $(CMAKE_BUILD_DIR)/Debug_asan && $(CMAKE_CMD) -DCMAKE_BUILD_TYPE=Debug \
+		-DCMAKE_C_FLAGS="$(ASAN_FLAGS)" \
+		-DCMAKE_CXX_FLAGS="$(ASAN_FLAGS)" \
+		-DCMAKE_EXE_LINKER_FLAGS="$(ASAN_FLAGS)" \
+		-DCMAKE_SHARED_LINKER_FLAGS="$(ASAN_FLAGS)" \
+		../../..
+
+.PHONY: simlibs_debug_asan
+simlibs_debug_asan: config_simlibs_debug_asan
+	@echo "======================================================================="
+	@echo "Building the ProjectAirSimLibs project for Linux64-Debug with ASan..."
+	cmake --build $(CMAKE_BUILD_DIR)/Debug_asan
+
+.PHONY: config_simlibs_debug_ubsan
+config_simlibs_debug_ubsan:
+	@echo "======================================================================="
+	@echo "Configuring the ProjectAirSimLibs project for Linux64-Debug with UBSan..."
+	mkdir -p $(CMAKE_BUILD_DIR)/Debug_ubsan $(REDIRECT_OUTPUT)
+	cd $(CMAKE_BUILD_DIR)/Debug_ubsan && $(CMAKE_CMD) -DCMAKE_BUILD_TYPE=Debug \
+		-DCMAKE_C_FLAGS="$(UBSAN_FLAGS)" \
+		-DCMAKE_CXX_FLAGS="$(UBSAN_FLAGS)" \
+		-DCMAKE_EXE_LINKER_FLAGS="$(UBSAN_FLAGS)" \
+		-DCMAKE_SHARED_LINKER_FLAGS="$(UBSAN_FLAGS)" \
+		../../..
+
+.PHONY: simlibs_debug_ubsan
+simlibs_debug_ubsan: config_simlibs_debug_ubsan
+	@echo "======================================================================="
+	@echo "Building the ProjectAirSimLibs project for Linux64-Debug with UBSan..."
+	cmake --build $(CMAKE_BUILD_DIR)/Debug_ubsan
+
+.PHONY: config_simlibs_debug_tsan
+config_simlibs_debug_tsan:
+	@echo "======================================================================="
+	@echo "Configuring the ProjectAirSimLibs project for Linux64-Debug with TSan..."
+	mkdir -p $(CMAKE_BUILD_DIR)/Debug_tsan $(REDIRECT_OUTPUT)
+	cd $(CMAKE_BUILD_DIR)/Debug_tsan && $(CMAKE_CMD) -DCMAKE_BUILD_TYPE=Debug \
+		-DCMAKE_C_FLAGS="$(TSAN_FLAGS)" \
+		-DCMAKE_CXX_FLAGS="$(TSAN_FLAGS)" \
+		-DCMAKE_EXE_LINKER_FLAGS="$(TSAN_FLAGS)" \
+		-DCMAKE_SHARED_LINKER_FLAGS="$(TSAN_FLAGS)" \
+		../../..
+
+.PHONY: simlibs_debug_tsan
+simlibs_debug_tsan: config_simlibs_debug_tsan
+	@echo "======================================================================="
+	@echo "Building the ProjectAirSimLibs project for Linux64-Debug with TSan..."
+	cmake --build $(CMAKE_BUILD_DIR)/Debug_tsan
 
 .PHONY: config_simlibs_release
 config_simlibs_release:
@@ -126,7 +137,7 @@ config_simlibs_release:
 	cd $(CMAKE_BUILD_DIR)/Release && $(CMAKE_CMD) -DCMAKE_BUILD_TYPE=Release ../../..
 
 .PHONY: simlibs_release
-simlibs_release: config_simlibs_release cpp_client_release
+simlibs_release: config_simlibs_release
 	@echo "======================================================================="
 	@echo "Building the ProjectAirSimLibs project for Linux64-Release..."
 	$(CMAKE_REL_BUILD_CMD)
@@ -145,7 +156,6 @@ clean:
 	@echo "======================================================================="
 	@echo "Cleaning build files..."
 	rm -fr $(CMAKE_BUILD_DIR) $(REDIRECT_OUTPUT)
-	rm -fr $(CPP_CLIENT_DIR)/build_linux $(REDIRECT_OUTPUT)
 	rm -fr physics/matlab_sfunc/_deps $(REDIRECT_OUTPUT)
 	rm -fr physics/matlab_sfunc/message $(REDIRECT_OUTPUT)
 	rm -fr packages/projectairsim_simlibs $(REDIRECT_OUTPUT)

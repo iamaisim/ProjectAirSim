@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI CONSULTING CORP
 //
 // MIT License. All rights reserved.
@@ -14,11 +14,11 @@
 #include "GameFramework/Actor.h"
 #include "GameFramework/PlayerInput.h"
 #include "IImageWrapperModule.h"
+#include "LightActorBase.h"
 #include "Runtime/Engine/Classes/Engine/Engine.h"
 #include "TextureShuffleActor.h"
 #include "UnrealHelpers.h"
 #include "UnrealTransforms.h"
-#include "LightActorBase.h"
 #include "World/TimeofDay.hpp"
 #include "core_sim/error.hpp"
 #include "core_sim/logger.hpp"
@@ -149,14 +149,12 @@ class WorldSimApi {
   std::vector<std::string> swapTextures(const std::string& tag, int tex_id,
                                         int component_id, int material_id);
 
-  bool setLightIntensity(const std::string& object_name,
-                                    float new_intensity);
+  bool setLightIntensity(const std::string& object_name, float new_intensity);
 
   bool setLightColor(const std::string& object_name,
-                                const std::vector<float>& color_rgb);
+                     const std::vector<float>& color_rgb);
 
-  bool setLightRadius(const std::string& object_name,
-                                 float new_radius);
+  bool setLightRadius(const std::string& object_name, float new_radius);
 
   bool setSunLightIntensity(float intensity);
 
@@ -217,14 +215,6 @@ class WorldSimApi {
                                     const std::vector<float>& text_color_rgba,
                                     float duration);
 
-  bool ImportNEDTrajectory(
-      const std::string& traj_name, const std::vector<float>& time,
-      const std::vector<float>& pose_x, const std::vector<float>& pose_y,
-      const std::vector<float>& pose_z, const std::vector<float>& pose_roll,
-      const std::vector<float>& pose_pitch, const std::vector<float>& pose_yaw,
-      const std::vector<float>& vel_x_lin, const std::vector<float>& vel_y_lin,
-      const std::vector<float>& vel_z_lin);
-
   bool ImportGeoTrajectory(
       const std::string& traj_name, const std::vector<float>& time,
       const std::vector<float>& latitudes, const std::vector<float>& longitudes,
@@ -260,7 +250,7 @@ class WorldSimApi {
                               const std::string& link_name,
                               const float rotation_deg_per_sec);
 
-  float GetZAtPoint(const float x, const float y);
+  float GetZAtPoint(float x, float y);
 
  protected:
  private:
@@ -300,7 +290,8 @@ class WorldSimApi {
   void setMaterialProperties(UMaterialInstanceDynamic* dynamic_material,
                              UTexture2D* texture);
   FHitResult GetHitResult(const FVector& start, const FVector& end,
-                          FCollisionQueryParams& TraceParams);
+                          FCollisionQueryParams& TraceParams,
+                          ECollisionChannel collision_channel = ECC_Visibility);
 
   UWorld* unreal_world_;
   microsoft::projectairsim::Scene* sim_scene_;

@@ -5,6 +5,8 @@
 
 #include "UnrealScene.h"
 
+#include <limits>
+
 #include "CineCameraActor.h"
 #include "Components/SkinnedMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -23,6 +25,7 @@
 #include "UnrealLogger.h"
 #include "World/WeatherLib.h"
 #include "World/WorldSimApi.h"
+#include "core_sim/actor/robot.hpp"
 #include "core_sim/clock.hpp"
 
 namespace projectairsim = microsoft::projectairsim;
@@ -392,6 +395,39 @@ void AUnrealScene::BeginPlay() {
   time_of_day.reset(new TimeOfDay(home_geo_point));
   world_api.reset(new WorldSimApi(unreal_world, time_of_day, sim_scene));
 
+  // Register terrain elevation callback for JSBSim robots. Callback returns
+  // terrain altitude ASL in meters from Unreal raycast.
+  const auto& actors = sim_scene->GetActors();
+  for (const auto& actor_ref : actors) {
+    auto& actor = actor_ref.get();
+    if (actor.GetType() == projectairsim::ActorType::kRobot) {
+      auto& sim_robot = static_cast<projectairsim::Robot&>(actor);
+      if (sim_robot.GetPhysicsType() ==
+          projectairsim::PhysicsType::kJSBSimPhysics) {
+        sim_robot.SetCallbackTerrainElevationUpdated(
+            [this](double x_ned_m, double y_ned_m) {
+              if (world_api == nullptr) {
+                return std::numeric_limits<double>::quiet_NaN();
+              }
+
+              const auto terrain_rel_m =
+                  world_api->GetZAtPoint(static_cast<float>(x_ned_m),
+                                         static_cast<float>(y_ned_m));
+
+              if (!std::isfinite(terrain_rel_m)) {
+                return std::numeric_limits<double>::quiet_NaN();
+              }
+
+              const double terrain_asl_m =
+                  static_cast<double>(home_geo_point.geo_point.altitude) -
+                  static_cast<double>(terrain_rel_m);
+
+              return terrain_asl_m;
+            });
+      }
+    }
+  }
+
   UWeatherLib::initWeather(unreal_world, unreal_actors);
 
   UpdateWindVelocity(sim_scene->GetWindVelocity());
@@ -475,7 +511,7 @@ void AUnrealScene::Tick(float DeltaTime) {
 
       // Wait for sim to catch up processing new sim time
       while (projectairsim::SimClock::Get()->NowSimNanos() < cur_sim_time) {
-        std::this_thread::sleep_for(std::chrono::duration<double>(0));
+        std::this_thread::sleep_for(std::chrono::microseconds(100));
       }
       // If cur_sim_time is now at the time for simclock to pause, pause
       // Unreal now so physics will not advance again at the next tick.

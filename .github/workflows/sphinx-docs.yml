@@ -3,7 +3,7 @@ name: Build and Deploy Sphinx Docs
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, main_public]
     paths:
       - ".github/workflows/sphinx-docs.yml"
       - "README.md"
@@ -11,7 +11,7 @@ on:
       - "client/python/projectairsim/docs/**"
       - "client/python/projectairsim/src/**"
   pull_request:
-    branches: [main]
+    branches: [main, main_public]
     paths:
       - ".github/workflows/sphinx-docs.yml"
       - "README.md"

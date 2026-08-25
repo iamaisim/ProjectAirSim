@@ -379,6 +379,7 @@ env/
 # client library dev install
 **/projectairsim.egg-info/
 **/projectairsim_ros.egg-info/
+client/python/projectairsim/dist/
 
 /tools/ConvertToGLTF/output
 
@@ -387,3 +388,9 @@ env/
 *.slxc
 
 venv
+
+# Public release tooling (not a build output).
+!/tools/release/
+!/tools/release/**
+/tools/release/**/__pycache__/
+/tools/release/**/*.pyc

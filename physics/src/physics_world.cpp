@@ -10,6 +10,7 @@
 #include "core_sim/scene.hpp"
 #include "fast_physics.hpp"
 #include "unreal_physics.hpp"
+#include "jsbsim_physics.hpp"
 
 namespace microsoft {
 namespace projectairsim {
@@ -55,6 +56,19 @@ void PhysicsWorld::AddRobot(const Robot& robot) {
     if (physics_models_.count(PhysicsType::kUnrealPhysics) == 0) {
       physics_models_.emplace(PhysicsType::kUnrealPhysics,
                               std::in_place_type<UnrealPhysicsModel>);
+    }
+  } else if (robot.GetPhysicsType() == PhysicsType::kJSBSimPhysics) {
+    // Construct physics body passing params from robot JSON physics params
+    auto jsb_physics_body =
+        std::make_shared<JSBSimPhysicsBody>(robot);
+
+    // Add physics body pointer to physics world
+    AddPhysicsBody(jsb_physics_body);
+
+    // Add FastPhysics model to the world's models if not already added
+    if (physics_models_.count(PhysicsType::kJSBSimPhysics) == 0) {
+      physics_models_.emplace(PhysicsType::kJSBSimPhysics,
+                              std::in_place_type<JSBSimPhysicsModel>);
     }
   }
 }
@@ -110,6 +124,9 @@ void PhysicsWorld::Start() {
       case PhysicsType::kUnrealPhysics: {
         break;
       }
+      case PhysicsType::kJSBSimPhysics: {
+        break;
+      }
       default: {
         break;
       }
@@ -138,6 +155,12 @@ void PhysicsWorld::SetWrenchesOnPhysicsBodies() {
         up_model.SetWrenchesOnPhysicsBody(body);
         break;
       }
+      case PhysicsType::kJSBSimPhysics: {
+        auto& jsb_model = std::get<JSBSimPhysicsModel>(
+            physics_models_.at(PhysicsType::kJSBSimPhysics));
+        jsb_model.SetWrenchesOnPhysicsBody(body);
+        break;
+      }
       default: {
         break;
       }
@@ -162,6 +185,12 @@ void PhysicsWorld::StepPhysicsWorld(TimeNano dt_nanos) {
       }
       case PhysicsType::kUnrealPhysics: {
         // No-op, Unreal steps physics body directly
+        break;
+      }
+      case PhysicsType::kJSBSimPhysics: {
+        auto& jsb_model = std::get<JSBSimPhysicsModel>(
+            physics_models_.at(PhysicsType::kJSBSimPhysics));
+        jsb_model.StepPhysicsBody(dt_nanos, body);
         break;
       }
       default: {

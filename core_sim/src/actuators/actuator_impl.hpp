@@ -160,7 +160,10 @@ class ActuatorImpl : public ComponentWithTopicsAndServiceMethods {
                                    const std::string& actor_id) {
     actor_logger.LogVerbose(actor_name, "[%s] Loading 'actuator.name'.",
                             actor_id.c_str());
-    auto id = JsonUtils::GetIdentifier(json, Constant::Config::name);
+    // Actuator IDs are also controller lookup keys. JSBSim-backed actuators may
+    // intentionally use property paths such as "fcs/elevator-cmd-norm" here, so
+    // this must remain a string instead of the stricter identifier format.
+    auto id = JsonUtils::GetString(json, Constant::Config::name);
     actor_logger.LogVerbose(actor_name, "[%s][%s] 'actuator.name' loaded.",
                             actor_id.c_str(), id.c_str());
 

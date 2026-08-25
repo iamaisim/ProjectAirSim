@@ -40,11 +40,10 @@ if (UNIX)
         # Note: This must be set BEFORE `project()` is called
         message("Building/linking against Unreal packaged toolchain from UE_ROOT=$ENV{UE_ROOT}")
         set(PROJECTAIRSIM_USE_UE_TOOLCHAIN ON)
-        set(CMAKE_TOOLCHAIN_FILE "unreal-linux-toolchain.cmake")
-        link_directories("$ENV{UE_ROOT}/Engine/Source/ThirdParty/Unix/LibCxx/lib/Unix/x86_64-unknown-linux-gnu")
+        set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/unreal-linux-toolchain.cmake")
+        set(UNREAL_LINUX_TOOLCHAIN "${CMAKE_SOURCE_DIR}/unreal-linux-toolchain.cmake")
     else()
         message("Building/linking against system-installed toolchain")
-        set(PROJECTAIRSIM_USE_UE_TOOLCHAIN OFF)
         set(CMAKE_C_COMPILER clang-13)
         set(CMAKE_CXX_COMPILER clang++-13)
     endif()
@@ -52,6 +51,30 @@ endif()
 
 # Set up project
 project("ProjectAirSimLibs")
+
+if(PROJECTAIRSIM_USE_UE_TOOLCHAIN)
+    set(UE_LEGACY_LIBCXX_ROOT "$ENV{UE_ROOT}/Engine/Source/ThirdParty/Unix/LibCxx")
+    set(UE_LIBCXX_INCLUDE_DIR "${UE_LEGACY_LIBCXX_ROOT}/include")
+    set(UE_LIBCXX_CXX_INCLUDE_DIR "${UE_LEGACY_LIBCXX_ROOT}/include/c++/v1")
+    set(UE_LIBCXX_LIB_DIR "${UE_LEGACY_LIBCXX_ROOT}/lib/Unix/x86_64-unknown-linux-gnu")
+
+    if(NOT EXISTS "${UE_LIBCXX_LIB_DIR}/libc++.a")
+        set(UE_LIBCXX_INCLUDE_DIR "${CMAKE_SYSROOT}/include")
+        set(UE_LIBCXX_CXX_INCLUDE_DIR "${CMAKE_SYSROOT}/include/c++/v1")
+        set(UE_LIBCXX_LIB_DIR "${CMAKE_SYSROOT}/lib64")
+    endif()
+
+    if(NOT EXISTS "${UE_LIBCXX_CXX_INCLUDE_DIR}" OR
+       NOT EXISTS "${UE_LIBCXX_LIB_DIR}/libc++.a" OR
+       NOT EXISTS "${UE_LIBCXX_LIB_DIR}/libc++abi.a")
+        message(FATAL_ERROR "Could not find Unreal libc++ headers/libraries. "
+                            "Checked legacy LibCxx and SDK sysroot paths for UE_ROOT=$ENV{UE_ROOT}")
+    endif()
+
+    message("Using Unreal libc++ includes from ${UE_LIBCXX_CXX_INCLUDE_DIR}")
+    message("Using Unreal libc++ libraries from ${UE_LIBCXX_LIB_DIR}")
+    link_directories("${UE_LIBCXX_LIB_DIR}")
+endif()
 
 # Capture build commit hash once during configure. Fallback to "unknown"
 # when git is unavailable (or source is not a git checkout).
@@ -82,6 +105,7 @@ set(SIMLIBS_TEST_DIR ${CMAKE_BINARY_DIR}/unit_tests)
 set(UE_PLUGIN_SIMLIBS_DIR ${CMAKE_SOURCE_DIR}/unreal/Blocks/Plugins/ProjectAirSim/SimLibs)
 set(UNITY_WRAPPER_DLL_DIR ${CMAKE_SOURCE_DIR}/unity/BlocksUnity/Assets/Plugins)
 set(MATLAB_PHYSICS_DIR ${CMAKE_SOURCE_DIR}/physics/matlab_sfunc)
+set(JSBSIM_CORESIM_DIR ${CMAKE_SOURCE_DIR}/core_sim/jsbsim)
 set(MATLAB_CONTROL_DIR ${CMAKE_SOURCE_DIR}/vehicle_apis/multirotor_api/matlab_sfunc)
 # set(UE_PLUGIN_CESIUM_NATIVE_DIR ${CMAKE_SOURCE_DIR}/unreal/Blocks/Plugins/ProjectAirSim/SimLibs)
 # set(UE_CESIUM_PLUGIN_DIR ${CMAKE_SOURCE_DIR}/unreal/Blocks/Plugins/CesiumForUnreal/)
@@ -100,18 +124,245 @@ if(WIN32)
     add_link_options(/MANIFEST:NO)
 elseif(UNIX)
     add_compile_definitions(__CLANG__)
-    add_compile_options(-stdlib=libc++ -ferror-limit=10)
+    add_compile_options(-ferror-limit=10
+        $<$<COMPILE_LANGUAGE:CXX>:-stdlib=libc++>)
     # Note: Linking -lanl (for getaddrinfo) and -pthread are required because of nng
-    # -lc++abi pairs with -stdlib=libc++, mirroring UnrealBuildTool's own LinuxToolChain.cs
-    # (libc++.a + libc++abi.a linked together from the same toolchain directory). Needed against
-    # UE 5.7's v26 clang toolchain, whose driver does not implicitly add it; without it, linking
-    # against libc++.a fails with an undefined GLIBCXX-versioned std::logic_error vtable symbol.
-    add_link_options(-stdlib=libc++ -lc++abi -lanl -pthread)
+    add_link_options($<$<LINK_LANGUAGE:CXX>:-stdlib=libc++> $<$<LINK_LANGUAGE:CXX>:-lc++abi>)
+    add_link_options(-lanl -pthread)
 
     # set(CESIUM_CXX_FLAGS "-std=c++17 -stdlib=libc++")
     # set(CESIUM_LINKER_FLAGS "-stdlib=libc++ -lc++abi")
     # set(CESIUM_LINUX_TOOLCHAIN ${UE_CESIUM_PLUGIN_DIR}/extern/unreal-linux-toolchain.cmake)
 endif()
+
+# Set up dependency: jsbsim
+message("Setting up [jsbsim] dependency as an external project...")
+# CMake external projects don't adopt the parent's CMAKE_MSVC_RUNTIME_LIBRARY setting,
+# so to force /MD non-debug CRT to match UE, build Debug config as Relwithdebinfo and
+# build Release as Release.
+
+# Fixed JSBSim version - do not change without explicit approval
+set(JSBSIM_FIXED_TAG "v1.1.12")
+
+# JSBSim is configured with the single-config Ninja generator, so generator
+# expressions are not evaluated in CMAKE_ARGS. Select its build type while the
+# parent is being configured instead.
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(JSBSIM_BUILD_TYPE RelWithDebInfo)
+else()
+    set(JSBSIM_BUILD_TYPE Release)
+endif()
+set(JSBSIM_SRC_DIR ${CMAKE_BINARY_DIR}/_deps/jsbsim/src/jsbsim-repo)
+set(JSBSIM_LIB_DIR ${CMAKE_BINARY_DIR}/_deps/jsbsim-install/lib)
+# Stage JSBSim headers in build directory (config-independent location)
+set(JSBSIM_STAGE_ROOT ${CMAKE_BINARY_DIR}/thirdparty/jsbsim)
+set(JSBSIM_INCLUDE_DIR ${JSBSIM_STAGE_ROOT}/include)
+set(JSBSIM_MODEL_COPY_SCRIPT ${CMAKE_BINARY_DIR}/cmake/CopyJsbsimModels.cmake)
+
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/cmake)
+file(WRITE ${JSBSIM_MODEL_COPY_SCRIPT} [=[
+if(NOT DEFINED UPSTREAM_SRC_DIR OR
+   NOT DEFINED LOCAL_MODELS_DIR OR
+   NOT DEFINED DST_MODELS_DIR OR
+   NOT DEFINED DST_ROOT_DIR)
+    message(FATAL_ERROR "UPSTREAM_SRC_DIR, LOCAL_MODELS_DIR, DST_MODELS_DIR, and DST_ROOT_DIR must be provided")
+endif()
+
+file(GLOB_RECURSE LOCAL_MODEL_FILES
+     RELATIVE "${LOCAL_MODELS_DIR}"
+     "${LOCAL_MODELS_DIR}/*")
+list(SORT LOCAL_MODEL_FILES)
+
+file(REMOVE_RECURSE "${DST_MODELS_DIR}")
+file(MAKE_DIRECTORY "${DST_MODELS_DIR}")
+
+# Seed the package with the models shipped by the pinned JSBSim version.
+# Project AirSim's local model tree is copied afterwards as an overlay so the
+# repository only needs to carry new or intentionally modified model files.
+foreach(UPSTREAM_MODEL_DIR IN ITEMS aircraft engine scripts systems)
+    if(EXISTS "${UPSTREAM_SRC_DIR}/${UPSTREAM_MODEL_DIR}")
+        file(COPY "${UPSTREAM_SRC_DIR}/${UPSTREAM_MODEL_DIR}"
+             DESTINATION "${DST_MODELS_DIR}")
+    endif()
+endforeach()
+
+foreach(LOCAL_FILE IN LISTS LOCAL_MODEL_FILES)
+    if(IS_DIRECTORY "${LOCAL_MODELS_DIR}/${LOCAL_FILE}")
+        continue()
+    endif()
+    get_filename_component(LOCAL_SUBDIR "${LOCAL_FILE}" DIRECTORY)
+    if(NOT LOCAL_SUBDIR STREQUAL "")
+        file(MAKE_DIRECTORY "${DST_MODELS_DIR}/${LOCAL_SUBDIR}")
+    endif()
+    configure_file("${LOCAL_MODELS_DIR}/${LOCAL_FILE}" "${DST_MODELS_DIR}/${LOCAL_FILE}" COPYONLY)
+endforeach()
+
+set(UPSTREAM_LICENSE_FILE "")
+foreach(LICENSE_CANDIDATE IN ITEMS COPYING LICENSE LICENSE.txt COPYING.txt)
+    if(EXISTS "${UPSTREAM_SRC_DIR}/${LICENSE_CANDIDATE}")
+        set(UPSTREAM_LICENSE_FILE "${UPSTREAM_SRC_DIR}/${LICENSE_CANDIDATE}")
+        break()
+    endif()
+endforeach()
+
+if(UPSTREAM_LICENSE_FILE STREQUAL "")
+    message(FATAL_ERROR "Could not find upstream JSBSim license file under ${UPSTREAM_SRC_DIR}")
+endif()
+
+file(MAKE_DIRECTORY "${DST_ROOT_DIR}")
+configure_file("${UPSTREAM_LICENSE_FILE}" "${DST_ROOT_DIR}/JSBSim_LICENSE.txt" COPYONLY)
+]=])
+
+# Platform-specific settings for JSBSim
+if(WIN32)
+    set(JSBSIM_C_COMPILER ${CMAKE_C_COMPILER})
+    set(JSBSIM_CXX_COMPILER ${CMAKE_CXX_COMPILER})
+    set(JSBSIM_CXX_FLAGS "")
+    set(JSBSIM_LINKER_FLAGS "")
+    set(JSBSIM_BIN_DIR ${CMAKE_BINARY_DIR}/_deps/jsbsim-install/bin)
+    set(JSBSIM_SHARED_LIB ${JSBSIM_BIN_DIR}/JSBSim.dll)
+    set(JSBSIM_IMPORT_LIB ${JSBSIM_LIB_DIR}/JSBSim.lib)
+    set(JSBSIM_BYPRODUCTS ${JSBSIM_SHARED_LIB} ${JSBSIM_IMPORT_LIB})
+else()
+    set(JSBSIM_C_COMPILER ${CMAKE_C_COMPILER})
+    set(JSBSIM_CXX_COMPILER ${CMAKE_CXX_COMPILER})
+    if(PROJECTAIRSIM_USE_UE_TOOLCHAIN)
+        # CMAKE_CXX_FLAGS is also used by CMake's initial compiler link test,
+        # before the project-specific linker and standard-library settings apply.
+        set(JSBSIM_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -L${UE_LIBCXX_LIB_DIR}")
+        set(JSBSIM_LINKER_FLAGS "-stdlib=libc++ -L${UE_LIBCXX_LIB_DIR} -pthread")
+        set(JSBSIM_STANDARD_LIBRARIES "-Wl,--start-group ${UE_LIBCXX_LIB_DIR}/libc++.a ${UE_LIBCXX_LIB_DIR}/libc++abi.a -Wl,--end-group")
+    else()
+        set(JSBSIM_CXX_FLAGS "-stdlib=libc++")
+        set(JSBSIM_LINKER_FLAGS "-stdlib=libc++ -lc++abi")
+        set(JSBSIM_STANDARD_LIBRARIES "")
+    endif()
+    set(JSBSIM_SHARED_LIB ${JSBSIM_LIB_DIR}/libJSBSim.so)
+    set(JSBSIM_IMPORT_LIB "")
+    set(JSBSIM_BYPRODUCTS ${JSBSIM_SHARED_LIB})
+endif()
+
+set(JSBSIM_CMAKE_ARGS
+    -DCMAKE_C_COMPILER=${JSBSIM_C_COMPILER}
+    -DCMAKE_CXX_COMPILER=${JSBSIM_CXX_COMPILER}
+    -DCMAKE_CXX_FLAGS:STRING=${JSBSIM_CXX_FLAGS}
+    -DCMAKE_EXE_LINKER_FLAGS:STRING=${JSBSIM_LINKER_FLAGS}
+    -DCMAKE_SHARED_LINKER_FLAGS:STRING=${JSBSIM_LINKER_FLAGS}
+    -DCMAKE_CXX_STANDARD_LIBRARIES:STRING=${JSBSIM_STANDARD_LIBRARIES}
+    -DCMAKE_POSITION_INDEPENDENT_CODE=True
+    -DCMAKE_BUILD_TYPE:STRING=${JSBSIM_BUILD_TYPE}
+    -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_BINARY_DIR}/_deps/jsbsim-install
+    -DBUILD_SHARED_LIBS=ON
+    -DBUILD_PYTHON_MODULE=OFF
+    -DBUILD_DOCS=OFF
+    # Disable SONAME versioning so libJSBSim.so doesn't require libJSBSim.so.1 symlink at runtime
+    -DCMAKE_PLATFORM_NO_VERSIONED_SONAME=TRUE
+    # Fix RPATH issue with Ninja generator
+    -DCMAKE_BUILD_WITH_INSTALL_RPATH=TRUE
+)
+if(UNIX AND PROJECTAIRSIM_USE_UE_TOOLCHAIN)
+    list(APPEND JSBSIM_CMAKE_ARGS
+        -DCMAKE_SYSROOT=${CMAKE_SYSROOT}
+        -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=${CMAKE_FIND_ROOT_PATH_MODE_PROGRAM}
+        -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=${CMAKE_FIND_ROOT_PATH_MODE_LIBRARY}
+        -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=${CMAKE_FIND_ROOT_PATH_MODE_INCLUDE}
+        -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=${CMAKE_FIND_ROOT_PATH_MODE_PACKAGE}
+    )
+endif()
+
+if(UNIX)
+    set(JSBSIM_PATCH_COMMAND
+        sed -i "s|^add_subdirectory(utils)|# add_subdirectory(utils) # disabled by ProjectAirSim|" <SOURCE_DIR>/CMakeLists.txt
+    )
+else()
+    set(JSBSIM_PATCH_COMMAND ${CMAKE_COMMAND} -E echo "No JSBSim patch needed on Windows")
+endif()
+
+ExternalProject_Add(jsbsim-repo
+    GIT_REPOSITORY  https://github.com/JSBSim-Team/jsbsim
+    GIT_TAG         ${JSBSIM_FIXED_TAG}
+    GIT_CONFIG      "advice.detachedHead=false"
+    PREFIX          ${CMAKE_BINARY_DIR}/_deps/jsbsim
+    PATCH_COMMAND   ${JSBSIM_PATCH_COMMAND}
+    BUILD_COMMAND   ${CMAKE_COMMAND} --build <BINARY_DIR> --config ${JSBSIM_BUILD_TYPE}
+    # CMake may restart JSBSim's configure after compiler detection and lose
+    # CMAKE_INSTALL_PREFIX from the cache. Supply it directly to the install
+    # script so a non-admin build never falls back to Program Files.
+    INSTALL_COMMAND ${CMAKE_COMMAND}
+        -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_BINARY_DIR}/_deps/jsbsim-install
+        -DCMAKE_INSTALL_CONFIG_NAME:STRING=${JSBSIM_BUILD_TYPE}
+        -P <BINARY_DIR>/cmake_install.cmake
+    UPDATE_COMMAND  ""  # disable update step
+    CMAKE_ARGS      ${JSBSIM_CMAKE_ARGS}
+    # Keep these values across CMake's automatic cache reset after MSVC
+    # compiler-path normalization.
+    CMAKE_CACHE_ARGS
+        -DCMAKE_BUILD_TYPE:STRING=${JSBSIM_BUILD_TYPE}
+        -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_BINARY_DIR}/_deps/jsbsim-install
+        -DCMAKE_MSVC_RUNTIME_LIBRARY:STRING=MultiThreadedDLL
+        -DBUILD_SHARED_LIBS:BOOL=ON
+        -DBUILD_PYTHON_MODULE:BOOL=OFF
+        -DBUILD_DOCS:BOOL=OFF
+    TEST_COMMAND    ""  # disable test step
+    BUILD_BYPRODUCTS ${JSBSIM_BYPRODUCTS}
+    BUILD_ALWAYS 1
+)
+
+# Enforce fixed JSBSim version at configure time
+if(NOT JSBSIM_FIXED_TAG STREQUAL "v1.1.12")
+    message(FATAL_ERROR "JSBSIM_FIXED_TAG has been modified to '${JSBSIM_FIXED_TAG}'. "
+                        "JSBSim version must remain at v1.1.12 for compatibility. "
+                        "Do not change this tag without explicit approval.")
+endif()
+
+set(JSBSIM_POST_INSTALL_COMMANDS
+    COMMAND ${CMAKE_COMMAND} -E echo "Staging [jsbsim] headers to ${JSBSIM_STAGE_ROOT}/include"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${JSBSIM_STAGE_ROOT}/include"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_BINARY_DIR}/_deps/jsbsim-install/include/JSBSim" "${JSBSIM_STAGE_ROOT}/include"
+    COMMAND ${CMAKE_COMMAND} -E echo "Copying [jsbsim] library to ${JSBSIM_CORESIM_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${JSBSIM_CORESIM_DIR}/lib/$<IF:$<CONFIG:Release>,Release,Debug>/"
+    COMMAND ${CMAKE_COMMAND} -E copy "${JSBSIM_SHARED_LIB}" "${JSBSIM_CORESIM_DIR}/lib/$<IF:$<CONFIG:Release>,Release,Debug>/"
+)
+if(WIN32)
+    list(APPEND JSBSIM_POST_INSTALL_COMMANDS COMMAND ${CMAKE_COMMAND} -E copy "${JSBSIM_IMPORT_LIB}" "${JSBSIM_CORESIM_DIR}/lib/$<IF:$<CONFIG:Release>,Release,Debug>/")
+endif()
+
+ExternalProject_Add_Step(jsbsim-repo post-install
+    ${JSBSIM_POST_INSTALL_COMMANDS}
+    DEPENDEES install
+)
+
+# Always copy the merged JSBSim model tree into UE plugin SimLibs on every build.
+add_custom_target(copy_jsbsim_models ALL
+    COMMAND ${CMAKE_COMMAND}
+        -DUPSTREAM_SRC_DIR="${JSBSIM_SRC_DIR}"
+        -DLOCAL_MODELS_DIR="${JSBSIM_CORESIM_DIR}/models"
+        -DDST_MODELS_DIR="${UE_PLUGIN_SIMLIBS_DIR}/jsbsim/models"
+        -DDST_ROOT_DIR="${UE_PLUGIN_SIMLIBS_DIR}/jsbsim"
+        -P "${JSBSIM_MODEL_COPY_SCRIPT}"
+    COMMAND ${CMAKE_COMMAND}
+        -DUPSTREAM_SRC_DIR="${JSBSIM_SRC_DIR}"
+        -DLOCAL_MODELS_DIR="${JSBSIM_CORESIM_DIR}/models"
+        -DDST_MODELS_DIR="${UE_PLUGIN_SIMLIBS_DIR}/core_sim/jsbsim/models"
+        -DDST_ROOT_DIR="${UE_PLUGIN_SIMLIBS_DIR}/core_sim/jsbsim"
+        -P "${JSBSIM_MODEL_COPY_SCRIPT}"
+    COMMENT "Copying merged JSBSim models to UE plugin SimLibs"
+)
+add_dependencies(copy_jsbsim_models jsbsim-repo)
+
+# Add jsbsim as imported library
+add_library(jsbsim SHARED IMPORTED)
+if(WIN32)
+    set_target_properties(jsbsim PROPERTIES
+        IMPORTED_LOCATION ${JSBSIM_SHARED_LIB}
+        IMPORTED_IMPLIB ${JSBSIM_IMPORT_LIB}
+    )
+else()
+    set_target_properties(jsbsim PROPERTIES
+        IMPORTED_LOCATION ${JSBSIM_SHARED_LIB}
+    )
+endif()
+
 
 
 # Set up dependency: nlohmann JSON
@@ -157,14 +408,11 @@ ExternalProject_Add(nng-external
     INSTALL_COMMAND         ${CMAKE_COMMAND} --build <BINARY_DIR> --config ${NNG_BUILD_TYPE} --target install
     TEST_COMMAND            ""  # disable test step
     CMAKE_ARGS
-        -DCMAKE_SYSROOT=${CMAKE_SYSROOT}
-        -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=${CMAKE_FIND_ROOT_PATH_MODE_PROGRAM}
-        -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=${CMAKE_FIND_ROOT_PATH_MODE_LIBRARY}
-        -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=${CMAKE_FIND_ROOT_PATH_MODE_INCLUDE}
-        -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=${CMAKE_FIND_ROOT_PATH_MODE_PACKAGE}
+        -DCMAKE_TOOLCHAIN_FILE=${UNREAL_LINUX_TOOLCHAIN}
         -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
         -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
         -DCMAKE_EXE_LINKER_FLAGS=${NNG_CMAKE_LINKER_MANIFEST_FLAG}
+        -DCMAKE_SHARED_LINKER_FLAGS=
         -DCMAKE_POSITION_INDEPENDENT_CODE=True
         -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_BINARY_DIR}/_deps/nng-install
         -DCMAKE_INSTALL_MESSAGE=LAZY  # don't print out all files copied
@@ -215,6 +463,11 @@ if(WIN32)
 else()
     set(ASSIMP_LIBRARY_SUFFIX_OVERRIDE "")
 endif()
+if(PROJECTAIRSIM_USE_UE_TOOLCHAIN)
+    set(ASSIMP_LINKER_FLAGS "-stdlib=libc++ -L${UE_LIBCXX_LIB_DIR} -lc++abi")
+else()
+    set(ASSIMP_LINKER_FLAGS "-stdlib=libc++ -lc++abi")
+endif()
 ExternalProject_Add(assimp-external
     GIT_REPOSITORY          https://github.com/assimp/assimp.git
     GIT_TAG                 v5.2.5
@@ -225,6 +478,7 @@ ExternalProject_Add(assimp-external
     INSTALL_COMMAND         ${CMAKE_COMMAND} --build <BINARY_DIR> --config ${ASSIMP_BUILD_TYPE} --target install
     TEST_COMMAND            ""  # disable test step
     CMAKE_ARGS
+        -DCMAKE_TOOLCHAIN_FILE=${UNREAL_LINUX_TOOLCHAIN}
         -DCMAKE_SYSROOT=${CMAKE_SYSROOT}
         -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=${CMAKE_FIND_ROOT_PATH_MODE_PROGRAM}
         -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=${CMAKE_FIND_ROOT_PATH_MODE_LIBRARY}
@@ -233,6 +487,8 @@ ExternalProject_Add(assimp-external
         -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
         -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
         -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}\ ${ASSIMP_EXTRA_CXX_FLAGS}
+        "-DCMAKE_EXE_LINKER_FLAGS=${ASSIMP_LINKER_FLAGS}"
+        "-DCMAKE_SHARED_LINKER_FLAGS=${ASSIMP_LINKER_FLAGS}"
 	    -DASSIMP_WARNINGS_AS_ERRORS=OFF
         -DCMAKE_POSITION_INDEPENDENT_CODE=True
         -DBUILD_SHARED_LIBS=OFF
@@ -298,7 +554,7 @@ else()
     else()
         FetchContent_Declare(
             Eigen3
-            GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+            GIT_REPOSITORY https://github.com/eigen-mirror/eigen.git
             GIT_TAG        3.4.0
         )
         FetchContent_GetProperties(Eigen3)
@@ -500,18 +756,54 @@ endif()
 if(UNIX)
     set(ONNXRUNTIME_LIBRARY "${ONNX_LIB_DIR}/libonnxruntime.so")
     if(PROJECTAIRSIM_USE_UE_TOOLCHAIN)
+        function(projectairsim_resolve_ue_runtime_library OUTPUT_VARIABLE LIBRARY_NAME)
+            set(SEARCH_DIRECTORIES ${ARGN})
+            foreach(SEARCH_DIRECTORY IN LISTS SEARCH_DIRECTORIES)
+                set(LIBRARY_PATH "${SEARCH_DIRECTORY}/${LIBRARY_NAME}")
+                if(EXISTS "${LIBRARY_PATH}")
+                    message(STATUS "Using Unreal C++ runtime library: ${LIBRARY_PATH}")
+                    set(${OUTPUT_VARIABLE} "${LIBRARY_PATH}" PARENT_SCOPE)
+                    return()
+                endif()
+            endforeach()
+
+            list(JOIN SEARCH_DIRECTORIES "\n  " SEARCHED_DIRECTORIES)
+            message(FATAL_ERROR
+                "ONNX Runtime C++ runtime dependency '${LIBRARY_NAME}' not found.\n"
+                "Searched Unreal-owned directories:\n  ${SEARCHED_DIRECTORIES}"
+            )
+        endfunction()
+
+        set(UE_SYSROOT_RUNTIME_DIR "${CMAKE_SYSROOT}/lib64")
+        set(UE_LEGACY_LIBCXX_DIR
+            "$ENV{UE_ROOT}/Engine/Source/ThirdParty/Unix/LibCxx/lib/Unix/x86_64-unknown-linux-gnu"
+        )
+        projectairsim_resolve_ue_runtime_library(
+            UE_LIBCXX_LIBRARY
+            "libc++.a"
+            "${UE_SYSROOT_RUNTIME_DIR}"
+            "${UE_LEGACY_LIBCXX_DIR}"
+        )
+        projectairsim_resolve_ue_runtime_library(
+            UE_LIBCXXABI_LIBRARY
+            "libc++abi.a"
+            "${UE_SYSROOT_RUNTIME_DIR}"
+            "${UE_LEGACY_LIBCXX_DIR}"
+        )
+        projectairsim_resolve_ue_runtime_library(
+            UE_LIBSTDCXX_LIBRARY
+            "libstdc++.so.6"
+            "${UE_SYSROOT_RUNTIME_DIR}"
+            "${CMAKE_SYSROOT}/lib"
+        )
+
         set(ONNXRUNTIME_CXX_RUNTIME_LIBRARIES
             "-Wl,--start-group"
-            "${CMAKE_SYSROOT}/lib64/libc++.a"
-            "${CMAKE_SYSROOT}/lib64/libc++abi.a"
-            "${CMAKE_SYSROOT}/lib64/libstdc++.so.6"
+            "${UE_LIBCXX_LIBRARY}"
+            "${UE_LIBCXXABI_LIBRARY}"
+            "${UE_LIBSTDCXX_LIBRARY}"
             "-Wl,--end-group"
         )
-        foreach(ONNXRUNTIME_CXX_RUNTIME_LIBRARY IN LISTS ONNXRUNTIME_CXX_RUNTIME_LIBRARIES)
-            if(ONNXRUNTIME_CXX_RUNTIME_LIBRARY MATCHES "^/" AND NOT EXISTS "${ONNXRUNTIME_CXX_RUNTIME_LIBRARY}")
-                message(FATAL_ERROR "ONNX Runtime C++ runtime dependency not found: ${ONNXRUNTIME_CXX_RUNTIME_LIBRARY}")
-            endif()
-        endforeach()
     else()
         set(ONNXRUNTIME_CXX_RUNTIME_LIBRARIES stdc++)
     endif()

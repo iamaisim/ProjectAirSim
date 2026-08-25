@@ -5,8 +5,11 @@ name: C++ Client and ROS 2 C++ Node CI
   pull_request:
     branches:
       - main
+      - main_public
     paths:
       - ".github/workflows/test_cpp_client.yml"
+      - "build_cpp_client.cmd"
+      - "build_cpp_client.sh"
       - "client/cpp/**"
       - "client/python/example_user_scripts/sim_config/**"
       - "core_sim/**"
@@ -14,8 +17,11 @@ name: C++ Client and ROS 2 C++ Node CI
   push:
     branches:
       - main
+      - main_public
     paths:
       - ".github/workflows/test_cpp_client.yml"
+      - "build_cpp_client.cmd"
+      - "build_cpp_client.sh"
       - "client/cpp/**"
       - "client/python/example_user_scripts/sim_config/**"
       - "core_sim/**"
@@ -44,11 +50,15 @@ jobs:
           filters: |
             client:
               - '.github/workflows/test_cpp_client.yml'
+              - 'build_cpp_client.cmd'
+              - 'build_cpp_client.sh'
               - 'client/cpp/**'
               - 'client/python/example_user_scripts/sim_config/**'
               - 'core_sim/**'
             ros2:
               - '.github/workflows/test_cpp_client.yml'
+              - 'build_cpp_client.cmd'
+              - 'build_cpp_client.sh'
               - 'ros/projectairsim_ros2_cpp/**'
               - 'client/cpp/**'
               - 'client/python/example_user_scripts/sim_config/**'
@@ -67,17 +77,9 @@ jobs:
       - name: Enable Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Configure
+      - name: Build and run mocked unit tests
         shell: cmd
-        run: >
-          cmake -S client/cpp
-          -B client/cpp/build_windows/Release
-          -G Ninja
-          -DCMAKE_BUILD_TYPE=Release
-
-      - name: Build
-        shell: cmd
-        run: cmake --build client/cpp/build_windows/Release --config Release --parallel
+        run: call .\build_cpp_client.cmd release --tests
 
       - name: Package
         shell: cmd
@@ -188,17 +190,9 @@ jobs:
           sudo apt-get -y install --no-install-recommends \
             build-essential cmake ninja-build
 
-      - name: Configure
+      - name: Build and run mocked unit tests
         shell: bash
-        run: |
-          cmake -S client/cpp \
-            -B client/cpp/build_linux/Release \
-            -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release
-
-      - name: Build
-        shell: bash
-        run: cmake --build client/cpp/build_linux/Release --config Release --parallel
+        run: ./build_cpp_client.sh release --tests
 
       - name: Package
         shell: bash

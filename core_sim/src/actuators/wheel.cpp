@@ -17,6 +17,9 @@
 #include "core_sim/physics_common_types.hpp"
 #include "json.hpp"
 
+// JSBSim include (requires RTTI, must be in .cpp not .hpp)
+#include "FGFDMExec.h"
+
 namespace microsoft {
 namespace projectairsim {
 
@@ -85,6 +88,8 @@ class Wheel::Impl : public ActuatorImpl {
 
   const float GetPowerConsumption() const;
 
+  void SetJSBSimModel(std::shared_ptr<JSBSim::FGFDMExec> model);
+
   void UpdateActuatorOutput(std::vector<float>&& control_signals,
                             const TimeNano sim_dt_nanos);
 
@@ -121,6 +126,7 @@ class Wheel::Impl : public ActuatorImpl {
   TransformTree::TransformRefFrame
       transform_refframe_;  // Our RefFrame with pose from
                             // wheel_settings_.origin
+  std::shared_ptr<JSBSim::FGFDMExec> jsbsim_model_;
 
   // TODO make a wheel topic
   // topic scene_image_topic;
@@ -210,6 +216,10 @@ const ActuatedTransforms& Wheel::GetActuatedTransforms() const {
   return static_cast<Wheel::Impl*>(pimpl_.get())->GetActuatedTransforms();
 }
 
+void Wheel::SetJSBSimModel(std::shared_ptr<JSBSim::FGFDMExec> model) {
+  static_cast<Wheel::Impl*>(pimpl_.get())->SetJSBSimModel(model);
+}
+
 void Wheel ::UpdateActuatorOutput(std::vector<float>&& control_signals,
                                   const TimeNano sim_dt_nanos) {
   static_cast<Wheel::Impl*>(pimpl_.get())
@@ -263,7 +273,8 @@ Wheel::Impl::Impl(const std::string& id, bool is_enabled,
       actuated_transforms_(),
       angle_cur_(0.0f),
       transform_refframe_(std::string("AR ") + id,
-                          &wheel_settings_.origin_setting) {
+                          &wheel_settings_.origin_setting),
+      jsbsim_model_(nullptr) {
   SetTopicPath();
   CreateTopics();
   ActuatorImpl::RegisterServiceMethods();
@@ -272,6 +283,9 @@ Wheel::Impl::Impl(const std::string& id, bool is_enabled,
 void Wheel::Impl::Load(ConfigJson config_json) {
   json json = config_json;
   loader_.Load(json);
+  engine_connected_ = wheel_settings_.engine_connected_;
+  steering_connected_ = wheel_settings_.steering_connected_;
+  brake_connected_ = wheel_settings_.brake_connected_;
   engine_filter_.Initialize(wheel_settings_.smoothing_tc, 0.0, 0.0);
   steering_filter_.Initialize(wheel_settings_.smoothing_tc, 0.0, 0.0);
   brake_filter_.Initialize(wheel_settings_.smoothing_tc, 0.0, 0.0);
@@ -317,6 +331,10 @@ const ActuatedTransforms& Wheel::Impl::GetActuatedTransforms() const {
 
 const float Wheel::Impl::GetPowerConsumption() const { return power_; }
 
+void Wheel::Impl::SetJSBSimModel(std::shared_ptr<JSBSim::FGFDMExec> model) {
+  jsbsim_model_ = model;
+}
+
 void Wheel::Impl::UpdateActuatorOutput(std::vector<float>&& control_signals,
                                        const TimeNano sim_dt_nanos) {
   // Getting the control signals necessary for movement
@@ -324,6 +342,21 @@ void Wheel::Impl::UpdateActuatorOutput(std::vector<float>&& control_signals,
   auto steering_signal = (steering_connected_) ? control_signals[1] : 0;
   auto brake_signal = (brake_connected_) ? control_signals[2] : 0;
   TimeSec dt_sec = sim_dt_nanos / 1.0e9;
+
+  if (jsbsim_model_ != nullptr) {
+    if (!wheel_settings_.jsbsim_cmd_engine.empty()) {
+      jsbsim_model_->SetPropertyValue(wheel_settings_.jsbsim_cmd_engine,
+                                      static_cast<double>(engine_signal));
+    }
+    if (!wheel_settings_.jsbsim_cmd_steering.empty()) {
+      jsbsim_model_->SetPropertyValue(wheel_settings_.jsbsim_cmd_steering,
+                                      static_cast<double>(steering_signal));
+    }
+    if (!wheel_settings_.jsbsim_cmd_brake.empty()) {
+      jsbsim_model_->SetPropertyValue(wheel_settings_.jsbsim_cmd_brake,
+                                      static_cast<double>(brake_signal));
+    }
+  }
 
   if (wheel_settings_.coeff_of_friction == 0) {
     steering_signal = 0;
@@ -335,6 +368,7 @@ void Wheel::Impl::UpdateActuatorOutput(std::vector<float>&& control_signals,
   steering_filter_.SetInput(std::clamp(steering_signal, -1.0f, 1.0f));
   steering_filter_.UpdateOutput(dt_sec);  // do filtering
   auto steering_signal_filtered = steering_filter_.GetOutput();
+  auto steering_value_prev = steering_value_;
 
   steering_value_ = steering_signal_filtered * (float)M_PI / 4;
   // if absolute steering value is more than 45 degrees in radians then clamp it
@@ -346,6 +380,8 @@ void Wheel::Impl::UpdateActuatorOutput(std::vector<float>&& control_signals,
   }
 
   Quaternion quat_steering(AngleAxis(steering_value_, Vector3::UnitZ()));
+  steering_speed_ = dt_sec > 0.0 ? (steering_value_ - steering_value_prev) / dt_sec
+                                 : 0.0f;
 
   // This is returned by GetRotatingSpeed()
   engine_filter_.SetInput(std::clamp(engine_signal, -1.0f, 1.0f));
@@ -362,9 +398,12 @@ void Wheel::Impl::UpdateActuatorOutput(std::vector<float>&& control_signals,
   auto friction_torque =
       wheel_settings_.coeff_of_friction * -GetRotatingSpeed();
   auto resulting_torque = engine_torque + brake_torque + friction_torque;
+  torque_scalar_ = resulting_torque;
 
   auto angular_accel = resulting_torque / 0.125;  // Hardcoded inertia moment.
   rotating_speed_ += dt_sec * angular_accel;
+  force_scalar_ = radius_ > 0.0f ? resulting_torque / radius_ : 0.0f;
+  power_ = std::abs(resulting_torque * rotating_speed_);
 
   auto dangle = rotating_speed_ * dt_sec;
 
@@ -429,12 +468,15 @@ void Wheel::Loader::LoadWheelSetting(const json& json) {
     impl_.wheel_settings_.normal_vector = JsonUtils::GetVector3(
         wheel_settings_json, Constant::Config::normal_vector);
 
-    auto turning_dir = JsonUtils::GetString(wheel_settings_json,
-                                            Constant::Config::turning_direction,
-                                            Constant::Config::clock_wise);
+    impl_.wheel_settings_.wheel_type = JsonUtils::GetNumber<float>(
+      wheel_settings_json, Constant::Config::wheel_type,
+      default_wheel_setting.wheel_type);
+
+    impl_.wheel_settings_.coeff_of_torque = JsonUtils::GetNumber<float>(
+      wheel_settings_json, Constant::Config::coeff_of_wheel_torque,
+      default_wheel_setting.coeff_of_torque);
 
     impl_.wheel_settings_.coeff_of_friction = JsonUtils::GetNumber<float>(
-        // Need to change this
         wheel_settings_json, Constant::Config::coeff_of_friction,
         default_wheel_setting.coeff_of_friction);
 
@@ -442,9 +484,36 @@ void Wheel::Loader::LoadWheelSetting(const json& json) {
         wheel_settings_json, Constant::Config::smoothing_tc,
         default_wheel_setting.smoothing_tc);
 
+    impl_.wheel_settings_.engine_connected_ = JsonUtils::GetBoolean(
+      wheel_settings_json, Constant::Config::engine_connected,
+      default_wheel_setting.engine_connected_);
+
     impl_.wheel_settings_.steering_connected_ = JsonUtils::GetBoolean(
-        wheel_settings_json, Constant::Config::steering_connected,
-        default_wheel_setting.steering_connected_);
+      wheel_settings_json, Constant::Config::steering,
+      JsonUtils::GetBoolean(wheel_settings_json,
+                  Constant::Config::steering_connected,
+                  default_wheel_setting.steering_connected_));
+
+    impl_.wheel_settings_.brake_connected_ = JsonUtils::GetBoolean(
+      wheel_settings_json, Constant::Config::brake,
+      default_wheel_setting.brake_connected_);
+
+    impl_.wheel_settings_.jsbsim_cmd_engine = JsonUtils::GetString(
+      wheel_settings_json, Constant::Config::jsbsim_cmd_engine, "");
+
+    impl_.wheel_settings_.jsbsim_cmd_steering = JsonUtils::GetString(
+      wheel_settings_json, Constant::Config::jsbsim_cmd_steering, "");
+
+    impl_.wheel_settings_.jsbsim_cmd_brake = JsonUtils::GetString(
+      wheel_settings_json, Constant::Config::jsbsim_cmd_brake, "");
+
+    if (!impl_.wheel_settings_.normal_vector.isZero()) {
+      impl_.wheel_settings_.normal_vector.normalize();
+    }
+
+    if (impl_.wheel_settings_.wheel_type < 0.5f) {
+      impl_.wheel_settings_.steering_connected_ = false;
+    }
   }
 
   impl_.wheel_settings_.CalcMaxTorqueAndForce();

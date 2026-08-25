@@ -78,9 +78,6 @@ class ProjectAirSimClient:
             )
         projectairsim_log().info("Connection opened.")
         self.state = True
-        self.recv_topic_thread = threading.Thread(target=self.__recv_topic)
-        self.recv_topic_thread.start()
-        projectairsim_log().info("Started the pub-sub topic receiving thread.")
 
     def get_topic_info(self):
         """This is used by World to get the list of topic info on reload scene."""
@@ -95,15 +92,15 @@ class ProjectAirSimClient:
         while self.topic_info_updated is False:
             time.sleep(0.01)  # wait until subscription message is received
             if time.time() > timeout:
-                # TODO raise pynng.exceptions.Timeout exception?
                 utils.projectairsim_log().warning(
                     "Timeout waiting to get topic info, disconnecting client."
                 )
                 self.disconnect()
-                break
+                raise RuntimeError(
+                    "Timeout waiting to get topic info from sim server."
+                )
 
-        if self.topic_info_updated:
-            projectairsim_log().info("Successfully received topic info list.")
+        projectairsim_log().info("Successfully received topic info list.")
 
     def get_subscriptions_summary(self):
         return self.subs.copy()
@@ -125,6 +122,12 @@ class ProjectAirSimClient:
             topic (str): the name of the topic
             callback (callable): function to call when data is received
         """
+        # Lazily start the recv thread on first subscribe call
+        if self.recv_topic_thread is None:
+            self.socket_topics.recv_timeout = 100  # ms — bounded block for clean shutdown
+            self.recv_topic_thread = threading.Thread(target=self.__recv_topic)
+            self.recv_topic_thread.start()
+
         if topic in self.subs:
             self.subs[topic]["callbacks"].append(callback)
             self.subs[topic]["reliability"] = reliability
@@ -479,9 +482,10 @@ class ProjectAirSimClient:
 
     def __recv_topic_frame(self):
         try:
-            # Check if new data is ready to be received with non-blocking recv() call
-            frame_packed = self.socket_topics.recv(block=False)
-        except pynng.exceptions.TryAgain:
+            # Blocking recv with timeout (set on socket in subscribe()).
+            # Returns None on timeout so the loop can check self.state.
+            frame_packed = self.socket_topics.recv()
+        except (pynng.exceptions.TryAgain, pynng.exceptions.Timeout):
             return
 
         # If data was ready to be received, process and return it.

@@ -46,6 +46,16 @@ modify_drone_visual.md
 
 ```{toctree}
 :maxdepth: 2
+:caption: Physics
+
+physics/fast-physics.md
+physics/jsbsim.md
+physics/matlab.md
+physics/no_physics.md
+```
+
+```{toctree}
+:maxdepth: 2
 :caption: Sensors
 
 sensors/camera_capture_settings.md
@@ -81,8 +91,6 @@ controllers/px4/px4_sitl_wsl2.md
 scene/sim_clock.md
 scene/weather_visual_effects.md
 development/scene/sim_clock_internal.md
-physics/fast_physics.md
-physics/matlab_physics.md
 ```
 
 ```{toctree}

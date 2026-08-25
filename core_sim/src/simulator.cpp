@@ -52,7 +52,8 @@ class Simulator::Loader {
 class Simulator::Impl : public ComponentWithTopicsAndServiceMethods {
  public:
   explicit Impl(LoggerCallback logger_callback,
-                LogLevel level = LogLevel::kError);
+                LogLevel level = LogLevel::kError,
+                const std::string& working_simulation_path="");
 
   void LoadSimulator(const std::string& sim_json,
                      std::string client_auth_public_key);
@@ -94,6 +95,7 @@ class Simulator::Impl : public ComponentWithTopicsAndServiceMethods {
   std::string scene_config_;
 
   static constexpr TimeNano kSceneTickPeriod = 3000000;  // 3 ms = 333 Hz
+  const std::string working_simulation_path_;
 };
 
 // -----------------------------------------------------------------------------
@@ -102,8 +104,9 @@ class Simulator::Impl : public ComponentWithTopicsAndServiceMethods {
 Simulator::Simulator()
     : pimpl_(std::make_shared<Impl>(default_logger_callback)) {}
 
-Simulator::Simulator(LoggerCallback logger_callback, LogLevel level)
-    : pimpl_(std::make_shared<Impl>(logger_callback, level)) {}
+Simulator::Simulator(LoggerCallback logger_callback, LogLevel level,
+                     const std::string& working_simulation_path)
+    : pimpl_(std::make_shared<Impl>(logger_callback, level, working_simulation_path)) {}
 
 void Simulator::LoadSimulator(const std::string& sim_json,
                               std::string client_auth_public_key) {
@@ -151,10 +154,12 @@ void Simulator::RegisterServiceMethod(const ServiceMethod& method,
 // -----------------------------------------------------------------------------
 // class Simulator::Impl
 
-Simulator::Impl::Impl(LoggerCallback logger_callback, LogLevel level)
+Simulator::Impl::Impl(LoggerCallback logger_callback, LogLevel level,
+                      const std::string& working_simulation_path)
     : ComponentWithTopicsAndServiceMethods(Constant::Component::simulator,
                                            Logger(logger_callback, level)),
-      loader_(*this) {
+      loader_(*this),
+      working_simulation_path_(working_simulation_path) {
   client_authorization_.SetLogger(GetLogger());
 }
 
@@ -363,7 +368,7 @@ void Simulator::Loader::LoadSceneWithJSON(const std::string& json_data) {
 
   impl_.sim_scene_ =
       Scene(impl_.logger_, impl_.topic_manager_, impl_.topic_path_,
-            impl_.service_manager_, impl_.state_manager_);
+            impl_.service_manager_, impl_.state_manager_, impl_.working_simulation_path_);
 
   impl_.state_manager_.Initialize(&impl_.sim_scene_);
 

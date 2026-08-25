@@ -7,6 +7,7 @@
 #define CORE_SIM_INCLUDE_CORE_SIM_ACTUATORS_ROTOR_HPP_
 
 #include <cmath>
+#include <memory>
 #include <string>
 
 #include "core_sim/actuators/actuator.hpp"
@@ -24,6 +25,16 @@ class ActuatorImpl;
 class TopicManager;
 class ServiceManager;
 class StateManager;
+
+}  // namespace projectairsim
+}  // namespace microsoft
+
+namespace JSBSim {
+class FGFDMExec;
+}
+
+namespace microsoft {
+namespace projectairsim {
 
 // In NED system, +ve torque would generate clockwise rotation
 enum class RotorTurningDirection : int {
@@ -43,6 +54,9 @@ struct RotorSetting {
   float max_rpm = 0.0f;             // revolutions per minute
   float propeller_diameter = 0.0f;  // m, default is for DJI Phantom 2
   float smoothing_tc = 0.0f;        // time constant for low pass filter
+
+  std::string jsbsim_cmd;    // JSBSim property to write control signal to
+  std::string jsbsim_state;  // JSBSim property to read actuator state from
 
   float max_speed_square = 0.0f;  // (rad/s)^2
   float max_thrust = 0.0f;
@@ -111,6 +125,10 @@ class Rotor : public Actuator {
   void SetAirDensityRatio(float air_density_ratio);
 
   void SetTilt(Quaternion quat);
+
+  void SetJSBSimModel(std::shared_ptr<::JSBSim::FGFDMExec> model);
+
+  float GetJSBSimState() const;
 
  void UpdateActuatorOutput(std::vector<float> && control_signals,
                             const TimeNano sim_dt_nanos)override;

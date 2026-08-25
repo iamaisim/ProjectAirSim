@@ -76,3 +76,7 @@ sudo apt-get -y install --no-install-recommends \
     ninja-build \
     libvulkan1 \
     vulkan-tools
+
+# Create symlinks for clang/clang++ to make them available without version suffix
+sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${TARGET_LLVM_VERSION} 100
+sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${TARGET_LLVM_VERSION} 100

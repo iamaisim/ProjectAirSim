@@ -390,6 +390,18 @@ class Constant {
     static constexpr const char* control_connection = "control-connection";
     static constexpr const char* start_landed = "start-landed";
     static constexpr const char* unreal_physics = "unreal-physics";
+    static constexpr const char* jsbsim_physics = "jsbsim-physics";
+    static constexpr const char* jsbsim_script = "jsbsim-script";
+    static constexpr const char* jsbsim_model = "jsbsim-model";
+    static constexpr const char* jsbsim_root_path = "jsbsim-root-path";
+    static constexpr const char* jsbsim_aircraft_path =
+        "jsbsim-aircraft-path";
+    static constexpr const char* jsbsim_engine_path = "jsbsim-engine-path";
+    static constexpr const char* jsbsim_systems_path = "jsbsim-systems-path";
+    static constexpr const char* jsbsim_dt = "jsbsim-dt";
+    static constexpr const char* jsbsim_ground_mode = "jsbsim-ground-mode";
+    static constexpr const char* jsbsim_ground_mode_constant = "constant";
+    static constexpr const char* jsbsim_ground_mode_terrain = "terrain";
     static constexpr const char* restitution = "restitution";
     static constexpr const char* friction = "friction";
     static constexpr const char* body_box_xyz = "body-box-xyz";
@@ -419,7 +431,7 @@ class Constant {
     static constexpr const char* coeff_of_thrust = "coeff-of-thrust";
     static constexpr const char* coeff_of_torque = "coeff-of-torque";
     static constexpr const char* wheel_type = "wheel-type";
-    static constexpr const char* coeff_of_wheel_torque = "coeff-of-wheel_torque";
+    static constexpr const char* coeff_of_wheel_torque = "coeff-of-wheel-torque";
     static constexpr const char* coeff_of_friction = "coeff-of-friction";
     static constexpr const char* air_density = "air-density";
     static constexpr const char* max_rpm = "max-rpm";
@@ -427,14 +439,26 @@ class Constant {
     static constexpr const char* propeller_height = "propeller-height";
     static constexpr const char* smoothing_tc = "smoothing-tc";
     static constexpr const char* rotor_settings = "rotor-settings";
+    static constexpr const char* jsbsim_cmd = "jsbsim-cmd";
+    static constexpr const char* jsbsim_state = "jsbsim-state";
+    static constexpr const char* jsbsim_cmd_engine = "jsbsim-cmd-engine";
+    static constexpr const char* jsbsim_cmd_steering =
+        "jsbsim-cmd-steering";
+    static constexpr const char* jsbsim_cmd_brake = "jsbsim-cmd-brake";
     static constexpr const char* wheel_settings = "wheel-settings";
     static constexpr const char* steering_connected = "steering-connected";
+    static constexpr const char* engine_connected = "engine";
+    static constexpr const char* steering = "steering";
+    static constexpr const char* brake = "brake";
     static constexpr const char* first_order_filter_tc =
         "first-order-filter-tc";
     static constexpr const char* controller = "controller";
     static constexpr const char* simple_flight_api = "simple-flight-api";
     static constexpr const char* simple_flight_api_settings =
         "simple-flight-api-settings";
+    static constexpr const char* jsbsim_api = "jsbsim-api";
+    static constexpr const char* jsbsim_api_settings =
+        "jsbsim-api-settings";
     static constexpr const char* simple_drive_api = "simple-drive-api";
     static constexpr const char* simple_drive_api_settings =
         "simple-drive-api-settings";

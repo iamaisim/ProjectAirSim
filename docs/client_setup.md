@@ -176,15 +176,17 @@ simulation server:
 Build the C++ client from the repository root:
 
 ```bash
-./build.sh cpp_client_debug
-./build.sh cpp_client_release
+./build_cpp_client.sh debug
+./build_cpp_client.sh release
+./build_cpp_client.sh debug --tests
 ```
 
 On Windows:
 
 ```bat
-build.cmd cpp_client_debug
-build.cmd cpp_client_release
+build_cpp_client.cmd debug
+build_cpp_client.cmd release
+build_cpp_client.cmd debug --tests
 ```
 
 Compiled Linux libraries and example binaries are placed in:
@@ -194,11 +196,11 @@ client/cpp/build_linux/Debug/
 client/cpp/build_linux/Release/
 ```
 
-Windows library artifacts are placed in:
+Windows build artifacts are placed in:
 
 ```text
-client\cpp\libraries\x64\Debug\
-client\cpp\libraries\x64\Release\
+client\cpp\build_windows\Debug\
+client\cpp\build_windows\Release\
 ```
 
 For setup details, binary locations, and usage examples, see

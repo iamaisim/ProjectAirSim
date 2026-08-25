@@ -645,44 +645,6 @@ if(UNIX)
     set(OPENSSL_SSL_LIBRARY ${OPENSSL_LIB_DIR}/libssl.a)
     set(OPENSSL_INCLUDE_DIR ${CMAKE_BINARY_DIR}/_deps/openssl-install/include)
 
-    # CMake external projects don't adopt the parent's CMAKE_MSVC_RUNTIME_LIBRARY setting,
-    # so to force /MD non-debug CRT to match UE, build Debug config as Relwithdebinfo and
-    # build Release as Release.
-    set(OPENSSL_BUILD_TYPE $<IF:$<CONFIG:Debug>,debug,release>)
-
-    # Build OpenSSL with the same compiler/sysroot as the rest of the project so that all
-    # glibc symbol version requirements are consistent.  Use no-shared so only the static
-    # libraries (libcrypto.a / libssl.a) are produced, avoiding runtime dynamic-library
-    # glibc ABI mismatches when linking against the UE toolchain (CentOS 7 / glibc 2.17).
-    if(DEFINED ENV{UE_ROOT})
-        # UE cross-compiler targets a CentOS 7 sysroot (glibc 2.17).  Tell OpenSSL to use
-        # the same clang and sysroot so the compiled objects only reference old glibc symbols.
-        set(OPENSSL_CONFIGURE_COMMAND
-            ${CMAKE_COMMAND} -E env
-                CC=${CMAKE_C_COMPILER}
-                "CFLAGS=--sysroot=${CMAKE_SYSROOT}"
-            <SOURCE_DIR>/Configure linux-x86_64
-                --${OPENSSL_BUILD_TYPE}
-                --prefix=${CMAKE_BINARY_DIR}/_deps/openssl-install
-                no-tests no-shared no-module
-        )
-    else()
-        # System toolchain: still force static-only build for consistency.
-        set(OPENSSL_CONFIGURE_COMMAND
-            ${CMAKE_COMMAND} -E env
-                CC=${CMAKE_C_COMPILER}
-            <SOURCE_DIR>/Configure
-                --${OPENSSL_BUILD_TYPE}
-                --prefix=${CMAKE_BINARY_DIR}/_deps/openssl-install
-                no-tests no-shared no-module
-        )
-    endif()
-
-    set(OPENSSL_LIB_DIR ${CMAKE_BINARY_DIR}/_deps/openssl-install/lib64)
-    set(OPENSSL_CRYPTO_LIBRARY ${OPENSSL_LIB_DIR}/libcrypto.a)
-    set(OPENSSL_SSL_LIBRARY ${OPENSSL_LIB_DIR}/libssl.a)
-    set(OPENSSL_INCLUDE_DIR ${CMAKE_BINARY_DIR}/_deps/openssl-install/include)
-
     ExternalProject_Add(openssl-external
         GIT_REPOSITORY          https://github.com/openssl/openssl.git
         GIT_TAG                 openssl-3.1.1

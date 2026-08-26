@@ -83,8 +83,20 @@
                         ]
                     },
                     "robot-config": {
-                        "type": "string",
-                        "description": "Config to define robot"
+                        "description": "Robot config: single path (string) or list of paths (array of strings) that combine to produce the final config",
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "minItems": 1,
+                                "uniqueItems": true
+                            }
+                        ]
                     },
                     "physics-connection": {
                         "ip": {
@@ -103,8 +115,7 @@
                 }
             }
         },
-        "environment-actors":
-        {
+        "environment-actors": {
             "description": "List of environment actors in scene",
             "type": "array",
             "items": {
@@ -149,8 +160,20 @@
                         }
                     },
                     "env-actor-config": {
-                        "type": "string",
-                        "description": "Config to define environment actor"
+                        "description": "Environment actor config: single path (string) or list of paths (array of strings) that combine to produce the final config",
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "minItems": 1,
+                                "uniqueItems": true
+                            }
+                        ]
                     }
                 }
             }

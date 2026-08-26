@@ -12,6 +12,43 @@ An array of **sensors** can configure various types of sensors such as cameras, 
 
 Project AirSim currently comes with some base configurations for quadrotor drones to demonstrate how to configure a robot for simulation.
 
+## Modular Configuration (Combining Multiple JSON Files)
+
+**Robot configurations support mixing multiple JSON files into a single combined configuration.** Instead of maintaining separate complete configuration files for every variation of your robot, you can compose configurations from modular components:
+
+> **Note:** The modular filenames in the following example are placeholders and are not files provided by this repository. Create these JSONC files in the client script's `sim_config/` folder, or substitute filenames for configuration files that exist there.
+
+``` json
+// In your scene config file:
+"actors": [
+  {
+    "type": "robot",
+    "name": "Drone1",
+    "origin": {...},
+    // Single file approach:
+    "robot-config": "robot_complete_config.jsonc"
+    
+    // OR modular approach - combine multiple files:
+    "robot-config": [
+      "robot_base_quadrotor.jsonc",      // Base vehicle structure
+      "sensors_camera_lidar.jsonc",       // Sensor configuration
+      "controller_px4.jsonc"              // Controller settings
+    ]
+  }
+]
+```
+
+**How it works:** When an array of config files is provided, they are loaded in order and merged together. Later files override properties from earlier files. This enables:
+
+- **Reusability:** Create base configurations and mix in different sensor packages or controllers
+- **Maintainability:** Update a sensor package once and it applies to all robots using it
+- **Flexibility:** Easily swap components without duplicating entire configurations
+
+**Example use cases:**
+- Base vehicle + different sensor packages for different missions
+- Shared physical properties + different controllers (SimpleFlightAPI vs PX4)
+- Common sensor suite + different vehicle types
+
 ## Robot configuration overview (drone example)
 
 `robot_quadrotor_fastphysics.jsonc`

@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation. 
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI CONSULTING CORP
 
 // MIT License. All rights reserved.
@@ -1268,7 +1268,6 @@ void Scene::Loader::LoadEnvActorsWithJSON(const json& json) {
                              "[%s] 'environment-actors' missing or empty.",
                              impl_.id_.c_str());
   }
-
   std::transform(env_actors_json.begin(), env_actors_json.end(),
                  std::back_inserter(impl_.env_actors_),
                  [this](auto& json) { return LoadEnvActorWithJSON(json); });
@@ -1470,22 +1469,53 @@ void Scene::Loader::LoadGISSettings(const json& json) {
                            impl_.id_.c_str());
 }
 
-std::unique_ptr<Actor> Scene::Loader::LoadActorWithJSON(const json& json) {
-  auto id = GetActorID(json);
-  auto type = GetActorType(json, id);
-  auto origin = GetActorOrigin(json, id);
+std::unique_ptr<Actor> Scene::Loader::LoadActorWithJSON(const json& jsonIn) {
+  auto id = GetActorID(jsonIn);
+  auto type = GetActorType(jsonIn, id);
+  auto origin = GetActorOrigin(jsonIn, id);
   // Read ref JSON data and write it as a string
-  auto robot_config =
-      JsonUtils::GetJsonObject(json, Constant::Config::robot_config);
+  json robot_config;
+
+  try {
+    robot_config = JsonUtils::GetArray(jsonIn, Constant::Config::robot_config);
+    impl_.logger_.LogVerbose(
+        impl_.name_,
+        "[%s][%s] Loading 'Enviroment Actor'. is_array [%d], is_object [%d]",
+        impl_.id_.c_str(), id.c_str(), robot_config.is_array(),
+        robot_config.is_object());
+    //
+    //  If env_actor_config is an array, update the first object using all the
+    //  other objects, and then set env_actor_config to the final object
+    //
+    if (robot_config.is_array()) {
+      auto final_config = robot_config[0];
+      for (int i = 1; i < robot_config.size(); i++) {
+        final_config.update(robot_config[i]);
+      }
+      robot_config = final_config;
+      impl_.logger_.LogVerbose(
+          impl_.name_,
+          "[%s][%s] Merged 'Robot Actor'. is_array [%d], is_object [%d]",
+          impl_.id_.c_str(), id.c_str(), robot_config.is_array(),
+          robot_config.is_object());
+      std::string test_output = robot_config.dump();
+      impl_.logger_.LogVerbose(
+          impl_.name_, "[%s][%s] Merged 'Robot Actor'. contents [%s]",
+          impl_.id_.c_str(), id.c_str(), test_output.c_str());
+    }
+  } catch (...) {
+    robot_config =
+        JsonUtils::GetJsonObject(jsonIn, Constant::Config::robot_config);
+  }
 
   auto physics_connection_json =
-      JsonUtils::GetJsonObject(json, Constant::Config::physics_connection);
+      JsonUtils::GetJsonObject(jsonIn, Constant::Config::physics_connection);
 
   auto control_connection_json =
-      JsonUtils::GetJsonObject(json, Constant::Config::control_connection);
+      JsonUtils::GetJsonObject(jsonIn, Constant::Config::control_connection);
 
   bool start_landed_flag =
-      JsonUtils::GetBoolean(json, Constant::Config::start_landed, false);
+      JsonUtils::GetBoolean(jsonIn, Constant::Config::start_landed, false);
 
   impl_.logger_.LogVerbose(impl_.name_, "[%s][%s] Loading 'actor'.",
                            impl_.id_.c_str(), id.c_str());
@@ -1528,6 +1558,39 @@ std::unique_ptr<Actor> Scene::Loader::LoadEnvActorWithJSON(const json& json) {
 
   impl_.logger_.LogVerbose(impl_.name_, "[%s][%s] Loading 'Enviroment Actor'.",
                            impl_.id_.c_str(), id.c_str());
+
+  try {
+    env_actor_config =
+        JsonUtils::GetArray(json, Constant::Config::env_actor_config);
+    impl_.logger_.LogVerbose(
+        impl_.name_,
+        "[%s][%s] Loading 'Enviroment Actor'. is_array [%d], is_object [%d]",
+        impl_.id_.c_str(), id.c_str(), env_actor_config.is_array(),
+        env_actor_config.is_object());
+    //
+    //  If env_actor_config is an array, update the first object using all the
+    //  other objects, and then set env_actor_config to the final object
+    //
+    if (env_actor_config.is_array()) {
+      auto final_config = env_actor_config[0];
+      for (int i = 1; i < env_actor_config.size(); i++) {
+        final_config.update(env_actor_config[i]);
+      }
+      env_actor_config = final_config;
+      impl_.logger_.LogVerbose(
+          impl_.name_,
+          "[%s][%s] Merged 'Enviroment Actor'. is_array [%d], is_object [%d]",
+          impl_.id_.c_str(), id.c_str(), env_actor_config.is_array(),
+          env_actor_config.is_object());
+      std::string test_output = env_actor_config.dump();
+      impl_.logger_.LogVerbose(
+          impl_.name_, "[%s][%s] Merged 'Enviroment Actor'. contents [%s]",
+          impl_.id_.c_str(), id.c_str(), test_output.c_str());
+    }
+  } catch (...) {
+    env_actor_config =
+        JsonUtils::GetJsonObject(json, Constant::Config::env_actor_config);
+  }
 
   if (type == Constant::Config::env_actor) {
     auto env_actor =

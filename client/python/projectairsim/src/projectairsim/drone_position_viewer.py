@@ -4,11 +4,6 @@
 
 import tkinter as tk
 import threading
-import time
-
-from projectairsim import ProjectAirSimClient, Drone, World
-from projectairsim.utils import projectairsim_log
-
 
 # -----------------------------------------------
 # Drone Position Viewer
@@ -158,7 +153,7 @@ class DronePositionViewer:
             screen_y + self.dot_size
         )
 
-                # ---------- ALTITUDE BAR UPDATE (SMOOTH + CLEAN LABELS) ----------
+        # ---------- ALTITUDE BAR UPDATE (SMOOTH + CLEAN LABELS) ----------
         ALT_PIXELS = 100        # pixels per meter
         TICK_STEP = 0.05        # fine ticks every 0.05 m (smooth scrolling)
         VIEW_RANGE = 5.0        # ±5m window
@@ -226,4 +221,6 @@ class DronePositionViewer:
 
     def on_close(self):
         self.stop_event.set()
+        if self.refresh_after_id is not None:
+            self.root.after_cancel(self.refresh_after_id)
         self.root.destroy()

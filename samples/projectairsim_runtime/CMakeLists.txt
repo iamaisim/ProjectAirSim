@@ -15,10 +15,11 @@
 #
 # ---------------------------------------------------------------------------------------------------------------------
 
-set(TARGET_NAME standalone_sim)
+set(TARGET_NAME projectairsim-runtime)
 
 add_executable(
     ${TARGET_NAME}
+    ground_collision_host.cpp
     main.cpp
 )
 
@@ -94,3 +95,25 @@ else()
         dl     # Required by static libcrypto (dlopen/dlsym)
 )
 endif()
+
+# Keep the standalone runtime self-contained. Both core_sim and physics use
+# shared third-party libraries, so launching the executable directly from its
+# documented output directory must not depend on a developer shell or PATH.
+if(WIN32)
+    set(RUNTIME_ONNX_SHARED_LIB "${ONNX_LIB_DIR}/onnxruntime.dll")
+else()
+    set(RUNTIME_ONNX_SHARED_LIB "${ONNXRUNTIME_LIBRARY}")
+    set_target_properties(${TARGET_NAME} PROPERTIES BUILD_RPATH "$ORIGIN")
+endif()
+
+add_custom_command(
+    TARGET ${TARGET_NAME}
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${JSBSIM_SHARED_LIB}"
+            "$<TARGET_FILE_DIR:${TARGET_NAME}>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${RUNTIME_ONNX_SHARED_LIB}"
+            "$<TARGET_FILE_DIR:${TARGET_NAME}>"
+    COMMENT "Copying Project AirSim Runtime shared-library dependencies"
+)

@@ -18,7 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 - Coordinate conversion precision in the Python ROS bridge
-- GPU LiDAR behavior and standalone simulator builds on Unreal Engine 5.7
+- GPU LiDAR behavior and Project AirSim Runtime builds on Unreal Engine 5.7
 
 ## [0.2.0] - 2026-05-29
 ### Added

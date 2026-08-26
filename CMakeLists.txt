@@ -873,6 +873,24 @@ add_subdirectory(unity)
 add_subdirectory(vehicle_apis)
 
 if(BUILD_TESTING)
+    # Stage shared test runtime dependencies exactly once. Multiple PRE_LINK and
+    # POST_BUILD copies to SIMLIBS_TEST_DIR can run concurrently under Ninja and
+    # intermittently fail on Windows when they touch the same destination files.
+    add_custom_target(simlibs_test_runtime_dependencies
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${SIMLIBS_TEST_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${UE_PLUGIN_SIMLIBS_DIR}/shared_libs"
+            "${SIMLIBS_TEST_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${JSBSIM_CORESIM_DIR}/lib/$<IF:$<CONFIG:Release>,Release,Debug>"
+            "${SIMLIBS_TEST_DIR}"
+        COMMENT "Staging SimLibs test runtime dependencies"
+    )
+    add_dependencies(simlibs_test_runtime_dependencies jsbsim-repo)
+    if(UNIX)
+        add_dependencies(simlibs_test_runtime_dependencies zlib-external)
+    endif()
+
     set(SIMLIBS_UNIT_TEST_TARGETS
         core_sim_gtests
         physics_gtests
@@ -888,6 +906,7 @@ if(BUILD_TESTING)
     add_custom_target(simlibs_unit_tests)
     foreach(TEST_TARGET ${SIMLIBS_UNIT_TEST_TARGETS})
         if(TARGET ${TEST_TARGET})
+            add_dependencies(${TEST_TARGET} simlibs_test_runtime_dependencies)
             add_dependencies(simlibs_unit_tests ${TEST_TARGET})
         endif()
     endforeach()

@@ -84,6 +84,11 @@ See **[Installing system prerequisites](docs/system_specs.md#installing-system-p
 
 ## Quick Start: Run from Source
 
+For controller, client, API, and physics iterations that do not need Unreal
+rendering or sensors, use **[Project AirSim Runtime](samples/projectairsim_runtime/README.md)**. It
+is the lightweight Project AirSim host and includes flat-ground collision
+response for Fast Physics vehicles and landing gear.
+
 Follow these steps to set up and run Project AirSim from source:
 
 ### 1. Install Unreal Engine versions 5.2 or 5.7

@@ -100,7 +100,6 @@ add_custom_command(TARGET ${TARGET_NAME}
     POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E echo "Copying [${TARGET_NAME}] test data to ${SIMLIBS_TEST_DIR}/test_data"
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${TARGET_SOURCE_DIR}/test/test_data ${SIMLIBS_TEST_DIR}/test_data
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${JSBSIM_CORESIM_DIR}/lib/$<IF:$<CONFIG:Release>,Release,Debug>/ ${SIMLIBS_TEST_DIR}
 )
 
 # Include CMake's GoogleTest module to use gtest_discover_tests() helper

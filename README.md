@@ -1,191 +1,292 @@
-# Welcome to Project AirSim
+# Project AirSim
 
-[![Build and Deploy Sphinx Docs](https://github.com/iamaisim/ProjectAirSim/actions/workflows/sphinx-docs.yml/badge.svg)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/sphinx-docs.yml) [![Linux SimLibs Debug Tests](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_linux_simlibs_debug.yml/badge.svg)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_linux_simlibs_debug.yml) [![ProjectAirSim CI (Self-Hosted)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_on_self_hosted.yml/badge.svg)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_on_self_hosted.yml) [![Windows Build and Tests](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_windows.yml/badge.svg)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_windows.yml)
+[![Build and Deploy Sphinx Docs](https://github.com/iamaisim/ProjectAirSim/actions/workflows/sphinx-docs.yml/badge.svg)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/sphinx-docs.yml)
+[![Linux SimLibs Release Tests](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_linux_simlibs_release.yml/badge.svg)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_linux_simlibs_release.yml)
+[![Windows Build and Tests](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_windows.yml/badge.svg)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_windows.yml)
 
-Project AirSim is a simulation platform for drones, robots, and other autonomous systems.
+Project AirSim is an open-source, extensible, engine-independent simulation
+platform for autonomous systems. Its simulation core and APIs can run in the
+lightweight [Project AirSim Runtime](samples/projectairsim_runtime/README.md)
+without Unreal Engine, or with [Unreal Engine 5](https://www.unrealengine.com/)
+when a 3D world, rendered sensors, and environment geometry are required.
 
-Building on the previous work of **[AirSim](https://github.com/microsoft/AirSim)**, it leverages **[Unreal Engine 5](https://www.unrealengine.com/)** to provide photo-realistic visuals, while providing the simulation framework needed to integrate custom physics, controllers, actuators, and sensors to develop an autonomous system.
+Integrate an autonomy stack with the Project AirSim APIs, reuse compatible
+scene and robot configurations, and select the simulation host that fits each
+test. Use Runtime for fast controller, API, physics, automation, and CI
+workflows; move the same integration to Unreal when the scenario requires
+visual fidelity, cameras, LiDAR, radar, or mesh-based interaction. This lets a
+team vary simulation cost and fidelity without maintaining a separate client
+integration for every host.
 
-**IAMAI Simulations** is composed of former engineers from the original AirSim project at Microsoft, who have decided to continue its development after Microsoft discontinued the project. With their expertise, the team is committed to advancing the platform and fostering innovation in autonomous systems.
+Project AirSim builds on the work of
+[AirSim](https://github.com/microsoft/AirSim) and provides a modular framework
+for drones, fixed-wing aircraft, robots, and other autonomous systems.
 
-Project AirSim consists of three main layers:
+**[Download the latest release](https://github.com/iamaisim/ProjectAirSim/releases/latest)** ·
+**[Use a pre-built environment](docs/development/use_prebuilt.md)** ·
+**[Build from source](docs/development/use_source.md)** ·
+**[Read the documentation](https://iamaisim.github.io/ProjectAirSim/)**
 
-1. **Project AirSim Sim Libs** - Base infrastructure for defining a generic robot structure and simulation scene tick loop
-
-2. **Project AirSim Plugin** - Host package (currently an Unreal Plugin) that builds on the sim libs to connect external components (controller, physics, rendering) at runtime that are specific to each configured robot-type scenario (ex. quadrotor drones)
-
-3. **Project AirSim Client Library** - End-user library to enable API calls to interact with the robot and simulation over a network connection
-
-For more details on the architecture, see **[Project AirSim Architecture Overview](docs/development/use_source.md#airsim-v-next-architecture-overview)**.
-
-Project AirSim currently supports Windows 11 and Ubuntu 22. For more info about hardware specs for working with Project AirSim, see **[System Specifications](docs/system_specs.md)**.
-
-![Drone flying in Urban environment](docs/images/airtaxi_in_dynamic_city.jpg)
 ![Skywalker X8 aircraft flying in V formation](docs/images/PAS_JSBSim_x8_swarm.png)
 
-## Open Source Commitment
+## Current Repository Capabilities
 
-We believe that open-source is the best way to foster innovation and collaboration in robotics simulation. Project AirSim can only thrive if it's built together — not by a single corporation, but by all of us.
+The current `main` branch lets you:
 
-We invite you to become part of this journey: contribute code, share feedback, report issues, and help shape the future of the platform.
+- Create configurable single-vehicle and multi-vehicle simulation scenes.
+- Use built-in C++ Fast Physics, JSBSim flight dynamics, Simulink physics
+  models, or extend the C++ physics layer for custom requirements.
+- Use Simple Flight, PX4 in software-in-the-loop (SITL) or
+  hardware-in-the-loop (HITL), ArduPilot SITL, and manual control workflows.
+- Integrate custom controllers, actuators, sensors, and robot models.
+- Simulate fixed-wing aircraft with JSBSim, including Cessna 310 and Skywalker
+  X8 examples.
+- Connect autonomy software through Python and C++ client libraries or the ROS 2
+  C++ bridge.
+- Work with cameras, LiDAR, radar, IMU, GPS, barometer, magnetometer, airspeed,
+  and other configurable sensors.
+- Run with Unreal rendering, off-screen rendering, or without rendering for
+  controller, API, and physics development.
 
-## Enterprise Support
+Published binaries may trail the `main` branch. Check the
+[release notes](https://github.com/iamaisim/ProjectAirSim/releases) to confirm
+which capabilities are included in a particular package, and see the
+[changelog](docs/changelog.md) for repository changes.
 
-IAMAI Simulations offers professional **Enterprise Support** for teams and organizations building on Project AirSim.
+## Choose Your Starting Point
 
-Whether you're working on large-scale simulations, custom features, or integration into your existing stack, we can help you move faster and with confidence.
+### Run a Pre-built Environment
 
-**To learn more, visit [iamaisim.com](https://www.iamaisim.com).**
+> I want to evaluate Project AirSim, launch an environment, and control a
+> vehicle with Python.
 
-## Support the Project
+Download a packaged environment from
+[GitHub Releases](https://github.com/iamaisim/ProjectAirSim/releases), then
+follow the [pre-built environment guide](docs/development/use_prebuilt.md).
 
-Maintaining and improving a project of this scale requires significant effort and resources. If you or your organization benefit from Project AirSim, consider contributing by:
+### Build and Extend Project AirSim
 
-- Sharing feedback and reporting issues  
-- Contributing code or documentation  
-- Collaborating on new features  
+> I want to customize the simulation core, Unreal plugin, vehicles, sensors, or
+> environments.
 
-Your involvement helps us improve the platform and foster a thriving community.
+Follow the [source development guide](docs/development/use_source.md) to build
+the simulation libraries, plugin, Blocks environment, and client packages.
 
-## Join the Community
+### Run Without Unreal Engine
 
-We believe that collaboration is key to building a thriving ecosystem around Project AirSim. Join our growing community to share ideas, ask questions, and collaborate with other developers and enthusiasts:
+> I need a fast, headless simulation host for controllers, APIs, physics,
+> automation, or CI without changing my Project AirSim client integration.
 
-- **Discord**: Connect with us on our official Discord server for real-time discussions, support, and updates. [Join here](https://discord.gg/XprQ2w64uj).
-- **GitHub Discussions**: Participate in discussions, share feedback, and contribute to shaping the future of Project AirSim. [Start a discussion](https://github.com/iamaisim/ProjectAirSim/discussions).
+Use [Project AirSim Runtime](samples/projectairsim_runtime/README.md), the
+lightweight, engine-independent host. It runs the same `SimServer`, Project
+AirSim physics, controllers, APIs, and non-rendered sensors without requiring
+Unreal Engine.
 
-We look forward to hearing from you and building the future of autonomous systems together!
+Runtime supports Fast Physics, JSBSim, Simulink physics, flight-controller
+workflows, and sensors including GPS, IMU, barometer, magnetometer, and
+airspeed. It does not provide cameras, LiDAR, radar, Unreal world meshes, or
+general mesh and robot-to-robot collisions. Its host-side collision support is
+limited to a flat ground plane for Fast Physics vehicles.
 
-## What's New
+### Migrate from AirSim
 
-For a complete list of changes, view our **[Changelog](docs/changelog.md)**.
+> I have an existing AirSim environment or client workflow.
 
-## Roadmap and Collaboration
+Start with the [AirSim transition guide](docs/transition_from_airsim.md).
 
-Our project's roadmap and future direction are defined through GitHub issues and discussions. Issues or discussions labeled **roadmap** or **need help** outline planned features and areas where community contributions are encouraged. We invite you to participate and help shape the future of Project AirSim.
+## Latest Project Updates
 
-## Getting Started
+The current `main` branch contains the changes recorded for Project AirSim
+0.3.0, including:
 
-See **[Installing system prerequisites](docs/system_specs.md#installing-system-prerequisites)** for information about Windows/Linux system setup needed before running Project AirSim.
+- JSBSim fixed-wing simulation with Cessna 310 and Skywalker X8 examples;
+- a standalone C++ client package and ROS 2 C++ bridge;
+- GPU LiDAR 360-degree scanning and additional LiDAR validation;
+- a Python client `step()` API; and
+- improved build, toolchain, and CI support for Unreal Engine 5.7.
 
-### 1. Pre-built environment binaries
+See [Project AirSim releases](https://github.com/iamaisim/ProjectAirSim/releases)
+for the latest published binaries and release notes.
 
-> I just want to download and run a Project AirSim environment and drive it with some Python code.
+## Architecture
 
-*Note:* You can either build Project AirSim from source or download pre-built binaries to use with the Python client.
+Project AirSim has three primary layers:
 
-#### **[Use pre-built binary environments](docs/development/use_prebuilt.md)**
+1. **Simulation libraries** provide the base infrastructure for defining robot
+   structures, physics, controllers, sensors, and the simulation scene tick
+   loop.
+2. **Simulation host** provides the environment-dependent services. Project
+   AirSim Runtime offers lightweight engine-independent execution, while the
+   Unreal Engine plugin adds 3D environments, rendering, mesh interaction, and
+   rendered sensors.
+3. **Client libraries** expose network APIs for loading scenes, controlling
+   vehicles, and receiving state and sensor data.
 
-### 2. Develop with Project AirSim source
+For more detail, see the
+[Project AirSim architecture overview](docs/development/use_source.md#airsim-v-next-architecture-overview).
 
-> I'm going to build the sim libs, Plugin, Blocks, and my own UE project environment from the ground up so I can customize it to my application.
+### Experimental Unity Host Reference
 
-#### **[Build from source as a developer](docs/development/use_source.md)**
+The repository also contains an
+[experimental Unity host integration](unity/README.md) composed of a Unity
+example project and a native wrapper around the Project AirSim simulation
+libraries. It is retained as reference code that demonstrates how another 3D
+engine can host the common simulation core.
 
-## Quick Start: Run from Source
+The Unity integration is **not currently maintained, validated, packaged, or
+supported by IAMAI** and is not part of the supported-platform matrix. Do not
+assume compatibility with current Project AirSim or Unity releases.
 
-For controller, client, API, and physics iterations that do not need Unreal
-rendering or sensors, use **[Project AirSim Runtime](samples/projectairsim_runtime/README.md)**. It
-is the lightweight Project AirSim host and includes flat-ground collision
-response for Fast Physics vehicles and landing gear.
+## Key Integrations and Reference Documentation
 
-Follow these steps to set up and run Project AirSim from source:
+- [Configuration overview](docs/config.md)
+- [Scene configuration](docs/config_scene.md)
+- [Robot configuration](docs/config_robot.md)
+- [Client API](docs/api.md)
+- [Flight controllers](docs/controllers/controllers.md)
+- [PX4 integration](docs/controllers/px4/px4.md)
+- [ArduPilot integration](docs/controllers/ardupilot.md)
+- [Fast Physics](docs/physics/fast-physics.md)
+- [JSBSim physics](docs/physics/jsbsim.md)
+- [Simulink physics](docs/physics/matlab.md)
+- [ROS 2 C++ bridge](docs/ros/ros2.md)
+- [Sensor configuration](docs/config_robot.md#sensor-settings)
+- [Headless and cloud execution](docs/development/headless_cloud.md)
 
-### 1. Install Unreal Engine versions 5.2 or 5.7
-- Download and install **[Unreal Engine](https://www.unrealengine.com/en-US/download)**.
-- Set the `UE_ROOT` environment variable to the Unreal Engine installation path:
-  ```bash
-  export UE_ROOT=/path/to/UnrealEngine
-  ```
-**Note**: Project AirSim currently supports Unreal Engine versions 5.2 and 5.7 only.
+## Supported Development Platforms
 
-### 2. Install Dependencies (Linux Only)
-- Run the setup script to install required development tools:
-  ```bash
-  ./setup_linux_dev_tools.sh
-  ```
+Project AirSim currently supports:
 
-### 3. Build Simulation Libraries
-- Build the simulation libraries in debug mode:
-  - **Linux/macOS**:
-    ```bash
-    ./build.sh simlibs_debug
-    ```
-  - **Windows** (use "x64 Native Tools Command Prompt for VS 2022"):
-    ```cmd
-    build.cmd simlibs_debug
-    ```
+- Windows 11;
+- Ubuntu 22.04; and
+- Unreal Engine 5.2 and 5.7.
+
+Hardware requirements are primarily determined by Unreal Engine and the
+rendering workload. Review the [system specifications](docs/system_specs.md)
+before installing or building the project.
+
+## Source Build Overview
+
+The complete and authoritative instructions are in the
+[source development guide](docs/development/use_source.md). The basic workflow
+is summarized below.
+
+### 1. Install Unreal Engine
+
+Install Unreal Engine 5.2 or 5.7 and set `UE_ROOT` to its installation path.
+
+On Linux:
+
+```bash
+export UE_ROOT=/path/to/UnrealEngine
+```
+
+### 2. Install Linux Development Dependencies
+
+```bash
+./setup_linux_dev_tools.sh
+```
+
+### 3. Build the Simulation Libraries
+
+On Linux:
+
+```bash
+./build.sh simlibs_debug
+```
+
+On Windows, use an **x64 Native Tools Command Prompt for VS 2022**:
+
+```cmd
+build.cmd simlibs_debug
+```
 
 ### 4. Generate Project Files
-- Generate Visual Studio Code project files:
-  - **Linux/macOS**:
-    ```bash
-    ./blocks_genprojfiles_vscode.sh
-    ```
-  - **Windows**:
-    ```cmd
-    blocks_genprojfiles_vscode.bat
-    ```
 
-### 5. Open and Run the Editor
-- Open the generated workspace in Visual Studio Code.
-- Launch the Unreal Engine editor in DebugGame mode.
+On Linux:
 
-Once the editor is running, you can explore and interact with the simulation environment.
-
-## Running Headless (Docker)
-
-If you need to run a Project AirSim simulation on a headless system, such as in a Docker container, you can enable off-screen rendering by adding the `-RenderOffScreen` argument when launching the Unreal environment executable:
-
+```bash
+./blocks_genprojfiles_vscode.sh
 ```
+
+On Windows:
+
+```cmd
+blocks_genprojfiles_vscode.bat
+```
+
+Open the generated workspace and launch the Unreal Editor in DebugGame mode.
+
+## Headless Execution
+
+To run a packaged Unreal environment with off-screen rendering:
+
+```text
 Blocks{.exe/.sh} -RenderOffScreen
 ```
 
-If you are running without GPU access and want to run without any image rendering, you can disable rendering completely by adding the `-nullrhi` argument:
+To disable rendering completely:
 
-```
+```text
 Blocks{.exe/.sh} -nullrhi
 ```
 
-These arguments can also be used while debugging in VS Code by modifying the `launch.json` file, or in Visual Studio 2022 by modifying the project's `Configuration Properties`. See **[Running Headless (Docker, Azure Cloud)](docs/development/headless_cloud.md)** for more details.
+See [headless and cloud execution](docs/development/headless_cloud.md) for
+additional configuration details.
 
-## Reference
+## Open Source and Professional Services
 
-### Configuration JSONC Settings
+Project AirSim's simulation core, APIs, configuration system, extension points,
+and reference workflows are available publicly under the MIT License. We want
+the open-source project to be useful for evaluation, research, development, and
+real autonomy workflows.
 
-- **[Overview](docs/config.md)**
-- **[Scene Settings](docs/config_scene.md)**
-- **[Robot Settings](docs/config_robot.md)**
+[IAMAI Consulting Corp.](https://www.iamaisim.com) maintains and extends the
+Project AirSim ecosystem. The team includes former Microsoft AirSim engineers
+and provides professional services for organizations that need to turn a
+prototype into a repeatable simulation or validation workflow.
 
-### Client API
+IAMAI can help with:
 
-- **[Overall API Info](docs/api.md)**
+- simulation-readiness and architecture assessments;
+- PX4, ROS 2, JSBSim, vehicle, sensor, and autonomy-stack integration;
+- custom Unreal Engine environments and simulation workflows;
+- reproducible scenarios and validated builds; and
+- maintained delivery, updates, and engineering support.
 
+If you have an upcoming integration, demonstration, pilot, or validation
+milestone, **[talk to IAMAI](https://www.iamaisim.com)** about a focused first
+engagement.
 
-## Transitioning from AirSim
+## Community and Contributions
 
-See **[Transitioning from AirSim](docs/transition_from_airsim.md)** for guidance on converting an AirSim Unreal environment and client code from AirSim to Project AirSim.
+Project AirSim grows through practical use, technical feedback, and community
+contributions.
+
+- [Report a bug or request a feature](https://github.com/iamaisim/ProjectAirSim/issues/new/choose)
+- [Start a GitHub Discussion](https://github.com/iamaisim/ProjectAirSim/discussions)
+- [Join the Project AirSim Discord](https://discord.gg/XprQ2w64uj)
+- Submit focused pull requests for code, tests, documentation, and examples
+
+The roadmap is managed through GitHub issues and discussions. Items labeled
+[`roadmap`](https://github.com/iamaisim/ProjectAirSim/labels/roadmap) describe
+planned direction, while items labeled
+[`need help`](https://github.com/iamaisim/ProjectAirSim/labels/need%20help)
+identify opportunities for community participation.
 
 ## Third-Party Interoperability and Licensing
 
 Project AirSim interoperates with third-party engines, libraries, models, and
-tooling. When redistributing or extending those integrations, review the
-applicable license terms in **[docs/license.md](docs/license.md)**,
-`NOTICE.txt`, and the files under `thirdparty/Licenses/`.
+tools, including JSBSim-compatible aircraft definitions. Those components and
+assets remain under their respective licenses.
 
-## License
-
-Please see the [License page](docs/license.md) for Project AirSim license information.
-
-## Third-Party Interoperability and Licensing
-
-Project AirSim may interoperate at runtime with third-party tools and data files, including JSBSim-compatible aircraft model definitions.
-
-Those third-party components and assets remain licensed under their respective open-source licenses by their original authors.
+Before redistributing or extending an integration, review
+[Project AirSim license information](docs/license.md), `NOTICE.txt`, and the
+licenses under `thirdparty/Licenses/`.
 
 ---
 
 Copyright (C) Microsoft Corporation.  
-Copyright (C) 2025 IAMAI CONSULTING CORP
+Copyright (C) 2025-2026 IAMAI CONSULTING CORP
 
 MIT License

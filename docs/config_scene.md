@@ -56,7 +56,7 @@ The scene is loaded from the JSONC file that is specified when the `World` objec
 | `origin`: `xyz` | string of 3 floats | Spawning origin position "X Y Z" coordinates with units of SI **meters** in the **NED** frame (up = negative z). **Note:** "0 0 0" is at the global UE origin, not relative to `PlayerStart`. |
 | `origin`: `geo-point` | string of 3 floats | Alternative to `xyz`. Spawning origin position at "lat lon alt" coordinates. |
 | `origin`: `rpy` | string of 3 floats | Spawning origin orientation "Roll Pitch Yaw" angles with units of SI **radians** with right-hand rotation around the NED frame X Y Z axes. |
-| `robot-config` | string | Filename for JSONC config file for this actor's **[Robot Configuration Settings](config_robot.md)**. |
+| `robot-config` | string or array of strings | **Filename or array of filenames** for JSONC config file(s) for this actor's **[Robot Configuration Settings](config_robot.md)**. When multiple files are provided as an array, they are loaded in order and merged together, enabling modular configuration composition. Example: `["robot_base.jsonc", "sensors_package.jsonc"]` |
 | `start-landed` | bool | (Optional) Start from a manually-set landed state at the spawned origin (without needing to drop onto a mesh with collision). For FastPhysics, a landed state means that the position is locked until a net vertical force up exceeds the weight of the body (to counter gravity forces) such as from rotors during takeoff, or there is already an upward velocity. Defaults to false if omitted. |
 
 

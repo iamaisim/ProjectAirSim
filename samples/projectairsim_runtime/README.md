@@ -5,6 +5,27 @@ host by IAMAI for fast development iterations. It runs `SimServer`,
 controllers, and Project AirSim physics while providing a flat ground collision
 host without requiring Unreal Engine.
 
+Because Runtime uses the common Project AirSim server, APIs, physics, and
+controller layers, compatible client integrations and scene or robot
+configurations can move between Runtime and an Unreal Engine host. Runtime is
+suited to fast, headless controller, API, physics, automation, and CI workflows;
+the Unreal host can be used when the same workflow requires environment meshes,
+rendered sensors, or visual fidelity.
+
+## Supported Capabilities
+
+Project AirSim Runtime supports:
+
+- Fast Physics, JSBSim, and Simulink physics models;
+- Simple Flight, PX4, ArduPilot, and manual controller workflows;
+- the Project AirSim service and topic APIs; and
+- non-rendered sensors including GPS, IMU, barometer, magnetometer, and
+  airspeed.
+
+Runtime does not provide cameras, LiDAR, radar, Unreal world meshes, or general
+mesh and robot-to-robot collisions. Its host-side collision support is limited
+to the flat ground plane described below and applies to Fast Physics vehicles.
+
 Build the simulation libraries normally:
 
 ```powershell
@@ -69,6 +90,6 @@ The ground defaults to `z = 0` in the local NED frame. Change it with
 `--ground-height`. The existing positional topics and services port arguments
 remain supported.
 
-This host intentionally does not render or emulate Unreal sensors, world
-meshes, or robot-to-robot collision. It is intended for quick controller,
-client, API, and physics iteration with `fast-physics` robots.
+Runtime intentionally does not render or emulate Unreal-dependent sensors or
+world geometry. Use the Unreal Engine host when a workflow requires those
+capabilities.

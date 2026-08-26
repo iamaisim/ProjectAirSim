@@ -160,9 +160,13 @@ class MsgConverter:
             return self.convert_image_16uc1_to_ros(
                 projectairsim_topic_name, projectairsim_image
             )
+        elif projectairsim_image["encoding"] == "16FC1":
+            return self.convert_image_16fc1_to_ros(
+                projectairsim_topic_name, projectairsim_image
+            )
         else:
             raise ValueError(
-                f"Can only handle image encoding BGR or 16UC1, not \"{projectairsim_image['encoding']}\""
+                f"Can only handle image encoding BGR, 16UC1 or 16FC1, not \"{projectairsim_image['encoding']}\""
             )
 
     def convert_image_bgr8_to_ros(
@@ -226,6 +230,42 @@ class MsgConverter:
         nparray = ((nparray / self.max_depth_mm) * 255).astype("uint8")
         image.data = nparray.tostring()
         image.step = image.width
+
+        return image
+
+    def convert_image_16fc1_to_ros(
+        self, projectairsim_topic_name, projectairsim_image_16fc1
+    ):
+        """
+        Convert a Project AirSim 16FC1 image message into a ROS image message.
+
+        16FC1 is raw IEEE 754 half-precision (binary16) depth in METERS,
+        little-endian, bit-exact with the sim's fp16 render target. Decoded to
+        the standard ROS 32FC1 float-meters depth image; non-finite pixels
+        (sky / no hit arrive as +inf) become NaN per the ROS depth convention.
+
+        Arguments:
+            projectairsim_topic_name - The Project AirSim topic name
+            projectairsim_image_16fc1 - The 16FC1 image message received from the Project AirSim topic
+
+        Return:
+            (return) - Corresponding ROS Image message
+        """
+        image = rossensmsg.Image()
+        image.header.stamp = self.ros_node.get_time_now_msg()
+        # image.header.frame_id must be set by caller
+
+        image.height = projectairsim_image_16fc1["height"]
+        image.width = projectairsim_image_16fc1["width"]
+        image.encoding = "32FC1"
+        image.is_bigendian = projectairsim_image_16fc1["big_endian"]
+
+        nparray = np.frombuffer(
+            projectairsim_image_16fc1["data"], dtype=np.float16
+        ).astype(np.float32)
+        nparray[~np.isfinite(nparray)] = np.nan
+        image.data = nparray.tobytes()
+        image.step = image.width * 4
 
         return image
 

@@ -4,6 +4,7 @@
 #include <array>
 #include <cmath>
 #include <cstdint>
+#include <cstring>
 #include <filesystem>
 #include <limits>
 #include <string>
@@ -342,6 +343,35 @@ inline void PopulateCameraInfoFromJson(const json& msg,
   FillFixedArray(msg.value("projection_matrix", json::array()), &camera_info->p);
 }
 
+// Convert an IEEE 754 half-precision (binary16) bit pattern to float32.
+inline float HalfBitsToFloat(uint16_t half_bits) {
+  const uint32_t sign = static_cast<uint32_t>(half_bits & 0x8000u) << 16;
+  uint32_t exponent = (half_bits >> 10) & 0x1Fu;
+  uint32_t mantissa = half_bits & 0x3FFu;
+  uint32_t float_bits;
+  if (exponent == 0) {
+    if (mantissa == 0) {
+      float_bits = sign;  // +/- zero
+    } else {
+      // Subnormal half: normalize into a float32 exponent/mantissa.
+      exponent = 127 - 15 + 1;
+      while ((mantissa & 0x400u) == 0) {
+        mantissa <<= 1;
+        --exponent;
+      }
+      mantissa &= 0x3FFu;
+      float_bits = sign | (exponent << 23) | (mantissa << 13);
+    }
+  } else if (exponent == 31) {
+    float_bits = sign | 0x7F800000u | (mantissa << 13);  // inf / NaN
+  } else {
+    float_bits = sign | ((exponent - 15 + 127) << 23) | (mantissa << 13);
+  }
+  float result;
+  std::memcpy(&result, &float_bits, sizeof(result));
+  return result;
+}
+
 inline bool PopulateImagePayloadFromJson(const json& msg,
                                          sensor_msgs::msg::Image* image) {
   image->height = static_cast<uint32_t>(NumberOr(msg, "height"));
@@ -355,9 +385,32 @@ inline bool PopulateImagePayloadFromJson(const json& msg,
     return true;
   }
   if (encoding == "16UC1") {
+    // Legacy sims: uint16 depth. Kept for compatibility with older servers.
     image->encoding = "mono16";
     image->data = BytesFromJsonString(msg.value("data", ""));
     image->step = 2 * image->width;
+    return true;
+  }
+  if (encoding == "16FC1") {
+    // Depth as raw IEEE 754 half-precision (binary16) METERS, little-endian,
+    // bit-exact with the sim's fp16 render target. Decode to the standard
+    // ROS 32FC1 float-meters depth image; non-finite pixels (sky / no hit
+    // arrive as +inf) become NaN per the ROS depth convention.
+    const auto payload = BytesFromJsonString(msg.value("data", ""));
+    const size_t pixel_count = payload.size() / 2;
+    image->encoding = "32FC1";
+    image->step = 4 * image->width;
+    image->data.resize(pixel_count * 4);
+    const uint8_t* src = payload.data();
+    float* dst = reinterpret_cast<float*>(image->data.data());
+    for (size_t i = 0; i < pixel_count; ++i, src += 2) {
+      const uint16_t bits = static_cast<uint16_t>(src[0]) |
+                            (static_cast<uint16_t>(src[1]) << 8);
+      const float meters = HalfBitsToFloat(bits);
+      dst[i] = std::isfinite(meters)
+                   ? meters
+                   : std::numeric_limits<float>::quiet_NaN();
+    }
     return true;
   }
   return false;

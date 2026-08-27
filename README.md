@@ -7,16 +7,7 @@
 Project AirSim is an open-source, extensible, engine-independent simulation
 platform for autonomous systems. Its simulation core and APIs can run in the
 lightweight [Project AirSim Runtime](samples/projectairsim_runtime/README.md)
-without Unreal Engine, or with [Unreal Engine 5](https://www.unrealengine.com/)
-when a 3D world, rendered sensors, and environment geometry are required.
-
-Integrate an autonomy stack with the Project AirSim APIs, reuse compatible
-scene and robot configurations, and select the simulation host that fits each
-test. Use Runtime for fast controller, API, physics, automation, and CI
-workflows; move the same integration to Unreal when the scenario requires
-visual fidelity, cameras, LiDAR, radar, or mesh-based interaction. This lets a
-team vary simulation cost and fidelity without maintaining a separate client
-integration for every host.
+without Unreal Engine, or with [Unreal Engine 5](https://www.unrealengine.com/).
 
 Project AirSim builds on the work of
 [AirSim](https://github.com/microsoft/AirSim) and provides a modular framework

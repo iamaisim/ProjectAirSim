@@ -27,8 +27,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Strip "docs/" prefixes from README
-        run: sed -i 's|docs/||g' README.md
+      - name: Rewrite root README links for the docs build
+        run: |
+          # README links need to be relative to docs/ when MyST includes the
+          # file, while image paths remain relative to the repository root.
+          sed -i 's|](docs/images/|](__README_IMAGE_ROOT__/|g' README.md
+          sed -i 's|docs/||g' README.md
+          sed -i 's|](__README_IMAGE_ROOT__/|](docs/images/|g' README.md
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -56,6 +61,20 @@ jobs:
         run: |
           rm -rf build
           make html
+
+      - name: Copy README showcase images into main docs
+        run: |
+          mkdir -p docs/build/html/images/autonomy
+          cp \
+            docs/images/adjustable_weather.gif \
+            docs/images/airtaxi_in_dynamic_city.jpg \
+            docs/images/large_tilt_rotor_vtol_cesium.gif \
+            docs/images/simulate_your_swarm.gif \
+            docs/images/wind_turbine_inspection.gif \
+            docs/build/html/images/
+          cp \
+            docs/images/autonomy/takeoff-landing-app-cam-view.gif \
+            docs/build/html/images/autonomy/
 
       - name: Copy Python client docs into main docs
         run: |

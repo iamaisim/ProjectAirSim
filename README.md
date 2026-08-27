@@ -1,13 +1,35 @@
 # Project AirSim
 
-[![Build and Deploy Sphinx Docs](https://github.com/iamaisim/ProjectAirSim/actions/workflows/sphinx-docs.yml/badge.svg)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/sphinx-docs.yml)
-[![Linux SimLibs Release Tests](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_linux_simlibs_release.yml/badge.svg)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_linux_simlibs_release.yml)
-[![Windows Build and Tests](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_windows.yml/badge.svg)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_windows.yml)
+<div align="center">
+
+[![Build and Deploy Sphinx Docs](https://github.com/iamaisim/ProjectAirSim/actions/workflows/sphinx-docs.yml/badge.svg?branch=main)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/sphinx-docs.yml)
+[![Linux SimLibs Release Tests](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_linux_simlibs_release.yml/badge.svg?branch=main)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_linux_simlibs_release.yml)
+[![Windows Build and Tests](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_windows.yml/badge.svg?branch=main)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_windows.yml)
+[![C++ Client and ROS 2 CI](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_cpp_client.yml/badge.svg?branch=main)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_cpp_client.yml)
+
+[![Latest release](https://img.shields.io/github/v/release/iamaisim/ProjectAirSim?label=release)](https://github.com/iamaisim/ProjectAirSim/releases/latest)
+[![Ubuntu](https://img.shields.io/badge/Ubuntu-22.04-E95420?logo=ubuntu&logoColor=white)](docs/development/dev_setup_linux.md)
+[![Unreal Engine](https://img.shields.io/badge/Unreal%20Engine-5.2%20%7C%205.7-0E1128?logo=unrealengine&logoColor=white)](docs/development/use_source.md)
+[![ROS 2](https://img.shields.io/badge/ROS%202-Humble-22314E?logo=ros&logoColor=white)](docs/ros/ros2.md)
+[![Python](https://img.shields.io/badge/Python-%3E%3D3.7-3776AB?logo=python&logoColor=white)](docs/client_setup.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-2EA043.svg)](docs/license.md)
+[![IAMAI Simulations](https://img.shields.io/badge/IAMAI-Simulations-1F6FEB)](https://iamaisim.com/)
+
+</div>
 
 Project AirSim is an open-source, extensible, engine-independent simulation
 platform for autonomous systems. Its simulation core and APIs can run in the
 lightweight [Project AirSim Runtime](samples/projectairsim_runtime/README.md)
-without Unreal Engine, or with [Unreal Engine 5](https://www.unrealengine.com/).
+without Unreal Engine, or with [Unreal Engine 5](https://www.unrealengine.com/)
+when a 3D world, rendered sensors, and environment geometry are required.
+
+Integrate an autonomy stack with the Project AirSim APIs, reuse compatible
+scene and robot configurations, and select the simulation host that fits each
+test. Use Runtime for fast controller, API, physics, automation, and CI
+workflows; move the same integration to Unreal when the scenario requires
+visual fidelity, cameras, LiDAR, radar, or mesh-based interaction. This lets a
+team vary simulation cost and fidelity without maintaining a separate client
+integration for every host.
 
 Project AirSim builds on the work of
 [AirSim](https://github.com/microsoft/AirSim) and provides a modular framework
@@ -18,7 +40,33 @@ for drones, fixed-wing aircraft, robots, and other autonomous systems.
 **[Build from source](docs/development/use_source.md)** ·
 **[Read the documentation](https://iamaisim.github.io/ProjectAirSim/)**
 
-![Skywalker X8 aircraft flying in V formation](docs/images/PAS_JSBSim_x8_swarm.png)
+<table>
+<tr>
+<td width="50%"><img src="docs/images/autonomy/takeoff-landing-app-cam-view.gif" width="100%" alt="Autonomous landing application with a live camera view"><br><sub><b>Autonomous Landing.</b> Perception-guided vehicle control with a live camera stream.</sub></td>
+<td width="50%"><img src="docs/images/adjustable_weather.gif" width="100%" alt="Quadrotor flying through adjustable weather conditions"><br><sub><b>Adjustable Weather.</b> Change environmental conditions while the simulation is running.</sub></td>
+</tr>
+<tr>
+<td width="50%"><img src="docs/images/simulate_your_swarm.gif" width="100%" alt="Fixed-wing swarm flying over a mountain environment"><br><sub><b>Simulate Your Swarm.</b> Run multiple vehicles together in a shared simulation.</sub></td>
+<td width="50%"><img src="docs/images/airtaxi_in_dynamic_city.jpg" width="100%" alt="Air taxi flying over a dynamic city"><br><sub><b>Dynamic City.</b> An air taxi operating in a dense Unreal city environment.</sub></td>
+</tr>
+<tr>
+<td width="50%"><img src="docs/images/wind_turbine_inspection.gif" width="100%" alt="Aircraft inspecting wind turbines"><br><sub><b>Wind Turbine Inspection.</b> Inspect renewable-energy infrastructure in a large Unreal environment.</sub></td>
+<td width="50%"><img src="docs/images/large_tilt_rotor_vtol_cesium.gif" width="100%" alt="Large tilt-rotor VTOL fixed-wing aircraft flying over Cesium terrain"><br><sub><b>Large Tilt-Rotor VTOL Fixed-Wing + Cesium.</b> Simulate VTOL flight over geospatial Cesium terrain.</sub></td>
+</tr>
+</table>
+
+## Table of Contents
+
+- [Current Repository Capabilities](#current-repository-capabilities)
+- [Choose Your Starting Point](#choose-your-starting-point)
+- [Latest Project Updates](#latest-project-updates)
+- [Architecture](#architecture)
+- [Key Integrations and Reference Documentation](#key-integrations-and-reference-documentation)
+- [Supported Development Platforms](#supported-development-platforms)
+- [Source Build Overview](#source-build-overview)
+- [Headless Execution](#headless-execution)
+- [Community and Contributions](#community-and-contributions)
+- [Licensing](#third-party-interoperability-and-licensing)
 
 ## Current Repository Capabilities
 
@@ -113,6 +161,8 @@ Project AirSim has three primary layers:
 3. **Client libraries** expose network APIs for loading scenes, controlling
    vehicles, and receiving state and sensor data.
 
+![Project AirSim architecture: clients connect to either the lightweight Runtime host or the Unreal host, both of which use the common simulation libraries](docs/images/projectairsim_architecture.svg)
+
 For more detail, see the
 [Project AirSim architecture overview](docs/development/use_source.md#airsim-v-next-architecture-overview).
 
@@ -146,11 +196,23 @@ assume compatibility with current Project AirSim or Unity releases.
 
 ## Supported Development Platforms
 
-Project AirSim currently supports:
+The supported development baseline is derived from the repository build scripts
+and package metadata:
 
-- Windows 11;
-- Ubuntu 22.04; and
-- Unreal Engine 5.2 and 5.7.
+| Component | Supported version or behavior |
+| --- | --- |
+| Linux | **Ubuntu 22.04** is the primary supported distribution |
+| Windows | **Windows 11** with Visual Studio 2022 C++ build tools |
+| Unreal Engine | **5.2 or 5.7** |
+| CMake and C++ | CMake **3.15 or newer** and C++17 |
+| Linux compiler | Unreal's packaged toolchain when `UE_ROOT` is set; otherwise Clang 13 |
+| Windows compiler | `build.cmd` selects MSVC 14.37 for UE 5.2 and MSVC 14.44 for UE 5.7 |
+| Python client | Python **3.7 or newer**, below Python 4 |
+| ROS 2 C++ bridge | **ROS 2 Humble** on Ubuntu 22.04 |
+
+`setup_linux_dev_tools.sh` recognizes some additional Ubuntu releases, but that
+installation logic is not a supported-platform guarantee. Use Ubuntu 22.04 for
+the documented and CI-tested Linux development environment.
 
 Hardware requirements are primarily determined by Unreal Engine and the
 rendering workload. Review the [system specifications](docs/system_specs.md)

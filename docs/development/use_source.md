@@ -39,7 +39,10 @@ projectairsim
 
 ## Initial developer setup
 
-Project AirSim can be developed using Windows 10/Server 2019 or Ubuntu 20.04 Linux. See **[System Specifications](../system_specs)** for more details.
+Project AirSim's primary supported development platforms are Windows 11 and
+Ubuntu 22.04. The Linux setup script recognizes some additional Ubuntu releases,
+but that installation logic is not a supported-platform guarantee. See
+**[System Specifications](../system_specs)** for more details.
 
 For details on getting your dev environment set up, choose your platform:
 - **[Developer Initial Setup for Windows](dev_setup_win)**
@@ -63,13 +66,17 @@ Choose your development tool:
 
 On Windows, run the `build.cmd` script using the `x64 Native Tools Command Prompt for VS 2022`. 
 
-Unreal Engine 5.x requires a specific MSVC compiler version and will fail with newer versions. Make sure the correct compiler version is installed:
+Unreal Engine 5.x requires a compatible MSVC toolset. The repository's
+`build.cmd` detects the Unreal version from `UE_ROOT` and selects these installed
+MSVC toolset prefixes:
 
-For `UE5.2`: 14.37.32822
+- UE 5.2: MSVC 14.37
+- UE 5.7: MSVC 14.44
 
-For `UE5.7`: 14.39.33519
-
-Note: This path assumes a default VS 2022 Community installation. Adjust the path if yours is different. There is no need to choose the version, both can be installed, `build.cmd` will choose the correct one according to the UE_ROOT set up previously in the Initial Setup.
+The script searches standard Visual Studio 2022 Community, Professional,
+Enterprise, and Build Tools locations and chooses the first matching installed
+toolset. There is no need to select the compiler manually when `UE_ROOT` points
+to UE 5.2 or 5.7.
 
 On Linux, run the `build.sh` shell script.
 

@@ -57,7 +57,10 @@ On Windows, Project AirSim can be developed with either Visual Studio 2022 or VS
 
 7. Do the **[Project AirSim Client Setup](../client_setup.md#setting-up-the-client-on-windows)**.
 
-8. (Optional) Unreal Engine 5.2.x requires a specific MSVC compiler version and will fail with newer versions Create a configuration file to force Unreal's Build Tool to use the compiler version `14.37.32822`. And 5.7.x requires a compiler version `14.39.33519` or `14.39.33523`
+8. (Optional) Unreal Engine 5.2.x requires a specific MSVC compiler version and
+   will fail with newer versions. Create a configuration file to force Unreal's
+   Build Tool to use compiler version `14.37`. Unreal Engine 5.7.x requires
+   compiler version `14.44`.
 
     File Path: `%APPDATA%\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml`
 

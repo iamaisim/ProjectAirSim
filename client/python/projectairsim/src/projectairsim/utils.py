@@ -417,8 +417,14 @@ def unpack_image(image):
     Returns:
         The image in openCV decoded form
     """
-    # 16UC1 is used for serializing depth images
-    if image["encoding"] == "16UC1":
+    # 16FC1 is used for serializing depth images: raw IEEE 754 half-precision
+    # (binary16) METERS, little-endian, bit-exact with the sim's fp16 render
+    # target. Sky / no-hit pixels arrive as +inf.
+    if image["encoding"] == "16FC1":
+        img_dtype = "float16"
+        img_shape = [image["height"], image["width"]]
+    # 16UC1: legacy uint16 depth from older sims
+    elif image["encoding"] == "16UC1":
         img_dtype = "uint16"
         img_shape = [image["height"], image["width"]]
     elif image["encoding"] == "AVX":

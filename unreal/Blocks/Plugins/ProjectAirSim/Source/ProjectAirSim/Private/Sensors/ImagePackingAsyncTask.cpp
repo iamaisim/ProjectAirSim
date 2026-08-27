@@ -28,21 +28,26 @@ void FImagePackingAsyncTask::DoWork() {
 
     // Handle Depth image requests here.
     // 1. Currently, we do not support Compression for depth images
-    // 2. We also do not support sending back Floats since our ImageResponse
-    // Message is limited to uint8 for now. Instead, we convert Float16 from
-    // Unreal to uint16 and then pack it in two uint8s that have to be unpacked
-    // properly on client side. NOTE: This case also handles PixelsAsFloat
-    // implicitly i.e. it ignores it and always sends back uint16 for depth
+    // 2. Depth is transmitted as the render target's IEEE 754 half-precision
+    // (binary16) METERS, bit-exact: each pixel's FFloat16 bit pattern is
+    // packed little-endian into two uint8s (encoding "16FC1" below) and
+    // reinterpreted as float16 on the client side. No value conversion
+    // happens here, so no precision is lost beyond the fp16 render target
+    // itself, and there is no range cap: sky / no-hit pixels arrive as +inf
+    // for clients to map to their own invalid-depth convention. NOTE: This
+    // case also handles PixelsAsFloat implicitly i.e. it ignores it and
+    // always sends back float16 for depth
     if (bIsDepthImage && !ImageRequest.bCompress) {
       ImgResponse.ImageDataUInt8.resize(
           RenderResult.Width * RenderResult.Height * 2 * sizeof(uint8));
 
       uint8* DstPtr = ImgResponse.ImageDataUInt8.data();
       for (const auto& SrcPixel : RenderResult.UnrealImageFloat) {
-        float DepthMilli = SrcPixel.R.GetFloat(); 
-        uint16 DepthUint16 = static_cast<uint16>(DepthMilli);  
-        *DstPtr++ = static_cast<uint8>(DepthUint16 & 0xFF);        // least significant byte
-        *DstPtr++ = static_cast<uint8>((DepthUint16 >> 8) & 0xFF);  // most significant byte
+        // The depth materials write METERS to R; transmit the fp16 bit
+        // pattern as-is (see the encoding comment above).
+        const uint16 DepthHalfBits = SrcPixel.R.Encoded;
+        *DstPtr++ = static_cast<uint8>(DepthHalfBits & 0xFF);        // least significant byte
+        *DstPtr++ = static_cast<uint8>((DepthHalfBits >> 8) & 0xFF);  // most significant byte
       }
     }
     // Normal RGB images without compression or PixelsAsFloat requested
@@ -128,8 +133,9 @@ void FImagePackingAsyncTask::DoWork() {
         ImgEncoding = "BGR";
       }
     } else {  // bIsDepthImage
-      // 16-bit unsigned, 1 channel for depth in mm
-      ImgEncoding = "16UC1";
+      // IEEE 754 half-precision (binary16), 1 channel, depth in METERS,
+      // little-endian — bit-exact with the fp16 render target
+      ImgEncoding = "16FC1";
     }
 
     ImageMessages.emplace(

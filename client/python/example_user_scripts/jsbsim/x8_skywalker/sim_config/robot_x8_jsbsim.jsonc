@@ -125,9 +125,8 @@
         "lock-yaw": false
       },
       "origin": {
-        // Five metres behind and one metre above the X8 (NED: negative Z is up).
-        "xyz": "-5.0 0 -1.0",
-        "rpy-deg": "0 0 0"
+        "xyz": "-18.0 -6.5 -22.0",
+        "rpy-deg": "0 -45 0"
       }
     },
     {

@@ -187,6 +187,8 @@ Event SetParameterSignal(Index, Signal)
        2 -> Set Steering Input(Signal)
 ```
 
+![SetParameterSignal mapped to Chaos vehicle inputs](images/unreal_vehicle/set-parameter-signal.png)
+
 The mapping is an implementation detail of the Blueprint. Python sends only
 indices and signals.
 

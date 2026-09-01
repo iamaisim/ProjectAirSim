@@ -142,6 +142,8 @@ The current `main` branch contains the changes recorded for Project AirSim
 - a standalone C++ client package and ROS 2 C++ bridge;
 - GPU LiDAR 360-degree scanning and additional LiDAR validation;
 - a Python client `step()` API; and
+- Project AirSim Runtime and modular scene configurations;
+- Blueprint vehicle integration, including SimpleDrive SUV examples; and
 - improved build, toolchain, and CI support for Unreal Engine 5.7.
 
 See [Project AirSim releases](https://github.com/iamaisim/ProjectAirSim/releases)

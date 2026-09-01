@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-## [0.3.0] - 2026-08-24
+## [1.0.0] - 2026-08-24
 ### Added
 - JSBSim fixed-wing simulation support, including Cessna 310 and Skywalker X8 examples
 - A standalone C++ client package and ROS 2 C++ bridge
@@ -13,7 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Python client `step()` API and CPU-usage tests
 
 ### Changed
-- Updated the C++ and Python client packages to version 0.3.0
+- Updated the C++ and Python client packages to version 1.0.0
 - Improved simulator build, toolchain, and CI support for Unreal Engine 5.7
 
 ### Fixed
@@ -44,7 +44,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 - `__has_feature` macro MSVC compatibility for Windows toolchains
 
-[Unreleased]: https://github.com/iamaisim/ProjectAirSim/compare/v0.3.0...HEAD
-[0.3.0]: https://github.com/iamaisim/ProjectAirSim/compare/v0.2.0...v0.3.0
+[Unreleased]: https://github.com/iamaisim/ProjectAirSim/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/iamaisim/ProjectAirSim/compare/v0.2.0...v1.0.0
 [0.2.0]: https://github.com/iamaisim/ProjectAirSim/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/iamaisim/ProjectAirSim/releases/tag/v0.1.1

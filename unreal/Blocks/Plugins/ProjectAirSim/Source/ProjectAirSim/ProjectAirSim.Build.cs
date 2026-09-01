@@ -138,6 +138,7 @@ public class ProjectAirSim : ModuleRules
                 "Core",  // default
                 "CoreUObject",
                 "Engine",
+                "ChaosVehicles",
                 "MovieSceneCapture",
                 "RenderCore",
                 "Renderer",

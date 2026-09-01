@@ -1,0 +1,60 @@
+{
+  "id": "SceneTestUnrealVehicleSimpleDrive",
+  "actors": [
+    {
+      "type": "robot",
+      "name": "UnrealVehicle",
+      "origin": {
+        "xyz": "-500.0 0.0 -4.0",
+        "rpy-deg": "0 0 0"
+      },
+      "robot-config": "robot_test_unreal_vehicle_simpledrive.jsonc"
+    }
+  ],
+  "environment-actors": [
+    {
+      "type": "env_actor",
+      "name": "MoveOnPathWaypoint1Marker",
+      "origin": {
+        "xyz": "-485.0 0.0 -4.0",
+        "rpy-deg": "0 0 0"
+      },
+      "env-actor-config": "env_actor_waypoint_marker_cube.jsonc"
+    },
+    {
+      "type": "env_actor",
+      "name": "MoveOnPathWaypoint2Marker",
+      "origin": {
+        "xyz": "-450.0 0.0 -4.0",
+        "rpy-deg": "0 0 0"
+      },
+      "env-actor-config": "env_actor_waypoint_marker_cube.jsonc"
+    },
+    {
+      "type": "env_actor",
+      "name": "MoveOnPathWaypoint3Marker",
+      "origin": {
+        "xyz": "-400.0 20.0 -4.0",
+        "rpy-deg": "0 0 0"
+      },
+      "env-actor-config": "env_actor_waypoint_marker_cube.jsonc"
+    }
+  ],
+  "clock": {
+    "type": "steppable",
+    "step-ns": 3000000,
+    "real-time-update-rate": 3000000,
+    "pause-on-start": false
+  },
+  "home-geo-point": {
+    "latitude": 47.641468,
+    "longitude": -122.140165,
+    "altitude": 122.0
+  },
+  "segmentation": {
+    "initialize-ids": true,
+    "ignore-existing": false,
+    "use-owner-name": true
+  },
+  "scene-type": "UnrealNative"
+}

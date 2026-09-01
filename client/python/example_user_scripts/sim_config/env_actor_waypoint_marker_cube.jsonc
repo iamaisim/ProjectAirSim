@@ -1,0 +1,19 @@
+{
+  "physics-type": "non-physics",
+  "links": [
+    {
+      "name": "Marker",
+      "collision": {
+        "enabled": false
+      },
+      "visual": {
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Engine/BasicShapes/Cube",
+          "scale": "1.5 1.5 1.5"
+        }
+      }
+    }
+  ],
+  "joints": []
+}

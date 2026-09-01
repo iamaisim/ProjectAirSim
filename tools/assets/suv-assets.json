@@ -1,0 +1,8 @@
+{
+  "name": "projectairsim-suv-assets",
+  "version": "1.0.0",
+  "archive": "ProjectAirSim-SUV-Assets-v1.0.0.zip",
+  "url": "https://github.com/iamaisim/ProjectAirSim/releases/download/v1.0.0/ProjectAirSim-SUV-Assets-v1.0.0.zip",
+  "sha256": "3A31B126F92C7D0C038CC2CBAC4486184FA162B622AA12289F71F55E1D54E1BF",
+  "installPath": "unreal/Blocks/Plugins/ProjectAirSim/Content/VehicleAdv/SUV"
+}

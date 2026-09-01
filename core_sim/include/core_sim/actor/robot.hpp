@@ -79,6 +79,7 @@ class Robot : public Actor {
   void SetPhysicsConnectionSettings(const std::string& phys_conn_settings);
   const std::string& GetControlConnectionSettings() const;
   void SetControlConnectionSettings(const std::string& control_conn_settings);
+  const std::string& GetUnrealVehicleClass() const;
   bool GetStartLanded() const;
   void SetStartLanded(bool start_landed);
 
@@ -103,6 +104,7 @@ class Robot : public Actor {
                              MethodHandler method_handler);
 
   void SetController(std::unique_ptr<IController> controller);
+  IController* GetController() const;
 
   void PublishRobotPose(const PoseStampedMessage& pose);
 

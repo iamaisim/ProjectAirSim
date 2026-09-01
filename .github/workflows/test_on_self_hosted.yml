@@ -98,6 +98,10 @@ jobs:
           test -d unreal/Blocks/Plugins/ProjectAirSim/SimLibs/core_sim/jsbsim/include
           test -f unreal/Blocks/Plugins/ProjectAirSim/SimLibs/core_sim/jsbsim/lib/Release/libJSBSim.so
 
+      - name: Display UE_ROOT
+        run: |
+          echo "UE_ROOT=$UE_ROOT"
+
       - name: Build Unreal Editor (Blocks)
         run: |
           "$UE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh" \

@@ -7,7 +7,11 @@
     "physics-type": {
       "description": "Defines the physics type for the robot",
       "type": "string",
-      "enum": [ "fast-physics", "non-physics", "matlab-physics",  "jsbsim-physics"]
+      "enum": [ "fast-physics", "non-physics", "matlab-physics", "jsbsim-physics", "unreal-physics" ]
+    },
+    "unreal-vehicle-class": {
+      "description": "UE5 Blueprint or C++ class path for the unreal vehicle (must implement IProjectAirSimVehicle)",
+      "type": "string"
     },
     "jsbsim-root-path": {
       "description": "Path to the JSBSim models root, relative to the simulation working path",
@@ -137,7 +141,6 @@
       "allOf": [
         { "$ref": "#/definitions/simple-flight-required" }, //make simple-flight-settings required for simple-flight
         { "$ref": "#/definitions/simple-drive-required" }, //make simple-drive-settings required for simple-drive
-        { "$ref": "#/definitions/simple-drive-required" }, //make simple-drive-settings required for simple-drive
         { "$ref": "#/definitions/px4-required" }, //make px4-settings required for px4
         { "$ref": "#/definitions/ardupilot-required" } //make ardupilot-settings required for ardupilot
       ]
@@ -168,7 +171,7 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": [ "id", "type", "enabled", "parent-link" ],
+        "required": [ "id", "type", "enabled" ],
         "properties": {
           "id": { "type": "string" },
           "type": {
@@ -430,7 +433,7 @@
       }
     }
   },
-  "required": [ "physics-type", "links" ],
+  "required": [ "physics-type" ],
 
   //Standard Definitions used in the Schema
   "definitions": {

@@ -1,10 +1,12 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI CONSULTING CORP
 //
 // MIT License. All rights reserved.
 
 #include "core_sim/sensors/camera.hpp"
 
+#include <atomic>
+#include <cstdint>
 #include <map>
 #include <memory>
 #include <queue>
@@ -588,21 +590,18 @@ std::vector<uint8_t> Camera::Impl::RunOnnxModelOnImages(ImageMessage imgMsg) {
       if (camera_settings.post_process_model_settings.execution_provider ==
           "cuda") {
         logger_.LogVerbose(name_, "Trying to add CUDA EP since it is enabled.");
-        throw_on_onnx_status(
-            OrtSessionOptionsAppendExecutionProvider_CUDA(
-                onnx_.session_options, 0),
-            "CUDA");
+        throw_on_onnx_status(OrtSessionOptionsAppendExecutionProvider_CUDA(
+                                 onnx_.session_options, 0),
+                             "CUDA");
         logger_.LogVerbose(name_, "onnx CUDA session declared");
       } else if (camera_settings.post_process_model_settings
                      .execution_provider == "tensorrt") {
-        throw_on_onnx_status(
-            OrtSessionOptionsAppendExecutionProvider_Tensorrt(
-                onnx_.session_options, 0),
-            "TensorRT");
-        throw_on_onnx_status(
-            OrtSessionOptionsAppendExecutionProvider_CUDA(
-                onnx_.session_options, 0),
-            "CUDA");
+        throw_on_onnx_status(OrtSessionOptionsAppendExecutionProvider_Tensorrt(
+                                 onnx_.session_options, 0),
+                             "TensorRT");
+        throw_on_onnx_status(OrtSessionOptionsAppendExecutionProvider_CUDA(
+                                 onnx_.session_options, 0),
+                             "CUDA");
         logger_.LogVerbose(name_, "onnx TensorRT session declared");
       }
       logger_.LogVerbose(name_, "onnx Creating session");

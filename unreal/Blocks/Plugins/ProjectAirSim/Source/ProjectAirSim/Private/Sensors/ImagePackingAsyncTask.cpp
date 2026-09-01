@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI CONSULTING CORP
 //
 // MIT License. All rights reserved.
@@ -7,8 +7,8 @@
 
 #include <map>
 
-#include "core_sim/message/image_message.hpp"
 #include "UnrealLogger.h"
+#include "core_sim/message/image_message.hpp"
 
 namespace projectairsim = microsoft::projectairsim;
 
@@ -23,7 +23,8 @@ void FImagePackingAsyncTask::DoWork() {
     ImgResponse.TimeStamp = CapturedCameraTransform.timestamp_;
 
     bool bIsDepthImage =
-        (ImageRequest.ImageType == projectairsim::ImageType::kDepthPerspective ||
+        (ImageRequest.ImageType ==
+             projectairsim::ImageType::kDepthPerspective ||
          ImageRequest.ImageType == projectairsim::ImageType::kDepthPlanar);
 
     // Handle Depth image requests here.
@@ -46,8 +47,10 @@ void FImagePackingAsyncTask::DoWork() {
         // The depth materials write METERS to R; transmit the fp16 bit
         // pattern as-is (see the encoding comment above).
         const uint16 DepthHalfBits = SrcPixel.R.Encoded;
-        *DstPtr++ = static_cast<uint8>(DepthHalfBits & 0xFF);        // least significant byte
-        *DstPtr++ = static_cast<uint8>((DepthHalfBits >> 8) & 0xFF);  // most significant byte
+        *DstPtr++ =
+            static_cast<uint8>(DepthHalfBits & 0xFF);  // least significant byte
+        *DstPtr++ = static_cast<uint8>((DepthHalfBits >> 8) &
+                                       0xFF);  // most significant byte
       }
     }
     // Normal RGB images without compression or PixelsAsFloat requested
@@ -147,8 +150,7 @@ void FImagePackingAsyncTask::DoWork() {
             ImgResponse.CameraPosition.z(), ImgResponse.CameraOrientation.w(),
             ImgResponse.CameraOrientation.x(),
             ImgResponse.CameraOrientation.y(),
-            ImgResponse.CameraOrientation.z(),
-            Annotations));
+            ImgResponse.CameraOrientation.z(), Annotations));
   }
 
   // Publish the whole pack of image messages

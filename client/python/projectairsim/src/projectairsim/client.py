@@ -49,6 +49,7 @@ class ProjectAirSimClient:
         projectairsim_log().info(f"Connecting to simulation server at {self.address}")
         # Socket for comm via ProjectAirSim topics
         self.socket_topics = pynng.Pair0(
+            recv_timeout=100,  # Bounded block so the receive thread can stop cleanly
             send_timeout=1000,  # Timeout after 1 second
         )
         # Socket for comm via ProjectAirSim services
@@ -78,6 +79,29 @@ class ProjectAirSimClient:
             )
         projectairsim_log().info("Connection opened.")
         self.state = True
+
+    def connect_services(self):
+        """Connect to request/reply services without opening the topic socket.
+
+        Use this when another process, such as the ROS bridge, owns the native
+        single-consumer topic connection but this client still needs control APIs.
+        """
+        projectairsim_log().info(
+            f"Connecting to simulation services at {self.address}"
+        )
+        self.socket_services = pynng.Req0(
+            recv_timeout=300000,
+            send_timeout=1000,
+            resend_time=-1,
+        )
+        self.request_id = self.request_id_generator()
+        service_address = f"tcp://{self.address}:{self.port_services}"
+        if "win" in platform:
+            self.socket_services.dial(service_address.encode(), block=True)
+        if "linux" in platform:
+            self.socket_services.dial(address=service_address, block=True)
+        self.state = True
+        projectairsim_log().info("Service connection opened.")
 
     def get_topic_info(self):
         """This is used by World to get the list of topic info on reload scene."""
@@ -246,8 +270,7 @@ class ProjectAirSimClient:
         self.socket_services.send(request_packed)
         try:
             response = self.socket_services.recv_msg()
-            output = self.postprocess_response(response)
-            return output
+            return self.postprocess_response(response)
         except pynng.exceptions.Timeout:
             utils.projectairsim_log().error(
                 f"Timed out receiving response for request: {request_data}."
@@ -401,9 +424,12 @@ class ProjectAirSimClient:
             self.recv_topic_thread.join()
         # Unsubscribe after stopping the receive loop that processes the
         # incoming subscription messages.
-        self.unsubscribe_all()
-        self.socket_topics.close()
-        self.socket_services.close()
+        if self.socket_topics is not None and self.socket_services is not None:
+            self.unsubscribe_all()
+        if self.socket_topics is not None:
+            self.socket_topics.close()
+        if self.socket_services is not None:
+            self.socket_services.close()
         projectairsim_log().info("Disconnected.")
 
     def __get_authorization_token_public_key(self) -> str:
@@ -493,8 +519,7 @@ class ProjectAirSimClient:
         # need to unpack with raw=True to handle the binary values. Also, from msgpack
         # 1.0 the default buffer size limit was increased to 100 MB so no need to
         # set the limit explicitly anymore.)
-        frame = msgpack.unpackb(frame_packed, raw=True)
-        return frame
+        return msgpack.unpackb(frame_packed, raw=True)
 
     def __recv_topic(self):
         while self.state:

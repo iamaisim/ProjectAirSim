@@ -359,7 +359,15 @@ unreal/**/Samples
 ros/.catkin_workspace
 ros/devel/*
 ros/build/*
+ros/build-*/
+ros/install/
+ros/install-*/
+ros/log/
+ros/log-*/
 ros/src/CMakeLists.txt
+
+# Generated test and benchmark artifacts
+test-artifact-dir/
 
 # vim
 *.swp

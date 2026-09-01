@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation. 
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI CONSULTING CORP
 
 // MIT License. All rights reserved.
@@ -8,15 +8,34 @@
 
 #include <functional>
 #include <memory>
+#include <string>
 
 #include "core_sim/client_authorization.hpp"
 #include "core_sim/logger.hpp"
 #include "core_sim/message/message.hpp"
 #include "core_sim/topic.hpp"
 #include "json.hpp"
+#include "msgpack.hpp"
+#include "nng/nng.h"
 
 namespace microsoft {
 namespace projectairsim {
+
+enum class FrameType : int { kSubscribe = 0, kUnsubscribe = 1, kMessage = 2 };
+
+namespace detail {
+
+void PackTopicFrame(msgpack::sbuffer& buffer, FrameType type,
+                    const std::string& topic, const std::string& body);
+
+size_t GetPackedTopicFrameSize(FrameType type, const std::string& topic,
+                               const std::string& body);
+
+int AllocPackedTopicFrameMessage(nng_msg** message, FrameType type,
+                                 const std::string& topic,
+                                 const std::string& body);
+
+}  // namespace detail
 
 class TopicManager {
  public:
@@ -64,5 +83,7 @@ class TopicManager {
 
 }  // namespace projectairsim
 }  // namespace microsoft
+
+MSGPACK_ADD_ENUM(microsoft::projectairsim::FrameType);
 
 #endif  // CORE_SIM_SRC_TOPIC_MANAGER_HPP_

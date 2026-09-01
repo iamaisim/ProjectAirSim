@@ -9,6 +9,7 @@
 #include <stdint.h>
 
 #include <string>
+#include <vector>
 
 #include "core_sim/physics_common_types.hpp"
 
@@ -43,6 +44,12 @@ struct IRoverApi {
                              float duration, float heading_margin,
                              float yaw_rate, float timeout_sec,
                              int64_t command_start_time_nanos) = 0;
+
+  // Follow a sequence of NED waypoints (x/y used; z ignored if present).
+  virtual bool MoveOnPath(std::vector<std::vector<float>> path, float velocity,
+                          float timeout_sec, float yaw_rate_max, float lookahead,
+                          float adaptive_lookahead,
+                          int64_t command_start_time_nanos) = 0;
 };  // interface IRoverApi
 
 }  // namespace projectairsim

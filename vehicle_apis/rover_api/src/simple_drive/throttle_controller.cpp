@@ -3,6 +3,8 @@
 
 // MIT License. All rights reserved.
 
+#include <cmath>
+
 #include <simple_drive/throttle_controller.hpp>
 
 namespace microsoft {
@@ -24,7 +26,9 @@ void ThrottleController::Update(void) {
   if (goal.mode == Goal::Mode::kPassthrough)
     output_ = goal.value;
   else if (goal.mode == Goal::Mode::kVelocityWorld) {
-    auto velocity_cur = pistate_estimator_->GetLinearVelocity().X();
+    auto velocity_world = pistate_estimator_->GetLinearVelocity();
+    auto velocity_cur = std::sqrt((velocity_world.X() * velocity_world.X()) +
+                                  (velocity_world.Y() * velocity_world.Y()));
 
     if (fgoalmodes_changed ||
         (goal.value != pid_controller_throttle_.getPoint())) {

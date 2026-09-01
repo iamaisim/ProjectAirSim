@@ -384,14 +384,14 @@ class ProjectAirSimClient:
 
     async def postprocess_response_async_with_callback(
         self, response, callback: callable
-    ) -> None:
+    ) -> Any:
         """Helper function that for asynchronously postprocessing a response"""
         if inspect.isawaitable(response):
             response = await response
         result = self.postprocess_response(response)
-        # Return or validate result here
         if callback is not None:
             callback(result)
+        return result
 
     def disconnect(self):
         """Disconnects from the server"""

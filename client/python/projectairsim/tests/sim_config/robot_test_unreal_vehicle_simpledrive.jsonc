@@ -1,0 +1,12 @@
+{
+  "physics-type": "unreal-physics",
+  "unreal-vehicle-class": "/ProjectAirSim/VehicleAdv/SUV/SuvCarPawn.SuvCarPawn_C",
+  "controller": {
+    "id": "Simple_Drive_Controller",
+    "vehicle-setup": "ackermann",
+    "type": "simple-drive-api",
+    "simple-drive-api-settings": {
+      "actuator-order": []
+    }
+  }
+}

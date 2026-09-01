@@ -227,6 +227,10 @@ bool SimpleDriveApi::Disarm(void) {
 bool SimpleDriveApi::CanArm(void) const { return true; }
 
 Kinematics SimpleDriveApi::GetKinematicsEstimated(void) const {
+  if (pvehicle_state_estimator_ == nullptr) {
+    return Kinematics::Zero();
+  }
+
   return Utils::ToKinematicsState3r(
       pvehicle_state_estimator_->GetKinematicsEstimated());
 }
@@ -327,6 +331,48 @@ bool SimpleDriveApi::MoveByHeading(float heading, float speed, float duration,
   if (yaw_rate >= 0) pparams_->angle_rate_pid.max_limit.Z() = yaw_max_limit_sav;
 
   return f_result;
+}
+
+bool SimpleDriveApi::MoveOnPath(std::vector<std::vector<float>> path,
+                                float velocity, float timeout_sec,
+                                float yaw_rate_max, float lookahead,
+                                float adaptive_lookahead,
+                                int64_t command_start_time_nanos) {
+  if (!api_control_enabled_) {
+    GetLogger().LogError(GetControllerName(),
+                         "Vehicle cannot be commanded via API because API has "
+                         "not been given control");
+    return false;
+  }
+
+  if (vehicle_state_ != VehicleStateType::kArmed &&
+      vehicle_state_ != VehicleStateType::kActive) {
+    GetLogger().LogError(GetControllerName(),
+                         "Vehicle cannot MoveOnPath because it is not armed");
+    return false;
+  }
+
+  if (path.empty()) {
+    return true;
+  }
+
+  for (const auto& point : path) {
+    if (point.size() < 2) {
+      GetLogger().LogError(GetControllerName(),
+                           "MoveOnPath terminated because a path point has "
+                           "fewer than 2 coordinates");
+      return false;
+    }
+
+    // Ground vehicles use NED x/y only; ignore z if present.
+    if (!MoveToPosition(point[0], point[1], velocity, timeout_sec, yaw_rate_max,
+                        lookahead, adaptive_lookahead,
+                        command_start_time_nanos)) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 }  // namespace simple_drive

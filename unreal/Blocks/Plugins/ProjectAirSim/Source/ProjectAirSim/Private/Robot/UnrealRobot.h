@@ -30,6 +30,7 @@
 
 class AUnrealScene;
 class UUnrealCamera;
+class UChaosWheeledVehicleMovementComponent;
 
 UCLASS()
 class AUnrealRobot : public AActor {
@@ -105,6 +106,12 @@ class AUnrealRobot : public AActor {
 
   void UpdateCachedTerrainElevation();
 
+  void InitializeProjectAirSimVehicle();
+
+  bool SetParameter(int32 Index, float Value);
+
+  void TickProjectAirSimVehicle(float DeltaTime);
+
   std::set<std::string> GetRootLinks(
       const std::vector<microsoft::projectairsim::Link>& InLinks,
       const std::vector<microsoft::projectairsim::Joint>& InJoints);
@@ -132,4 +139,34 @@ class AUnrealRobot : public AActor {
   TimeNano UnrealPoseUpdatedTimeStamp = 0;
 
   TMap<FString, ActuatedFTransform> RobotActuatedTransforms;
+
+  // For unreal-physics robots with unreal-vehicle-class: reference to the
+  // ProjectAirSim vehicle AActor that provides its own physics simulation.
+  UPROPERTY()
+  AActor* ProjectAirSimVehicleActor = nullptr;
+
+  // Cached pointer to the first physics-simulating UPrimitiveComponent on the
+  // ProjectAirSim vehicle.  In many Blueprints the root is a plain USceneComponent
+  // (DefaultSceneRoot) while the actual mesh that simulates physics is a child.
+  UPROPERTY()
+  UPrimitiveComponent* ProjectAirSimVehicleComponent = nullptr;
+
+  // Cached Chaos movement component for standard throttle/brake/steering
+  // inputs, including visual and physical wheel steering.
+  UPROPERTY()
+  UChaosWheeledVehicleMovementComponent* ProjectAirSimVehicleMovement = nullptr;
+
+  // Whether the ProjectAirSimVehicleActor implements IProjectAirSimVehicle.
+  // If false, kinematics are read via standard UE API (GetVelocity, etc.)
+  bool bProjectAirSimVehicleHasInterface = false;
+  bool bProjectAirSimVehicleParameterServiceRegistered = false;
+  TMap<int32, float> ProjectAirSimVehicleParameters;
+
+  // Previous-tick state for finite-difference velocity/acceleration estimation
+  // when the ProjectAirSim vehicle does not use Chaos physics.
+  FVector PrevExtPosition = FVector::ZeroVector;
+  FQuat   PrevExtQuat     = FQuat::Identity;
+  FVector PrevEstLinearVelocity = FVector::ZeroVector;
+  FVector PrevEstAngularVelocity = FVector::ZeroVector;
+  bool bHasPrevExtState = false;
 };

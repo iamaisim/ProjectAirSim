@@ -136,7 +136,7 @@ Start with the [AirSim transition guide](docs/transition_from_airsim.md).
 ## Latest Project Updates
 
 The current `main` branch contains the changes recorded for Project AirSim
-0.3.0, including:
+1.0.0, including:
 
 - JSBSim fixed-wing simulation with Cessna 310 and Skywalker X8 examples;
 - a standalone C++ client package and ROS 2 C++ bridge;

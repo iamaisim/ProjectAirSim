@@ -50,6 +50,9 @@ target_include_directories(
         ${TARGET_SOURCE_DIR}/src/  # for private headers
         ${EIGEN_INCLUDE_DIR}
         ${JSON_INCLUDE_DIR}
+        ${NNG_INCLUDE_DIR}
+        ${MSGPACK_INCLUDE_DIR}
+        ${OPENSSL_INCLUDE_DIR}
 )
 
 if(WIN32)

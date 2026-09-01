@@ -132,11 +132,11 @@ target_include_directories(
         $<INSTALL_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
         ${JSBSIM_INCLUDE_DIR}
+        ${MSGPACK_INCLUDE_DIR}
+        ${NNG_INCLUDE_DIR}
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${JSON_INCLUDE_DIR}
-        ${NNG_INCLUDE_DIR}
-        ${MSGPACK_INCLUDE_DIR}
         ${EIGEN_INCLUDE_DIR}
         ${OPENSSL_INCLUDE_DIR}
 )

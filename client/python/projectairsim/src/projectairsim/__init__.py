@@ -14,4 +14,12 @@ from .unreal_vehicle import UnrealVehicle
 
 __version__ = "1.0.0"
 
-__all__ = ["Drone", "ProjectAirSimClient", "World", "Rover","EnvActor", "UnrealVehicle"]
+__all__ = [
+    "Drone",
+    "ProjectAirSimClient",
+    "World",
+    "Rover",
+    "EnvActor",
+    "StaticSensorActor",
+    "UnrealVehicle",
+]

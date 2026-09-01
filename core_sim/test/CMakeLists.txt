@@ -52,6 +52,8 @@ add_executable(
     gtest_noise_model_utils.cpp
     gtest_clock.cpp
     gtest_message.cpp
+    gtest_image_message.cpp
+    gtest_topic_manager.cpp
     gtest_battery_message.cpp
     gtest_pose_message.cpp
     gtest_kinematics_message.cpp

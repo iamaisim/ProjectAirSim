@@ -7,7 +7,10 @@
 #include <cstring>
 #include <filesystem>
 #include <limits>
+#include <stdexcept>
 #include <string>
+#include <string_view>
+#include <utility>
 #include <vector>
 
 #include "geometry_msgs/msg/point.hpp"
@@ -28,15 +31,25 @@ constexpr double kPi = 3.14159265358979323846;
 
 inline bool EndsWith(const std::string& value, const std::string& suffix) {
   return value.size() >= suffix.size() &&
-         value.compare(value.size() - suffix.size(), suffix.size(), suffix) == 0;
+         value.compare(value.size() - suffix.size(), suffix.size(), suffix) ==
+             0;
+}
+
+inline bool IsImageTopic(const std::string& topic) {
+  return EndsWith(topic, "_camera") || EndsWith(topic, "/scene_camera") ||
+         EndsWith(topic, "/depth_camera") ||
+         EndsWith(topic, "/depth_planar_camera") ||
+         EndsWith(topic, "/depth_vis_camera") ||
+         EndsWith(topic, "/disparity_normalized_camera") ||
+         EndsWith(topic, "/segmentation_camera") ||
+         EndsWith(topic, "/surface_normals_camera");
 }
 
 inline bool StartsWithPathPrefix(const std::string& value,
                                  const std::string& prefix) {
-  return value == prefix ||
-         (value.size() > prefix.size() &&
-          value.compare(0, prefix.size(), prefix) == 0 &&
-          value[prefix.size()] == '/');
+  return value == prefix || (value.size() > prefix.size() &&
+                             value.compare(0, prefix.size(), prefix) == 0 &&
+                             value[prefix.size()] == '/');
 }
 
 inline std::string ReplaceSuffix(std::string value, const std::string& suffix,
@@ -57,7 +70,8 @@ inline std::vector<std::string> SplitPath(const std::string& path) {
     if (start >= path.size()) break;
 
     const auto end = path.find('/', start);
-    parts.push_back(path.substr(start, end == std::string::npos ? end : end - start));
+    parts.push_back(
+        path.substr(start, end == std::string::npos ? end : end - start));
     if (end == std::string::npos) break;
     start = end + 1;
   }
@@ -101,7 +115,8 @@ inline std::string ParentTopicFromProjectAirSimTopic(
   const auto parts = SplitPath(topic);
   const auto root_parts = SplitPath(topic_root);
   if (parts.size() <= root_parts.size() + 1) return "";
-  if (parts[root_parts.size()].empty() || parts[root_parts.size()].front() == '$') {
+  if (parts[root_parts.size()].empty() ||
+      parts[root_parts.size()].front() == '$') {
     return "";
   }
 
@@ -171,7 +186,8 @@ inline json UnpackProjectAirSimMessage(const std::string& payload) {
 
 inline double NumberOr(const json& object, const char* key,
                        double fallback = 0.0) {
-  if (!object.is_object() || !object.contains(key) || !object[key].is_number()) {
+  if (!object.is_object() || !object.contains(key) ||
+      !object[key].is_number()) {
     return fallback;
   }
   return object[key].get<double>();
@@ -293,8 +309,7 @@ inline float RadarAmplitudeFromRangeAndRcs(double range, double rcs_sqm) {
   if (range <= 0.0 || rcs_sqm <= 0.0) return 0.0F;
   return static_cast<float>(
       10.0 * std::log10(rcs_sqm * 1000.0 /
-                        (16.0 * kPi * kPi * std::pow(range, 4)) * 0.7 *
-                        15.0));
+                        (16.0 * kPi * kPi * std::pow(range, 4)) * 0.7 * 15.0));
 }
 
 inline void AppendRadarReturnsFromJson(
@@ -306,7 +321,8 @@ inline void AppendRadarReturnsFromJson(
     const auto range = NumberOr(detection, "range");
     radar_return.range = static_cast<float>(range);
     radar_return.azimuth = static_cast<float>(NumberOr(detection, "azimuth"));
-    radar_return.elevation = static_cast<float>(NumberOr(detection, "elevation"));
+    radar_return.elevation =
+        static_cast<float>(NumberOr(detection, "elevation"));
     radar_return.doppler_velocity =
         static_cast<float>(NumberOr(detection, "velocity"));
     radar_return.amplitude =
@@ -316,15 +332,19 @@ inline void AppendRadarReturnsFromJson(
 }
 
 inline void AppendRadarTracksFromJson(
-    const json& tracks, projectairsim_ros2_cpp::msg::RadarTracks* radar_tracks) {
+    const json& tracks,
+    projectairsim_ros2_cpp::msg::RadarTracks* radar_tracks) {
   if (!tracks.is_array()) return;
   radar_tracks->tracks.reserve(radar_tracks->tracks.size() + tracks.size());
   for (const auto& track : tracks) {
     projectairsim_ros2_cpp::msg::RadarTrack ros_track;
     ros_track.id = static_cast<int32_t>(NumberOr(track, "id"));
-    ros_track.position = ToRosVector3(track.value("position_est", json::array()));
-    ros_track.velocity = ToRosVector3(track.value("velocity_est", json::array()));
-    ros_track.acceleration = ToRosVector3(track.value("accel_est", json::array()));
+    ros_track.position =
+        ToRosVector3(track.value("position_est", json::array()));
+    ros_track.velocity =
+        ToRosVector3(track.value("velocity_est", json::array()));
+    ros_track.acceleration =
+        ToRosVector3(track.value("accel_est", json::array()));
     ros_track.azimuth = static_cast<float>(NumberOr(track, "azimuth_est"));
     ros_track.elevation = static_cast<float>(NumberOr(track, "elevation_est"));
     ros_track.range = static_cast<float>(NumberOr(track, "range_est"));
@@ -332,15 +352,18 @@ inline void AppendRadarTracksFromJson(
   }
 }
 
-inline void PopulateCameraInfoFromJson(const json& msg,
-                                       sensor_msgs::msg::CameraInfo* camera_info) {
+inline void PopulateCameraInfoFromJson(
+    const json& msg, sensor_msgs::msg::CameraInfo* camera_info) {
   camera_info->width = static_cast<uint32_t>(NumberOr(msg, "width"));
   camera_info->height = static_cast<uint32_t>(NumberOr(msg, "height"));
   camera_info->distortion_model = msg.value("distortion_model", std::string());
   camera_info->d = ArrayNumbers(msg.value("distortion_params", json::array()));
-  FillFixedArray(msg.value("intrinsic_camera_matrix", json::array()), &camera_info->k);
-  FillFixedArray(msg.value("rectification_matrix", json::array()), &camera_info->r);
-  FillFixedArray(msg.value("projection_matrix", json::array()), &camera_info->p);
+  FillFixedArray(msg.value("intrinsic_camera_matrix", json::array()),
+                 &camera_info->k);
+  FillFixedArray(msg.value("rectification_matrix", json::array()),
+                 &camera_info->r);
+  FillFixedArray(msg.value("projection_matrix", json::array()),
+                 &camera_info->p);
 }
 
 // Convert an IEEE 754 half-precision (binary16) bit pattern to float32.
@@ -414,6 +437,205 @@ inline bool PopulateImagePayloadFromJson(const json& msg,
     return true;
   }
   return false;
+}
+
+struct NativeImageMetadata {
+  std::string source_encoding;
+  float pos_x = 0.0F;
+  float pos_y = 0.0F;
+  float pos_z = 0.0F;
+  float rot_w = 1.0F;
+  float rot_x = 0.0F;
+  float rot_y = 0.0F;
+  float rot_z = 0.0F;
+};
+
+namespace detail {
+
+inline std::string_view ImageStringView(const msgpack::object& object,
+                                        const char* field_name) {
+  if (object.type == msgpack::type::STR) {
+    return {object.via.str.ptr, object.via.str.size};
+  }
+  if (object.type == msgpack::type::BIN) {
+    return {object.via.bin.ptr, object.via.bin.size};
+  }
+  throw std::runtime_error(std::string("Image field '") + field_name +
+                           "' is not a string/bin value");
+}
+
+inline std::uint64_t ImageUnsigned(const msgpack::object& object,
+                                   const char* field_name) {
+  if (object.type == msgpack::type::POSITIVE_INTEGER) return object.via.u64;
+  if (object.type == msgpack::type::NEGATIVE_INTEGER && object.via.i64 >= 0) {
+    return static_cast<std::uint64_t>(object.via.i64);
+  }
+  throw std::runtime_error(std::string("Image field '") + field_name +
+                           "' is not an unsigned integer");
+}
+
+inline std::uint32_t ImageUint32(const msgpack::object& object,
+                                 const char* field_name) {
+  const auto value = ImageUnsigned(object, field_name);
+  if (value > std::numeric_limits<std::uint32_t>::max()) {
+    throw std::runtime_error(std::string("Image field '") + field_name +
+                             "' exceeds uint32 range");
+  }
+  return static_cast<std::uint32_t>(value);
+}
+
+inline bool ImageBool(const msgpack::object& object, const char* field_name) {
+  if (object.type == msgpack::type::BOOLEAN) return object.via.boolean;
+  if (object.type == msgpack::type::POSITIVE_INTEGER)
+    return object.via.u64 != 0;
+  throw std::runtime_error(std::string("Image field '") + field_name +
+                           "' is not a bool");
+}
+
+inline float ImageFloat(const msgpack::object& object, const char* field_name) {
+  switch (object.type) {
+    case msgpack::type::FLOAT32:
+    case msgpack::type::FLOAT64:
+      return static_cast<float>(object.via.f64);
+    case msgpack::type::POSITIVE_INTEGER:
+      return static_cast<float>(object.via.u64);
+    case msgpack::type::NEGATIVE_INTEGER:
+      return static_cast<float>(object.via.i64);
+    default:
+      throw std::runtime_error(std::string("Image field '") + field_name +
+                               "' is not numeric");
+  }
+}
+
+}  // namespace detail
+
+// Decode the native MessagePack image schema directly into a ROS image. This
+// avoids materializing the multi-megabyte pixel payload as nlohmann::json. The
+// single copy below is required to populate sensor_msgs::msg::Image::data.
+inline bool PopulateImagePayloadFromMsgpack(const std::string& payload,
+                                            sensor_msgs::msg::Image* image,
+                                            NativeImageMetadata* metadata) {
+  auto handle = msgpack::unpack(payload.data(), payload.size());
+  const auto& object = handle.get();
+  if (object.type != msgpack::type::MAP) {
+    throw std::runtime_error("Image payload is not a MessagePack map");
+  }
+
+  NativeImageMetadata parsed_metadata;
+  const char* data = nullptr;
+  const msgpack::object* data_array = nullptr;
+  std::size_t data_size = 0;
+  bool data_is_array = false;
+  bool has_height = false;
+  bool has_width = false;
+  bool has_encoding = false;
+  bool has_big_endian = false;
+  bool has_step = false;
+  bool has_data = false;
+
+  for (std::uint32_t i = 0; i < object.via.map.size; ++i) {
+    const auto& key = object.via.map.ptr[i].key;
+    const auto& value = object.via.map.ptr[i].val;
+    if (key.type != msgpack::type::STR) continue;
+    const std::string_view field(key.via.str.ptr, key.via.str.size);
+
+    if (field == "height") {
+      image->height = detail::ImageUint32(value, "height");
+      has_height = true;
+    } else if (field == "width") {
+      image->width = detail::ImageUint32(value, "width");
+      has_width = true;
+    } else if (field == "encoding") {
+      parsed_metadata.source_encoding =
+          std::string(detail::ImageStringView(value, "encoding"));
+      has_encoding = true;
+    } else if (field == "big_endian") {
+      image->is_bigendian =
+          static_cast<std::uint8_t>(detail::ImageBool(value, "big_endian"));
+      has_big_endian = true;
+    } else if (field == "step") {
+      (void)detail::ImageUint32(value, "step");
+      has_step = true;
+    } else if (field == "data") {
+      if (value.type == msgpack::type::BIN) {
+        data = value.via.bin.ptr;
+        data_size = value.via.bin.size;
+      } else if (value.type == msgpack::type::STR) {
+        data = value.via.str.ptr;
+        data_size = value.via.str.size;
+      } else if (value.type == msgpack::type::ARRAY) {
+        data_is_array = true;
+        data_array = &value;
+        data_size = value.via.array.size;
+      } else {
+        throw std::runtime_error("Image field 'data' is not bin/string/array");
+      }
+      has_data = true;
+    } else if (field == "pos_x") {
+      parsed_metadata.pos_x = detail::ImageFloat(value, "pos_x");
+    } else if (field == "pos_y") {
+      parsed_metadata.pos_y = detail::ImageFloat(value, "pos_y");
+    } else if (field == "pos_z") {
+      parsed_metadata.pos_z = detail::ImageFloat(value, "pos_z");
+    } else if (field == "rot_w") {
+      parsed_metadata.rot_w = detail::ImageFloat(value, "rot_w");
+    } else if (field == "rot_x") {
+      parsed_metadata.rot_x = detail::ImageFloat(value, "rot_x");
+    } else if (field == "rot_y") {
+      parsed_metadata.rot_y = detail::ImageFloat(value, "rot_y");
+    } else if (field == "rot_z") {
+      parsed_metadata.rot_z = detail::ImageFloat(value, "rot_z");
+    }
+  }
+
+  if (!has_height || !has_width || !has_encoding || !has_big_endian ||
+      !has_step || !has_data) {
+    throw std::runtime_error("Image payload is missing required fields");
+  }
+
+  std::size_t bytes_per_pixel = 0;
+  if (parsed_metadata.source_encoding == "BGR") {
+    image->encoding = "bgr8";
+    bytes_per_pixel = 3;
+  } else if (parsed_metadata.source_encoding == "16UC1") {
+    image->encoding = "mono16";
+    bytes_per_pixel = 2;
+  } else {
+    if (metadata != nullptr) *metadata = std::move(parsed_metadata);
+    return false;
+  }
+
+  const std::size_t row_bytes =
+      static_cast<std::size_t>(image->width) * bytes_per_pixel;
+  if (row_bytes > std::numeric_limits<std::uint32_t>::max()) {
+    throw std::runtime_error("Image row size exceeds uint32 range");
+  }
+  if (image->height != 0 &&
+      row_bytes > std::numeric_limits<std::size_t>::max() / image->height) {
+    throw std::runtime_error("Image dimensions overflow payload size");
+  }
+  const std::size_t expected_min_bytes = row_bytes * image->height;
+  if (data_size < expected_min_bytes) {
+    throw std::runtime_error("Image payload is smaller than step*height");
+  }
+
+  image->step = static_cast<std::uint32_t>(row_bytes);
+  image->data.resize(data_size);
+  if (data_is_array) {
+    for (std::size_t i = 0; i < data_size; ++i) {
+      const auto byte =
+          detail::ImageUnsigned(data_array->via.array.ptr[i], "data[]");
+      if (byte > std::numeric_limits<std::uint8_t>::max()) {
+        throw std::runtime_error("Image data byte exceeds uint8 range");
+      }
+      image->data[i] = static_cast<std::uint8_t>(byte);
+    }
+  } else if (data_size != 0) {
+    std::memcpy(image->data.data(), data, data_size);
+  }
+
+  if (metadata != nullptr) *metadata = std::move(parsed_metadata);
+  return true;
 }
 
 inline std::string ResolveSceneConfigPath(const std::string& scene_config,

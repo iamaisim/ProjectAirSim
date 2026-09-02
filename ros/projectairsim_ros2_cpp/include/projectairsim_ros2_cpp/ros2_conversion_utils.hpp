@@ -593,33 +593,79 @@ inline bool PopulateImagePayloadFromMsgpack(const std::string& payload,
     throw std::runtime_error("Image payload is missing required fields");
   }
 
-  std::size_t bytes_per_pixel = 0;
+  std::size_t source_bytes_per_pixel = 0;
+  std::size_t output_bytes_per_pixel = 0;
+  bool convert_half_depth = false;
   if (parsed_metadata.source_encoding == "BGR") {
     image->encoding = "bgr8";
-    bytes_per_pixel = 3;
+    source_bytes_per_pixel = 3;
+    output_bytes_per_pixel = 3;
   } else if (parsed_metadata.source_encoding == "16UC1") {
     image->encoding = "mono16";
-    bytes_per_pixel = 2;
+    source_bytes_per_pixel = 2;
+    output_bytes_per_pixel = 2;
+  } else if (parsed_metadata.source_encoding == "16FC1") {
+    image->encoding = "32FC1";
+    source_bytes_per_pixel = 2;
+    output_bytes_per_pixel = 4;
+    convert_half_depth = true;
   } else {
     if (metadata != nullptr) *metadata = std::move(parsed_metadata);
     return false;
   }
 
-  const std::size_t row_bytes =
-      static_cast<std::size_t>(image->width) * bytes_per_pixel;
-  if (row_bytes > std::numeric_limits<std::uint32_t>::max()) {
+  const std::size_t source_row_bytes =
+      static_cast<std::size_t>(image->width) * source_bytes_per_pixel;
+  const std::size_t output_row_bytes =
+      static_cast<std::size_t>(image->width) * output_bytes_per_pixel;
+  if (output_row_bytes > std::numeric_limits<std::uint32_t>::max()) {
     throw std::runtime_error("Image row size exceeds uint32 range");
   }
   if (image->height != 0 &&
-      row_bytes > std::numeric_limits<std::size_t>::max() / image->height) {
+      source_row_bytes >
+          std::numeric_limits<std::size_t>::max() / image->height) {
     throw std::runtime_error("Image dimensions overflow payload size");
   }
-  const std::size_t expected_min_bytes = row_bytes * image->height;
+  const std::size_t expected_min_bytes = source_row_bytes * image->height;
   if (data_size < expected_min_bytes) {
     throw std::runtime_error("Image payload is smaller than step*height");
   }
 
-  image->step = static_cast<std::uint32_t>(row_bytes);
+  image->step = static_cast<std::uint32_t>(output_row_bytes);
+  if (convert_half_depth) {
+    if ((data_size % 2) != 0) {
+      throw std::runtime_error("16FC1 image payload has an odd byte count");
+    }
+    const std::size_t pixel_count = data_size / 2;
+    if (pixel_count > std::numeric_limits<std::size_t>::max() / 4) {
+      throw std::runtime_error("Converted image payload size overflows");
+    }
+    image->data.resize(pixel_count * 4);
+    const auto source_byte = [&](std::size_t index) {
+      if (!data_is_array) {
+        return static_cast<std::uint8_t>(data[index]);
+      }
+      const auto byte =
+          detail::ImageUnsigned(data_array->via.array.ptr[index], "data[]");
+      if (byte > std::numeric_limits<std::uint8_t>::max()) {
+        throw std::runtime_error("Image data byte exceeds uint8 range");
+      }
+      return static_cast<std::uint8_t>(byte);
+    };
+    for (std::size_t i = 0; i < pixel_count; ++i) {
+      const std::uint16_t bits =
+          static_cast<std::uint16_t>(source_byte(i * 2)) |
+          (static_cast<std::uint16_t>(source_byte(i * 2 + 1)) << 8);
+      const float meters = HalfBitsToFloat(bits);
+      const float ros_depth =
+          std::isfinite(meters) ? meters
+                                : std::numeric_limits<float>::quiet_NaN();
+      std::memcpy(image->data.data() + i * 4, &ros_depth, sizeof(ros_depth));
+    }
+    if (metadata != nullptr) *metadata = std::move(parsed_metadata);
+    return true;
+  }
+
   image->data.resize(data_size);
   if (data_is_array) {
     for (std::size_t i = 0; i < data_size; ++i) {

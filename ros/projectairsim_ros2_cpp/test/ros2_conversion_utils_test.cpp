@@ -3,7 +3,9 @@
 #include <gtest/gtest.h>
 
 #include <array>
+#include <cmath>
 #include <cstdint>
+#include <cstring>
 #include <map>
 #include <stdexcept>
 #include <string>
@@ -200,6 +202,25 @@ TEST(Ros2ConversionUtils, NativeDepthImagePayloadIsConverted) {
   EXPECT_EQ(image.encoding, "mono16");
   EXPECT_EQ(image.step, 4U);
   EXPECT_EQ(image.data, pixels);
+}
+
+TEST(Ros2ConversionUtils, NativeHalfDepthImagePayloadIsConvertedToFloat) {
+  // IEEE 754 binary16 little-endian: 1.0 and +inf.
+  const std::vector<std::uint8_t> pixels{0x00, 0x3C, 0x00, 0x7C};
+  sensor_msgs::msg::Image image;
+  bridge::NativeImageMetadata metadata;
+
+  ASSERT_TRUE(bridge::PopulateImagePayloadFromMsgpack(
+      PackNativeImage("16FC1", 2, 1, pixels), &image, &metadata));
+  EXPECT_EQ(image.encoding, "32FC1");
+  EXPECT_EQ(image.step, 8U);
+  ASSERT_EQ(image.data.size(), 8U);
+
+  std::array<float, 2> depth{};
+  std::memcpy(depth.data(), image.data.data(), image.data.size());
+  EXPECT_FLOAT_EQ(depth[0], 1.0F);
+  EXPECT_TRUE(std::isnan(depth[1]));
+  EXPECT_EQ(metadata.source_encoding, "16FC1");
 }
 
 TEST(Ros2ConversionUtils, NativeImagePayloadRejectsInvalidInputs) {

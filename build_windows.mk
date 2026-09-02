@@ -63,6 +63,15 @@ CMAKE_CMD = cmake -G "Ninja" \
 CMAKE_DBG_BUILD_CMD = cmake --build $(CMAKE_BUILD_DIR)\Debug
 CMAKE_REL_BUILD_CMD = cmake --build $(CMAKE_BUILD_DIR)\Release
 
+.PHONY: prepare_suv_assets
+prepare_suv_assets:
+!ifndef UE_ROOT
+	@echo UE_ROOT is empty; skipping SUV asset installation.
+!else
+	@echo UE_ROOT is set; ensuring SUV assets match the manifest URL...
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "%CD%\tools\assets\install_suv_assets.ps1" -Ensure
+!endif
+
 .PHONY: config_simlibs_debug
 config_simlibs_debug:
 	@echo =======================================================================
@@ -77,7 +86,7 @@ build_simlibs_debug: config_simlibs_debug
 	$(CMAKE_DBG_BUILD_CMD)
 
 .PHONY: simlibs_debug
-simlibs_debug: build_simlibs_debug
+simlibs_debug: prepare_suv_assets build_simlibs_debug
 
 .PHONY: config_simlibs_release
 config_simlibs_release:
@@ -93,7 +102,7 @@ build_simlibs_release: config_simlibs_release
 	$(CMAKE_REL_BUILD_CMD)
 
 .PHONY: simlibs_release
-simlibs_release: build_simlibs_release
+simlibs_release: prepare_suv_assets build_simlibs_release
 
 .PHONY: package_simlibs
 package_simlibs: simlibs_debug simlibs_release

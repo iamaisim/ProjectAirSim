@@ -62,6 +62,15 @@ CMAKE_CMD = cmake -G "Ninja"
 CMAKE_DBG_BUILD_CMD = cmake --build $(CMAKE_BUILD_DIR)/Debug
 CMAKE_REL_BUILD_CMD = cmake --build $(CMAKE_BUILD_DIR)/Release
 
+.PHONY: prepare_suv_assets
+prepare_suv_assets:
+	@if [ -z "$(strip $(UE_ROOT))" ]; then \
+		echo "UE_ROOT is empty; skipping SUV asset installation."; \
+	else \
+		echo "UE_ROOT is set; installing SUV assets..."; \
+		$(CURDIR)/tools/assets/install_suv_assets.sh --ensure; \
+	fi
+
 .PHONY: config_simlibs_debug
 config_simlibs_debug:
 	@echo "======================================================================="
@@ -70,7 +79,7 @@ config_simlibs_debug:
 	cd $(CMAKE_BUILD_DIR)/Debug && $(CMAKE_CMD) -DCMAKE_BUILD_TYPE=Debug ../../..
 
 .PHONY: simlibs_debug
-simlibs_debug: config_simlibs_debug
+simlibs_debug: prepare_suv_assets config_simlibs_debug
 	@echo "======================================================================="
 	@echo "Building the ProjectAirSimLibs project for Linux64-Debug..."
 	$(CMAKE_DBG_BUILD_CMD)
@@ -88,7 +97,7 @@ config_simlibs_debug_asan:
 		../../..
 
 .PHONY: simlibs_debug_asan
-simlibs_debug_asan: config_simlibs_debug_asan
+simlibs_debug_asan: prepare_suv_assets config_simlibs_debug_asan
 	@echo "======================================================================="
 	@echo "Building the ProjectAirSimLibs project for Linux64-Debug with ASan..."
 	cmake --build $(CMAKE_BUILD_DIR)/Debug_asan
@@ -106,7 +115,7 @@ config_simlibs_debug_ubsan:
 		../../..
 
 .PHONY: simlibs_debug_ubsan
-simlibs_debug_ubsan: config_simlibs_debug_ubsan
+simlibs_debug_ubsan: prepare_suv_assets config_simlibs_debug_ubsan
 	@echo "======================================================================="
 	@echo "Building the ProjectAirSimLibs project for Linux64-Debug with UBSan..."
 	cmake --build $(CMAKE_BUILD_DIR)/Debug_ubsan
@@ -124,7 +133,7 @@ config_simlibs_debug_tsan:
 		../../..
 
 .PHONY: simlibs_debug_tsan
-simlibs_debug_tsan: config_simlibs_debug_tsan
+simlibs_debug_tsan: prepare_suv_assets config_simlibs_debug_tsan
 	@echo "======================================================================="
 	@echo "Building the ProjectAirSimLibs project for Linux64-Debug with TSan..."
 	cmake --build $(CMAKE_BUILD_DIR)/Debug_tsan
@@ -137,7 +146,7 @@ config_simlibs_release:
 	cd $(CMAKE_BUILD_DIR)/Release && $(CMAKE_CMD) -DCMAKE_BUILD_TYPE=Release ../../..
 
 .PHONY: simlibs_release
-simlibs_release: config_simlibs_release
+simlibs_release: prepare_suv_assets config_simlibs_release
 	@echo "======================================================================="
 	@echo "Building the ProjectAirSimLibs project for Linux64-Release..."
 	$(CMAKE_REL_BUILD_CMD)

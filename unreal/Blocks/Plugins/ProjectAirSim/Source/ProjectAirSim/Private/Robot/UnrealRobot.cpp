@@ -31,6 +31,7 @@
 #include "UnrealHelpers.h"
 #include "UnrealLogger.h"
 #include "UnrealScene.h"
+#include "core_sim/actuators/unreal_vehicle.hpp"
 #include "core_sim/clock.hpp"
 #include "core_sim/math_utils.hpp"
 #include "core_sim/physics_common_types.hpp"
@@ -787,27 +788,23 @@ void AUnrealRobot::TickProjectAirSimVehicle(float DeltaTime) {
     // when the actor does not consume SetActuatorSignal itself.
     ApplyStandardVehicleForces(Parameters.FindRef(0), Parameters.FindRef(1),
                                Parameters.FindRef(2));
-  }
 
-  // A configured controller is a separate workflow, such as SimpleDrive.
-  auto* Controller = SimRobot.GetController();
-  if (Controller != nullptr &&
-      SimRobot.GetControllerType() == "simple-drive-api") {
-    std::vector<float> Signals;
-    Signals = Controller->GetControlSignals("");
+    // Forward controller outputs through explicitly configured bridge
+    // actuators. The controller updates these on the simulation thread; their
+    // atomic output value is consumed here on Unreal's game thread.
+    for (auto& ActuatorRef : SimRobot.GetActuators()) {
+      auto& Actuator = ActuatorRef.get();
+      if (!Actuator.IsEnabled() ||
+          Actuator.GetType() !=
+              projectairsim::ActuatorType::kUnrealVehicle) {
+        continue;
+      }
 
-    float Throttle = Signals.size() > 0 ? Signals[0] : 0.f;
-    float Steering = Signals.size() > 1 ? Signals[1] : 0.f;
-    float Brake = Signals.size() > 2 ? Signals[2] : 0.f;
-
-    // The SimpleDrive controller uses the conventional vehicle signal order.
-    if (bProjectAirSimVehicleHasInterface) {
-      DispatchParameterSignal(0, Throttle);
-      DispatchParameterSignal(1, Brake);
-      DispatchParameterSignal(2, Steering);
+      const auto& UnrealVehicleActuator =
+          static_cast<const projectairsim::UnrealVehicleActuator&>(Actuator);
+      DispatchParameterSignal(UnrealVehicleActuator.GetParameterIndex(),
+                              UnrealVehicleActuator.GetControlSignal());
     }
-
-    ApplyStandardVehicleForces(Throttle, Brake, Steering);
   }
 
   // Read kinematics from the ProjectAirSim vehicle.

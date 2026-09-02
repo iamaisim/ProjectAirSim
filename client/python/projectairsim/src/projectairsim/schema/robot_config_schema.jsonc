@@ -149,12 +149,12 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": [ "name", "type", "enabled", "parent-link", "child-link" ],
+        "required": [ "name", "type", "enabled" ],
         "properties": {
           "name": { "type": "string" },
           "type": {
             "type": "string",
-            "enum": [ "rotor", "lift-drag-control-surface", "tilt", "gimbal", "wheel" ]
+            "enum": [ "rotor", "lift-drag-control-surface", "tilt", "gimbal", "wheel", "unreal-vehicle" ]
           },
           "enabled": { "type": "boolean" },
           "parent-link": { "type": "string" },
@@ -163,8 +163,23 @@
           "rotor-settings": { "$ref": "#/definitions/rotor-settings" },
           "lift-drag-control-surface-settings": { "$ref": "#/definitions/lift-drag-control-surface-settings" },
           "wheel-settings": { "$ref": "#/definitions/wheel-settings" },
+          "unreal-vehicle-settings": { "$ref": "#/definitions/unreal-vehicle-settings" },
           "tilt-settings": { "$ref": "#/definitions/tilt-settings" }
-        }
+        },
+        "allOf": [
+          {
+            "anyOf": [
+              { "properties": { "type": { "enum": [ "unreal-vehicle" ] } } },
+              { "required": [ "parent-link", "child-link" ] }
+            ]
+          },
+          {
+            "anyOf": [
+              { "not": { "properties": { "type": { "enum": [ "unreal-vehicle" ] } } } },
+              { "required": [ "unreal-vehicle-settings" ] }
+            ]
+          }
+        ]
       }
     },
     "sensors": {
@@ -641,6 +656,23 @@
         "jsbsim-cmd-engine": { "type": "string" },
         "jsbsim-cmd-steering": { "type": "string" },
         "jsbsim-cmd-brake": { "type": "string" }
+      }
+    },
+    "unreal-vehicle-settings": {
+      "type": "object",
+      "required": [ "parameter-index" ],
+      "properties": {
+        "parameter-index": {
+          "description": "IProjectAirSimVehicle parameter index that receives the controller output",
+          "type": "integer",
+          "minimum": 0
+        },
+        "control-signal-index": {
+          "description": "Element to select when the controller returns more than one signal for this actuator",
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        }
       }
     },
     "tilt-settings": {

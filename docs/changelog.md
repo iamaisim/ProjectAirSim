@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- Configurable Unreal vehicle bridge actuators that map controller outputs to Blueprint parameter indices
+
 ## [1.0.0] - 2026-09-01
 ### Added
 - Project AirSim Runtime sample application and modular scene configuration support

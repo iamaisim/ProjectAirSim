@@ -91,6 +91,7 @@ add_library(
     actuators/gimbal.cpp
     actuators/lift_drag_control_surface.cpp
     actuators/rotor.cpp
+    actuators/unreal_vehicle.cpp
     actuators/wheel.cpp
     actuators/tilt.cpp
     transforms/transform_utils.cpp

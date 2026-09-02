@@ -14,6 +14,7 @@ url=""
 expected_sha256="$(manifest_value sha256)"
 destination_root="$repo_root/unreal/Blocks/Plugins/ProjectAirSim/Content/VehicleAdv"
 force=false
+ensure=false
 
 usage() {
     cat <<'EOF'
@@ -25,6 +26,7 @@ Options:
   --sha256 HASH        Override the expected SHA-256 checksum.
   --destination PATH   Override the VehicleAdv destination directory.
   --force              Replace an existing SUV installation.
+  --ensure             Install or update the SUV to the manifest URL.
   -h, --help           Show this help.
 EOF
 }
@@ -36,6 +38,7 @@ while (($#)); do
         --sha256) expected_sha256="$2"; shift 2 ;;
         --destination) destination_root="$2"; shift 2 ;;
         --force) force=true; shift ;;
+        --ensure) ensure=true; shift ;;
         -h|--help) usage; exit 0 ;;
         *) echo "Unknown option: $1" >&2; usage >&2; exit 2 ;;
     esac
@@ -44,6 +47,24 @@ done
 if [[ -n "$archive_path" && -n "$url" ]]; then
     echo "Specify only one of --archive or --url." >&2
     exit 2
+fi
+
+if [[ -z "$archive_path" && -z "$url" ]]; then
+    url="$(manifest_value url)"
+fi
+
+destination="$destination_root/SUV"
+metadata_path="$destination/.projectairsim-suv-assets.json"
+if [[ "$ensure" == true && -d "$destination" ]]; then
+    installed_url=""
+    if [[ -f "$metadata_path" ]]; then
+        installed_url="$(sed -n 's/^[[:space:]]*"url":[[:space:]]*"\([^"]*\)".*/\1/p' "$metadata_path")"
+    fi
+    if [[ -n "$url" && "$installed_url" == "$url" ]]; then
+        echo "SUV assets already match manifest URL; skipping download."
+        exit 0
+    fi
+    force=true
 fi
 
 staging_dir="$(mktemp -d)"
@@ -57,9 +78,6 @@ cleanup() {
 trap cleanup EXIT
 
 if [[ -z "$archive_path" ]]; then
-    if [[ -z "$url" ]]; then
-        url="$(manifest_value url)"
-    fi
     downloaded_archive="$(mktemp --suffix=.zip)"
     curl --fail --location --show-error --output "$downloaded_archive" "$url"
     archive_path="$downloaded_archive"
@@ -79,7 +97,6 @@ if [[ ! -f "$staged_suv/SuvCarPawn.uasset" ]]; then
     exit 1
 fi
 
-destination="$destination_root/SUV"
 if [[ -e "$destination" ]]; then
     if [[ "$force" != true ]]; then
         echo "SUV assets already exist at '$destination'. Use --force to replace them." >&2
@@ -90,4 +107,9 @@ fi
 
 mkdir -p -- "$destination_root"
 mv -- "$staged_suv" "$destination"
+cat > "$metadata_path" <<EOF
+{
+  "url": "$url"
+}
+EOF
 echo "Installed SUV assets at: $destination"

@@ -49,6 +49,7 @@ add_executable(
     gtest_tilt.cpp
     gtest_rotor_setting.cpp
     gtest_wheel_setting.cpp
+    gtest_unreal_vehicle_actuator.cpp
     gtest_noise_model_utils.cpp
     gtest_clock.cpp
     gtest_message.cpp

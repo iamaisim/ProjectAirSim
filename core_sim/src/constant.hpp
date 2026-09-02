@@ -61,6 +61,8 @@ class Constant {
         "microsoft::projectairsim::actuators::rotor";
     static constexpr const char* wheel =
         "microsoft::projectairsim::actuators::wheel";
+    static constexpr const char* unreal_vehicle_actuator =
+        "microsoft::projectairsim::actuators::unreal_vehicle";
     static constexpr const char* simple_flight_api =
         "microsoft::projectairsim::multirotor_api::simple_flight_api";
     static constexpr const char* simple_drive_api =
@@ -447,6 +449,12 @@ class Constant {
         "jsbsim-cmd-steering";
     static constexpr const char* jsbsim_cmd_brake = "jsbsim-cmd-brake";
     static constexpr const char* wheel_settings = "wheel-settings";
+    static constexpr const char* unreal_vehicle = "unreal-vehicle";
+    static constexpr const char* unreal_vehicle_settings =
+        "unreal-vehicle-settings";
+    static constexpr const char* parameter_index = "parameter-index";
+    static constexpr const char* control_signal_index =
+        "control-signal-index";
     static constexpr const char* steering_connected = "steering-connected";
     static constexpr const char* engine_connected = "engine";
     static constexpr const char* steering = "steering";

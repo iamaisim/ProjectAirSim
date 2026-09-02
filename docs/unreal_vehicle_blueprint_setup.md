@@ -216,13 +216,53 @@ the `/ProjectAirSim/...` mount point; project content normally uses `/Game/...`.
 Add this robot configuration to a scene and control the actor with
 `UnrealVehicle`, just like the supplied SUV example.
 
-## Optional SimpleDrive controller
+## Connect a controller with bridge actuators
 
-Project AirSim also includes `hello_unreal_vehicle_simpledrive.py` and the corresponding
-`robot_unreal_vehicle_simpledrive.jsonc` and
-`scene_unreal_vehicle_simpledrive.jsonc` files. That alternative exposes the
-standard `Rover` API, including `set_rover_controls` and `move_on_path_async`.
-It does not replace the indexed `SetParameter` example documented above.
+An Unreal vehicle can use any Project AirSim controller. Add one
+`unreal-vehicle` actuator for every controller output that the Blueprint needs.
+The actuator name is the output ID requested from the controller, while
+`parameter-index` selects the `SetParameterSignal` index on the Unreal vehicle:
+
+```jsonc
+{
+  "controller": {
+    "id": "PX4_Controller",
+    "type": "px4-api",
+    "px4-settings": {
+      "actuator-order": [
+        { "id": "motor_1" },
+        { "id": "motor_2" }
+      ]
+    }
+  },
+  "actuators": [
+    {
+      "name": "motor_1",
+      "type": "unreal-vehicle",
+      "enabled": true,
+      "unreal-vehicle-settings": { "parameter-index": 0 }
+    },
+    {
+      "name": "motor_2",
+      "type": "unreal-vehicle",
+      "enabled": true,
+      "unreal-vehicle-settings": { "parameter-index": 1 }
+    }
+  ]
+}
+```
+
+Most controllers return one value for each actuator ID, so
+`control-signal-index` defaults to `0`. Controllers such as SimpleDrive return
+several values together. In that case, set `control-signal-index` explicitly
+for each bridge. The supplied `robot_unreal_vehicle_simpledrive.jsonc` maps its
+`[throttle, steering, brake]` output to the SUV Blueprint's `[0, 2, 1]`
+parameter indices.
+
+The SimpleDrive example exposes the standard `Rover` API, including
+`set_rover_controls` and `move_on_path_async`. The same bridge mechanism also
+allows drone controllers and custom controllers to drive an Unreal vehicle
+without controller-specific Unreal code.
 
 ## Troubleshooting
 
@@ -247,32 +287,15 @@ simulation configuration directory resolves to its `sim_config` subdirectory.
 - Confirm the Unreal vehicle movement component is active and the wheels have
   valid Chaos configurations.
 
-### The repository was downloaded without the SUV asset
+### SUV assets
 
-The example SUV is distributed from the public
-[`iamaisim/ProjectAirSim`](https://github.com/iamaisim/ProjectAirSim) releases
-as an optional asset pack instead of being kept in the main Git repository.
-Install the complete pack before opening the Unreal project.
+When `UE_ROOT` is set, the `simlibs_*` build targets automatically download the
+SUV asset pack from the URL in `tools/assets/suv-assets.json` and install it at
+`unreal/Blocks/Plugins/ProjectAirSim/Content/VehicleAdv/SUV`. The installer
+records that URL and downloads the pack again if the configured URL changes,
+for example when switching from version 1.0.0 to 1.1.0.
 
-On Windows, run from the repository root:
-
-```powershell
-.\tools\assets\install_suv_assets.ps1
-```
-
-On Linux, ensure `curl`, `unzip`, and `sha256sum` are installed, then run from
-the repository root:
-
-```bash
-./tools/assets/install_suv_assets.sh
-```
-
-The installer validates the archive checksum and installs it at
-`unreal/Blocks/Plugins/ProjectAirSim/Content/VehicleAdv/SUV`. It refuses to
-replace an existing installation unless `-Force` (Windows) or `--force`
-(Linux) is supplied.
-
-Maintainers can create a new pack from an installed SUV directory with:
+Developers can create a new pack from an installed SUV directory with:
 
 ```powershell
 .\tools\assets\package_suv_assets.ps1 `
@@ -285,5 +308,5 @@ or on Linux:
 ./tools/assets/package_suv_assets.sh /tmp/ProjectAirSim-SUV-Assets-v1.0.0.zip
 ```
 
-After publishing a new archive, update `tools/assets/suv-assets.json` with its
-version, filename, and SHA-256 checksum.
+After publishing a new pack, update `tools/assets/suv-assets.json` with its
+version, URL, filename, and SHA-256 checksum.

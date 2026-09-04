@@ -1,0 +1,287 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Changelog &mdash; Project Airsim 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transition_from_airsim.html">Transitioning from AirSim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system_specs.html">System Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions (FAQ)</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="development/use_prebuilt.html">Using Pre-built Binary Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/use_source.html">Build From Source as a Developer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="client_setup.html">Project AirSim Client Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use_plugin.html">Using Project AirSim Plugin in Custom Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/dev_setup_linux.html">Developer Initial Setup for Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/dev_setup_win.html">Developer Initial Setup for Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/vscode_user_settings.html">Optional VS Code User Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/headless_cloud.html">Running Headless (Docker)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_vehicle_blueprint_setup.html">Unreal Vehicle</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="config.html">Configuration JSONC Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_scene.html">Scene Configuration Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_robot.html">Robot Configuration Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multiple_robots.html">Multiple Robots in a Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_line_switches.html">Command Line Switches</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_line_switches.html#environment-variables">Environment Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gis_scenes.html">GIS Scenes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modify_drone_physical.html">How to Modify a Drone’s Physical Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modify_drone_visual.html">How to Modify a Drone’s Visual Appearance</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="physics/fast-physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/jsbsim.html">JSBSim Physics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/matlab.html">Matlab Physics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/no_physics.html">No Physics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/sensors/display.html">Sensor data visualization/display</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/ardupilot.html">ArduPilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Scene &amp; Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/scene/sim_clock_internal.html">Simulation Clock</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">APIs &amp; Programmatic Control</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_client.html">Project AirSim C++ Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ros/ros2.html">Project AirSim ROS2 C++ Bridge</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python Client API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/client_api/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Changelog</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/changelog.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading"></a></h1>
+<p>All notable changes to this project will be documented in this file.
+The format is based on <a class="reference external" href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>.</p>
+<section id="unreleased">
+<h2><a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/compare/v1.0.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Link to this heading"></a></h2>
+<section id="added">
+<h3>Added<a class="headerlink" href="#added" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Configurable Unreal vehicle bridge actuators that map controller outputs to Blueprint parameter indices</p></li>
+</ul>
+</section>
+</section>
+<section id="id1">
+<h2><a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/compare/v0.3.0...v1.0.0">1.0.0</a> - 2026-09-01<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<section id="id2">
+<h3>Added<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Project AirSim Runtime sample application and modular scene configuration support</p></li>
+<li><p>Blueprint vehicle integration, including Unreal vehicle client APIs, SimpleDrive examples, and SUV asset installation tools</p></li>
+</ul>
+</section>
+<section id="changed">
+<h3>Changed<a class="headerlink" href="#changed" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Expanded integration and setup documentation for the runtime, modular configurations, and Blueprint vehicles</p></li>
+<li><p>Updated the C++ and Python client packages to version 1.0.0</p></li>
+</ul>
+</section>
+<section id="fixed">
+<h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>C++ client requests that could wedge because of an uninitialized flag</p></li>
+<li><p>Depth image packing to preserve raw FP16 meter values with the <code class="docutils literal notranslate"><span class="pre">16FC1</span></code> format</p></li>
+<li><p>Skywalker X8 forest swarm viewport camera behavior</p></li>
+</ul>
+</section>
+</section>
+<section id="id3">
+<h2><a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/compare/v0.2.0...v0.3.0">0.3.0</a> - 2026-08-24<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<section id="id4">
+<h3>Added<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>JSBSim fixed-wing simulation support, including Cessna 310 and Skywalker X8 examples</p></li>
+<li><p>A standalone C++ client package and ROS 2 C++ bridge</p></li>
+<li><p>GPU LiDAR 360-degree scanning support and additional LiDAR validation coverage</p></li>
+<li><p>Python client <code class="docutils literal notranslate"><span class="pre">step()</span></code> API and CPU-usage tests</p></li>
+</ul>
+</section>
+<section id="id5">
+<h3>Changed<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Improved simulator build, toolchain, and CI support for Unreal Engine 5.7</p></li>
+</ul>
+</section>
+<section id="id6">
+<h3>Fixed<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Coordinate conversion precision in the Python ROS bridge</p></li>
+<li><p>GPU LiDAR behavior and standalone simulator builds on Unreal Engine 5.7</p></li>
+</ul>
+</section>
+</section>
+<section id="id7">
+<h2><a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/compare/v0.1.1...v0.2.0">0.2.0</a> - 2026-05-29<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<section id="id8">
+<h3>Added<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Unreal Engine 5.7 support</p></li>
+<li><p>Build commit hash service and client helper API</p></li>
+<li><p>Engine-driven and external simulation clock modes, including schema and demo updates</p></li>
+<li><p>DepthLiDAR sensor support with UE 5.7 compatibility</p></li>
+</ul>
+</section>
+<section id="id9">
+<h3>Changed<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Relaxed Open3D version constraints</p></li>
+<li><p>Improved <code class="docutils literal notranslate"><span class="pre">UE_ROOT</span></code> configuration handling</p></li>
+</ul>
+</section>
+<section id="id10">
+<h3>Fixed<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Missing dependency handling and Linux dev tool installation issues</p></li>
+<li><p>Depth copy behavior from Unreal</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">make_base_specs()</span></code> behavior for local file specs</p></li>
+<li><p>Namespace and unit-test integration issues</p></li>
+</ul>
+</section>
+</section>
+<section id="id11">
+<h2><a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/releases/tag/v0.1.1">0.1.1</a> - 2025-07-30<a class="headerlink" href="#id11" title="Link to this heading"></a></h2>
+<section id="id12">
+<h3>Added<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Core Project AirSim platform baseline</p></li>
+</ul>
+</section>
+<section id="id13">
+<h3>Fixed<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">__has_feature</span></code> macro MSVC compatibility for Windows toolchains</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

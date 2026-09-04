@@ -1,0 +1,805 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project AirSim ROS2 C++ Bridge &mdash; Project Airsim 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Project AirSim C++ Client" href="../cpp_client.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../transition_from_airsim.html">Transitioning from AirSim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system_specs.html">System Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions (FAQ)</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../development/use_prebuilt.html">Using Pre-built Binary Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/use_source.html">Build From Source as a Developer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client_setup.html">Project AirSim Client Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../use_plugin.html">Using Project AirSim Plugin in Custom Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/dev_setup_linux.html">Developer Initial Setup for Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/dev_setup_win.html">Developer Initial Setup for Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/vscode_user_settings.html">Optional VS Code User Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/headless_cloud.html">Running Headless (Docker)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unreal_vehicle_blueprint_setup.html">Unreal Vehicle</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../config.html">Configuration JSONC Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config_scene.html">Scene Configuration Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config_robot.html">Robot Configuration Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../multiple_robots.html">Multiple Robots in a Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_line_switches.html">Command Line Switches</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_line_switches.html#environment-variables">Environment Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gis_scenes.html">GIS Scenes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modify_drone_physical.html">How to Modify a Drone’s Physical Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modify_drone_visual.html">How to Modify a Drone’s Visual Appearance</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/fast-physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/jsbsim.html">JSBSim Physics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/matlab.html">Matlab Physics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/no_physics.html">No Physics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/sensors/display.html">Sensor data visualization/display</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/ardupilot.html">ArduPilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Scene &amp; Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/scene/sim_clock_internal.html">Simulation Clock</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">APIs &amp; Programmatic Control</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp_client.html">Project AirSim C++ Client</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Project AirSim ROS2 C++ Bridge</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#build">Build</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#test">Test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run">Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#k-image-transport-with-fast-dds-shared-memory">4K Image Transport with Fast DDS Shared Memory</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#limitations-of-the-shm-only-profile">Limitations of the SHM-only profile</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#topics">Topics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#services">Services</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#actions">Actions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#common-workflow">Common Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#resolved-limitations-and-remaining-gaps">Resolved Limitations And Remaining Gaps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python Client API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/client_api/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Project AirSim ROS2 C++ Bridge</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/ros/ros2.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="project-airsim-ros2-c-bridge">
+<h1>Project AirSim ROS2 C++ Bridge<a class="headerlink" href="#project-airsim-ros2-c-bridge" title="Link to this heading"></a></h1>
+<p>Project AirSim provides a ROS2 C++ bridge package named
+<code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp</span></code>. The package is located under:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>ros/projectairsim_ros2_cpp
+</pre></div>
+</div>
+<p>The bridge is an <code class="docutils literal notranslate"><span class="pre">rclcpp</span></code> node that connects to Project AirSim through the
+Project AirSim C++ client API, discovers simulator topics, republishes supported
+payloads as typed ROS2 messages, and exposes command services/actions.</p>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<p>The bridge has been built and tested with ROS2 Humble. Source your ROS2
+installation before building or running the node:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/opt/ros/humble/setup.bash
+</pre></div>
+</div>
+<p>The package depends on:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Dependency</p></th>
+<th class="head"><p>Used for</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ament_cmake</span></code></p></td>
+<td><p>ROS2 CMake package build</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rosidl_default_generators</span></code></p></td>
+<td><p>Custom service/action generation</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rclcpp</span></code></p></td>
+<td><p>ROS2 C++ node</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rclcpp_action</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MoveOnPath</span></code> action server</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">geometry_msgs</span></code></p></td>
+<td><p>poses and path goals</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nav_msgs</span></code></p></td>
+<td><p>occupancy grid service responses</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rosgraph_msgs</span></code></p></td>
+<td><p>simulation clock topic</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sensor_msgs</span></code></p></td>
+<td><p>sensor topics</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">std_msgs</span></code></p></td>
+<td><p>topic info and raw JSON fallback topics</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tf2_ros</span></code></p></td>
+<td><p>TF broadcasting</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="build">
+<h2>Build<a class="headerlink" href="#build" title="Link to this heading"></a></h2>
+<p>From the repository root:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/opt/ros/humble/setup.bash
+<span class="nb">cd</span><span class="w"> </span>ros
+colcon<span class="w"> </span>build<span class="w"> </span>--packages-select<span class="w"> </span>projectairsim_ros2_cpp
+<span class="nb">source</span><span class="w"> </span>install/setup.bash
+</pre></div>
+</div>
+</section>
+<section id="test">
+<h2>Test<a class="headerlink" href="#test" title="Link to this heading"></a></h2>
+<p>The ROS2 C++ package includes C++ contract tests for the generated topics,
+services, and action interfaces.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/opt/ros/humble/setup.bash
+<span class="nb">cd</span><span class="w"> </span>ros
+colcon<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--packages-select<span class="w"> </span>projectairsim_ros2_cpp
+colcon<span class="w"> </span>test-result<span class="w"> </span>--all<span class="w"> </span>--verbose
+</pre></div>
+</div>
+</section>
+<section id="run">
+<h2>Run<a class="headerlink" href="#run" title="Link to this heading"></a></h2>
+<p>Start Project AirSim first. Then, from <code class="docutils literal notranslate"><span class="pre">ros</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/opt/ros/humble/setup.bash
+<span class="nb">source</span><span class="w"> </span>install/setup.bash
+
+ros2<span class="w"> </span>run<span class="w"> </span>projectairsim_ros2_cpp<span class="w"> </span>projectairsim_ros2_cpp_node<span class="w"> </span>--ros-args<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="w"> </span>scene_config:<span class="o">=</span>scene_drone_sensors.jsonc<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="w"> </span>sim_config_path:<span class="o">=</span>../client/python/example_user_scripts/sim_config
+</pre></div>
+</div>
+<p>If Project AirSim is not reachable at <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code>, set <code class="docutils literal notranslate"><span class="pre">address</span></code> to the host
+running the simulator:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">PROJECTAIRSIM_ROOT</span><span class="o">=</span><span class="s2">"</span><span class="k">$(</span>git<span class="w"> </span>rev-parse<span class="w"> </span>--show-toplevel<span class="k">)</span><span class="s2">"</span>
+
+ros2<span class="w"> </span>run<span class="w"> </span>projectairsim_ros2_cpp<span class="w"> </span>projectairsim_ros2_cpp_node<span class="w"> </span>--ros-args<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="w"> </span>address:<span class="o">=</span>&lt;projectairsim_host_ip&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="w"> </span>scene_config:<span class="o">=</span>scene_drone_sensors.jsonc<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="w"> </span>sim_config_path:<span class="o">=</span>../client/python/example_user_scripts/sim_config
+</pre></div>
+</div>
+<p>If a scene is already loaded and should not be changed by the bridge, omit
+<code class="docutils literal notranslate"><span class="pre">scene_config</span></code>. In that mode the node connects to the existing simulator scene,
+adopts the discovered scene topic root, and starts topic and clock publishing
+when Project AirSim reports topic information.</p>
+</section>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">address</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code></p></td>
+<td><p>Project AirSim server address. Set this when the simulator runs on another host or network namespace.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">port_topics</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">8989</span></code></p></td>
+<td><p>Project AirSim pub-sub topic port.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">port_services</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">8990</span></code></p></td>
+<td><p>Project AirSim service request port.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">scene_config</span></code></p></td>
+<td><p>empty</p></td>
+<td><p>Scene config file to load at startup. Relative names are resolved against <code class="docutils literal notranslate"><span class="pre">sim_config_path</span></code>. When empty, the bridge connects to the currently loaded scene.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sim_config_path</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">client/python/example_user_scripts/sim_config</span></code></p></td>
+<td><p>Directory containing scene, robot, and environment config files.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">delay_after_load_sec</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2.0</span></code></p></td>
+<td><p>Delay after loading a scene before topic discovery.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_topic_root</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">/Sim</span></code></p></td>
+<td><p>Native Project AirSim topic root to rewrite.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ros_topic_root</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">/ProjectAirsim</span></code></p></td>
+<td><p>ROS topic root used when publishing bridged topics.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">publish_unmatched_as_json</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p>Publish unsupported Project AirSim topics as <code class="docutils literal notranslate"><span class="pre">std_msgs/String</span></code> JSON.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">publish_tf</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
+<td><p>Broadcast TF transforms from <code class="docutils literal notranslate"><span class="pre">/actual_pose</span></code> and camera pose payloads.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tf_world_frame_id</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">map</span></code></p></td>
+<td><p>Parent frame used for TF transforms.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">refresh_topics_period_sec</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.0</span></code></p></td>
+<td><p>Periodic topic discovery interval. <code class="docutils literal notranslate"><span class="pre">0.0</span></code> disables polling; use a positive value only if scenes/topics can change outside this node.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">vehicle_name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Drone1</span></code></p></td>
+<td><p>Vehicle used for single-drone services/actions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">service_root</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim</span></code></p></td>
+<td><p>Root namespace for command services and actions.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">image_qos_depth</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">5</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">KEEP_LAST</span></code> depth for image publishers. Values below <code class="docutils literal notranslate"><span class="pre">1</span></code> are rejected.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="k-image-transport-with-fast-dds-shared-memory">
+<h2>4K Image Transport with Fast DDS Shared Memory<a class="headerlink" href="#k-image-transport-with-fast-dds-shared-memory" title="Link to this heading"></a></h2>
+<p>A raw 3840×2160 BGR image is about 24 MiB, which can exceed the practical
+defaults of DDS shared-memory transports. For local 4K image subscribers, use
+the installed Fast DDS profile that provides an explicit 256 MiB shared-memory
+segment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/opt/ros/humble/setup.bash
+<span class="nb">source</span><span class="w"> </span>ros/install/setup.bash
+
+<span class="nb">export</span><span class="w"> </span><span class="nv">RMW_IMPLEMENTATION</span><span class="o">=</span>rmw_fastrtps_cpp
+<span class="nb">export</span><span class="w"> </span><span class="nv">FASTDDS_DEFAULT_PROFILES_FILE</span><span class="o">=</span><span class="s2">"</span><span class="k">$(</span>ros2<span class="w"> </span>pkg<span class="w"> </span>prefix<span class="w"> </span>projectairsim_ros2_cpp<span class="k">)</span><span class="s2">/share/projectairsim_ros2_cpp/config/fastdds_shm_256m.xml"</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">FASTRTPS_DEFAULT_PROFILES_FILE</span><span class="o">=</span><span class="s2">"</span><span class="nv">$FASTDDS_DEFAULT_PROFILES_FILE</span><span class="s2">"</span>
+</pre></div>
+</div>
+<p>Set this environment before starting the Project AirSim ROS2 bridge and every
+ROS2 image subscriber. All participants must use the same DDS domain and Fast
+DDS profile.</p>
+<section id="limitations-of-the-shm-only-profile">
+<h3>Limitations of the SHM-only profile<a class="headerlink" href="#limitations-of-the-shm-only-profile" title="Link to this heading"></a></h3>
+<p>This profile configures only the Fast DDS shared-memory transport and sets
+<code class="docutils literal notranslate"><span class="pre">useBuiltinTransports</span></code> to <code class="docutils literal notranslate"><span class="pre">false</span></code>. Consequently:</p>
+<ul class="simple">
+<li><p>UDP is disabled and no TCP transport descriptor is configured. DDS
+participants cannot communicate across machines through this profile.</p></li>
+<li><p>There is no UDP or TCP fallback. If shared-memory initialization or access
+fails, ROS discovery and delivery fail instead of switching to a network
+transport.</p></li>
+<li><p>Every intended participant, including command-line tools, must use a
+compatible Fast DDS environment. Mixed RMW implementations or profiles can
+result in missing discovery or large images failing while smaller messages
+appear to work.</p></li>
+<li><p>Containers must share an IPC namespace and compatible shared-memory
+permissions. Independent default IPC namespaces cannot use this transport to
+communicate.</p></li>
+<li><p>Fast DDS creates shared-memory resources for its participants. Multiple
+processes, concurrent 4K streams, and larger QoS histories increase
+<code class="docutils literal notranslate"><span class="pre">/dev/shm</span></code> pressure; abnormal termination can temporarily leave stale Fast
+DDS files or locks.</p></li>
+<li><p>DDS shared memory avoids sending image data over the network, but it does not
+eliminate ROS serialization, bridge-side image construction, or every
+payload copy. This profile is not end-to-end zero-copy.</p></li>
+</ul>
+<p>Use this profile only when the bridge and all required subscribers are on the
+same host. Configure a UDP or TCP transport instead when remote DDS
+communication is required.</p>
+<p>The host must have enough free <code class="docutils literal notranslate"><span class="pre">/dev/shm</span></code> capacity for the 256 MiB segment and
+Fast DDS bookkeeping. When processes run in containers, put them in the same
+IPC namespace (for example, <code class="docutils literal notranslate"><span class="pre">--ipc=host</span></code>) or otherwise provide a shared IPC
+namespace with sufficient shared-memory capacity.</p>
+<p>The bridge publishes images with <code class="docutils literal notranslate"><span class="pre">KEEP_LAST</span></code> history. Its default
+<code class="docutils literal notranslate"><span class="pre">image_qos_depth</span></code> is <code class="docutils literal notranslate"><span class="pre">5</span></code>; reduce it only when lower latency and dropping stale
+frames is preferable to buffering bursts:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>run<span class="w"> </span>projectairsim_ros2_cpp<span class="w"> </span>projectairsim_ros2_cpp_node<span class="w"> </span>--ros-args<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="w"> </span>image_qos_depth:<span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+<p>To return to normal Fast DDS transport discovery, unset both profile variables
+before starting new ROS2 processes:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">unset</span><span class="w"> </span>FASTDDS_DEFAULT_PROFILES_FILE
+<span class="nb">unset</span><span class="w"> </span>FASTRTPS_DEFAULT_PROFILES_FILE
+</pre></div>
+</div>
+<p>The simulator publishes <code class="docutils literal notranslate"><span class="pre">/Sim/&lt;scene&gt;/clock</span></code> from the scene tick. The bridge
+subscribes to that native clock stream and republishes every sample on ROS
+<code class="docutils literal notranslate"><span class="pre">/clock</span></code>; it does not poll <code class="docutils literal notranslate"><span class="pre">GetSimTime</span></code>. Sensor message headers likewise retain
+their native per-sample <code class="docutils literal notranslate"><span class="pre">time_stamp</span></code> values. If a sensor payload has no valid
+<code class="docutils literal notranslate"><span class="pre">time_stamp</span></code>, the bridge warns and publishes the conventional
+invalid/uninitialized ROS timestamp (<code class="docutils literal notranslate"><span class="pre">sec:</span> <span class="pre">0</span></code>, <code class="docutils literal notranslate"><span class="pre">nanosec:</span> <span class="pre">0</span></code>) instead of
+substituting the bridge’s current time. ROS time fields are integers, so they
+cannot represent NaN.</p>
+<p>For optimized native image messages, an absent <code class="docutils literal notranslate"><span class="pre">time_stamp</span></code> or an unsigned
+value larger than <code class="docutils literal notranslate"><span class="pre">INT64_MAX</span></code> produces the same zero timestamp while preserving
+the image. A present <code class="docutils literal notranslate"><span class="pre">time_stamp</span></code> encoded with the wrong MessagePack type
+(such as a string, floating-point value, Boolean, or null), or encoded as a
+negative integer, makes the image payload malformed; the bridge warns and
+drops that image instead of substituting ROS node time.</p>
+</section>
+</section>
+<section id="topics">
+<h2>Topics<a class="headerlink" href="#topics" title="Link to this heading"></a></h2>
+<p>List ROS2 topics:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>topic<span class="w"> </span>list<span class="w"> </span>-t
+</pre></div>
+</div>
+<p>The bridge subscribes to native Project AirSim topics such as <code class="docutils literal notranslate"><span class="pre">/Sim/...</span></code> and republishes them under <code class="docutils literal notranslate"><span class="pre">/ProjectAirsim/...</span></code> by default.</p>
+<p>Robot state topics use the vehicle name as <code class="docutils literal notranslate"><span class="pre">frame_id</span></code>; camera image and
+camera-info topics use a unique sanitized camera frame so they can participate
+in TF without colliding with the vehicle frame.</p>
+<p>Implemented typed topic conversions:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Project AirSim topic suffix</p></th>
+<th class="head"><p>ROS2 topic suffix</p></th>
+<th class="head"><p>ROS2 topic type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">/actual_pose</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">/actual_pose</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">geometry_msgs/msg/PoseStamped</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">/gps</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">/gps</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sensor_msgs/msg/NavSatFix</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">/imu</span></code>, <code class="docutils literal notranslate"><span class="pre">/imu_kinematics</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">/imu</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sensor_msgs/msg/Imu</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">/barometer</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">/barometer</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sensor_msgs/msg/FluidPressure</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">/magnetometer</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">/magnetometer</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sensor_msgs/msg/MagneticField</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">/lidar</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">/lidar</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sensor_msgs/msg/PointCloud2</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">/radar_detections</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">/radar_detections</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/msg/RadarScan</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">/radar_tracks</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">/radar_tracks</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/msg/RadarTracks</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>camera topics</p></td>
+<td><p>same suffix</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sensor_msgs/msg/Image</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">*_camera_info</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&lt;camera_topic&gt;/camera_info</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sensor_msgs/msg/CameraInfo</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>The bridge also publishes:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Topic</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/topic_info</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">std_msgs/msg/String</span></code></p></td>
+<td><p>JSON list of Project AirSim topic paths from the first discovery pass after startup or scene load.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">/clock</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rosgraph_msgs/msg/Clock</span></code></p></td>
+<td><p>Native Project AirSim scene-clock topic, republished without service polling.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">/tf</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tf2_msgs/msg/TFMessage</span></code></p></td>
+<td><p>Vehicle and camera transforms when <code class="docutils literal notranslate"><span class="pre">publish_tf=true</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+<p>To echo a topic:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>topic<span class="w"> </span><span class="nb">echo</span><span class="w"> </span>/ProjectAirsim/&lt;scene_name&gt;/robots/&lt;vehicle_name&gt;/actual_pose
+</pre></div>
+</div>
+<p>If you want raw JSON fallback topics for unsupported Project AirSim topics:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>run<span class="w"> </span>projectairsim_ros2_cpp<span class="w"> </span>projectairsim_ros2_cpp_node<span class="w"> </span>--ros-args<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="w"> </span>publish_unmatched_as_json:<span class="o">=</span><span class="nb">true</span>
+</pre></div>
+</div>
+</section>
+<section id="services">
+<h2>Services<a class="headerlink" href="#services" title="Link to this heading"></a></h2>
+<p>List services:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>list<span class="w"> </span>-t
+</pre></div>
+</div>
+<p>Single-vehicle services use the configured <code class="docutils literal notranslate"><span class="pre">vehicle_name</span></code>, default <code class="docutils literal notranslate"><span class="pre">Drone1</span></code>:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Service</p></th>
+<th class="head"><p>Type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/Drone1/takeoff</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/Takeoff</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/Drone1/land</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/Land</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/Drone1/arm</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/Arm</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/Drone1/disarm</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/Disarm</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/Drone1/move_to_position</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/MoveToPosition</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/Drone1/move_on_path</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/MoveOnPath</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>Global, group, and scene services:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Service</p></th>
+<th class="head"><p>Type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/request</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/RawRequest</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/get_client_info</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/GetClientInfo</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/get_topic_info</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/GetTopicInfo</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/get_drones</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/GetDrones</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/publish</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/Publish</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/unsubscribe</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/Unsubscribe</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/cancel_all_requests</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/CancelAllRequests</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/takeoff_group</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/TakeoffGroup</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/land_group</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/LandGroup</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/arm_group</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/ArmGroup</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/disarm_group</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/DisarmGroup</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/reset</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/Reset</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/load_scene</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/LoadScene</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/create_voxel_grid</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/CreateVoxelGrid</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/occupancy_grid</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/OccupancyGrid</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/get_clock</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/GetClock</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/get_origin_geo_point</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/GetOriginGeoPoint</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/set_segmentation_id_by_name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/SetSegmentationIDByName</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/get_segmentation_id_by_name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/GetSegmentationIDByName</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/get_segmentation_id_map</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/GetSegmentationIDMap</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/set_object_material</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/SetObjectMaterial</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/set_object_texture</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/SetObjectTexture</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/swap_object_texture</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/SwapObjectTexture</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>Examples:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/projectairsim/Drone1/arm<span class="w"> </span>projectairsim_ros2_cpp/srv/Arm<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s2">"{wait_on_last_task: true}"</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/projectairsim/Drone1/takeoff<span class="w"> </span>projectairsim_ros2_cpp/srv/Takeoff<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s2">"{wait_on_last_task: true}"</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/projectairsim/Drone1/move_to_position<span class="w"> </span>projectairsim_ros2_cpp/srv/MoveToPosition<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s2">"{x: 5.0, y: 0.0, z: -3.0, velocity: 2.0, timeout_sec: 10.0, drive_train_type: 0, yaw_is_rate: true, yaw: 0.0, lookahead: -1.0, adaptive_lookahead: 1.0, wait_on_last_task: true}"</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/projectairsim/Drone1/land<span class="w"> </span>projectairsim_ros2_cpp/srv/Land<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s2">"{wait_on_last_task: true}"</span>
+</pre></div>
+</div>
+<p>Reload a scene at runtime:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/projectairsim/load_scene<span class="w"> </span>projectairsim_ros2_cpp/srv/LoadScene<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">'{scene_file: "scene_drone_sensors.jsonc", is_primary_client: true}'</span>
+</pre></div>
+</div>
+<p>Use <code class="docutils literal notranslate"><span class="pre">is_primary_client:</span> <span class="pre">true</span></code> when this bridge should ask Project AirSim to load
+the scene. Use <code class="docutils literal notranslate"><span class="pre">is_primary_client:</span> <span class="pre">false</span></code> when another client has already loaded
+the scene and this bridge should attach to it.</p>
+<p>Create a voxel grid file:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/projectairsim/create_voxel_grid<span class="w"> </span>projectairsim_ros2_cpp/srv/CreateVoxelGrid<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">'{position_x: 0.0, position_y: 0.0, position_z: -4.0, ncells_x: 20, ncells_y: 20, ncells_z: 10, resolution: 1.0, n_z_resolution: 10, output_file: "/tmp/projectairsim_voxel_grid.binvox"}'</span>
+</pre></div>
+</div>
+<p>Return a ROS2 occupancy grid. The 3D voxel grid is projected into a 2D
+<code class="docutils literal notranslate"><span class="pre">nav_msgs/OccupancyGrid</span></code>; a cell is occupied if any voxel in its Z column is
+occupied.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/projectairsim/occupancy_grid<span class="w"> </span>projectairsim_ros2_cpp/srv/OccupancyGrid<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s2">"{position_x: 0.0, position_y: 0.0, position_z: -4.0, ncells_x: 20, ncells_y: 20, ncells_z: 10, res: 1.0, n_z_resolution: 10}"</span>
+</pre></div>
+</div>
+<p>Get simulation time in nanoseconds:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/projectairsim/get_clock<span class="w"> </span>projectairsim_ros2_cpp/srv/GetClock<span class="w"> </span><span class="s2">"{}"</span>
+</pre></div>
+</div>
+<p>Get the scene origin geo point:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/projectairsim/get_origin_geo_point<span class="w"> </span>projectairsim_ros2_cpp/srv/GetOriginGeoPoint<span class="w"> </span><span class="s2">"{}"</span>
+</pre></div>
+</div>
+<p>Call any Project AirSim C++ client request-backed API by method path and JSON
+parameters:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/projectairsim/request<span class="w"> </span>projectairsim_ros2_cpp/srv/RawRequest<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">'{method: "/Sim/GetBuildCommitHash", json_parameters: "{}"}'</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">/projectairsim/request</span></code> is a generic escape hatch for Project AirSim server
+request paths. Prefer typed ROS2 services when one exists. For generic calls,
+use a method path and JSON payload supported by the Project AirSim server.</p>
+</section>
+<section id="actions">
+<h2>Actions<a class="headerlink" href="#actions" title="Link to this heading"></a></h2>
+<p>The bridge provides a <code class="docutils literal notranslate"><span class="pre">MoveOnPath</span></code> action:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Action</p></th>
+<th class="head"><p>Type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/Drone1/move_on_path</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/action/MoveOnPath</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>List actions:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>action<span class="w"> </span>list<span class="w"> </span>-t
+</pre></div>
+</div>
+<p>Send a path goal:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>action<span class="w"> </span>send_goal<span class="w"> </span>/projectairsim/Drone1/move_on_path<span class="w"> </span>projectairsim_ros2_cpp/action/MoveOnPath<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s2">"{path: [{pose: {position: {x: 5.0, y: 0.0, z: -3.0}, orientation: {w: 1.0}}}, {pose: {position: {x: 5.0, y: 5.0, z: -3.0}, orientation: {w: 1.0}}}], velocity: 2.0, timeout_sec: 20.0, lookahead: -1.0, adaptive_lookahead: 1.0, drive_train_type: 0, yaw_is_rate: true, yaw: 0.0, wait_on_last_task: true}"</span>
+</pre></div>
+</div>
+</section>
+<section id="common-workflow">
+<h2>Common Workflow<a class="headerlink" href="#common-workflow" title="Link to this heading"></a></h2>
+<p>Use three terminals. Run the ROS2 commands from the repository root unless
+noted otherwise:</p>
+<ol class="arabic simple">
+<li><p>Start Project AirSim.</p></li>
+<li><p>Start the bridge:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/opt/ros/humble/setup.bash
+<span class="nb">cd</span><span class="w"> </span>ros
+<span class="nb">source</span><span class="w"> </span>install/setup.bash
+ros2<span class="w"> </span>run<span class="w"> </span>projectairsim_ros2_cpp<span class="w"> </span>projectairsim_ros2_cpp_node<span class="w"> </span>--ros-args<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="w"> </span>scene_config:<span class="o">=</span>scene_drone_sensors.jsonc<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="w"> </span>sim_config_path:<span class="o">=</span>../client/python/example_user_scripts/sim_config
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Inspect and command from ROS2:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/opt/ros/humble/setup.bash
+<span class="nb">cd</span><span class="w"> </span>ros
+<span class="nb">source</span><span class="w"> </span>install/setup.bash
+ros2<span class="w"> </span>topic<span class="w"> </span>list<span class="w"> </span>-t
+ros2<span class="w"> </span>service<span class="w"> </span>list<span class="w"> </span>-t
+ros2<span class="w"> </span>action<span class="w"> </span>list<span class="w"> </span>-t
+</pre></div>
+</div>
+<p>Then call services such as arm, takeoff, move, and land.</p>
+</section>
+<section id="resolved-limitations-and-remaining-gaps">
+<h2>Resolved Limitations And Remaining Gaps<a class="headerlink" href="#resolved-limitations-and-remaining-gaps" title="Link to this heading"></a></h2>
+<p>The ROS2 C++ bridge provides typed ROS2 coverage for the high-priority areas
+below:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Area</p></th>
+<th class="head"><p>Status</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Radar typed messages</p></td>
+<td><p>Implemented as <code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/msg/RadarScan</span></code> and <code class="docutils literal notranslate"><span class="pre">RadarTracks</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Camera info topics</p></td>
+<td><p>Implemented as <code class="docutils literal notranslate"><span class="pre">&lt;camera_topic&gt;/camera_info</span></code> with <code class="docutils literal notranslate"><span class="pre">sensor_msgs/msg/CameraInfo</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p>TF broadcasting</p></td>
+<td><p>Implemented for vehicle pose and camera pose payloads; controlled by <code class="docutils literal notranslate"><span class="pre">publish_tf</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Segmentation and object material/texture services</p></td>
+<td><p>Implemented as typed ROS2 services.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Remaining gaps are narrower typed wrappers for Project AirSim request paths that
+currently require <code class="docutils literal notranslate"><span class="pre">/projectairsim/request</span></code>, plus richer typed conversions for
+specialized sensor/status payloads that do not yet have dedicated ROS message
+contracts.</p>
+<hr class="docutils" />
+<p>Copyright (C) IAMAI CONSULTING CORP</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../cpp_client.html" class="btn btn-neutral float-left" title="Project AirSim C++ Client" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

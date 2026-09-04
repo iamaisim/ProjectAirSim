@@ -1,0 +1,421 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Supported imaging/capture camera customizations &mdash; Project Airsim 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Camera Images Post processing using Neural Network models" href="camera_post_processing_with_nn.html" />
+    <link rel="prev" title="No Physics" href="../physics/no_physics.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../transition_from_airsim.html">Transitioning from AirSim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system_specs.html">System Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions (FAQ)</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../development/use_prebuilt.html">Using Pre-built Binary Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/use_source.html">Build From Source as a Developer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client_setup.html">Project AirSim Client Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../use_plugin.html">Using Project AirSim Plugin in Custom Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/dev_setup_linux.html">Developer Initial Setup for Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/dev_setup_win.html">Developer Initial Setup for Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/vscode_user_settings.html">Optional VS Code User Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/headless_cloud.html">Running Headless (Docker)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unreal_vehicle_blueprint_setup.html">Unreal Vehicle</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../config.html">Configuration JSONC Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config_scene.html">Scene Configuration Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config_robot.html">Robot Configuration Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../multiple_robots.html">Multiple Robots in a Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_line_switches.html">Command Line Switches</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_line_switches.html#environment-variables">Environment Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gis_scenes.html">GIS Scenes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modify_drone_physical.html">How to Modify a Drone’s Physical Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modify_drone_visual.html">How to Modify a Drone’s Visual Appearance</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/fast-physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/jsbsim.html">JSBSim Physics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/matlab.html">Matlab Physics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/no_physics.html">No Physics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Supported imaging/capture camera customizations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#camera-level-parameters">Camera-level parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#annotation-settings">Annotation settings</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#annotations-output">Annotations output</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#capture-level-parameters">Capture-level parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/sensors/display.html">Sensor data visualization/display</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/ardupilot.html">ArduPilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Scene &amp; Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/scene/sim_clock_internal.html">Simulation Clock</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">APIs &amp; Programmatic Control</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp_client.html">Project AirSim C++ Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ros/ros2.html">Project AirSim ROS2 C++ Bridge</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python Client API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/client_api/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Supported imaging/capture camera customizations</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/sensors/camera_capture_settings.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="supported-imaging-capture-camera-customizations">
+<h1>Supported imaging/capture camera customizations<a class="headerlink" href="#supported-imaging-capture-camera-customizations" title="Link to this heading"></a></h1>
+<section id="camera-level-parameters">
+<h2>Camera-level parameters<a class="headerlink" href="#camera-level-parameters" title="Link to this heading"></a></h2>
+<p>Other than the parameters common to all sensors, the following apply to all capture types in a camera.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value-range</p></th>
+<th class="head"><p>Description &amp; notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>capture-interval</p></td>
+<td><p>&gt; 0</p></td>
+<td><p>Interval in seconds in between subsequent captures</p></td>
+</tr>
+<tr class="row-odd"><td><p>annotation-settings</p></td>
+<td><p>json</p></td>
+<td><p>(Optional) See Annotation Settings section below. Off by default.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="annotation-settings">
+<h2>Annotation settings<a class="headerlink" href="#annotation-settings" title="Link to this heading"></a></h2>
+<p>You can enable 2D and 3D bounding box annotations on the images by including <code class="docutils literal notranslate"><span class="pre">annotation-settings</span></code> object as part of your camera settings.</p>
+<p>For example, the example below will produce bounding boxes whenever the objects <code class="docutils literal notranslate"><span class="pre">Cone_5</span></code> and <code class="docutils literal notranslate"><span class="pre">OrangeBall</span></code> are in the camera’s view.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="w">      </span><span class="nt">"annotation-settings"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"object-ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="s2">"Cone_5"</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"OrangeBall"</span>
+<span class="w">        </span><span class="p">],</span>
+<span class="w">        </span><span class="nt">"enabled"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"bbox2D-settings"</span><span class="p">:</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">"alignment"</span><span class="p">:</span><span class="w"> </span><span class="s2">"axis"</span><span class="w"> </span><span class="c1">// axis or oriented</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">"bbox3D-settings"</span><span class="p">:</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">"alignment"</span><span class="p">:</span><span class="w"> </span><span class="s2">"oriented"</span><span class="w"> </span><span class="c1">// axis or oriented</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">alignment</span></code> of each kind of bounding box will determine whether they should be aligned to the axis of the coordinate system they exist on (world-axis for 3D bboxes, image-axis for 2D bboxes) or whether they should have an orientation (object-oriented for 3D bboxes, or [not yet supported:] tightest possible box for 2D bbox).</p>
+<section id="annotations-output">
+<h3>Annotations output<a class="headerlink" href="#annotations-output" title="Link to this heading"></a></h3>
+<p>If annotations output is enabled, as part of the <em>image message</em> there will be an <code class="docutils literal notranslate"><span class="pre">annotations</span></code> list. For example:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="err">...</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"time_stamp"</span><span class="p">:</span><span class="w"> </span><span class="err">...</span><span class="p">,</span>
+<span class="w">  </span><span class="err">...</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"annotations"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="nt">"object_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Cone_5"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"bbox2d"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"center"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"x"</span><span class="p">:</span><span class="w"> </span><span class="mi">40</span><span class="p">,</span><span class="w"> </span><span class="nt">"y"</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p">},</span>
+<span class="w">      </span><span class="nt">"size"</span><span class="p">:</span><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"x"</span><span class="p">:</span><span class="w"> </span><span class="mi">40</span><span class="p">,</span><span class="w"> </span><span class="nt">"y"</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p">},</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="nt">"bbox3d"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"center"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"x"</span><span class="p">:</span><span class="w"> </span><span class="mi">40</span><span class="p">,</span><span class="w"> </span><span class="nt">"y"</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="nt">"z"</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">"size"</span><span class="p">:</span><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"x"</span><span class="p">:</span><span class="w"> </span><span class="mi">40</span><span class="p">,</span><span class="w"> </span><span class="nt">"y"</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="nt">"z"</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">"quaternion"</span><span class="p">:</span><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"w"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"x"</span><span class="p">:</span><span class="w"> </span><span class="mi">40</span><span class="p">,</span><span class="w"> </span><span class="nt">"y"</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="nt">"z"</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">"bbox3d_in_image_space"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"x"</span><span class="p">:</span><span class="w"> </span><span class="mi">822</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"y"</span><span class="p">:</span><span class="w"> </span><span class="mi">259</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="err">...</span><span class="w"> </span><span class="c1">// 8 2D points in total</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">"bbox3d_in_projection_space"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"x"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"y"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"z"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="err">...</span><span class="w"> </span><span class="c1">// 8 3D points in total</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="err">...</span><span class="w"> </span><span class="c1">// any more objects in view</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>If annotations are disabled, this list will be empty.</p>
+<p><code class="docutils literal notranslate"><span class="pre">bbox3d_in_image_space</span></code>, is a 3D bounding box projected onto the image plane, so you can draw it on the image. It’s made up of 8 2D points representing the corners of the 3D bbox.
+<code class="docutils literal notranslate"><span class="pre">bbox3d_in_projection_space</span></code> is a 3D bounding box in NDC space - a projection space representing the camera frustum, in between image-space and world-space. Useful for some autonomy scenarios. It’s made up of 8 3D points represeting the corners of the 3D bbox.</p>
+</section>
+</section>
+<section id="capture-level-parameters">
+<h2>Capture-level parameters<a class="headerlink" href="#capture-level-parameters" title="Link to this heading"></a></h2>
+<p>A single camera can output multiple capture types. The following parameters describe a specific capture in a camera.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value-range</p></th>
+<th class="head"><p>Description &amp; notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>image-type</p></td>
+<td><p>index 0~6</p></td>
+<td><p>Index for camera type: 0 = RGB Scene, 1 = Depth Planar, 2 = Depth Perspective, 3 = Segmentation, 4 = Depth Visualization, 5 = DisparityNormalized, 6 = SurfaceNormals</p></td>
+</tr>
+<tr class="row-odd"><td><p>width</p></td>
+<td><p>&gt; 0</p></td>
+<td><p>Width of the camera image</p></td>
+</tr>
+<tr class="row-even"><td><p>height</p></td>
+<td><p>&gt; 0</p></td>
+<td><p>Height of the camera image</p></td>
+</tr>
+<tr class="row-odd"><td><p>fov-degrees</p></td>
+<td><p>[5, 170]</p></td>
+<td><p>Field of View of the camera</p></td>
+</tr>
+<tr class="row-even"><td><p>capture-enabled</p></td>
+<td><p>True/False</p></td>
+<td><p>Enable capturing and sending the full raw images to the client through pub/sub topics and/or req/resp APIs.</p></td>
+</tr>
+<tr class="row-odd"><td><p>streaming-enabled</p></td>
+<td><p>True/False</p></td>
+<td><p>Enable streaming a real-time video feed of this camera capture. See the <a class="reference internal" href="camera_streaming.html"><span class="std std-doc">Camera Streaming</span></a> page for more details.</p></td>
+</tr>
+<tr class="row-even"><td><p>pixels-as-float</p></td>
+<td><p>True/False</p></td>
+<td><p>Use float for pixel data</p></td>
+</tr>
+<tr class="row-odd"><td><p>compress</p></td>
+<td><p>True/False</p></td>
+<td><p>Apply PNG lossless compression to the captured image data sent to the client with <code class="docutils literal notranslate"><span class="pre">capture-enabled</span></code> set to True. <em>Note: Compressing/decompressing adds processing time that may slow down the image transfer rate.</em></p></td>
+</tr>
+<tr class="row-even"><td><p>auto-exposure-method</p></td>
+<td><p>0: histogram, 1: basic, 3: manual</p></td>
+<td><p><strong>Auto Exposure Histogram</strong> constructs a 64 bin histogram enabling finer control over auto exposure with advanced settings.  <strong>Auto Exposure Basic</strong> is a faster method that computes single values by down sampling. <strong>Manual</strong> enables the use of <strong>Camera</strong> settings within the Post Process Volume to control exposure rather than the Exposure settings.</p></td>
+</tr>
+<tr class="row-odd"><td><p>auto-exposure-speed</p></td>
+<td><p></p></td>
+<td><p>The speed at which the adaptation occurs from a dark environment to a bright environment.</p></td>
+</tr>
+<tr class="row-even"><td><p>auto-exposure-max-brightness</p></td>
+<td><p>x &gt; 1.0 &amp;&amp; x &gt;= min-brightness</p></td>
+<td><p>The maximum brightness for auto exposure that limits the upper brightness the eye can adapt within. <strong>NOTE</strong>: If Min Brightness = Max Brightness, auto exposure is disabled</p></td>
+</tr>
+<tr class="row-odd"><td><p>auto-exposure-min-brightness</p></td>
+<td><p>0.0 &lt; x &lt; max-brightness</p></td>
+<td><p>The minimum brightness for auto exposure that limits the lower brightness the eye can adapt within. <strong>NOTE:</strong> If Min Brightness = Max Brightness, auto exposure is disabled</p></td>
+</tr>
+<tr class="row-even"><td><p>auto-exposure-low-percent</p></td>
+<td><p>[0, 100]</p></td>
+<td><p>The eye adaptation will adapt to a value extracted from the luminance histogram of the scene color. The value defines the lower percentage of the histogram that is used to find the average scene luminance. <strong>NOTE:</strong> Values in the range 70-80 give the best results.</p></td>
+</tr>
+<tr class="row-odd"><td><p>auto-exposoure-high-percent</p></td>
+<td><p>[0, 100]</p></td>
+<td><p>The eye adaptation will adapt to a value extracted from the luminance histogram of the scene color. The value defines the upper percentage of the histogram that is used to find the average scene luminance. <em><strong>NOTE:</strong></em> Values in the range 70-80 give the best results.</p></td>
+</tr>
+<tr class="row-even"><td><p>auto-exposure-histogram-log-min</p></td>
+<td><p></p></td>
+<td><p>Defines the lower bounds for the brightness range of the generated histogram when using the  HDR (Eye Adaptation) visualization mode;log-min value for histogram of scene colors; E.g.:0.8 ==&gt; 80% of the screen pixels are darker than the luminance value A</p></td>
+</tr>
+<tr class="row-odd"><td><p>auto-exposure-histogram-log-max</p></td>
+<td><p></p></td>
+<td><p>log-max value for histogram of scene colors; E.g.:0.95 ==&gt;  95% of the screen pixels are darker than the luminance value B. Current luminance value (C) = avg(A, B)</p></td>
+</tr>
+<tr class="row-even"><td><p>motion-blur-amount</p></td>
+<td><p>[0, 1]</p></td>
+<td><p>Blurs objects based on it’s motion determined using velocity maps. A value of 0.25 - 0.5 looks reasonable. Avoid 1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>target-gamma</p></td>
+<td><p></p></td>
+<td><p>Target gamma to be used by the render target (UTextureRenderTarget2D)</p></td>
+</tr>
+<tr class="row-even"><td><p>max-depth-meters</p></td>
+<td><p>&gt; 0.0</p></td>
+<td><p>Maximum depth for Depth Visualization. Objects beyond the maximum depth will be true white, while close objects will be completely black.</p></td>
+</tr>
+</tbody>
+</table>
+<p>| Image Type | Description |
+| Scene | The regular camera image. |
+| Depth Planar | Depth measured from the camera plane, in meters. |
+| Depth Perspective | Depth measured in a line from the camera point, in meters. |
+| Segmentation | The ground truth segmentation of the scene, i.e. each object is a different color.|
+| Depth Visualization | Image that helps visualize depth. |
+| DisparityNormalized | Uses the ground truth depth to simulate a stereo disparity image with a single camera. The baseline distance is assumed to be 0.25m. Values are normalized to a 0-1 scale. |
+| SurfaceNormals | Surfaces are colored according to their normals. RGB corresponds to XYZ, and values are normalized to a 0-1 scale. |</p>
+</section>
+</section>
+<section id="sample-config">
+<h1>Sample config<a class="headerlink" href="#sample-config" title="Link to this heading"></a></h1>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="nt">"sensors"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Down"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"camera"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"enabled"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"parent-link"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Frame"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"capture-interval"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"capture-settings"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">"image-type"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"width"</span><span class="p">:</span><span class="w"> </span><span class="mi">640</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"height"</span><span class="p">:</span><span class="w"> </span><span class="mi">480</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"fov-degrees"</span><span class="p">:</span><span class="w"> </span><span class="mi">90</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"capture-enabled"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"streaming-enabled"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"pixels-as-float"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"compress"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"target-gamma"</span><span class="p">:</span><span class="w"> </span><span class="mf">2.5</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"auto-exposure-speed"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"auto-exposure-bias"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"auto-exposure-max-brightness"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.00</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"auto-exposure-min-brightness"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.7</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"auto-exposure-low-percent"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.7</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"auto-exposure-high-percent"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.9</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"auto-exposure-histogram-log-min"</span><span class="p">:</span><span class="w"> </span><span class="mi">-8</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"auto-exposure-histogram-log-max"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"motion-blur-amount"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.3</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI CONSULTING CORP.</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../physics/no_physics.html" class="btn btn-neutral float-left" title="No Physics" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="camera_post_processing_with_nn.html" class="btn btn-neutral float-right" title="Camera Images Post processing using Neural Network models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

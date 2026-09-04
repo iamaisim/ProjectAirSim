@@ -1,0 +1,388 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JSBSim Physics &mdash; Project Airsim 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Matlab Physics" href="matlab.html" />
+    <link rel="prev" title="Fast Physics for Drones" href="fast-physics.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../transition_from_airsim.html">Transitioning from AirSim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system_specs.html">System Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions (FAQ)</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../development/use_prebuilt.html">Using Pre-built Binary Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/use_source.html">Build From Source as a Developer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client_setup.html">Project AirSim Client Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../use_plugin.html">Using Project AirSim Plugin in Custom Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/dev_setup_linux.html">Developer Initial Setup for Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/dev_setup_win.html">Developer Initial Setup for Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/vscode_user_settings.html">Optional VS Code User Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/headless_cloud.html">Running Headless (Docker)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unreal_vehicle_blueprint_setup.html">Unreal Vehicle</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../config.html">Configuration JSONC Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config_scene.html">Scene Configuration Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config_robot.html">Robot Configuration Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../multiple_robots.html">Multiple Robots in a Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_line_switches.html">Command Line Switches</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_line_switches.html#environment-variables">Environment Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gis_scenes.html">GIS Scenes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modify_drone_physical.html">How to Modify a Drone’s Physical Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modify_drone_visual.html">How to Modify a Drone’s Visual Appearance</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="fast-physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">JSBSim Physics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cessna-310-example">Cessna 310 example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#skywalker-x8-examples">Skywalker X8 examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ground-height-mode">Ground Height Mode</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#terrain-callback-usage">Terrain Callback Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#timestep">Timestep</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#known-issues">Known Issues</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="matlab.html">Matlab Physics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="no_physics.html">No Physics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/sensors/display.html">Sensor data visualization/display</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/ardupilot.html">ArduPilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Scene &amp; Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/scene/sim_clock_internal.html">Simulation Clock</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">APIs &amp; Programmatic Control</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp_client.html">Project AirSim C++ Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ros/ros2.html">Project AirSim ROS2 C++ Bridge</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python Client API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/client_api/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">JSBSim Physics</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/physics/jsbsim.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="jsbsim-physics">
+<h1>JSBSim Physics<a class="headerlink" href="#jsbsim-physics" title="Link to this heading"></a></h1>
+<p>Project AirSim includes JSBSim integration for aircraft dynamics.</p>
+<section id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
+<p>JSBSim examples live under <code class="docutils literal notranslate"><span class="pre">client/python/example_user_scripts/jsbsim/</span></code> and are grouped by airframe:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Path</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cessna_310/</span></code></p></td>
+<td><p>Cessna 310 example script and sim configs</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">x8_skywalker/</span></code></p></td>
+<td><p>Skywalker X8 scripts, tests, and sim configs</p></td>
+</tr>
+</tbody>
+</table>
+<section id="prerequisites">
+<h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Complete <a class="reference internal" href="../client_setup.html"><span class="std std-doc">Client Setup</span></a> (Python client installed, virtual environment activated).</p></li>
+<li><p>Launch the Project AirSim simulation server.</p></li>
+</ol>
+</section>
+</section>
+<section id="cessna-310-example">
+<h2>Cessna 310 example<a class="headerlink" href="#cessna-310-example" title="Link to this heading"></a></h2>
+<p>Files:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Path</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cessna_310/hello_c310_jsbsim.py</span></code></p></td>
+<td><p>Connects, loads the scene, performs a short takeoff/turn/landing demo</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cessna_310/sim_config/scene_c310_jsbsim.jsonc</span></code></p></td>
+<td><p>Scene config for the C310 example</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cessna_310/sim_config/robot_c310_jsbsim.jsonc</span></code></p></td>
+<td><p>Robot config for the C310 example</p></td>
+</tr>
+</tbody>
+</table>
+<p>Run it from the repository root:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>client/python/example_user_scripts/jsbsim/cessna_310/hello_c310_jsbsim.py
+</pre></div>
+</div>
+</section>
+<section id="skywalker-x8-examples">
+<h2>Skywalker X8 examples<a class="headerlink" href="#skywalker-x8-examples" title="Link to this heading"></a></h2>
+<p><img alt="Skywalker X8 aircraft flying in V formation" src="../_images/PAS_JSBSim_x8_swarm.png" /></p>
+<p>Files:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Path</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">x8_skywalker/hello_x8_jsbsim.py</span></code></p></td>
+<td><p>Loads the X8 scene, seeds an air launch, and flies a waypoint circuit</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">x8_skywalker/x8_autopilot.py</span></code></p></td>
+<td><p>Reusable heading, altitude, airspeed, pitch, and roll controller</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">x8_skywalker/run_x8_forest_swarm.py</span></code></p></td>
+<td><p>Runs the X8 swarm example in Forest/MountainVillage</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">x8_skywalker/test_x8_autopilot.py</span></code></p></td>
+<td><p>Unit tests for the X8 autopilot helper</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">x8_skywalker/sim_config/scene_x8_jsbsim.jsonc</span></code></p></td>
+<td><p>Paused steppable-clock scene for a single X8</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">x8_skywalker/sim_config/robot_x8_jsbsim.jsonc</span></code></p></td>
+<td><p>X8 JSBSim robot config</p></td>
+</tr>
+</tbody>
+</table>
+<p>Run the single-aircraft example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>client/python/example_user_scripts/jsbsim/x8_skywalker/hello_x8_jsbsim.py
+</pre></div>
+</div>
+<p>Optional longer run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>client/python/example_user_scripts/jsbsim/x8_skywalker/hello_x8_jsbsim.py<span class="w"> </span>--max-sim-time<span class="w"> </span><span class="m">120</span>
+</pre></div>
+</div>
+<p>The swarm example generates its scene at runtime and reuses the same X8 robot config.</p>
+</section>
+<section id="ground-height-mode">
+<h2>Ground Height Mode<a class="headerlink" href="#ground-height-mode" title="Link to this heading"></a></h2>
+<p>JSBSim robots support two ground height modes through the robot config field
+<code class="docutils literal notranslate"><span class="pre">jsbsim-ground-mode</span></code>:</p>
+<div class="highlight-jsonc notranslate"><div class="highlight"><pre><span></span>{
+  "physics-type": "jsbsim-physics",
+  "jsbsim-ground-mode": "constant"
+}
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Mode</p></th>
+<th class="head"><p>Behavior</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">constant</span></code></p></td>
+<td><p>Default. Uses the terrain/floor height at the initial robot position as one fixed ground height for the whole simulation. Falls back to the scene <code class="docutils literal notranslate"><span class="pre">home-geo-point.altitude</span></code> if no terrain sample is available.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">terrain</span></code></p></td>
+<td><p>Samples the Unreal terrain/floor height during the simulation.</p></td>
+</tr>
+</tbody>
+</table>
+<section id="terrain-callback-usage">
+<h3>Terrain Callback Usage<a class="headerlink" href="#terrain-callback-usage" title="Link to this heading"></a></h3>
+<p>Project AirSim builds a terrain-elevation callback when JSBSim initializes. The
+callback samples the robot’s cached terrain elevation first, then the scene
+terrain callback, and finally falls back to the scene <code class="docutils literal notranslate"><span class="pre">home-geo-point.altitude</span></code>.
+That initial sample is used to set JSBSim’s initial terrain elevation before
+<code class="docutils literal notranslate"><span class="pre">RunIC()</span></code>.</p>
+<p>After initialization, the callback installed into JSBSim depends on
+<code class="docutils literal notranslate"><span class="pre">jsbsim-ground-mode</span></code>:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Mode</p></th>
+<th class="head"><p>JSBSim callback</p></th>
+<th class="head"><p>Runtime usage</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">constant</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">JSBSimConstantGroundCallback</span></code></p></td>
+<td><p>The Project AirSim terrain callback is sampled once at initialization. During the simulation, JSBSim receives the same fixed terrain elevation for every <code class="docutils literal notranslate"><span class="pre">GetAGLevel()</span></code> query. Unreal terrain is not queried again for JSBSim ground height.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">terrain</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">JSBSimTerrainGroundCallback</span></code></p></td>
+<td><p>JSBSim calls back during <code class="docutils literal notranslate"><span class="pre">GetAGLevel()</span></code> queries. The callback converts JSBSim latitude/longitude to Project AirSim NED coordinates, samples the scene terrain elevation at that location, and updates JSBSim’s terrain elevation before JSBSim computes AGL/contact data. If the sample is invalid, the last valid value is reused, then the home altitude fallback is used.</p></td>
+</tr>
+</tbody>
+</table>
+<p>These callbacks feed JSBSim’s internal ground-height calculations, including
+height-above-ground and contact-related state. Project AirSim’s own collision
+response path, such as <code class="docutils literal notranslate"><span class="pre">NeedsCollisionResponse()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">CalcNextKinematicsWithCollision()</span></code>, is separate from the JSBSim terrain
+callback.</p>
+</section>
+</section>
+<section id="timestep">
+<h2>Timestep<a class="headerlink" href="#timestep" title="Link to this heading"></a></h2>
+<p>JSBSim robots support a configurable internal physics timestep through the
+robot config field <code class="docutils literal notranslate"><span class="pre">jsbsim-dt</span></code>, in seconds:</p>
+<div class="highlight-jsonc notranslate"><div class="highlight"><pre><span></span>{
+  "physics-type": "jsbsim-physics",
+  "jsbsim-model": "c310",
+  "jsbsim-dt": 0.008333333333333333
+}
+</pre></div>
+</div>
+<p>If <code class="docutils literal notranslate"><span class="pre">jsbsim-dt</span></code> is omitted, Project AirSim uses <code class="docutils literal notranslate"><span class="pre">1/120</span></code> s
+(<code class="docutils literal notranslate"><span class="pre">0.008333333333333333</span></code>, or 120 Hz).</p>
+</section>
+<section id="known-issues">
+<h2>Known Issues<a class="headerlink" href="#known-issues" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Flat ground surface (no mesh following)</strong></p>
+<ul class="simple">
+<li><p>In <code class="docutils literal notranslate"><span class="pre">constant</span></code> ground mode, the simulated ground is flat at the terrain/floor height sampled at the initial robot position. Different parts of the vehicle cannot rest at different heights on sloped terrain. There is no mesh-following behavior after initialization.</p></li>
+<li><p>In <code class="docutils literal notranslate"><span class="pre">terrain</span></code> ground mode, JSBSim samples terrain height at several contact points and has the capacity to respond to irregular ground surfaces.</p></li>
+</ul>
+</li>
+<li><p><strong>Ground penetration during sustained ground movement</strong></p>
+<ul class="simple">
+<li><p>If a JSBSim vehicle continuously advances on the ground, it slowly sinks over time until it fully penetrates the terrain surface.</p></li>
+</ul>
+</li>
+</ol>
+<hr class="docutils" />
+<p>Copyright (C) IAMAI CONSULTING CORP</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="fast-physics.html" class="btn btn-neutral float-left" title="Fast Physics for Drones" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="matlab.html" class="btn btn-neutral float-right" title="Matlab Physics" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

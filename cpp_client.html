@@ -1,0 +1,468 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project AirSim C++ Client &mdash; Project Airsim 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Project AirSim ROS2 C++ Bridge" href="ros/ros2.html" />
+    <link rel="prev" title="API Overview" href="api.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transition_from_airsim.html">Transitioning from AirSim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system_specs.html">System Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions (FAQ)</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="development/use_prebuilt.html">Using Pre-built Binary Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/use_source.html">Build From Source as a Developer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="client_setup.html">Project AirSim Client Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use_plugin.html">Using Project AirSim Plugin in Custom Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/dev_setup_linux.html">Developer Initial Setup for Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/dev_setup_win.html">Developer Initial Setup for Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/vscode_user_settings.html">Optional VS Code User Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/headless_cloud.html">Running Headless (Docker)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_vehicle_blueprint_setup.html">Unreal Vehicle</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="config.html">Configuration JSONC Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_scene.html">Scene Configuration Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_robot.html">Robot Configuration Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multiple_robots.html">Multiple Robots in a Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_line_switches.html">Command Line Switches</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_line_switches.html#environment-variables">Environment Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gis_scenes.html">GIS Scenes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modify_drone_physical.html">How to Modify a Drone’s Physical Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modify_drone_visual.html">How to Modify a Drone’s Visual Appearance</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="physics/fast-physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/jsbsim.html">JSBSim Physics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/matlab.html">Matlab Physics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/no_physics.html">No Physics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/sensors/display.html">Sensor data visualization/display</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/ardupilot.html">ArduPilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Scene &amp; Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/scene/sim_clock_internal.html">Simulation Clock</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">APIs &amp; Programmatic Control</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Project AirSim C++ Client</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#client-layout">Client layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#building-on-linux">Building on Linux</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#building-on-windows">Building on Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-hellodrone">Running HelloDrone</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-a-c-application">Creating a C++ application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#minimal-client-code">Minimal client code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#async-operations">Async operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#more-examples">More examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ros/ros2.html">Project AirSim ROS2 C++ Bridge</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python Client API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/client_api/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Project AirSim C++ Client</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/cpp_client.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="project-airsim-c-client">
+<h1>Project AirSim C++ Client<a class="headerlink" href="#project-airsim-c-client" title="Link to this heading"></a></h1>
+<p>The Project AirSim C++ client is a native client library for connecting to a
+running Project AirSim simulation server. It provides the same main programming
+model as the Python client–a <code class="docutils literal notranslate"><span class="pre">Client</span></code>, a <code class="docutils literal notranslate"><span class="pre">World</span></code>, and robot-specific objects
+such as <code class="docutils literal notranslate"><span class="pre">Drone</span></code>–for applications that need a C++17 interface.</p>
+<p>The C++ client source is in <code class="docutils literal notranslate"><span class="pre">client/cpp/</span></code>.</p>
+<section id="client-layout">
+<h2>Client layout<a class="headerlink" href="#client-layout" title="Link to this heading"></a></h2>
+<p>The main C++ client components are:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Path</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">client/cpp/ProjectAirsimClientLib/</span></code></p></td>
+<td><p>High-level client API for connecting to the server, loading worlds, and controlling robots.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">client/cpp/ProjectAirSimMessageLib/</span></code></p></td>
+<td><p>Message serialization helpers used by the client.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">client/cpp/NNGI/</span></code></p></td>
+<td><p>NNG-based transport wrapper.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">client/cpp/example_user_apps/HelloDrone/</span></code></p></td>
+<td><p>Minimal example application.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">client/cpp/example_user_apps/CppClientScenarios/</span></code></p></td>
+<td><p>Scenario-oriented example application.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">client/cpp/example_user_apps/UserScenarioTemplate/</span></code></p></td>
+<td><p>Starting point for custom C++ user scenarios.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">client/cpp/scripts/</span></code></p></td>
+<td><p>Linux helper scripts for building and running scenario examples.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The public API headers are under:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>client/cpp/ProjectAirsimClientLib/Include/ProjectAirsimClient/
+</pre></div>
+</div>
+<p>Most applications should include the aggregate header:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ProjectAirsimClient/ProjectAirsimClient.h&gt;</span>
+</pre></div>
+</div>
+<p>All public client types are in the <code class="docutils literal notranslate"><span class="pre">microsoft::projectairsim::client</span></code>
+namespace. The examples commonly use this alias:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span><span class="w"> </span><span class="nn">pasc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">microsoft</span><span class="o">::</span><span class="nn">projectairsim</span><span class="o">::</span><span class="nn">client</span><span class="p">;</span>
+</pre></div>
+</div>
+</section>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
+<p>To build the C++ client, install:</p>
+<ul class="simple">
+<li><p>CMake 3.20 or newer</p></li>
+<li><p>A C++17 compiler</p></li>
+<li><p>Ninja when using the repository build wrapper. It is installed by
+<code class="docutils literal notranslate"><span class="pre">setup_linux_dev_tools.sh</span></code> on Linux and must be available on <code class="docutils literal notranslate"><span class="pre">PATH</span></code> on Windows.</p></li>
+<li><p>The MSVC C++ toolchain from Visual Studio 2022 Build Tools on Windows. The
+Visual Studio IDE is not required.</p></li>
+</ul>
+<p>The Linux CMake build fetches third-party dependencies such as NNG,
+<code class="docutils literal notranslate"><span class="pre">nlohmann-json</span></code>, and msgpack on first configure. Eigen3 is used from the system
+when available, or fetched automatically.</p>
+</section>
+<section id="building-on-linux">
+<h2>Building on Linux<a class="headerlink" href="#building-on-linux" title="Link to this heading"></a></h2>
+<p>From the repository root, build the C++ client with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./build_cpp_client.sh<span class="w"> </span>debug
+./build_cpp_client.sh<span class="w"> </span>release
+
+<span class="c1"># Build and run the mocked unit tests (no simulator required)</span>
+./build_cpp_client.sh<span class="w"> </span>debug<span class="w"> </span>--tests
+</pre></div>
+</div>
+<p>Build outputs are placed under:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Build</p></th>
+<th class="head"><p>Output directory</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Debug</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">client/cpp/build_linux/Debug/</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Release</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">client/cpp/build_linux/Release/</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>The main static libraries are generated in the selected build directory:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>libProjectAirsimClient.a
+libProjectAirSimMessageLib.a
+libNNGI.a
+</pre></div>
+</div>
+<p>Example executables are generated in the same directory, including:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>hello_drone
+cpp_client_scenarios
+user_scenario_template
+</pre></div>
+</div>
+<p>You can also build the client manually with CMake:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cmake<span class="w"> </span>-S<span class="w"> </span>client/cpp<span class="w"> </span>-B<span class="w"> </span>client/cpp/build_linux/Debug<span class="w"> </span>-DCMAKE_BUILD_TYPE<span class="o">=</span>Debug
+cmake<span class="w"> </span>--build<span class="w"> </span>client/cpp/build_linux/Debug<span class="w"> </span>-j<span class="k">$(</span>nproc<span class="k">)</span>
+</pre></div>
+</div>
+</section>
+<section id="building-on-windows">
+<h2>Building on Windows<a class="headerlink" href="#building-on-windows" title="Link to this heading"></a></h2>
+<p>From a Windows command prompt, use the repository build wrapper:</p>
+<div class="highlight-bat notranslate"><div class="highlight"><pre><span></span>build_cpp_client.cmd debug
+build_cpp_client.cmd release
+build_cpp_client.cmd debug --tests
+</pre></div>
+</div>
+<p>Build artifacts are placed under:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>client\cpp\build_windows\Debug\
+client\cpp\build_windows\Release\
+</pre></div>
+</div>
+<p>The client links statically; no client DLL directory needs to be added to
+<code class="docutils literal notranslate"><span class="pre">PATH</span></code> for <code class="docutils literal notranslate"><span class="pre">hello_drone.exe</span></code>.</p>
+</section>
+<section id="running-hellodrone">
+<h2>Running HelloDrone<a class="headerlink" href="#running-hellodrone" title="Link to this heading"></a></h2>
+<p>Start a Project AirSim simulation environment first, either from Unreal Editor
+with the Project AirSim plugin or from a packaged environment such as Blocks.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">hello_drone</span></code> example connects to the simulation server, loads
+<code class="docutils literal notranslate"><span class="pre">scene_basic_drone.jsonc</span></code>, arms <code class="docutils literal notranslate"><span class="pre">Drone1</span></code>, takes off, moves up, lands, and
+disconnects.</p>
+<p>On Linux:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./client/cpp/build_linux/Debug/hello_drone<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--simhost<span class="w"> </span><span class="m">127</span>.0.0.1<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--simconfig<span class="w"> </span>client/python/example_user_scripts/sim_config
+</pre></div>
+</div>
+<p>On Windows:</p>
+<div class="highlight-bat notranslate"><div class="highlight"><pre><span></span>client\cpp\build_windows\Debug\hello_drone.exe <span class="se">^</span>
+<span class="se"> </span> --simhost 127.0.0.1 <span class="se">^</span>
+<span class="se"> </span> --simconfig client\python\example_user_scripts\sim_config
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">--simconfig</span></code> directory must contain the scene file and related robot
+configuration files. The repository includes ready-to-run examples in:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>client/python/example_user_scripts/sim_config/
+</pre></div>
+</div>
+</section>
+<section id="creating-a-c-application">
+<h2>Creating a C++ application<a class="headerlink" href="#creating-a-c-application" title="Link to this heading"></a></h2>
+<p>For a custom Linux CMake application, build the client first and then link
+against the generated libraries. The simplest in-repository workflow is to add a
+new executable target to <code class="docutils literal notranslate"><span class="pre">client/cpp/CMakeLists.txt</span></code>, link it to
+<code class="docutils literal notranslate"><span class="pre">ProjectAirsimClient</span></code>, and rebuild.</p>
+<p>For example:</p>
+<div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="nb">add_executable</span><span class="p">(</span><span class="s">my_drone_app</span>
+<span class="w">    </span><span class="s">example_user_apps/MyDroneApp/MyDroneApp.cpp</span>
+<span class="p">)</span>
+
+<span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">my_drone_app</span>
+<span class="w">    </span><span class="s">PRIVATE</span>
+<span class="w">        </span><span class="s">ProjectAirsimClient</span>
+<span class="p">)</span>
+
+<span class="nb">if</span><span class="p">(</span><span class="s">NOT</span><span class="w"> </span><span class="s">WIN32</span><span class="p">)</span>
+<span class="w">    </span><span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">my_drone_app</span><span class="w"> </span><span class="s">PRIVATE</span><span class="w"> </span><span class="s">Threads::Threads</span><span class="p">)</span>
+<span class="nb">endif</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Then build the target:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cmake<span class="w"> </span>--build<span class="w"> </span>client/cpp/build_linux/Debug<span class="w"> </span>--target<span class="w"> </span>my_drone_app<span class="w"> </span>-j<span class="k">$(</span>nproc<span class="k">)</span>
+</pre></div>
+</div>
+<p>For custom scenarios, start from:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>client/cpp/example_user_apps/UserScenarioTemplate/UserScenarioTemplate.cpp
+</pre></div>
+</div>
+<p>The helper script can build and run a scenario target from
+<code class="docutils literal notranslate"><span class="pre">client/cpp/build_local</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cmake<span class="w"> </span>-S<span class="w"> </span>client/cpp<span class="w"> </span>-B<span class="w"> </span>client/cpp/build_local<span class="w"> </span>-DCMAKE_BUILD_TYPE<span class="o">=</span>Debug
+./client/cpp/scripts/run_cpp_user_scenario.sh<span class="w"> </span>--target<span class="w"> </span>user_scenario_template
+</pre></div>
+</div>
+</section>
+<section id="minimal-client-code">
+<h2>Minimal client code<a class="headerlink" href="#minimal-client-code" title="Link to this heading"></a></h2>
+<p>The following shows the basic C++ client flow. See
+<code class="docutils literal notranslate"><span class="pre">client/cpp/example_user_apps/HelloDrone/HelloDrone.cpp</span></code> for a complete example
+with argument parsing and error handling.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ProjectAirsimClient/ProjectAirsimClient.h&gt;</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;memory&gt;</span>
+
+<span class="k">namespace</span><span class="w"> </span><span class="nn">pasc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">microsoft</span><span class="o">::</span><span class="nn">projectairsim</span><span class="o">::</span><span class="nn">client</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">pasc</span><span class="o">::</span><span class="n">Client</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">client</span><span class="o">-&gt;</span><span class="n">Connect</span><span class="p">(</span><span class="s">"127.0.0.1"</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">pasc</span><span class="o">::</span><span class="n">Status</span><span class="o">::</span><span class="n">OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">world</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">pasc</span><span class="o">::</span><span class="n">World</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">world</span><span class="o">-&gt;</span><span class="n">Initialize</span><span class="p">(</span><span class="n">client</span><span class="p">,</span>
+<span class="w">                        </span><span class="s">"scene_basic_drone.jsonc"</span><span class="p">,</span>
+<span class="w">                        </span><span class="s">"client/python/example_user_scripts/sim_config"</span><span class="p">,</span>
+<span class="w">                        </span><span class="mf">2.0f</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">pasc</span><span class="o">::</span><span class="n">Status</span><span class="o">::</span><span class="n">OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">drone</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">pasc</span><span class="o">::</span><span class="n">Drone</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">drone</span><span class="o">-&gt;</span><span class="n">Initialize</span><span class="p">(</span><span class="n">client</span><span class="p">,</span><span class="w"> </span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="s">"Drone1"</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">pasc</span><span class="o">::</span><span class="n">Status</span><span class="o">::</span><span class="n">OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">ok</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">  </span><span class="n">drone</span><span class="o">-&gt;</span><span class="n">EnableAPIControl</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ok</span><span class="p">);</span>
+<span class="w">  </span><span class="n">drone</span><span class="o">-&gt;</span><span class="n">Arm</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ok</span><span class="p">);</span>
+
+<span class="w">  </span><span class="n">drone</span><span class="o">-&gt;</span><span class="n">TakeoffAsync</span><span class="p">().</span><span class="n">Wait</span><span class="p">();</span>
+<span class="w">  </span><span class="n">drone</span><span class="o">-&gt;</span><span class="n">MoveByVelocityAsync</span><span class="p">(</span><span class="mf">0.0f</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0f</span><span class="p">,</span><span class="w"> </span><span class="mf">-1.0f</span><span class="p">,</span><span class="w"> </span><span class="mf">4.0</span><span class="p">).</span><span class="n">Wait</span><span class="p">();</span>
+<span class="w">  </span><span class="n">drone</span><span class="o">-&gt;</span><span class="n">LandAsync</span><span class="p">().</span><span class="n">Wait</span><span class="p">();</span>
+
+<span class="w">  </span><span class="n">drone</span><span class="o">-&gt;</span><span class="n">Disarm</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ok</span><span class="p">);</span>
+<span class="w">  </span><span class="n">drone</span><span class="o">-&gt;</span><span class="n">DisableAPIControl</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ok</span><span class="p">);</span>
+<span class="w">  </span><span class="n">client</span><span class="o">-&gt;</span><span class="n">Disconnect</span><span class="p">();</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="async-operations">
+<h2>Async operations<a class="headerlink" href="#async-operations" title="Link to this heading"></a></h2>
+<p>Movement APIs return <code class="docutils literal notranslate"><span class="pre">AsyncResult</span></code>. Call <code class="docutils literal notranslate"><span class="pre">Wait()</span></code> to block until the operation is
+complete and retrieve its <code class="docutils literal notranslate"><span class="pre">Status</span></code>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">takeoff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">drone</span><span class="o">-&gt;</span><span class="n">TakeoffAsync</span><span class="p">();</span>
+<span class="n">pasc</span><span class="o">::</span><span class="n">Status</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">takeoff</span><span class="p">.</span><span class="n">Wait</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>You can also poll for completion, but still call <code class="docutils literal notranslate"><span class="pre">Wait()</span></code> afterward to retrieve
+the final status:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">move</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">drone</span><span class="o">-&gt;</span><span class="n">MoveByVelocityAsync</span><span class="p">(</span><span class="mf">0.0f</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0f</span><span class="p">,</span><span class="w"> </span><span class="mf">-1.0f</span><span class="p">,</span><span class="w"> </span><span class="mf">4.0</span><span class="p">);</span>
+
+<span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">move</span><span class="p">.</span><span class="n">FIsDone</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">milliseconds</span><span class="p">(</span><span class="mi">5</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="n">pasc</span><span class="o">::</span><span class="n">Status</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">move</span><span class="p">.</span><span class="n">Wait</span><span class="p">();</span>
+</pre></div>
+</div>
+</section>
+<section id="more-examples">
+<h2>More examples<a class="headerlink" href="#more-examples" title="Link to this heading"></a></h2>
+<p>Additional example applications are available under:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>client/cpp/example_user_apps/
+</pre></div>
+</div>
+<p>The scenario runner scripts under <code class="docutils literal notranslate"><span class="pre">client/cpp/scripts/</span></code> demonstrate common
+flight, sensor, rover, environment actor, lidar, radar, and battery workflows.</p>
+<hr class="docutils" />
+<p>Copyright (C) Microsoft Corporation.<br />
+Copyright (C) 2025 IAMAI CONSULTING CORP</p>
+<p>MIT License. All rights reserved.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="api.html" class="btn btn-neutral float-left" title="API Overview" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ros/ros2.html" class="btn btn-neutral float-right" title="Project AirSim ROS2 C++ Bridge" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

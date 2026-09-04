@@ -114,6 +114,13 @@ invalid/uninitialized ROS timestamp (`sec: 0`, `nanosec: 0`) instead of
 substituting the bridge's current time. ROS time fields are integers, so they
 cannot represent NaN.
 
+For optimized native image messages, an absent `time_stamp` or an unsigned
+value larger than `INT64_MAX` produces the same zero timestamp while preserving
+the image. A present `time_stamp` encoded with the wrong MessagePack type
+(such as a string, floating-point value, Boolean, or null), or encoded as a
+negative integer, makes the image payload malformed; the bridge warns and
+drops that image instead of substituting ROS node time.
+
 ## Topics
 
 List ROS2 topics:

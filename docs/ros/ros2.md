@@ -102,9 +102,14 @@ when Project AirSim reports topic information.
 | `publish_tf` | `true` | Broadcast TF transforms from `/actual_pose` and camera pose payloads. |
 | `tf_world_frame_id` | `map` | Parent frame used for TF transforms. |
 | `refresh_topics_period_sec` | `0.0` | Periodic topic discovery interval. `0.0` disables polling; use a positive value only if scenes/topics can change outside this node. |
-| `publish_clock_period_sec` | `0.02` | Periodic `/clock` publish interval in seconds. `0.0` disables clock publishing. |
 | `vehicle_name` | `Drone1` | Vehicle used for single-drone services/actions. |
 | `service_root` | `/projectairsim` | Root namespace for command services and actions. |
+
+The simulator publishes `/Sim/<scene>/clock` from the scene tick. The bridge
+subscribes to that native clock stream and republishes every sample on ROS
+`/clock`; it does not poll `GetSimTime`. Sensor message headers likewise retain
+their native per-sample `time_stamp` values. A missing or invalid sensor
+timestamp is published as zero and is never replaced with the bridge's ROS time.
 
 ## Topics
 
@@ -140,7 +145,7 @@ The bridge also publishes:
 | Topic | Type | Description |
 |---|---|---|
 | `/projectairsim/topic_info` | `std_msgs/msg/String` | JSON list of Project AirSim topic paths from the first discovery pass after startup or scene load. |
-| `/clock` | `rosgraph_msgs/msg/Clock` | Project AirSim simulation time from `World::GetSimTime()`. |
+| `/clock` | `rosgraph_msgs/msg/Clock` | Native Project AirSim scene-clock topic, republished without service polling. |
 | `/tf` | `tf2_msgs/msg/TFMessage` | Vehicle and camera transforms when `publish_tf=true`. |
 
 To echo a topic:

@@ -19,7 +19,9 @@
 #include "core_sim/error.hpp"
 #include "core_sim/file_utils.hpp"
 #include "core_sim/geodetic_converter.hpp"
+#include "core_sim/message/clock_message.hpp"
 #include "core_sim/service_method.hpp"
+#include "core_sim/topic.hpp"
 #include "core_sim/viewport_camera.hpp"
 #include "json.hpp"
 #include "message/common_utils.hpp"
@@ -194,6 +196,8 @@ class Scene::Impl : public ComponentWithTopicsAndServiceMethods {
 
   bool SceneTick();
 
+  void CreateTopics();
+
   void EnableViewportCamera(bool enable);
 
   // set enable_unreal_viewport_camera_callback_
@@ -218,6 +222,8 @@ class Scene::Impl : public ComponentWithTopicsAndServiceMethods {
   std::function<void()> physics_stop_callback_;
   ScheduledExecutor executor_;
   TimeNano sim_time_;
+  Topic clock_topic_;
+  bool clock_topic_registered_ = false;
   ClockSettings clock_settings_;
   SegmentationSettings segmentation_settings_;
   HomeGeoPoint home_geo_point_;
@@ -635,6 +641,19 @@ void Scene::Impl::StopSceneTick() {
   }
 }
 
+void Scene::Impl::CreateTopics() {
+  constexpr TimeNano kNanosPerSecond = 1000000000LL;
+  const int frequency =
+      clock_settings_.scene_tick_period > 0
+          ? static_cast<int>(kNanosPerSecond /
+                             clock_settings_.scene_tick_period)
+          : 0;
+  clock_topic_ = Topic("clock", topic_path_, TopicType::kPublished, frequency,
+                       MessageType::kClock);
+  topic_manager_.RegisterTopic(clock_topic_);
+  clock_topic_registered_ = true;
+}
+
 void Scene::Impl::OnBeginUpdate() {
   for (auto& actor : actors_) {
     if (actor->GetType() == ActorType::kRobot) {
@@ -1010,6 +1029,12 @@ bool Scene::Impl::SceneTick() {
   TimeNano sim_dt_nanos = new_sim_time - sim_time_;
   sim_time_ = new_sim_time;
 
+  // Publish the authoritative simulator clock from the same tick that stamps
+  // sensor samples. Clients must not poll GetSimTime to drive ROS /clock: a
+  // blocked service request would otherwise stop time for every use_sim_time
+  // node even though the simulation itself is still running.
+  topic_manager_.PublishTopic(clock_topic_, ClockMessage(sim_time_));
+
   if (clock_settings_.type == ClockType::kSteppable &&
       state_manager_.IsDistributed() && state_manager_.IsClockSource()) {
     state_manager_.SendSimTime(sim_time_);
@@ -1192,6 +1217,8 @@ void Scene::Loader::LoadSceneWithJSON(const json& json) {
     SimClock::Get(std::make_shared<SteppableClock>());
   }
 
+  impl_.CreateTopics();
+
   // Load segmentation settings for initializing scene object segmentation IDs
   LoadSegmentationSettings(json);
 
@@ -1219,6 +1246,11 @@ void Scene::Loader::LoadSceneWithJSON(const json& json) {
 }
 
 void Scene::Loader::UnloadScene() {
+  if (impl_.clock_topic_registered_) {
+    impl_.topic_manager_.UnregisterTopic(impl_.clock_topic_);
+    impl_.clock_topic_ = Topic();
+    impl_.clock_topic_registered_ = false;
+  }
   impl_.topic_manager_.SetTopicPublishedCallbackEnabled(false);
   impl_.topic_manager_.SetCallbackTopicPublished(nullptr);
 

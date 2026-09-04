@@ -52,6 +52,7 @@ add_executable(
     gtest_unreal_vehicle_actuator.cpp
     gtest_noise_model_utils.cpp
     gtest_clock.cpp
+    gtest_clock_message.cpp
     gtest_message.cpp
     gtest_image_message.cpp
     gtest_topic_manager.cpp

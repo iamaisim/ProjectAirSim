@@ -7,6 +7,7 @@
 #include <ProjectAirSimMessage/response_message.hpp>
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <cmath>
 #include <cstdint>
 #include <filesystem>
@@ -23,6 +24,7 @@
 #include <utility>
 #include <vector>
 
+#include "builtin_interfaces/msg/time.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "msgpack.hpp"
@@ -105,11 +107,52 @@ std::string StatusToString(pasc::Status status) {
   return std::string(buffer);
 }
 
-std_msgs::msg::Header MakeHeader(rclcpp::Node& node,
-                                 const std::string& frame_id) {
+std_msgs::msg::Header MakeCurrentTimeHeader(rclcpp::Node& node,
+                                            const std::string& frame_id) {
   std_msgs::msg::Header header;
   header.stamp = node.get_clock()->now();
   header.frame_id = frame_id;
+  return header;
+}
+
+std_msgs::msg::Header MakeHeader(rclcpp::Node& node,
+                                 const std::string& frame_id,
+                                 std::int64_t time_stamp) {
+  std_msgs::msg::Header header;
+  header.frame_id = frame_id;
+  if (time_stamp < 0) {
+    RCLCPP_WARN_THROTTLE(
+        node.get_logger(), *node.get_clock(), 5000,
+        "Sensor message for frame '%s' has an invalid timestamp; publishing "
+        "an invalid zero timestamp",
+        frame_id.c_str());
+    return header;
+  }
+
+  header.stamp = rclcpp::Time(time_stamp);
+  return header;
+}
+
+// Stamp from the simulator's own per-sample timestamp when the payload carries
+// one. Missing or invalid sensor timestamps remain the conventional zero ROS
+// timestamp; they must never be replaced with the bridge node's current time.
+// The simulator emits time_stamp in nanoseconds as the first member of every
+// sensor message map, for example core_sim/src/message/imu_message.cpp:39.
+std_msgs::msg::Header MakeHeader(rclcpp::Node& node,
+                                 const std::string& frame_id, const json& msg) {
+  std::int64_t time_stamp = 0;
+  if (msg.is_object() && msg.contains("time_stamp") &&
+      JsonToInt64(msg["time_stamp"], &time_stamp)) {
+    return MakeHeader(node, frame_id, time_stamp);
+  }
+
+  std_msgs::msg::Header header;
+  header.frame_id = frame_id;
+  RCLCPP_WARN_THROTTLE(
+      node.get_logger(), *node.get_clock(), 5000,
+      "Sensor message for frame '%s' has no valid time_stamp; publishing an "
+      "invalid zero timestamp",
+      frame_id.c_str());
   return header;
 }
 
@@ -146,8 +189,6 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
         declare_parameter<std::string>("tf_world_frame_id", "map");
     refresh_topics_period_sec_ =
         declare_parameter<double>("refresh_topics_period_sec", 0.0);
-    publish_clock_period_sec_ =
-        declare_parameter<double>("publish_clock_period_sec", 0.02);
     vehicle_name_ = declare_parameter<std::string>("vehicle_name", "Drone1");
     service_root_ =
         declare_parameter<std::string>("service_root", "/projectairsim");
@@ -189,12 +230,12 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
     clock_publisher_ =
         create_publisher<rosgraph_msgs::msg::Clock>("/clock", rclcpp::QoS(10));
     if (publish_tf_) {
-      tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+            tf_broadcaster_ =
+                std::make_unique<tf2_ros::TransformBroadcaster>(*this);
     }
     CreateServices(vehicle_name_);
     CreateActionServer(vehicle_name_);
     DiscoverAndSubscribeIfReady();
-    StartClockTimerIfReady();
     if (refresh_topics_period_sec_ > 0.0) {
       refresh_timer_ = create_wall_timer(
           std::chrono::duration_cast<std::chrono::nanoseconds>(
@@ -232,18 +273,16 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
       return false;
     }
 
-    clock_parent_topic_ = world_->GetParentTopic();
     scene_loaded_ = true;
     reported_waiting_for_scene_ = false;
     RCLCPP_INFO(get_logger(), "Using existing Project AirSim scene %s",
-                clock_parent_topic_.c_str());
+                world_->GetParentTopic());
     return true;
   }
 
   void DiscoverAndSubscribeIfReady() {
     if (!scene_loaded_ && !AdoptLoadedSceneIfAvailable()) return;
     DiscoverAndSubscribe();
-    StartClockTimerIfReady();
   }
 
   void DiscoverAndSubscribe() {
@@ -259,14 +298,13 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
       topic_info_msg.data = json(topics).dump();
       topic_info_publisher_->publish(topic_info_msg);
       for (const auto& topic : topics) {
-        RCLCPP_INFO(get_logger(), "  Project AirSim topic: %s", topic.c_str());
+                RCLCPP_INFO(get_logger(), "  Project AirSim topic: %s",
+                            topic.c_str());
       }
       listed_projectairsim_topics_ = true;
     }
 
     for (const auto& topic : topics) {
-      CacheClockParentTopic(topic);
-
       {
         std::lock_guard<std::mutex> lock(subscriptions_mutex_);
         if (std::find(subscribed_topics_.begin(), subscribed_topics_.end(),
@@ -313,27 +351,51 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
   }
 
   std::optional<TopicHandler> CreateHandler(const std::string& topic) {
+    if (EndsWith(topic, "/clock")) return CreateClockPublisher();
     if (EndsWith(topic, "/gps")) return CreateGpsPublisher(topic);
     if (EndsWith(topic, "/actual_pose")) return CreatePosePublisher(topic);
     if (EndsWith(topic, "/imu") || EndsWith(topic, "/imu_kinematics")) {
       return CreateImuPublisher(topic);
     }
-    if (EndsWith(topic, "/barometer")) return CreateBarometerPublisher(topic);
+    if (EndsWith(topic, "/barometer"))
+        return CreateBarometerPublisher(topic);
     if (EndsWith(topic, "/magnetometer"))
-      return CreateMagnetometerPublisher(topic);
+        return CreateMagnetometerPublisher(topic);
     if (EndsWith(topic, "/lidar")) return CreateLidarPublisher(topic);
     if (EndsWith(topic, "/radar_detections"))
-      return CreateRadarScanPublisher(topic);
+        return CreateRadarScanPublisher(topic);
     if (EndsWith(topic, "/radar_tracks"))
-      return CreateRadarTracksPublisher(topic);
+        return CreateRadarTracksPublisher(topic);
     if (EndsWith(topic, "_camera_info"))
-      return CreateCameraInfoPublisher(topic);
+        return CreateCameraInfoPublisher(topic);
     if (publish_unmatched_as_json_) return CreateJsonPublisher(topic);
     return std::nullopt;
   }
 
+  TopicHandler CreateClockPublisher() {
+    return [this](const std::string&, const json& msg) {
+      std::int64_t nanosec = 0;
+      if (!ExtractSimTimeNanos(msg, &nanosec) || nanosec < 0) {
+        RCLCPP_WARN_THROTTLE(
+            get_logger(), *get_clock(), 5000,
+            "Project AirSim clock topic carried an invalid timestamp");
+        return;
+      }
+
+      latest_clock_nanos_.store(nanosec, std::memory_order_relaxed);
+      has_clock_sample_.store(true, std::memory_order_release);
+
+      rosgraph_msgs::msg::Clock clock_msg;
+      clock_msg.clock.sec = static_cast<int32_t>(nanosec / 1000000000LL);
+      clock_msg.clock.nanosec =
+          static_cast<uint32_t>(nanosec % 1000000000LL);
+      clock_publisher_->publish(clock_msg);
+    };
+  }
+
   std::string ToRosTopic(const std::string& projectairsim_topic) const {
-    if (StartsWithPathPrefix(projectairsim_topic, projectairsim_topic_root_)) {
+        if (StartsWithPathPrefix(projectairsim_topic,
+                                 projectairsim_topic_root_)) {
       return ros_topic_root_ +
              projectairsim_topic.substr(projectairsim_topic_root_.size());
     }
@@ -342,11 +404,13 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
 
   void MaybeBroadcastTransform(const std::string& parent_frame_id,
                                const std::string& child_frame_id,
-                               const json& position, const json& orientation) {
+                               const builtin_interfaces::msg::Time& time_stamp,
+                               const json& position,
+                               const json& orientation) {
     if (!tf_broadcaster_ || child_frame_id.empty()) return;
 
     geometry_msgs::msg::TransformStamped transform;
-    transform.header.stamp = get_clock()->now();
+    transform.header.stamp = time_stamp;
     transform.header.frame_id = parent_frame_id;
     transform.child_frame_id = child_frame_id;
     transform.transform.translation = ToRosVector3(position);
@@ -356,11 +420,12 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
 
   void MaybeBroadcastTransform(const std::string& parent_frame_id,
                                const std::string& child_frame_id,
+                               const builtin_interfaces::msg::Time& time_stamp,
                                const NativeImageMetadata& metadata) {
     if (!tf_broadcaster_ || child_frame_id.empty()) return;
 
     geometry_msgs::msg::TransformStamped transform;
-    transform.header.stamp = get_clock()->now();
+    transform.header.stamp = time_stamp;
     transform.header.frame_id = parent_frame_id;
     transform.child_frame_id = child_frame_id;
     transform.transform.translation.x = metadata.pos_x;
@@ -380,12 +445,13 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
     return [this, publisher, frame_id = TopicToFrameId(topic), topic](
                const std::string&, const json& msg) {
       sensor_msgs::msg::NavSatFix ros_msg;
-      ros_msg.header = MakeHeader(*this, frame_id);
+            ros_msg.header = MakeHeader(*this, frame_id, msg);
       ros_msg.status.status =
           NumberOr(msg, "fix_type") >= 2.0
               ? sensor_msgs::msg::NavSatStatus::STATUS_SBAS_FIX
               : sensor_msgs::msg::NavSatStatus::STATUS_NO_FIX;
-      ros_msg.status.service = sensor_msgs::msg::NavSatStatus::SERVICE_GPS;
+            ros_msg.status.service =
+                sensor_msgs::msg::NavSatStatus::SERVICE_GPS;
       ros_msg.latitude = NumberOr(msg, "latitude");
       ros_msg.longitude = NumberOr(msg, "longitude");
       ros_msg.altitude = NumberOr(msg, "altitude");
@@ -402,11 +468,13 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
     return [this, publisher, child_frame_id = TopicToFrameId(topic)](
                const std::string&, const json& msg) {
       geometry_msgs::msg::PoseStamped ros_msg;
-      ros_msg.header = MakeHeader(*this, tf_world_frame_id_);
-      ros_msg.pose.position = ToRosPoint(msg.value("position", json::object()));
+            ros_msg.header = MakeHeader(*this, tf_world_frame_id_, msg);
+            ros_msg.pose.position =
+                ToRosPoint(msg.value("position", json::object()));
       ros_msg.pose.orientation =
           ToRosQuaternion(msg.value("orientation", json::object()));
       MaybeBroadcastTransform(tf_world_frame_id_, child_frame_id,
+                              ros_msg.header.stamp,
                               msg.value("position", json::object()),
                               msg.value("orientation", json::object()));
       publisher->publish(ros_msg);
@@ -421,7 +489,7 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
     return [this, publisher, frame_id = TopicToFrameId(topic), topic](
                const std::string&, const json& msg) {
       sensor_msgs::msg::Imu ros_msg;
-      ros_msg.header = MakeHeader(*this, frame_id);
+            ros_msg.header = MakeHeader(*this, frame_id, msg);
       ros_msg.orientation =
           ToRosQuaternion(msg.value("orientation", json::object()));
       ros_msg.angular_velocity =
@@ -442,7 +510,7 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
     return [this, publisher, frame_id = TopicToFrameId(topic)](
                const std::string&, const json& msg) {
       sensor_msgs::msg::FluidPressure ros_msg;
-      ros_msg.header = MakeHeader(*this, frame_id);
+            ros_msg.header = MakeHeader(*this, frame_id, msg);
       ros_msg.fluid_pressure = NumberOr(msg, "pressure");
       ros_msg.variance = 0.0;
       publisher->publish(ros_msg);
@@ -456,13 +524,14 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
     return [this, publisher, frame_id = TopicToFrameId(topic)](
                const std::string&, const json& msg) {
       sensor_msgs::msg::MagneticField ros_msg;
-      ros_msg.header = MakeHeader(*this, frame_id);
+            ros_msg.header = MakeHeader(*this, frame_id, msg);
       ros_msg.magnetic_field =
           ToRosVector3(msg.value("magnetic_field_body", json::array()));
       ros_msg.magnetic_field_covariance.fill(0.0);
-      const auto covariance =
-          ArrayNumbers(msg.value("magnetic_field_covariance", json::array()));
-      for (size_t i = 0; i < std::min<size_t>(covariance.size(), 9); ++i) {
+            const auto covariance = ArrayNumbers(
+                msg.value("magnetic_field_covariance", json::array()));
+            for (size_t i = 0; i < std::min<size_t>(covariance.size(), 9);
+                 ++i) {
         ros_msg.magnetic_field_covariance[i] = covariance[i];
       }
       publisher->publish(ros_msg);
@@ -475,9 +544,11 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
         ros_topic, rclcpp::SensorDataQoS());
     return [this, publisher, frame_id = TopicToFrameId(topic)](
                const std::string&, const json& msg) {
-      const auto points = ArrayNumbers(msg.value("point_cloud", json::array()));
+            const auto points =
+                ArrayNumbers(msg.value("point_cloud", json::array()));
       sensor_msgs::msg::PointCloud2 cloud;
-      cloud.header = MakeHeader(*this, msg.value("frame_id", frame_id));
+            cloud.header =
+                MakeHeader(*this, msg.value("frame_id", frame_id), msg);
       cloud.height = 1;
       cloud.width = static_cast<uint32_t>(points.size() / 3);
       cloud.is_bigendian = false;
@@ -502,26 +573,28 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
 
   TopicHandler CreateRadarScanPublisher(const std::string& topic) {
     const auto ros_topic = ToRosTopic(topic);
-    auto publisher = create_publisher<projectairsim_ros2_cpp::msg::RadarScan>(
+        auto publisher =
+            create_publisher<projectairsim_ros2_cpp::msg::RadarScan>(
         ros_topic, rclcpp::SensorDataQoS());
     return [this, publisher, frame_id = TopicToFrameId(topic)](
                const std::string&, const json& msg) {
       projectairsim_ros2_cpp::msg::RadarScan ros_msg;
-      ros_msg.header = MakeHeader(*this, frame_id);
-      AppendRadarReturnsFromJson(msg.value("radar_detections", json::array()),
-                                 &ros_msg);
+            ros_msg.header = MakeHeader(*this, frame_id, msg);
+            AppendRadarReturnsFromJson(
+                msg.value("radar_detections", json::array()), &ros_msg);
       publisher->publish(ros_msg);
     };
   }
 
   TopicHandler CreateRadarTracksPublisher(const std::string& topic) {
     const auto ros_topic = ToRosTopic(topic);
-    auto publisher = create_publisher<projectairsim_ros2_cpp::msg::RadarTracks>(
+        auto publisher =
+            create_publisher<projectairsim_ros2_cpp::msg::RadarTracks>(
         ros_topic, rclcpp::SensorDataQoS());
     return [this, publisher, frame_id = TopicToFrameId(topic)](
                const std::string&, const json& msg) {
       projectairsim_ros2_cpp::msg::RadarTracks ros_msg;
-      ros_msg.header = MakeHeader(*this, frame_id);
+      ros_msg.header = MakeHeader(*this, frame_id, msg);
       AppendRadarTracksFromJson(msg.value("radar_tracks", json::array()),
                                 &ros_msg);
       publisher->publish(ros_msg);
@@ -537,7 +610,7 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
     return [this, publisher, frame_id = CameraFrameId(topic)](
                const std::string&, const json& msg) {
       sensor_msgs::msg::CameraInfo ros_msg;
-      ros_msg.header = MakeHeader(*this, frame_id);
+            ros_msg.header = MakeHeader(*this, frame_id, msg);
       PopulateCameraInfoFromJson(msg, &ros_msg);
       publisher->publish(ros_msg);
     };
@@ -552,7 +625,6 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
     return [this, publisher, frame_id = CameraFrameId(topic), topic](
                const std::string&, const std::string& payload) {
       auto ros_msg = std::make_unique<sensor_msgs::msg::Image>();
-      ros_msg->header = MakeHeader(*this, frame_id);
       NativeImageMetadata metadata;
       if (!PopulateImagePayloadFromMsgpack(payload, ros_msg.get(), &metadata)) {
         RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000,
@@ -560,8 +632,15 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
                              topic.c_str(), metadata.source_encoding.c_str());
         return;
       }
+      const auto time_stamp =
+          metadata.has_time_stamp &&
+                  metadata.time_stamp <= static_cast<std::uint64_t>(
+                                             std::numeric_limits<std::int64_t>::max())
+              ? static_cast<std::int64_t>(metadata.time_stamp)
+              : -1;
+      ros_msg->header = MakeHeader(*this, frame_id, time_stamp);
       MaybeBroadcastTransform(tf_world_frame_id_, ros_msg->header.frame_id,
-                              metadata);
+                              ros_msg->header.stamp, metadata);
       publisher->publish(std::move(ros_msg));
     };
   }
@@ -591,8 +670,8 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
     mp::ResponseMessage response;
     response.Deserialize(message_response);
     if (response.GetErrorCode() != 0) {
-      RCLCPP_ERROR(get_logger(), "%s rejected by server: %s", method.c_str(),
-                   response.GetResult().dump().c_str());
+            RCLCPP_ERROR(get_logger(), "%s rejected by server: %s",
+                         method.c_str(), response.GetResult().dump().c_str());
       return false;
     }
 
@@ -615,7 +694,8 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
         params = json::parse(json_parameters);
       } catch (const json::parse_error& error) {
         *error_code = -1;
-        *status_text = std::string("Invalid JSON parameters: ") + error.what();
+                *status_text =
+                    std::string("Invalid JSON parameters: ") + error.what();
         *result_json = json({{"error", *status_text}}).dump();
         raw_response->clear();
         return false;
@@ -664,7 +744,7 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
 
   bool RequestWorldJson(const std::string& method, const json& params,
                         json* result, std::string* status_text) {
-    const auto parent_topic = ResolveClockParentTopic();
+    const std::string parent_topic = world_->GetParentTopic();
     if (parent_topic.empty()) {
       *status_text = "Project AirSim scene parent topic is not resolved";
       return false;
@@ -697,7 +777,7 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
   bool RequestVehicleJson(const std::string& vehicle_name,
                           const std::string& method, const json& params,
                           json* result, std::string* status_text) {
-    const auto parent_topic = ResolveClockParentTopic();
+    const std::string parent_topic = world_->GetParentTopic();
     if (parent_topic.empty()) {
       *status_text = "Project AirSim scene parent topic is not resolved";
       return false;
@@ -732,7 +812,8 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
         all ? client_->UnsubscribeAll() : client_->Unsubscribe(topics);
     *status_text = StatusToString(status);
     if (status == pasc::Status::OK) {
-      std::lock_guard<std::mutex> subscriptions_lock(subscriptions_mutex_);
+            std::lock_guard<std::mutex> subscriptions_lock(
+                subscriptions_mutex_);
       if (all) {
         subscribed_topics_.clear();
         handlers_.clear();
@@ -761,69 +842,6 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
                   StatusToString(status).c_str());
     }
     return status == pasc::Status::OK;
-  }
-
-  void CacheClockParentTopic(const std::string& topic) {
-    if (!clock_parent_topic_.empty()) return;
-    const auto parent_topic =
-        ParentTopicFromProjectAirSimTopic(topic, projectairsim_topic_root_);
-    if (parent_topic.empty()) return;
-
-    clock_parent_topic_ = parent_topic;
-    RCLCPP_INFO(get_logger(), "Resolved Project AirSim clock parent topic: %s",
-                clock_parent_topic_.c_str());
-  }
-
-  std::string ResolveClockParentTopic() {
-    if (!clock_parent_topic_.empty()) return clock_parent_topic_;
-
-    const std::string world_parent_topic = world_->GetParentTopic();
-    if (IsSceneParentTopic(world_parent_topic, projectairsim_topic_root_)) {
-      clock_parent_topic_ = world_parent_topic;
-      return clock_parent_topic_;
-    }
-    return clock_parent_topic_;
-  }
-
-  bool RequestSimTime(std::int64_t* nanosec) {
-    if (!scene_loaded_) return false;
-    const auto parent_topic = ResolveClockParentTopic();
-    if (!parent_topic.empty()) {
-      const auto method = parent_topic + "/GetSimTime";
-      pasc::Message message_response;
-      pasc::Status status = pasc::Status::OK;
-      {
-        std::lock_guard<std::mutex> lock(client_mutex_);
-        status = client_->Request(method, json::object(), &message_response);
-      }
-      if (status == pasc::Status::OK) {
-        mp::ResponseMessage response;
-        response.Deserialize(message_response);
-        if (response.GetErrorCode() == 0 &&
-            ExtractSimTimeNanos(response.GetResult(), nanosec)) {
-          return true;
-        }
-
-        RCLCPP_WARN_THROTTLE(
-            get_logger(), *get_clock(), 5000,
-            "%s returned an invalid sim time response: error=%d result=%s",
-            method.c_str(), response.GetErrorCode(),
-            response.GetResult().dump().c_str());
-      } else {
-        RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000,
-                             "%s request failed: %s", method.c_str(),
-                             StatusToString(status).c_str());
-      }
-    }
-
-    const auto status = world_->GetSimTime(nanosec);
-    if (status != pasc::Status::OK) {
-      RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000,
-                           "GetSimTime fallback failed: %s",
-                           StatusToString(status).c_str());
-      return false;
-    }
-    return true;
   }
 
   std::shared_ptr<pasc::Drone> GetDrone(const std::string& vehicle_name) {
@@ -914,7 +932,8 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
                    StatusToString(disarm_status).c_str());
     }
     if (disable_status != pasc::Status::OK) {
-      RCLCPP_ERROR(get_logger(), "DisableAPIControl after disarm failed: %s",
+            RCLCPP_ERROR(get_logger(),
+                         "DisableAPIControl after disarm failed: %s",
                    StatusToString(disable_status).c_str());
     }
     return disarm_status == pasc::Status::OK &&
@@ -945,8 +964,8 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
     if (!drone) return false;
     auto result = drone->MoveOnPathAsync(
         PathFromRos(path), static_cast<float>(velocity), timeout_sec,
-        YawModeFromDriveTrain(drive_train_type), yaw_is_rate, yaw, lookahead,
-        adaptive_lookahead);
+            YawModeFromDriveTrain(drive_train_type), yaw_is_rate, yaw,
+            lookahead, adaptive_lookahead);
     return !wait_on_last_task || result.Wait() == pasc::Status::OK;
   }
 
@@ -955,13 +974,15 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
                        const std::string& output_file,
                        pasc::BoolArray* voxel_grid = nullptr) {
     if (x_size <= 0 || y_size <= 0 || z_size <= 0 || resolution <= 0.0) {
-      RCLCPP_ERROR(get_logger(),
+            RCLCPP_ERROR(
+                get_logger(),
                    "CreateVoxelGrid requires positive sizes and resolution");
       return false;
     }
 
     pasc::BoolArray local_voxel_grid;
-    auto& result_grid = voxel_grid != nullptr ? *voxel_grid : local_voxel_grid;
+        auto& result_grid =
+            voxel_grid != nullptr ? *voxel_grid : local_voxel_grid;
     const bool write_file = !output_file.empty();
     const auto status = world_->CreateVoxelGrid(
         PoseFromPosition(x, y, z), static_cast<int>(x_size),
@@ -982,12 +1003,16 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
       double resolution) {
     (void)center_z;
     nav_msgs::msg::OccupancyGrid grid;
-    grid.header = MakeHeader(*this, "map");
+    grid.header = MakeCurrentTimeHeader(*this, "map");
     grid.info.resolution = static_cast<float>(resolution);
-    grid.info.width = static_cast<uint32_t>(CellsFromSize(x_size, resolution));
-    grid.info.height = static_cast<uint32_t>(CellsFromSize(y_size, resolution));
-    grid.info.origin.position.x = center_x - 0.5 * static_cast<double>(x_size);
-    grid.info.origin.position.y = center_y - 0.5 * static_cast<double>(y_size);
+        grid.info.width =
+            static_cast<uint32_t>(CellsFromSize(x_size, resolution));
+        grid.info.height =
+            static_cast<uint32_t>(CellsFromSize(y_size, resolution));
+        grid.info.origin.position.x =
+            center_x - 0.5 * static_cast<double>(x_size);
+        grid.info.origin.position.y =
+            center_y - 0.5 * static_cast<double>(y_size);
     grid.info.origin.position.z = 0.0;
     grid.info.origin.orientation.w = 1.0;
 
@@ -1020,32 +1045,10 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
     return grid;
   }
 
-  bool GetClock(std::int64_t* nanosec) { return RequestSimTime(nanosec); }
-
-  void PublishClock() {
-    if (!scene_loaded_) return;
-    std::int64_t nanosec = 0;
-    if (!RequestSimTime(&nanosec)) {
-      return;
-    }
-
-    rosgraph_msgs::msg::Clock clock_msg;
-    const auto sec = nanosec / 1000000000LL;
-    auto nsec = nanosec % 1000000000LL;
-    if (nsec < 0) nsec += 1000000000LL;
-    clock_msg.clock.sec = static_cast<int32_t>(sec);
-    clock_msg.clock.nanosec = static_cast<uint32_t>(nsec);
-    clock_publisher_->publish(clock_msg);
-  }
-
-  void StartClockTimerIfReady() {
-    if (!scene_loaded_ || publish_clock_period_sec_ <= 0.0 || clock_timer_) {
-      return;
-    }
-    clock_timer_ = create_wall_timer(
-        std::chrono::duration_cast<std::chrono::nanoseconds>(
-            std::chrono::duration<double>(publish_clock_period_sec_)),
-        std::bind(&ProjectAirSimROS2CppNode::PublishClock, this));
+  bool GetClock(std::int64_t* nanosec) {
+    if (!has_clock_sample_.load(std::memory_order_acquire)) return false;
+    *nanosec = latest_clock_nanos_.load(std::memory_order_relaxed);
+    return true;
   }
 
   bool GetOriginGeoPoint(double* latitude, double* longitude,
@@ -1053,7 +1056,8 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
     const auto& config = world_->GetConfiguration();
     if (!config.contains("home-geo-point") ||
         !config["home-geo-point"].is_object()) {
-      RCLCPP_ERROR(get_logger(), "Scene configuration has no home-geo-point");
+            RCLCPP_ERROR(get_logger(),
+                         "Scene configuration has no home-geo-point");
       return false;
     }
     const auto& home_geo_point = config["home-geo-point"];
@@ -1063,7 +1067,8 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
     return true;
   }
 
-  bool LoadSceneRuntime(const std::string& scene_file, bool is_primary_client) {
+    bool LoadSceneRuntime(const std::string& scene_file,
+                          bool is_primary_client) {
     if (!is_primary_client) {
       return AdoptLoadedSceneIfAvailable();
     }
@@ -1088,12 +1093,11 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
       handlers_.clear();
       image_handlers_.clear();
     }
-    clock_parent_topic_ = world_->GetParentTopic();
     scene_loaded_ = true;
     reported_waiting_for_scene_ = false;
+    has_clock_sample_.store(false, std::memory_order_release);
     listed_projectairsim_topics_ = false;
     DiscoverAndSubscribe();
-    StartClockTimerIfReady();
     return true;
   }
 
@@ -1116,7 +1120,8 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
   template <typename GroupServiceT, typename Fn>
   void CreateGroupService(const std::string& name, Fn&& fn) {
     CreateService<GroupServiceT>(
-        name, [fn = std::forward<Fn>(fn)](const auto request, auto response) {
+            name,
+            [fn = std::forward<Fn>(fn)](const auto request, auto response) {
           response->success = true;
           for (const auto& vehicle_name : request->vehicle_names) {
             response->success = fn(vehicle_name, request->wait_on_last_task) &&
@@ -1129,7 +1134,8 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
     const std::string prefix = service_root_ + "/" + vehicle_name;
 
     CreateService<projectairsim_ros2_cpp::srv::RawRequest>(
-        service_root_ + "/request", [this](const auto request, auto response) {
+            service_root_ + "/request",
+            [this](const auto request, auto response) {
           response->success =
               RequestJson(request->method, request->json_parameters,
                           &response->error_code, &response->result_json,
@@ -1139,8 +1145,8 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
         service_root_ + "/get_client_info",
         [this](const auto request, auto response) {
           (void)request;
-          response->success =
-              GetClientInfo(&response->client_version, &response->nng_version,
+                response->success = GetClientInfo(&response->client_version,
+                                                  &response->nng_version,
                             &response->build_commit_hash);
         });
     CreateService<projectairsim_ros2_cpp::srv::GetTopicInfo>(
@@ -1231,7 +1237,9 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
         });
     CreateGroupService<projectairsim_ros2_cpp::srv::ArmGroup>(
         service_root_ + "/arm_group",
-        [this](const std::string& name, bool wait) { return Arm(name, wait); });
+            [this](const std::string& name, bool wait) {
+                return Arm(name, wait);
+            });
     CreateGroupService<projectairsim_ros2_cpp::srv::DisarmGroup>(
         service_root_ + "/disarm_group",
         [this](const std::string& name, bool wait) {
@@ -1258,8 +1266,8 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
           if (response->success) {
             response->map = OccupancyGridFromVoxels(
                 voxel_grid, request->position_x, request->position_y,
-                request->position_z, request->ncells_x, request->ncells_y,
-                request->ncells_z, request->res);
+                        request->position_z, request->ncells_x,
+                        request->ncells_y, request->ncells_z, request->res);
           }
         });
     CreateService<projectairsim_ros2_cpp::srv::GetClock>(
@@ -1362,7 +1370,8 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
               &response->status);
         });
     CreateService<projectairsim_ros2_cpp::srv::Reset>(
-        service_root_ + "/reset", [this](const auto request, auto response) {
+            service_root_ + "/reset",
+            [this](const auto request, auto response) {
           (void)request;
           response->success = RequestBool("/Sim/Reset");
         });
@@ -1434,7 +1443,8 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
       const auto msg = UnpackProjectAirSimMessage(payload);
       if (handler) handler(topic_name, msg);
     } catch (const std::exception& ex) {
-      RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000,
+            RCLCPP_WARN_THROTTLE(
+                get_logger(), *get_clock(), 5000,
                            "Failed to convert Project AirSim topic %s: %s",
                            topic_name.c_str(), ex.what());
     }
@@ -1456,17 +1466,16 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
   std::string vehicle_name_;
   std::string service_root_;
   int image_qos_depth_;
-  std::string clock_parent_topic_;
+  std::atomic<std::int64_t> latest_clock_nanos_{0};
+  std::atomic<bool> has_clock_sample_{false};
   bool publish_unmatched_as_json_;
   bool publish_tf_;
   std::string tf_world_frame_id_;
   double refresh_topics_period_sec_;
-  double publish_clock_period_sec_;
   bool listed_projectairsim_topics_ = false;
   bool scene_loaded_ = false;
   bool reported_waiting_for_scene_ = false;
   rclcpp::TimerBase::SharedPtr refresh_timer_;
-  rclcpp::TimerBase::SharedPtr clock_timer_;
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr topic_info_publisher_;
   rclcpp::Publisher<rosgraph_msgs::msg::Clock>::SharedPtr clock_publisher_;
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;

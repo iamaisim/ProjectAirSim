@@ -194,10 +194,6 @@ inline double NumberOr(const json& object, const char* key,
 }
 
 inline bool JsonToInt64(const json& value, std::int64_t* out) {
-  if (value.is_number_integer()) {
-    *out = value.get<std::int64_t>();
-    return true;
-  }
   if (value.is_number_unsigned()) {
     const auto unsigned_value = value.get<std::uint64_t>();
     if (unsigned_value >
@@ -207,8 +203,20 @@ inline bool JsonToInt64(const json& value, std::int64_t* out) {
     *out = static_cast<std::int64_t>(unsigned_value);
     return true;
   }
+  if (value.is_number_integer()) {
+    *out = value.get<std::int64_t>();
+    return true;
+  }
   if (value.is_number_float()) {
-    *out = static_cast<std::int64_t>(std::llround(value.get<double>()));
+    const auto floating_value = value.get<double>();
+    if (!std::isfinite(floating_value) ||
+        static_cast<long double>(floating_value) <
+            static_cast<long double>(std::numeric_limits<std::int64_t>::min()) ||
+        static_cast<long double>(floating_value) >
+            static_cast<long double>(std::numeric_limits<std::int64_t>::max())) {
+      return false;
+    }
+    *out = static_cast<std::int64_t>(std::llround(floating_value));
     return true;
   }
   return false;
@@ -229,7 +237,8 @@ inline bool ExtractSimTimeNanos(const json& value, std::int64_t* nanosec) {
     }
   }
 
-  for (const auto* key : {"time_nanos", "sim_time_nanos", "nanosec", "nanos"}) {
+  for (const auto* key : {"time_stamp", "time_nanos", "sim_time_nanos",
+                          "nanosec", "nanos"}) {
     auto it = value.find(key);
     if (it != value.end() && JsonToInt64(*it, nanosec)) return true;
   }
@@ -440,6 +449,8 @@ inline bool PopulateImagePayloadFromJson(const json& msg,
 }
 
 struct NativeImageMetadata {
+  std::uint64_t time_stamp = 0;
+  bool has_time_stamp = false;
   std::string source_encoding;
   float pos_x = 0.0F;
   float pos_y = 0.0F;
@@ -539,7 +550,10 @@ inline bool PopulateImagePayloadFromMsgpack(const std::string& payload,
     if (key.type != msgpack::type::STR) continue;
     const std::string_view field(key.via.str.ptr, key.via.str.size);
 
-    if (field == "height") {
+    if (field == "time_stamp") {
+      parsed_metadata.time_stamp = detail::ImageUnsigned(value, "time_stamp");
+      parsed_metadata.has_time_stamp = true;
+    } else if (field == "height") {
       image->height = detail::ImageUint32(value, "height");
       has_height = true;
     } else if (field == "width") {

@@ -864,6 +864,9 @@ void TopicManager::Impl::CreateTopicList() {
           case MessageType::kDistanceSensor:
             topic_info.message_type = "distance-sensor";
             break;
+          case MessageType::kClock:
+            topic_info.message_type = "clock";
+            break;
           default:
             break;
         }

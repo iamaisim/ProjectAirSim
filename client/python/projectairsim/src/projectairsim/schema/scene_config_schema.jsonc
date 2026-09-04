@@ -83,8 +83,20 @@
                         ]
                     },
                     "robot-config": {
-                        "type": "string",
-                        "description": "Config to define robot"
+                        "description": "Robot config: single path (string) or list of paths (array of strings) that combine to produce the final config",
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "minItems": 1,
+                                "uniqueItems": true
+                            }
+                        ]
                     },
                     "physics-connection": {
                         "ip": {
@@ -103,8 +115,7 @@
                 }
             }
         },
-        "environment-actors":
-        {
+        "environment-actors": {
             "description": "List of environment actors in scene",
             "type": "array",
             "items": {
@@ -149,8 +160,20 @@
                         }
                     },
                     "env-actor-config": {
-                        "type": "string",
-                        "description": "Config to define environment actor"
+                        "description": "Environment actor config: single path (string) or list of paths (array of strings) that combine to produce the final config",
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "minItems": 1,
+                                "uniqueItems": true
+                            }
+                        ]
                     }
                 }
             }
@@ -361,6 +384,17 @@
                 },
                 "pause-on-start": {
                     "type": "boolean"
+                },
+                "engine-fixed-fps": {
+                    "type": "number",
+                    "exclusiveMinimum": true,
+                    "minimum": 0.0,
+                    "description": "Optional fixed Unreal Engine frame rate in frames per second. When omitted, the existing frame-rate behavior is preserved."
+                },
+                "engine-substepping": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable Unreal Engine Chaos physics substepping for an engine-driven clock. It is ignored for every other clock type. clock.step-ns is used as MaxSubstepDeltaTime, Unreal's maximum of 16 substeps is used, and each actual substep is propagated through the complete scene tick even without an Unreal Physics robot."
                 }
             }
         },

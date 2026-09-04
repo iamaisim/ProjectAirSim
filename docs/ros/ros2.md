@@ -75,6 +75,8 @@ If Project AirSim is not reachable at `127.0.0.1`, set `address` to the host
 running the simulator:
 
 ```bash
+PROJECTAIRSIM_ROOT="$(git rev-parse --show-toplevel)"
+
 ros2 run projectairsim_ros2_cpp projectairsim_ros2_cpp_node --ros-args \
   -p address:=<projectairsim_host_ip> \
   -p scene_config:=scene_drone_sensors.jsonc \
@@ -104,6 +106,78 @@ when Project AirSim reports topic information.
 | `refresh_topics_period_sec` | `0.0` | Periodic topic discovery interval. `0.0` disables polling; use a positive value only if scenes/topics can change outside this node. |
 | `vehicle_name` | `Drone1` | Vehicle used for single-drone services/actions. |
 | `service_root` | `/projectairsim` | Root namespace for command services and actions. |
+| `image_qos_depth` | `5` | `KEEP_LAST` depth for image publishers. Values below `1` are rejected. |
+
+## 4K Image Transport with Fast DDS Shared Memory
+
+A raw 3840×2160 BGR image is about 24 MiB, which can exceed the practical
+defaults of DDS shared-memory transports. For local 4K image subscribers, use
+the installed Fast DDS profile that provides an explicit 256 MiB shared-memory
+segment:
+
+```bash
+source /opt/ros/humble/setup.bash
+source ros/install/setup.bash
+
+export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+export FASTDDS_DEFAULT_PROFILES_FILE="$(ros2 pkg prefix projectairsim_ros2_cpp)/share/projectairsim_ros2_cpp/config/fastdds_shm_256m.xml"
+export FASTRTPS_DEFAULT_PROFILES_FILE="$FASTDDS_DEFAULT_PROFILES_FILE"
+```
+
+Set this environment before starting the Project AirSim ROS2 bridge and every
+ROS2 image subscriber. All participants must use the same DDS domain and Fast
+DDS profile.
+
+### Limitations of the SHM-only profile
+
+This profile configures only the Fast DDS shared-memory transport and sets
+`useBuiltinTransports` to `false`. Consequently:
+
+- UDP is disabled and no TCP transport descriptor is configured. DDS
+  participants cannot communicate across machines through this profile.
+- There is no UDP or TCP fallback. If shared-memory initialization or access
+  fails, ROS discovery and delivery fail instead of switching to a network
+  transport.
+- Every intended participant, including command-line tools, must use a
+  compatible Fast DDS environment. Mixed RMW implementations or profiles can
+  result in missing discovery or large images failing while smaller messages
+  appear to work.
+- Containers must share an IPC namespace and compatible shared-memory
+  permissions. Independent default IPC namespaces cannot use this transport to
+  communicate.
+- Fast DDS creates shared-memory resources for its participants. Multiple
+  processes, concurrent 4K streams, and larger QoS histories increase
+  `/dev/shm` pressure; abnormal termination can temporarily leave stale Fast
+  DDS files or locks.
+- DDS shared memory avoids sending image data over the network, but it does not
+  eliminate ROS serialization, bridge-side image construction, or every
+  payload copy. This profile is not end-to-end zero-copy.
+
+Use this profile only when the bridge and all required subscribers are on the
+same host. Configure a UDP or TCP transport instead when remote DDS
+communication is required.
+
+The host must have enough free `/dev/shm` capacity for the 256 MiB segment and
+Fast DDS bookkeeping. When processes run in containers, put them in the same
+IPC namespace (for example, `--ipc=host`) or otherwise provide a shared IPC
+namespace with sufficient shared-memory capacity.
+
+The bridge publishes images with `KEEP_LAST` history. Its default
+`image_qos_depth` is `5`; reduce it only when lower latency and dropping stale
+frames is preferable to buffering bursts:
+
+```bash
+ros2 run projectairsim_ros2_cpp projectairsim_ros2_cpp_node --ros-args \
+  -p image_qos_depth:=1
+```
+
+To return to normal Fast DDS transport discovery, unset both profile variables
+before starting new ROS2 processes:
+
+```bash
+unset FASTDDS_DEFAULT_PROFILES_FILE
+unset FASTRTPS_DEFAULT_PROFILES_FILE
+```
 
 The simulator publishes `/Sim/<scene>/clock` from the scene tick. The bridge
 subscribes to that native clock stream and republishes every sample on ROS

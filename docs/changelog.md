@@ -5,6 +5,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- Configurable Unreal vehicle bridge actuators that map controller outputs to Blueprint parameter indices
+
+## [1.0.0] - 2026-09-01
+### Added
+- Project AirSim Runtime sample application and modular scene configuration support
+- Blueprint vehicle integration, including Unreal vehicle client APIs, SimpleDrive examples, and SUV asset installation tools
+
+### Changed
+- Expanded integration and setup documentation for the runtime, modular configurations, and Blueprint vehicles
+- Updated the C++ and Python client packages to version 1.0.0
+
+### Fixed
+- C++ client requests that could wedge because of an uninitialized flag
+- Depth image packing to preserve raw FP16 meter values with the `16FC1` format
+- Skywalker X8 forest swarm viewport camera behavior
+
 ## [0.3.0] - 2026-08-24
 ### Added
 - JSBSim fixed-wing simulation support, including Cessna 310 and Skywalker X8 examples
@@ -13,7 +30,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Python client `step()` API and CPU-usage tests
 
 ### Changed
-- Updated the C++ and Python client packages to version 0.3.0
 - Improved simulator build, toolchain, and CI support for Unreal Engine 5.7
 
 ### Fixed
@@ -44,7 +60,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 - `__has_feature` macro MSVC compatibility for Windows toolchains
 
-[Unreleased]: https://github.com/iamaisim/ProjectAirSim/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/iamaisim/ProjectAirSim/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/iamaisim/ProjectAirSim/compare/v0.3.0...v1.0.0
 [0.3.0]: https://github.com/iamaisim/ProjectAirSim/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/iamaisim/ProjectAirSim/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/iamaisim/ProjectAirSim/releases/tag/v0.1.1

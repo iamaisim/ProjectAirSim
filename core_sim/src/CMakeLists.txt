@@ -92,6 +92,7 @@ add_library(
     actuators/gimbal.cpp
     actuators/lift_drag_control_surface.cpp
     actuators/rotor.cpp
+    actuators/unreal_vehicle.cpp
     actuators/wheel.cpp
     actuators/tilt.cpp
     transforms/transform_utils.cpp
@@ -133,11 +134,11 @@ target_include_directories(
         $<INSTALL_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
         ${JSBSIM_INCLUDE_DIR}
+        ${MSGPACK_INCLUDE_DIR}
+        ${NNG_INCLUDE_DIR}
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${JSON_INCLUDE_DIR}
-        ${NNG_INCLUDE_DIR}
-        ${MSGPACK_INCLUDE_DIR}
         ${EIGEN_INCLUDE_DIR}
         ${OPENSSL_INCLUDE_DIR}
 )

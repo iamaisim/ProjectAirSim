@@ -359,7 +359,15 @@ unreal/**/Samples
 ros/.catkin_workspace
 ros/devel/*
 ros/build/*
+ros/build-*/
+ros/install/
+ros/install-*/
+ros/log/
+ros/log-*/
 ros/src/CMakeLists.txt
+
+# Generated test and benchmark artifacts
+test-artifact-dir/
 
 # vim
 *.swp
@@ -388,6 +396,8 @@ client/python/projectairsim/dist/
 *.slxc
 
 venv
+# Optional Unreal vehicle asset packs (installed by tools/assets/install_suv_assets.ps1)
+/unreal/Blocks/Plugins/ProjectAirSim/Content/VehicleAdv/SUV/
 
 # Public release tooling (not a build output).
 !/tools/release/

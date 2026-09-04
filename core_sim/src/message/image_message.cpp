@@ -6,7 +6,6 @@
 #include "core_sim/message/image_message.hpp"
 
 #include <memory>
-#include <sstream>
 #include <string>
 
 #include "json.hpp"
@@ -19,6 +18,31 @@ namespace microsoft {
 namespace projectairsim {
 
 using json = nlohmann::json;
+
+namespace {
+
+class StringAppendBuffer {
+ public:
+  explicit StringAppendBuffer(size_t reserve_size) { buffer_.reserve(reserve_size); }
+
+  void write(const char* data, size_t size) { buffer_.append(data, size); }
+
+  std::string Take() { return std::move(buffer_); }
+
+ private:
+  std::string buffer_;
+};
+
+size_t EstimateImageMessagePackSize(size_t pixel_data_size,
+                                    size_t encoding_size,
+                                    size_t annotation_count) {
+  constexpr size_t kImageMetadataOverhead = 512;
+  constexpr size_t kAnnotationMetadataOverhead = 512;
+  return pixel_data_size + encoding_size + kImageMetadataOverhead +
+         annotation_count * kAnnotationMetadataOverhead;
+}
+
+}  // namespace
 
 // -----------------------------------------------------------------------------
 // Forward declarations
@@ -201,10 +225,11 @@ uint32_t ImageMessage::Impl::IsBigEndian() { return big_endian; }
 uint32_t ImageMessage::Impl::GetStep() { return step; }
 
 std::string ImageMessage::Impl::Serialize() {
-  std::stringstream stream;
-  msgpack::packer<std::stringstream> packer(stream);
+  StringAppendBuffer buffer(
+      EstimateImageMessagePackSize(data.size(), encoding.size(), annotations.size()));
+  msgpack::packer<StringAppendBuffer> packer(buffer);
   this->msgpack_pack(packer);
-  return stream.str();
+  return buffer.Take();
 }
 
 void ImageMessage::Impl::Deserialize(const std::string& buffer) {

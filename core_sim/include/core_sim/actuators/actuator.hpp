@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation. 
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI CONSULTING CORP
 
 // MIT License. All rights reserved.
@@ -23,7 +23,8 @@ enum class ActuatorType {
   kLiftDragControlSurface = 1,
   kTilt = 2,
   kGimbal = 3,
-  kWheel = 4
+  kWheel = 4,
+  kUnrealVehicle = 5
 };
 
 // Abstract base class
@@ -38,8 +39,8 @@ class Actuator {
   bool IsEnabled() const;
   const std::string& GetParentLink() const;
   const std::string& GetChildLink() const;
-  virtual void UpdateActuatorOutput(std::vector<float> && control_signals,
-                            const TimeNano sim_dt_nanos) = 0;
+  virtual void UpdateActuatorOutput(std::vector<float>&& control_signals,
+                                    const TimeNano sim_dt_nanos) = 0;
 
   bool UpdateFaultInjectionEnabledState(bool enabled);
 

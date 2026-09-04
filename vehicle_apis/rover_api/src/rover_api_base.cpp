@@ -111,6 +111,15 @@ void RoverApiBase::RegisterServiceMethods() {
   method_handler =
       method.CreateMethodHandler(&RoverApiBase::MoveByHeading, *this);
   sim_robot_.RegisterServiceMethod(method, method_handler);
+
+  // Register MoveOnPath
+  method = ServiceMethod(
+      "MoveOnPath",
+      {"path", "velocity", "timeout_sec", "yaw_rate_max", "lookahead",
+       "adaptive_lookahead", "_service_method_start_time"});
+  method_handler =
+      method.CreateMethodHandler(&RoverApiBase::MoveOnPath, *this);
+  sim_robot_.RegisterServiceMethod(method, method_handler);
 }
 
 }  // namespace projectairsim

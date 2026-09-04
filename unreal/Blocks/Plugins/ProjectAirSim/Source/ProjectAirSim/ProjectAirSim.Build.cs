@@ -79,9 +79,13 @@ public class ProjectAirSim : ModuleRules
                     // ... add other private include paths required here ...
                 };
 
-            if (buildType == "Debug")
+            if (buildType == "Debug") {
                 liststrIncludes.Add(PluginDirectory + "/SimLibs/lvmon/include");
+            }
+
+            if (bUseCpp20) {
                 liststrIncludes.Add(Path.Combine(GetModuleDirectory("Renderer"), "Internal"));
+            }
 
             PrivateIncludePaths.AddRange(liststrIncludes);
         }
@@ -107,9 +111,11 @@ public class ProjectAirSim : ModuleRules
             if (buildType == "Debug")
                 liststrIncludes.Add(PluginDirectory + "/SimLibs/lvmon/include");
 
-            // Add Renderer internal headers for PostProcess access
-            string EngineDir = Path.GetFullPath(Target.RelativeEnginePath);
-            liststrIncludes.Add(Path.Combine(EngineDir, "Source/Runtime/Renderer/Internal"));
+            if (bUseCpp20) {
+                // UE 5.7 moved FPostProcessingInputs out of Renderer/Private.
+                string EngineDir = Path.GetFullPath(Target.RelativeEnginePath);
+                liststrIncludes.Add(Path.Combine(EngineDir, "Source/Runtime/Renderer/Internal"));
+            }
 
             PrivateIncludePaths.AddRange(liststrIncludes);
         }
@@ -138,6 +144,8 @@ public class ProjectAirSim : ModuleRules
                 "Core",  // default
                 "CoreUObject",
                 "Engine",
+                "Chaos",
+                "ChaosVehicles",
                 "MovieSceneCapture",
                 "RenderCore",
                 "Renderer",

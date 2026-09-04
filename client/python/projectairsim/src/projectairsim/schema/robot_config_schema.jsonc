@@ -7,7 +7,11 @@
     "physics-type": {
       "description": "Defines the physics type for the robot",
       "type": "string",
-      "enum": [ "fast-physics", "non-physics", "matlab-physics",  "jsbsim-physics"]
+      "enum": [ "fast-physics", "non-physics", "matlab-physics", "jsbsim-physics", "unreal-physics" ]
+    },
+    "unreal-vehicle-class": {
+      "description": "UE5 Blueprint or C++ class path for the Unreal vehicle. It must implement IProjectAirSimVehicle to receive indexed parameter signals; kinematics are read independently from Chaos or standard UE component state.",
+      "type": "string"
     },
     "jsbsim-root-path": {
       "description": "Path to the JSBSim models root, relative to the simulation working path",
@@ -137,7 +141,6 @@
       "allOf": [
         { "$ref": "#/definitions/simple-flight-required" }, //make simple-flight-settings required for simple-flight
         { "$ref": "#/definitions/simple-drive-required" }, //make simple-drive-settings required for simple-drive
-        { "$ref": "#/definitions/simple-drive-required" }, //make simple-drive-settings required for simple-drive
         { "$ref": "#/definitions/px4-required" }, //make px4-settings required for px4
         { "$ref": "#/definitions/ardupilot-required" } //make ardupilot-settings required for ardupilot
       ]
@@ -146,12 +149,12 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": [ "name", "type", "enabled", "parent-link", "child-link" ],
+        "required": [ "name", "type", "enabled" ],
         "properties": {
           "name": { "type": "string" },
           "type": {
             "type": "string",
-            "enum": [ "rotor", "lift-drag-control-surface", "tilt", "gimbal", "wheel" ]
+            "enum": [ "rotor", "lift-drag-control-surface", "tilt", "gimbal", "wheel", "unreal-vehicle" ]
           },
           "enabled": { "type": "boolean" },
           "parent-link": { "type": "string" },
@@ -160,15 +163,30 @@
           "rotor-settings": { "$ref": "#/definitions/rotor-settings" },
           "lift-drag-control-surface-settings": { "$ref": "#/definitions/lift-drag-control-surface-settings" },
           "wheel-settings": { "$ref": "#/definitions/wheel-settings" },
+          "unreal-vehicle-settings": { "$ref": "#/definitions/unreal-vehicle-settings" },
           "tilt-settings": { "$ref": "#/definitions/tilt-settings" }
-        }
+        },
+        "allOf": [
+          {
+            "anyOf": [
+              { "properties": { "type": { "enum": [ "unreal-vehicle" ] } } },
+              { "required": [ "parent-link", "child-link" ] }
+            ]
+          },
+          {
+            "anyOf": [
+              { "not": { "properties": { "type": { "enum": [ "unreal-vehicle" ] } } } },
+              { "required": [ "unreal-vehicle-settings" ] }
+            ]
+          }
+        ]
       }
     },
     "sensors": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": [ "id", "type", "enabled", "parent-link" ],
+        "required": [ "id", "type", "enabled" ],
         "properties": {
           "id": { "type": "string" },
           "type": {
@@ -430,7 +448,7 @@
       }
     }
   },
-  "required": [ "physics-type", "links" ],
+  "required": [ "physics-type" ],
 
   //Standard Definitions used in the Schema
   "definitions": {
@@ -640,6 +658,23 @@
         "jsbsim-cmd-brake": { "type": "string" }
       }
     },
+    "unreal-vehicle-settings": {
+      "type": "object",
+      "required": [ "parameter-index" ],
+      "properties": {
+        "parameter-index": {
+          "description": "IProjectAirSimVehicle parameter index that receives the controller output",
+          "type": "integer",
+          "minimum": 0
+        },
+        "control-signal-index": {
+          "description": "Element to select when the controller returns more than one signal for this actuator",
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        }
+      }
+    },
     "tilt-settings": {
       "type": "object",
       "required": [ "angle-max", "angle-min", "axis", "smoothing-tc", "target" ],
@@ -779,7 +814,7 @@
         "velocity-random-walk": { "type": "number" },
         "tau": { "type": "number" },
         "bias-stability": { "type": "number" },
-        "turn-on-stability": { "type": "string" }
+        "turn-on-bias": { "type": "string" }
       }
     },
     "gyroscope": {
@@ -789,7 +824,7 @@
         "angle-random-walk": { "type": "number" },
         "tau": { "type": "number" },
         "bias-stability": { "type": "number" },
-        "turn-on-stability": { "type": "string" }
+        "turn-on-bias": { "type": "string" }
       }
     },
     "fov": {

@@ -90,7 +90,6 @@ target_include_directories(projectairsim_ros2_cpp_node
   PRIVATE
     include
 )
-
 target_link_libraries(projectairsim_ros2_cpp_node
   ProjectAirsimClient
 )
@@ -119,6 +118,10 @@ install(TARGETS projectairsim_ros2_cpp_node
 
 install(DIRECTORY include/
   DESTINATION include
+)
+
+install(DIRECTORY config/
+  DESTINATION share/${PROJECT_NAME}/config
 )
 
 if(BUILD_TESTING)

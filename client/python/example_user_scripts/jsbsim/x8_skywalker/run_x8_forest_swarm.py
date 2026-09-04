@@ -11,7 +11,6 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 CONFIG_DIR = SCRIPT_DIR / "sim_config"
 X8_CONFIG = CONFIG_DIR / "robot_x8_jsbsim.jsonc"
 ROUTE_UE_CM = ((24680.,-31500.,9080.), (4980.,-32090.,5720.), (-23630.,3880.,8410.))
-CAMERA_LOWERING_M = 2.0
 LIDAR_TARGET_UE_Z_CM = 2000.0
 LIDAR_LOWERING_M = (ROUTE_UE_CM[0][2]-LIDAR_TARGET_UE_Z_CM)/100.0
 DISPLAY_WIDTH, DISPLAY_HEIGHT = 640, 360
@@ -117,10 +116,7 @@ def run(a):
     with tempfile.TemporaryDirectory(prefix='forest_x8_route_') as tmp:
         cfg=Path(tmp); scene_data=scene(a.home_altitude,a.count,a.spacing)
         base=X8_CONFIG.read_text(encoding='utf-8')
-        camera_y=-6.5  # fixed lateral camera offset on X8_5
-        camera_xyz=f'-6.0 {camera_y:.3f} {CAMERA_LOWERING_M:.3f}'
-        leader=base.replace('"fov-degrees": 75','"fov-degrees": 100').replace('"xyz": "-5.0 0 -1.0"',f'"xyz": "{camera_xyz}"')
-        leader=leader.replace(f'"xyz": "{camera_xyz}",\n        "rpy-deg": "0 0 0"',f'"xyz": "{camera_xyz}",\n        "rpy-deg": "0 -45 0"')
+        leader=base.replace('"fov-degrees": 75','"fov-degrees": 100')
         follower=base.replace('"id": "Chase",\n      "type": "camera",\n      "enabled": true','"id": "Chase",\n      "type": "camera",\n      "enabled": false')
         import commentjson
         camera_config=commentjson.loads(leader); follower_config=commentjson.loads(follower)
@@ -187,6 +183,12 @@ def run(a):
             expected=[f'X8_{i+1}' for i in range(a.count)]
             missing=[actor for actor in expected if actor not in actors]
             if missing: raise RuntimeError(f'Swarm actors missing from Unreal: {missing}; loaded={actors}')
+            # Unreal automatically selects the first actor with a valid
+            # streaming camera. X8_1..X8_4 have Chase disabled, so the
+            # viewport already uses X8_5's aerial Chase transform here.
+            projectairsim_log().info(
+                f'Unreal viewport uses X8_{CAMERA_DRONE_INDEX+1} aerial Chase camera'
+            )
 
             sensor_root=f'{root}/robots/X8_{CAMERA_DRONE_INDEX+1}/sensors'
             if a.show_rgb:

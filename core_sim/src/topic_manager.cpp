@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation. 
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI CONSULTING CORP
 
 // MIT License. All rights reserved.
@@ -7,11 +7,14 @@
 
 #include <array>
 #include <atomic>
+#include <cstddef>
+#include <cstring>
 #include <functional>
 #include <map>
 #include <memory>
 #include <shared_mutex>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <thread>
 
@@ -29,9 +32,103 @@
 namespace microsoft {
 namespace projectairsim {
 
-// forward declarations
+namespace detail {
 
-enum class FrameType : int { kSubscribe = 0, kUnsubscribe = 1, kMessage = 2 };
+namespace {
+
+template <typename Writer>
+void PackTopicFrameToWriter(Writer& writer, FrameType type,
+                            const std::string& topic, const std::string& body) {
+  msgpack::packer<Writer> packer(writer);
+  packer.pack_array(3);
+  packer.pack(type);
+  packer.pack(topic);
+  packer.pack(body);
+}
+
+class CountingWriter {
+ public:
+  void write(const char*, size_t length) { size_ += length; }
+
+  size_t size() const { return size_; }
+
+ private:
+  size_t size_ = 0;
+};
+
+class FixedMessageWriter {
+ public:
+  FixedMessageWriter(char* data, size_t length)
+      : begin_(data), current_(data), end_(data + length) {}
+
+  void write(const char* data, size_t length) {
+    if (length > static_cast<size_t>(end_ - current_)) {
+      throw std::length_error("topic frame message writer overflow");
+    }
+    std::memcpy(current_, data, length);
+    current_ += length;
+  }
+
+  size_t bytes_written() const {
+    return static_cast<size_t>(current_ - begin_);
+  }
+
+ private:
+  char* begin_;
+  char* current_;
+  char* end_;
+};
+
+}  // namespace
+
+void PackTopicFrame(msgpack::sbuffer& buffer, FrameType type,
+                    const std::string& topic, const std::string& body) {
+  PackTopicFrameToWriter(buffer, type, topic, body);
+}
+
+size_t GetPackedTopicFrameSize(FrameType type, const std::string& topic,
+                               const std::string& body) {
+  CountingWriter writer;
+  PackTopicFrameToWriter(writer, type, topic, body);
+  return writer.size();
+}
+
+int AllocPackedTopicFrameMessage(nng_msg** message, FrameType type,
+                                 const std::string& topic,
+                                 const std::string& body) {
+  if (message == nullptr) {
+    return NNG_EINVAL;
+  }
+
+  *message = nullptr;
+
+  const size_t frame_size = GetPackedTopicFrameSize(type, topic, body);
+  nng_msg* allocated_message = nullptr;
+  int rv = nng_msg_alloc(&allocated_message, frame_size);
+  if (rv != 0) {
+    return rv;
+  }
+
+  try {
+    FixedMessageWriter writer(
+        reinterpret_cast<char*>(nng_msg_body(allocated_message)), frame_size);
+    PackTopicFrameToWriter(writer, type, topic, body);
+    if (writer.bytes_written() != frame_size) {
+      nng_msg_free(allocated_message);
+      return NNG_EINTERNAL;
+    }
+  } catch (...) {
+    nng_msg_free(allocated_message);
+    throw;
+  }
+
+  *message = allocated_message;
+  return 0;
+}
+
+}  // namespace detail
+
+// forward declarations
 
 class TopicManager::Impl {
  public:
@@ -84,7 +181,8 @@ class TopicManager::Impl {
     std::function<void(const Topic&, const Message&)> callback;
     std::function<void(const Topic&, bool is_subscribed)> callback_subscribed;
 
-    TopicBlock(const Topic &topic, std::function<void(const Topic&, bool is_subscribed)>
+    TopicBlock(const Topic& topic,
+               std::function<void(const Topic&, bool is_subscribed)>
                    callback_subscribed_in = nullptr)
         : topic(topic), callback_subscribed(callback_subscribed_in) {}
   };
@@ -134,6 +232,7 @@ class TopicManager::Impl {
   Dispatcher send_dispatcher_;
   nng_socket topic_socket_;
   std::atomic<bool> state_;
+  std::atomic<int> active_pipe_count_;
   std::map<std::string, std::shared_ptr<TopicBlock>> topic_table_;
   std::function<void(const std::string&, const MessageType&,
                      const std::string&)>
@@ -218,6 +317,7 @@ TopicManager::Impl::Impl(const Logger& logger,
       send_dispatcher_("send_dispatcher", logger),
       topic_socket_(NNG_SOCKET_INITIALIZER),
       state_(false),
+      active_pipe_count_(0),
       topic_table_(),
       topic_published_callback_(nullptr),
       enable_topic_published_callback_(false) {}
@@ -230,7 +330,37 @@ void TopicManager::Impl::Load(const json& config_json) {
 }
 
 void TopicManager::Impl::HandleNNGPipeEvent(nng_pipe pipe, nng_pipe_ev ev) {
+  if (ev == NNG_PIPE_EV_ADD_POST) {
+    const int active_pipe_count =
+        active_pipe_count_.fetch_add(1, std::memory_order_acq_rel) + 1;
+    log_.LogVerbose(name_, "Pub-sub client connected; active topic pipes: %d",
+                    active_pipe_count);
+    return;
+  }
+
   if (ev == NNG_PIPE_EV_REM_POST) {
+    int active_pipe_count = active_pipe_count_.load(std::memory_order_acquire);
+    if (active_pipe_count <= 0) {
+      log_.LogVerbose(
+          name_,
+          "Ignoring pub-sub disconnect event with no active topic pipes");
+      return;
+    }
+
+    while (active_pipe_count > 0 &&
+           !active_pipe_count_.compare_exchange_weak(
+               active_pipe_count, active_pipe_count - 1,
+               std::memory_order_acq_rel)) {
+    }
+
+    --active_pipe_count;
+
+    log_.LogVerbose(name_,
+                    "Pub-sub client disconnected; active topic pipes: %d",
+                    active_pipe_count);
+
+    if (active_pipe_count > 0) return;
+
     // Client disconnected--reset client authorization
     log_.LogVerbose(
         name_, "Pub-sub client disconnected--resetting client authorization",
@@ -272,11 +402,11 @@ void TopicManager::Impl::Start() {
   // 100ms is short enough for responsive shutdown (state_ check) while
   // eliminating the 1ms poll wakeup overhead.
   const int recv_timeout = 100;
-  rv = nng_setopt_ms(topic_socket_, NNG_OPT_RECVTIMEO, recv_timeout);
+  rv = nng_socket_set_ms(topic_socket_, NNG_OPT_RECVTIMEO, recv_timeout);
   if (rv != 0) {
     auto errno_str = nng_strerror(rv);
     log_.LogError(Constant::Component::topic_manager,
-                  "nng_setopt_ms failed with '%s'.", errno_str);
+                  "nng_socket_set_ms failed with '%s'.", errno_str);
     throw Error("Error setting recv timeout on server socket.");
   }
 
@@ -285,7 +415,19 @@ void TopicManager::Impl::Start() {
   // messages rather than bytes, so instead of choosing some arbitrary number
   // of messages, just leave it unset to use the default value.
 
-  // Register callback for client disconnects
+  // Register callback for client connects/disconnects. NNG can report
+  // transient pipe removals while another topic pipe is still active, so only
+  // clear subscriptions when the last active pipe disconnects.
+  rv = nng_pipe_notify(topic_socket_, NNG_PIPE_EV_ADD_POST,
+                       &TopicManager::Impl::HandleNNGPipeEventProxy, this);
+  if (rv != 0) {
+    auto errno_str = nng_strerror(rv);
+    log_.LogError(name_, "nng_pipe_notify failed with '%s'.", errno_str);
+    throw Error(
+        "Error installing event listener on topic socket for serving "
+        "requests.");
+  }
+
   rv = nng_pipe_notify(topic_socket_, NNG_PIPE_EV_REM_POST,
                        &TopicManager::Impl::HandleNNGPipeEventProxy, this);
   if (rv != 0) {
@@ -302,6 +444,7 @@ void TopicManager::Impl::Start() {
   std::stringstream binding_str;
   binding_str << "tcp://" << local_address_ << ":" << port_;
 
+  active_pipe_count_.store(0, std::memory_order_release);
   rv = nng_listen(topic_socket_, binding_str.str().c_str(),
                   NULL /* no need to save pointer to the created listener */,
                   0 /*no special flags*/);
@@ -348,6 +491,7 @@ void TopicManager::Impl::Stop() {
   }
 
   topic_socket_ = NNG_SOCKET_INITIALIZER;
+  active_pipe_count_.store(0, std::memory_order_release);
 
   enable_topic_published_callback_ = false;
   topic_published_callback_ = nullptr;
@@ -503,7 +647,7 @@ void TopicManager::Impl::Send(const Topic& topic, const Message& message) {
   // Also pass message to external callback (e.g. UnrealSimTopicData actor)
   if (topic_published_callback_ && enable_topic_published_callback_) {
     topic_published_callback_(topic_path, topic.GetMessageType(),
-                              message.Serialize());
+                              block->last_value);
   }
 }
 
@@ -539,12 +683,14 @@ bool TopicManager::Impl::Unsubscribe(const std::string& topic_path) {
   std::shared_lock<std::shared_timed_mutex> shared_lock(manager_lock_);
   auto iter = topic_table_.find(topic_path);
   if (iter == topic_table_.end()) {
-    log_.LogError(name_, "Client cannot unsubscribe from unregistered topic '%s'",
+    log_.LogError(name_,
+                  "Client cannot unsubscribe from unregistered topic '%s'",
                   topic_path.c_str());
     return false;
   }
 
-  log_.LogTrace(name_, "Client unsubscribing from topic %s", topic_path.c_str());
+  log_.LogTrace(name_, "Client unsubscribing from topic %s",
+                topic_path.c_str());
 
   {
     auto block = iter->second;
@@ -553,7 +699,8 @@ bool TopicManager::Impl::Unsubscribe(const std::string& topic_path) {
     block->is_subscribed = false;
 
     // Notify callbacks of change in subscription
-    if (callback_subscribed != nullptr) callback_subscribed(block->topic, false);
+    if (callback_subscribed != nullptr)
+      callback_subscribed(block->topic, false);
   }
 
   return true;
@@ -589,20 +736,29 @@ void TopicManager::Impl::Send(const std::shared_ptr<TopicBlock>& block) {
   }
 
   if (block->is_subscribed) {
-    Frame frame;
-    frame.type = FrameType::kMessage;
-    frame.topic = topic_path;
-    frame.body = block->last_value;
+    nng_msg* send_message = nullptr;
+    const int alloc_rv = detail::AllocPackedTopicFrameMessage(
+        &send_message, FrameType::kMessage, topic_path, block->last_value);
+    if (alloc_rv != 0) {
+      auto errno_str = nng_strerror(alloc_rv);
+      log_.LogWarning(
+          name_,
+          "nng_msg_alloc for topic '%s' failed while packing frame: '%s'.",
+          topic_path.c_str(), errno_str);
+      return;
+    }
 
-    msgpack::sbuffer sbuf;
-    msgpack::pack(sbuf, frame);
-
-    int rv = nng_send(topic_socket_, sbuf.data(), sbuf.size(), 0);
+    int rv = nng_sendmsg(topic_socket_, send_message, 0);
+    if (rv == 0) {
+      send_message = nullptr;
+    }
 
     if (rv != 0) {
+      nng_msg_free(send_message);
       auto errno_str = nng_strerror(rv);
-      log_.LogWarning(name_, "nng_send for topic '%s' failed with error '%s'.",
-                      frame.topic.c_str(), errno_str);
+      log_.LogWarning(name_,
+                      "nng_sendmsg for topic '%s' failed with error '%s'.",
+                      topic_path.c_str(), errno_str);
       return;
     }
   }
@@ -744,5 +900,3 @@ const bool TopicManager::Impl::IsTopicPublishedCallbackEnabled() const {
 
 }  // namespace projectairsim
 }  // namespace microsoft
-
-MSGPACK_ADD_ENUM(microsoft::projectairsim::FrameType);

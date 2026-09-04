@@ -306,6 +306,7 @@ TEST(Ros2Contracts, GenericClientServiceContracts) {
   CancelAllRequests::Response cancel_response;
   cancel_response.success = true;
   EXPECT_TRUE(cancel_response.success);
+
 }
 
 TEST(Ros2Contracts, WorldTypedExtensionServiceContracts) {

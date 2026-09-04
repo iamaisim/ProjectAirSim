@@ -417,8 +417,14 @@ def unpack_image(image):
     Returns:
         The image in openCV decoded form
     """
-    # 16UC1 is used for serializing depth images
-    if image["encoding"] == "16UC1":
+    # 16FC1 is used for serializing depth images: raw IEEE 754 half-precision
+    # (binary16) METERS, little-endian, bit-exact with the sim's fp16 render
+    # target. Sky / no-hit pixels arrive as +inf.
+    if image["encoding"] == "16FC1":
+        img_dtype = "float16"
+        img_shape = [image["height"], image["width"]]
+    # 16UC1: legacy uint16 depth from older sims
+    elif image["encoding"] == "16UC1":
         img_dtype = "uint16"
         img_shape = [image["height"], image["width"]]
     elif image["encoding"] == "AVX":
@@ -519,26 +525,35 @@ def load_scene_config_as_dict(
     if "actors" in data:  # read and write the robot-config param in each actor
         for actor in data["actors"]:
             if actor["type"] == "robot":
-                actor_path = actor["robot-config"]
-                total_actor_path = os.path.join(sim_config_path, actor_path)
-                filepaths[1].append(total_actor_path)
-                with open(total_actor_path) as e:
-                    temp = commentjson.load(e)
-                    validate_json(temp, robot_config_schema)
-                    actor["robot-config"] = temp
-
+                actor_configs = actor["robot-config"]
+                combined_config = {}
+                if not isinstance(actor_configs, list):
+                    actor_configs = [actor_configs]
+                for actor_path in actor_configs:
+                    total_actor_path = os.path.join(sim_config_path, actor_path)
+                    filepaths[1].append(total_actor_path)
+                    with open(total_actor_path) as e:
+                        temp = commentjson.load(e)
+                        combined_config = merge_dicts(combined_config, temp)
+                validate_json(combined_config, robot_config_schema)
+                actor["robot-config"] = combined_config
+                
     if "environment-actors" in data:
-        # read and write the env-actor-config param in each env actor
         for env_actor in data["environment-actors"]:
-            if env_actor["type"] == "env_actor":
-                env_actor_path = env_actor["env-actor-config"]
-                total_env_actor_path = os.path.join(sim_config_path, env_actor_path)
-                filepaths[2].append(env_actor_path)
-                with open(total_env_actor_path) as e:
-                    temp = commentjson.load(e)
-                    if temp.get("script") != None:
-                        validate_trajectory_json(temp["script"])
-                    env_actor["env-actor-config"] = temp
+            if env_actor["type"] in ["env_actor", "env_car", "env_human"]:
+                env_actor_configs = env_actor["env-actor-config"]
+                combined_config = {}
+                if not isinstance(env_actor_configs, list):
+                    env_actor_configs = [env_actor_configs]
+                for env_actor_path in env_actor_configs:
+                    total_env_actor_path = os.path.join(sim_config_path, env_actor_path)
+                    filepaths[2].append(env_actor_path)
+                    with open(total_env_actor_path) as e:
+                        temp = commentjson.load(e)
+                        if temp.get("script") is not None:
+                            validate_trajectory_json(temp["script"])
+                        combined_config = merge_dicts(combined_config, temp)
+                env_actor["env-actor-config"] = combined_config
 
     if "tiles-dir" in data and data.get("tiles-dir-is-client-relative"):
         # Convert client-relative path into an absolute path before sending to sim
@@ -550,6 +565,34 @@ def load_scene_config_as_dict(
 
     return (data, filepaths)
 
+def merge_dicts(d1, d2):
+    """Recursively merges dict d2 into dict d1"""
+    for k, v in d2.items():
+        if isinstance(v, collections.abc.Mapping):
+            d1[k] = merge_dicts(d1.get(k, {}), v)
+        elif isinstance(v, list) and isinstance(d1.get(k), list):
+            d1[k] = merge_lists(d1[k], v)
+        else:
+            d1[k] = v
+    return d1
+
+def merge_lists(l1, l2):
+    """Merges two lists of dictionaries, matching elements by the 'name' key if present"""
+    result = l1[:]
+    for item2 in l2:
+        if isinstance(item2, dict) and "name" in item2:
+            # Try to find the corresponding item in l1 based on 'name'
+            matching_item = next((item1 for item1 in result if item1.get("name") == item2["name"]), None)
+            if matching_item:
+                # Merge the dictionaries
+                merge_dicts(matching_item, item2)
+            else:
+                # If no match, append the item from l2
+                result.append(item2)
+        else:
+            # If it's not a dictionary or doesn't have a 'name', just append it
+            result.append(item2)
+    return result
 
 def validate_json(json_data, file_name) -> None:
     """Validates a JSON according to a given schema

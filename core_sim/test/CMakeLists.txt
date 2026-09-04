@@ -49,10 +49,13 @@ add_executable(
     gtest_tilt.cpp
     gtest_rotor_setting.cpp
     gtest_wheel_setting.cpp
+    gtest_unreal_vehicle_actuator.cpp
     gtest_noise_model_utils.cpp
     gtest_clock.cpp
     gtest_clock_message.cpp
     gtest_message.cpp
+    gtest_image_message.cpp
+    gtest_topic_manager.cpp
     gtest_battery_message.cpp
     gtest_pose_message.cpp
     gtest_kinematics_message.cpp
@@ -147,18 +150,6 @@ endif()
 target_include_directories(${TARGET_NAME} PRIVATE "${ONNXRUNTIME_ROOTDIR}/include")
 target_link_directories(${TARGET_NAME} PRIVATE "${ONNX_LIB_DIR}")
 target_link_libraries(${TARGET_NAME} PRIVATE onnxruntime jsbsim)
-
-add_custom_command(
-    TARGET ${TARGET_NAME}
-    PRE_LINK
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${UE_PLUGIN_SIMLIBS_DIR}/shared_libs/ ${SIMLIBS_TEST_DIR} 
-)
-
-add_custom_command(
-    TARGET ${TARGET_NAME}
-    PRE_LINK
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${JSBSIM_CORESIM_DIR}/lib/$<IF:$<CONFIG:Release>,Release,Debug>/ ${SIMLIBS_TEST_DIR}
-)
 
 # Include CMake's GoogleTest module to use gtest_discover_tests() helper
 include(GoogleTest)

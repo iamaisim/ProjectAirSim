@@ -39,6 +39,18 @@
 		{
 			"Name": "StaticMeshEditorModeling",
 			"Enabled": true
+		},
+		{
+			"Name": "ChaosVehiclesPlugin",
+			"Enabled": true
+		},
+		{
+			"Name": "Drone",
+			"Enabled": true
+		},
+		{
+			"Name": "Rover",
+			"Enabled": true
 		}
 	],
 	"TargetPlatforms": [

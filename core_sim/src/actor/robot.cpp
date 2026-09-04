@@ -108,6 +108,7 @@ class Robot::Impl : public ActorImpl {
   bool SetGroundTruthKinematics(const KinematicsMessage& kinematics);
 
   void SetController(std::unique_ptr<IController> controller);
+  IController* GetController() const;
 
   void OnBeginUpdate() override;
 
@@ -160,6 +161,7 @@ class Robot::Impl : public ActorImpl {
   void SetPhysicsConnectionSettings(const std::string& phys_conn_settings);
   const std::string& GetControlConnectionSettings() const;
   void SetControlConnectionSettings(const std::string& control_conn_settings);
+  const std::string& GetUnrealVehicleClass() const;
   bool GetStartLanded() const;
   void SetStartLanded(bool start_landed);
 
@@ -218,6 +220,7 @@ class Robot::Impl : public ActorImpl {
   JSBSimGroundSettings jsbsim_ground_settings_;
   std::string physics_connection_settings_;
   std::string control_connection_settings_;
+  std::string unreal_vehicle_class_;
   bool start_landed_;
 
   std::string controller_type_;
@@ -380,6 +383,10 @@ void Robot::SetController(std::unique_ptr<IController> controller) {
   static_cast<Robot::Impl*>(pimpl_.get())->SetController(std::move(controller));
 }
 
+IController* Robot::GetController() const {
+  return static_cast<Robot::Impl*>(pimpl_.get())->GetController();
+}
+
 void Robot::PublishRobotPose(const PoseStampedMessage& pose) {
   static_cast<Robot::Impl*>(pimpl_.get())->PublishRobotPose(pose);
 }
@@ -471,6 +478,11 @@ void Robot::SetControlConnectionSettings(
     const std::string& control_conn_settings) {
   static_cast<Robot::Impl*>(pimpl_.get())
       ->SetControlConnectionSettings(control_conn_settings);
+}
+
+const std::string& Robot::GetUnrealVehicleClass() const {
+  return static_cast<Robot::Impl*>(pimpl_.get())
+      ->GetUnrealVehicleClass();
 }
 
 bool Robot::GetStartLanded() const {
@@ -896,6 +908,10 @@ void Robot::Impl::SetController(std::unique_ptr<IController> controller) {
   controller_ = std::move(controller);
 }
 
+IController* Robot::Impl::GetController() const {
+  return controller_.get();
+}
+
 Link* Robot::Impl::GetLink(const std::string& id) {
   for (auto& link : links_) {
     if (link.GetID() == id) return (&link);
@@ -1168,6 +1184,10 @@ const std::string& Robot::Impl::GetControlConnectionSettings() const {
 void Robot::Impl::SetControlConnectionSettings(
     const std::string& control_conn_settings) {
   control_connection_settings_ = control_conn_settings;
+}
+
+const std::string& Robot::Impl::GetUnrealVehicleClass() const {
+  return unreal_vehicle_class_;
 }
 
 bool Robot::Impl::GetStartLanded() const { return start_landed_; }
@@ -1501,6 +1521,14 @@ void Robot::Loader::LoadLinks(const json& json) {
 
   auto links_json = JsonUtils::GetArray(json, Constant::Config::links);
   if (JsonUtils::IsEmptyArray(links_json)) {
+    if (impl_.physics_type_ == PhysicsType::kUnrealPhysics &&
+        !impl_.unreal_vehicle_class_.empty()) {
+      impl_.logger_.LogWarning(
+          impl_.name_,
+          "[%s] 'links' missing or empty. Continuing for unreal vehicle physics.",
+          impl_.id_.c_str());
+      return;
+    }
     impl_.logger_.LogError(impl_.name_, "[%s] 'links' missing or empty.",
                            impl_.id_.c_str());
     throw Error("Robot must have at least one link.");
@@ -1622,6 +1650,8 @@ void Robot::Loader::LoadPhysicsType(const json& json) {
     impl_.physics_type_ = PhysicsType::kMatlabPhysics;
   } else if (physics_type == Constant::Config::unreal_physics) {
     impl_.physics_type_ = PhysicsType::kUnrealPhysics;
+    impl_.unreal_vehicle_class_ = JsonUtils::GetString(
+        json, Constant::Config::unreal_vehicle_class, "");
   } else if (physics_type == Constant::Config::jsbsim_physics) {
     impl_.physics_type_ = PhysicsType::kJSBSimPhysics;
     impl_.jsbsim_script_ =

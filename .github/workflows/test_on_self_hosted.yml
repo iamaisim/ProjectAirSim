@@ -62,6 +62,35 @@ jobs:
           git submodule sync
           git submodule update --init --recursive
 
+      - name: Load Unreal Engine environment
+        run: |
+          set -euo pipefail
+
+          # GitHub Actions invokes an explicit `bash` shell as
+          # `bash --noprofile --norc`, so UE_ROOT exported from ~/.bashrc is
+          # not visible to workflow steps. Keep an inherited value when the
+          # runner service already provides one, and otherwise load the
+          # runner user's login environment.
+          ue_root="${UE_ROOT:-}"
+          if [ -z "$ue_root" ]; then
+            ue_root="$(bash -ilc 'printf "%s" "${UE_ROOT:-}"' 2>/dev/null || true)"
+          fi
+
+          if [ -z "$ue_root" ]; then
+            echo "::error::UE_ROOT is not available to the GitHub Actions runner. Configure it for the runner service account (or in ~/.bashrc) and restart the runner service."
+            exit 1
+          fi
+
+          ue_root="$(realpath -e -- "$ue_root")"
+          test -d "$ue_root/Engine"
+          test -x "$ue_root/Engine/Build/BatchFiles/Linux/Build.sh"
+          test -x "$ue_root/Engine/Binaries/Linux/UnrealEditor"
+
+          # GITHUB_ENV makes the value available to every subsequent step,
+          # including CMake's simlibs configuration.
+          printf 'UE_ROOT=%s\n' "$ue_root" >> "$GITHUB_ENV"
+          echo "Using UE_ROOT=$ue_root"
+
       - name: Setup system dependencies
         run: |
           set -euo pipefail
@@ -97,6 +126,10 @@ jobs:
         run: |
           test -d unreal/Blocks/Plugins/ProjectAirSim/SimLibs/core_sim/jsbsim/include
           test -f unreal/Blocks/Plugins/ProjectAirSim/SimLibs/core_sim/jsbsim/lib/Release/libJSBSim.so
+
+      - name: Display UE_ROOT
+        run: |
+          echo "UE_ROOT=$UE_ROOT"
 
       - name: Build Unreal Editor (Blocks)
         run: |

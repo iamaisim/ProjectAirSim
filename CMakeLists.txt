@@ -40,6 +40,8 @@ if (UNIX)
         # Note: This must be set BEFORE `project()` is called
         message("Building/linking against Unreal packaged toolchain from UE_ROOT=$ENV{UE_ROOT}")
         set(PROJECTAIRSIM_USE_UE_TOOLCHAIN ON)
+        set(UE_ROOT_PATH "$ENV{UE_ROOT}" CACHE PATH
+            "Unreal Engine root captured when this build tree was configured")
         set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/unreal-linux-toolchain.cmake")
         set(UNREAL_LINUX_TOOLCHAIN "${CMAKE_SOURCE_DIR}/unreal-linux-toolchain.cmake")
     else()
@@ -53,7 +55,7 @@ endif()
 project("ProjectAirSimLibs")
 
 if(PROJECTAIRSIM_USE_UE_TOOLCHAIN)
-    set(UE_LEGACY_LIBCXX_ROOT "$ENV{UE_ROOT}/Engine/Source/ThirdParty/Unix/LibCxx")
+    set(UE_LEGACY_LIBCXX_ROOT "${UE_ROOT_PATH}/Engine/Source/ThirdParty/Unix/LibCxx")
     set(UE_LIBCXX_INCLUDE_DIR "${UE_LEGACY_LIBCXX_ROOT}/include")
     set(UE_LIBCXX_CXX_INCLUDE_DIR "${UE_LEGACY_LIBCXX_ROOT}/include/c++/v1")
     set(UE_LIBCXX_LIB_DIR "${UE_LEGACY_LIBCXX_ROOT}/lib/Unix/x86_64-unknown-linux-gnu")
@@ -68,7 +70,7 @@ if(PROJECTAIRSIM_USE_UE_TOOLCHAIN)
        NOT EXISTS "${UE_LIBCXX_LIB_DIR}/libc++.a" OR
        NOT EXISTS "${UE_LIBCXX_LIB_DIR}/libc++abi.a")
         message(FATAL_ERROR "Could not find Unreal libc++ headers/libraries. "
-                            "Checked legacy LibCxx and SDK sysroot paths for UE_ROOT=$ENV{UE_ROOT}")
+                            "Checked legacy LibCxx and SDK sysroot paths for UE_ROOT=${UE_ROOT_PATH}")
     endif()
 
     message("Using Unreal libc++ includes from ${UE_LIBCXX_CXX_INCLUDE_DIR}")
@@ -409,6 +411,7 @@ ExternalProject_Add(nng-external
     TEST_COMMAND            ""  # disable test step
     CMAKE_ARGS
         -DCMAKE_TOOLCHAIN_FILE=${UNREAL_LINUX_TOOLCHAIN}
+        -DUE_ROOT_PATH:PATH=${UE_ROOT_PATH}
         -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
         -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
         -DCMAKE_EXE_LINKER_FLAGS=${NNG_CMAKE_LINKER_MANIFEST_FLAG}
@@ -479,6 +482,7 @@ ExternalProject_Add(assimp-external
     TEST_COMMAND            ""  # disable test step
     CMAKE_ARGS
         -DCMAKE_TOOLCHAIN_FILE=${UNREAL_LINUX_TOOLCHAIN}
+        -DUE_ROOT_PATH:PATH=${UE_ROOT_PATH}
         -DCMAKE_SYSROOT=${CMAKE_SYSROOT}
         -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=${CMAKE_FIND_ROOT_PATH_MODE_PROGRAM}
         -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=${CMAKE_FIND_ROOT_PATH_MODE_LIBRARY}
@@ -616,7 +620,7 @@ if(UNIX)
     # glibc symbol version requirements are consistent.  Use no-shared so only the static
     # libraries (libcrypto.a / libssl.a) are produced, avoiding runtime dynamic-library
     # glibc ABI mismatches when linking against the UE toolchain (CentOS 7 / glibc 2.17).
-    if(DEFINED ENV{UE_ROOT})
+    if(PROJECTAIRSIM_USE_UE_TOOLCHAIN)
         # UE cross-compiler targets a CentOS 7 sysroot (glibc 2.17).  Tell OpenSSL to use
         # the same clang and sysroot so the compiled objects only reference old glibc symbols.
         set(OPENSSL_CONFIGURE_COMMAND
@@ -776,7 +780,7 @@ if(UNIX)
 
         set(UE_SYSROOT_RUNTIME_DIR "${CMAKE_SYSROOT}/lib64")
         set(UE_LEGACY_LIBCXX_DIR
-            "$ENV{UE_ROOT}/Engine/Source/ThirdParty/Unix/LibCxx/lib/Unix/x86_64-unknown-linux-gnu"
+            "${UE_ROOT_PATH}/Engine/Source/ThirdParty/Unix/LibCxx/lib/Unix/x86_64-unknown-linux-gnu"
         )
         projectairsim_resolve_ue_runtime_library(
             UE_LIBCXX_LIBRARY
@@ -873,6 +877,24 @@ add_subdirectory(unity)
 add_subdirectory(vehicle_apis)
 
 if(BUILD_TESTING)
+    # Stage shared test runtime dependencies exactly once. Multiple PRE_LINK and
+    # POST_BUILD copies to SIMLIBS_TEST_DIR can run concurrently under Ninja and
+    # intermittently fail on Windows when they touch the same destination files.
+    add_custom_target(simlibs_test_runtime_dependencies
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${SIMLIBS_TEST_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${UE_PLUGIN_SIMLIBS_DIR}/shared_libs"
+            "${SIMLIBS_TEST_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${JSBSIM_CORESIM_DIR}/lib/$<IF:$<CONFIG:Release>,Release,Debug>"
+            "${SIMLIBS_TEST_DIR}"
+        COMMENT "Staging SimLibs test runtime dependencies"
+    )
+    add_dependencies(simlibs_test_runtime_dependencies jsbsim-repo)
+    if(UNIX)
+        add_dependencies(simlibs_test_runtime_dependencies zlib-external)
+    endif()
+
     set(SIMLIBS_UNIT_TEST_TARGETS
         core_sim_gtests
         physics_gtests
@@ -888,6 +910,7 @@ if(BUILD_TESTING)
     add_custom_target(simlibs_unit_tests)
     foreach(TEST_TARGET ${SIMLIBS_UNIT_TEST_TARGETS})
         if(TARGET ${TEST_TARGET})
+            add_dependencies(${TEST_TARGET} simlibs_test_runtime_dependencies)
             add_dependencies(simlibs_unit_tests ${TEST_TARGET})
         endif()
     endforeach()

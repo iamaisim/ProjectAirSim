@@ -766,7 +766,12 @@ void Client::Impl::RequestSendingThreadProc(void) {
           SendRequest(str_method, json_params, pasyncresultprovider_message);
 
       // If the send failed, complete the async result with the error
-      if (status != Status::OK) pasyncresultprovider_message->SetDone(status);
+            if (status != Status::OK)
+                pasyncresultprovider_message->SetDone(status);
+        } else {
+            // Complete the async result so a caller blocked in Wait() is
+            // released.
+            pasyncresultprovider_message->SetDone(Status::Canceled);
     }
 
     // Done with request in this method
@@ -833,9 +838,11 @@ void Client::Impl::ResponseReceivingThreadProc(void) {
                              NNG_FLAG_ALLOC);
         if (err == nngi::NNG_ETIMEDOUT) {
           // Check to see whether we should exit
-          if (run_request_threads_)
-            continue;  // Nope, keep going
-          else {
+                    if (run_request_threads_) {
+                        // Reply lost or never arrived within NNG_OPT_RECVTIMEO;
+                        // fail the request instead of retrying forever.
+                        pasyncresultprovider_message->SetDone(Status::TimedOut);
+                    } else {
             // Yes, cancel the request and exit
             pasyncresultprovider_message->SetDone(Status::Canceled);
           }

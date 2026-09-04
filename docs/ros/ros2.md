@@ -104,7 +104,6 @@ when Project AirSim reports topic information.
 | `publish_tf` | `true` | Broadcast TF transforms from `/actual_pose` and camera pose payloads. |
 | `tf_world_frame_id` | `map` | Parent frame used for TF transforms. |
 | `refresh_topics_period_sec` | `0.0` | Periodic topic discovery interval. `0.0` disables polling; use a positive value only if scenes/topics can change outside this node. |
-| `publish_clock_period_sec` | `0.02` | Periodic `/clock` publish interval in seconds. `0.0` disables clock publishing. |
 | `vehicle_name` | `Drone1` | Vehicle used for single-drone services/actions. |
 | `service_root` | `/projectairsim` | Root namespace for command services and actions. |
 | `image_qos_depth` | `5` | `KEEP_LAST` depth for image publishers. Values below `1` are rejected. |
@@ -180,6 +179,22 @@ unset FASTDDS_DEFAULT_PROFILES_FILE
 unset FASTRTPS_DEFAULT_PROFILES_FILE
 ```
 
+The simulator publishes `/Sim/<scene>/clock` from the scene tick. The bridge
+subscribes to that native clock stream and republishes every sample on ROS
+`/clock`; it does not poll `GetSimTime`. Sensor message headers likewise retain
+their native per-sample `time_stamp` values. If a sensor payload has no valid
+`time_stamp`, the bridge warns and publishes the conventional
+invalid/uninitialized ROS timestamp (`sec: 0`, `nanosec: 0`) instead of
+substituting the bridge's current time. ROS time fields are integers, so they
+cannot represent NaN.
+
+For optimized native image messages, an absent `time_stamp` or an unsigned
+value larger than `INT64_MAX` produces the same zero timestamp while preserving
+the image. A present `time_stamp` encoded with the wrong MessagePack type
+(such as a string, floating-point value, Boolean, or null), or encoded as a
+negative integer, makes the image payload malformed; the bridge warns and
+drops that image instead of substituting ROS node time.
+
 ## Topics
 
 List ROS2 topics:
@@ -214,7 +229,7 @@ The bridge also publishes:
 | Topic | Type | Description |
 |---|---|---|
 | `/projectairsim/topic_info` | `std_msgs/msg/String` | JSON list of Project AirSim topic paths from the first discovery pass after startup or scene load. |
-| `/clock` | `rosgraph_msgs/msg/Clock` | Project AirSim simulation time from `World::GetSimTime()`. |
+| `/clock` | `rosgraph_msgs/msg/Clock` | Native Project AirSim scene-clock topic, republished without service polling. |
 | `/tf` | `tf2_msgs/msg/TFMessage` | Vehicle and camera transforms when `publish_tf=true`. |
 
 To echo a topic:

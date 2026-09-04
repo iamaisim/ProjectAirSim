@@ -6,6 +6,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstring>
+#include <limits>
 #include <map>
 #include <stdexcept>
 #include <string>
@@ -25,12 +26,16 @@ using bridge::json;
 std::string PackNativeImage(const std::string& encoding, std::uint32_t width,
                             std::uint32_t height,
                             const std::vector<std::uint8_t>& data,
-                            bool include_data = true) {
+                            bool include_data = true,
+                            bool include_time_stamp = true) {
   msgpack::sbuffer buffer;
   msgpack::packer<msgpack::sbuffer> packer(buffer);
-  packer.pack_map(include_data ? 15 : 14);
-  packer.pack("time_stamp");
-  packer.pack(123U);
+  packer.pack_map(13 + static_cast<unsigned int>(include_data) +
+                  static_cast<unsigned int>(include_time_stamp));
+  if (include_time_stamp) {
+    packer.pack("time_stamp");
+    packer.pack(123U);
+  }
   packer.pack("height");
   packer.pack(height);
   packer.pack("width");
@@ -100,11 +105,23 @@ TEST(Ros2ConversionUtils, SimTimeExtractionAcceptsSupportedPayloadShapes) {
       bridge::ExtractSimTimeNanos(json{{"sim_time_nanos", 5678}}, &nanos));
   EXPECT_EQ(nanos, 5678);
 
+  ASSERT_TRUE(bridge::ExtractSimTimeNanos(json{{"time_stamp", 9012}}, &nanos));
+  EXPECT_EQ(nanos, 9012);
+
   ASSERT_TRUE(
       bridge::ExtractSimTimeNanos(json{{"sec", 2}, {"nanosec", 9}}, &nanos));
   EXPECT_EQ(nanos, 2000000009LL);
 
   EXPECT_FALSE(bridge::ExtractSimTimeNanos(json{{"time", "bad"}}, &nanos));
+}
+
+TEST(Ros2ConversionUtils, TimestampConversionRejectsInvalidNumericValues) {
+  std::int64_t value = 0;
+
+  EXPECT_FALSE(bridge::JsonToInt64(
+      std::numeric_limits<std::uint64_t>::max(), &value));
+  EXPECT_FALSE(bridge::JsonToInt64(
+      std::numeric_limits<double>::infinity(), &value));
 }
 
 TEST(Ros2ConversionUtils, CoordinateConversionsApplyRosAxisConvention) {
@@ -188,6 +205,8 @@ TEST(Ros2ConversionUtils, NativeBgrImagePayloadIsConvertedWithoutJson) {
   EXPECT_EQ(image.encoding, "bgr8");
   EXPECT_EQ(image.step, 6U);
   EXPECT_EQ(image.data, pixels);
+  EXPECT_TRUE(metadata.has_time_stamp);
+  EXPECT_EQ(metadata.time_stamp, 123U);
   EXPECT_FLOAT_EQ(metadata.pos_y, 2.0F);
   EXPECT_FLOAT_EQ(metadata.rot_w, 0.5F);
 }
@@ -202,6 +221,17 @@ TEST(Ros2ConversionUtils, NativeDepthImagePayloadIsConverted) {
   EXPECT_EQ(image.encoding, "mono16");
   EXPECT_EQ(image.step, 4U);
   EXPECT_EQ(image.data, pixels);
+}
+
+TEST(Ros2ConversionUtils, NativeImageMetadataTracksMissingTimestamp) {
+  sensor_msgs::msg::Image image;
+  bridge::NativeImageMetadata metadata;
+
+  ASSERT_TRUE(bridge::PopulateImagePayloadFromMsgpack(
+      PackNativeImage("BGR", 1, 1, {1, 2, 3}, true, false), &image,
+      &metadata));
+  EXPECT_FALSE(metadata.has_time_stamp);
+  EXPECT_EQ(metadata.time_stamp, 0U);
 }
 
 TEST(Ros2ConversionUtils, NativeHalfDepthImagePayloadIsConvertedToFloat) {

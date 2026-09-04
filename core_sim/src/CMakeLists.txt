@@ -28,6 +28,7 @@ add_library(
     message/airspeed_message.cpp
     message/barometer_message.cpp
     message/camera_info_message.cpp
+    message/clock_message.cpp
     message/collision_info_message.cpp
     message/distance_sensor_message.cpp
     message/flight_control_setpoint_message.cpp

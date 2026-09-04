@@ -50,6 +50,7 @@ class Topic {
   friend class EnvActor;
   friend class Battery;
   friend class ViewportCameraImpl;
+  friend class Scene;
 
   Topic(const std::string& name, const std::string& path, TopicType type,
         int frequency, MessageType message_type);

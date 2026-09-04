@@ -10,7 +10,7 @@
       "enum": [ "fast-physics", "non-physics", "matlab-physics", "jsbsim-physics", "unreal-physics" ]
     },
     "unreal-vehicle-class": {
-      "description": "UE5 Blueprint or C++ class path for the unreal vehicle (must implement IProjectAirSimVehicle)",
+      "description": "UE5 Blueprint or C++ class path for the Unreal vehicle. It must implement IProjectAirSimVehicle to receive indexed parameter signals; kinematics are read independently from Chaos or standard UE component state.",
       "type": "string"
     },
     "jsbsim-root-path": {
@@ -814,7 +814,7 @@
         "velocity-random-walk": { "type": "number" },
         "tau": { "type": "number" },
         "bias-stability": { "type": "number" },
-        "turn-on-stability": { "type": "string" }
+        "turn-on-bias": { "type": "string" }
       }
     },
     "gyroscope": {
@@ -824,7 +824,7 @@
         "angle-random-walk": { "type": "number" },
         "tau": { "type": "number" },
         "bias-stability": { "type": "number" },
-        "turn-on-stability": { "type": "string" }
+        "turn-on-bias": { "type": "string" }
       }
     },
     "fov": {

@@ -15,7 +15,8 @@
       "type": "engine-driven",
       "step-ns": 3000000,
       "real-time-update-rate": 3000000,
-      "pause-on-start": false
+      "pause-on-start": false,
+      "engine-substepping": true
     },
     "home-geo-point": {
       "latitude": 47.641468,

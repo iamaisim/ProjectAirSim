@@ -151,6 +151,13 @@ if errorlevel 1 (
 set PATH=%VS_INSTALL_DIR%\MSBuild\Current\Bin\amd64;%VS_INSTALL_DIR%\MSBuild\Current\Bin;%PATH%
 set MSBUILD_TOOLSET_ARGS=/p:VCToolsVersion=%MSVC_TOOLS_VERSION%
 
+if "!UE_DETECTED!"=="1" (
+  set "PAS_TOOLCHAIN_ID=UE5.!UE_MINOR!-MSVC!MSVC_TOOLS_VERSION!"
+) else (
+  set "PAS_TOOLCHAIN_ID=system-MSVC!MSVC_TOOLS_VERSION!"
+)
+echo Using Project AirSim build tree: build\win64\!PAS_TOOLCHAIN_ID!
+
 where /q nmake
 if errorlevel 1 (
   echo:

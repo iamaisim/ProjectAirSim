@@ -56,10 +56,15 @@ all_no_test: simlibs_debug simlibs_release package_simlibs package_plugin packag
 #
 # ---------------------------------------------------------------------------------------------------------------------
 
-CMAKE_BUILD_DIR = build\win64
+!ifdef PAS_TOOLCHAIN_ID
+CMAKE_BUILD_DIR = build\win64\$(PAS_TOOLCHAIN_ID)
+!else
+CMAKE_BUILD_DIR = build\win64\system
+!endif
 CMAKE_CMD = cmake -G "Ninja" \
 				  -DCMAKE_C_COMPILER=cl.exe \
-				  -DCMAKE_CXX_COMPILER=cl.exe
+				  -DCMAKE_CXX_COMPILER=cl.exe \
+				  -S "%CD%"
 CMAKE_DBG_BUILD_CMD = cmake --build $(CMAKE_BUILD_DIR)\Debug
 CMAKE_REL_BUILD_CMD = cmake --build $(CMAKE_BUILD_DIR)\Release
 
@@ -76,8 +81,7 @@ prepare_suv_assets:
 config_simlibs_debug:
 	@echo =======================================================================
 	@echo Configuring the ProjectAirSimLibs project for Win64-Debug...
-	-mkdir $(CMAKE_BUILD_DIR)\Debug $(REDIRECT_OUTPUT)
-	cd $(CMAKE_BUILD_DIR)\Debug && $(CMAKE_CMD) -DCMAKE_BUILD_TYPE=Debug ..\..\..
+	$(CMAKE_CMD) -B "%CD%\$(CMAKE_BUILD_DIR)\Debug" -DCMAKE_BUILD_TYPE=Debug
 
 .PHONY: build_simlibs_debug
 build_simlibs_debug: config_simlibs_debug
@@ -92,8 +96,7 @@ simlibs_debug: prepare_suv_assets build_simlibs_debug
 config_simlibs_release:
 	@echo =======================================================================
 	@echo Configuring the ProjectAirSimLibs project for Win64-Release...
-	-mkdir $(CMAKE_BUILD_DIR)\Release $(REDIRECT_OUTPUT)
-	cd $(CMAKE_BUILD_DIR)\Release && $(CMAKE_CMD) -DCMAKE_BUILD_TYPE=Release ..\..\..
+	$(CMAKE_CMD) -B "%CD%\$(CMAKE_BUILD_DIR)\Release" -DCMAKE_BUILD_TYPE=Release
 
 .PHONY: build_simlibs_release
 build_simlibs_release: config_simlibs_release

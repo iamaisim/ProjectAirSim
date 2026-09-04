@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation. 
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI CONSULTING CORP
 
 // MIT License. All rights reserved.
@@ -28,7 +28,7 @@ class Simulator {
                        const std::string& message) {};
     Logger logger(callback);
     return Scene(logger, TopicManager(logger), "", ServiceManager(logger),
-                 StateManager(logger),"");
+                 StateManager(logger), "");
   }
 
   static void LoadScene(Scene& scene, ConfigJson config_json) {
@@ -44,9 +44,11 @@ namespace projectairsim = microsoft::projectairsim;
 TEST(Scene, Constructor) {
   // General description:
   // Verifies constructor for Scene.
-  // Arrange: prepare context for `EXPECT_FALSE(projectairsim::Simulator::MakeScene().IsLoaded());`.
-  // Act: run `EXPECT_FALSE(projectairsim::Simulator::MakeScene().IsLoaded());`.
-  // Assert: check result from `EXPECT_FALSE(projectairsim::Simulator::MakeScene().IsLoaded());`.
+  // Arrange: prepare context for
+  // `EXPECT_FALSE(projectairsim::Simulator::MakeScene().IsLoaded());`. Act: run
+  // `EXPECT_FALSE(projectairsim::Simulator::MakeScene().IsLoaded());`. Assert:
+  // check result from
+  // `EXPECT_FALSE(projectairsim::Simulator::MakeScene().IsLoaded());`.
   EXPECT_FALSE(projectairsim::Simulator::MakeScene().IsLoaded());
 }
 
@@ -61,7 +63,8 @@ TEST(Scene, LoadScene) {
   json = "{ \"id\": \"1abc\" }"_json;
   // Act: run `scene = projectairsim::Simulator::MakeScene();`.
   scene = projectairsim::Simulator::MakeScene();
-  // Assert: check result from `EXPECT_THROW(projectairsim::Simulator::LoadScene(scene, json),`.
+  // Assert: check result from
+  // `EXPECT_THROW(projectairsim::Simulator::LoadScene(scene, json),`.
   EXPECT_THROW(projectairsim::Simulator::LoadScene(scene, json),
                projectairsim::Error);
 }
@@ -146,7 +149,8 @@ TEST(Scene, LoadExternalClock) {
   auto scene = projectairsim::Simulator::MakeScene();
   projectairsim::Simulator::LoadScene(scene, json);
 
-  EXPECT_EQ(scene.GetClockSettings().type, projectairsim::ClockType::kExternalClock);
+  EXPECT_EQ(scene.GetClockSettings().type,
+            projectairsim::ClockType::kExternalClock);
   EXPECT_EQ(scene.GetClockSettings().step, 3000000);
 }
 
@@ -162,7 +166,8 @@ TEST(Scene, LoadSteppableClock) {
   auto scene = projectairsim::Simulator::MakeScene();
   projectairsim::Simulator::LoadScene(scene, json);
 
-  EXPECT_EQ(scene.GetClockSettings().type, projectairsim::ClockType::kSteppable);
+  EXPECT_EQ(scene.GetClockSettings().type,
+            projectairsim::ClockType::kSteppable);
   EXPECT_EQ(scene.GetClockSettings().step, 2900000);
 }
 
@@ -194,8 +199,85 @@ TEST(Scene, LoadEngineDrivenClock) {
   auto scene = projectairsim::Simulator::MakeScene();
   projectairsim::Simulator::LoadScene(scene, json);
 
-  EXPECT_EQ(scene.GetClockSettings().type, projectairsim::ClockType::kEngineDriven);
+  EXPECT_EQ(scene.GetClockSettings().type,
+            projectairsim::ClockType::kEngineDriven);
   EXPECT_EQ(scene.GetClockSettings().step, 2700000);
+}
+
+TEST(Scene, UnrealEngineClockSettingsPreserveExistingBehaviorByDefault) {
+  json config = R"({"id": "a"})"_json;
+  auto scene = projectairsim::Simulator::MakeScene();
+  projectairsim::Simulator::LoadScene(scene, config);
+
+  const auto& settings = scene.GetClockSettings();
+  EXPECT_FALSE(settings.engine_substepping);
+  EXPECT_FALSE(settings.engine_fixed_fps_enabled);
+  EXPECT_FLOAT_EQ(settings.engine_fixed_fps, 30.0f);
+}
+
+TEST(Scene, LoadUnrealEngineClockSettings) {
+  json config = R"({
+    "id": "a",
+    "clock": {
+      "type": "engine-driven",
+      "step-ns": 2500000,
+      "engine-fixed-fps": 50.0,
+      "engine-substepping": true
+    }
+  })"_json;
+  auto scene = projectairsim::Simulator::MakeScene();
+  projectairsim::Simulator::LoadScene(scene, config);
+
+  const auto& settings = scene.GetClockSettings();
+  EXPECT_TRUE(settings.engine_substepping);
+  EXPECT_TRUE(settings.engine_fixed_fps_enabled);
+  EXPECT_FLOAT_EQ(settings.engine_fixed_fps, 50.0f);
+  EXPECT_EQ(settings.step, 2500000);
+}
+
+TEST(Scene, RejectNonPositiveClockStepForEngineSubstepping) {
+  json config = R"({
+    "id": "a",
+    "clock": {
+      "type": "engine-driven",
+      "step-ns": 0,
+      "engine-substepping": true
+    }
+  })"_json;
+  auto scene = projectairsim::Simulator::MakeScene();
+
+  EXPECT_THROW(projectairsim::Simulator::LoadScene(scene, config),
+               projectairsim::Error);
+}
+
+TEST(Scene, LoadEngineFixedFps) {
+  json config = R"({
+    "id": "a",
+    "clock": {
+      "type": "engine-driven",
+      "engine-fixed-fps": 50.0
+    }
+  })"_json;
+  auto scene = projectairsim::Simulator::MakeScene();
+  projectairsim::Simulator::LoadScene(scene, config);
+
+  const auto& settings = scene.GetClockSettings();
+  EXPECT_TRUE(settings.engine_fixed_fps_enabled);
+  EXPECT_FLOAT_EQ(settings.engine_fixed_fps, 50.0f);
+}
+
+TEST(Scene, RejectInvalidEngineFixedFps) {
+  json config = R"({
+    "id": "a",
+    "clock": {
+      "type": "engine-driven",
+      "engine-fixed-fps": 0.0
+    }
+  })"_json;
+  auto scene = projectairsim::Simulator::MakeScene();
+
+  EXPECT_THROW(projectairsim::Simulator::LoadScene(scene, config),
+               projectairsim::Error);
 }
 
 // TODO Add tests for scene

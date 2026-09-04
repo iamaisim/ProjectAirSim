@@ -510,11 +510,20 @@ From the Unreal Engine developer's viewpoint, Project AirSim is a sophisticated 
 
 Project AirSim distinguishes naming by **layer**:
 
-- **Engine-driven clock** (plugin / simulation libraries perspective): the scene clock type "engine-driven" in JSON. Core sim does **not** run its own periodic scene executor; a **host** outside that scheduler supplies elapsed time (`AccumulateStep`) and the sim consumes it in fixed `step-ns` steps.
+- **Engine-driven clock** (plugin / simulation libraries perspective): the scene clock type "engine-driven" in JSON. Core sim does **not** run its own periodic scene executor; a **host** outside that scheduler supplies elapsed time. The default Unreal path accumulates frame time and consumes it in fixed `step-ns` steps.
 - **External-clock** (future external-controller label): the scene clock type "external-clock" in JSON. It currently behaves the same as `engine-driven`, but it reserves a distinct name for driving simlibs from another app or system later.
-- **Unreal-driven-clock** (Unreal Engine perspective): on `UnrealNative` scenes, that host is **Unreal’s game thread**. `AUnrealScene::Tick` passes each frame’s `DeltaTime` into the engine-driven clock and drains `ExternalTick()` while pending fixed steps remain.
+- **Unreal-driven-clock** (Unreal Engine perspective): on `UnrealNative` scenes, that host is **Unreal's game thread**. The default path passes each frame's `DeltaTime` into the engine-driven clock and drains `ExternalTick()` while pending fixed steps remain. With Unreal physics substepping enabled, it consumes the Unreal Vehicle Chaos samples and calls `ExternalTick(substep_nanos)` once per sample.
 
 So **engine-driven** and **external-clock** (config and sim-libs terminology) are named in this repo’s Unreal integration as **unreal-driven-clock** (where elapsed wall/frame time comes from today).
+
+Scene JSONC keeps the Unreal timing options inside `clock`.
+`engine-fixed-fps` optionally fixes the outer Unreal frame rate; if absent,
+existing clock-dependent Unreal frame pacing remains unchanged.
+`engine-substepping` enables Chaos substepping, always derives
+`MaxSubstepDeltaTime` from `step-ns`, and uses Unreal Engine's maximum of 16
+substeps per frame. The resulting physics interval is approximate because Chaos
+treats that value as an upper bound and may divide an outer frame into slightly
+smaller equal substeps.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐

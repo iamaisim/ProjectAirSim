@@ -165,7 +165,7 @@ void SteppableClock::Step() {
 
 EngineDrivenClock::EngineDrivenClock(TimeNano fixed_step_nanos,
                                          TimeNano start)
-    : current_sim_time_(start), accumulated_nanos_(0) {
+    : current_sim_time_(start), accumulated_nanos_(0), next_step_nanos_(0) {
   // Fixed-step size used to convert variable frame deltas into deterministic
   // simulation steps.
   fixed_step_nanos_ = std::max(fixed_step_nanos, kMinStepNanos);
@@ -191,8 +191,15 @@ void EngineDrivenClock::AccumulateStep(TimeSec delta_seconds) {
 }
 
 bool EngineDrivenClock::HasPendingStep() const {
-  // At least one full fixed-step can be executed.
-  return accumulated_nanos_.load() >= fixed_step_nanos_.load();
+  // A host-provided physics step takes priority; otherwise a full fixed step
+  // must have accumulated from host frame time.
+  return next_step_nanos_.load() > 0 ||
+         accumulated_nanos_.load() >= fixed_step_nanos_.load();
+}
+
+void EngineDrivenClock::SetNextStep(TimeNano amount_nanos) {
+  next_step_nanos_ =
+      amount_nanos > 0 ? std::max(amount_nanos, kMinStepNanos) : 0;
 }
 
 void EngineDrivenClock::SetFixedStep(TimeNano fixed_step_nanos) {
@@ -201,7 +208,16 @@ void EngineDrivenClock::SetFixedStep(TimeNano fixed_step_nanos) {
 }
 
 void EngineDrivenClock::Step() {
-  // Consume exactly one fixed step so callers can iterate in a while loop.
+  // Consume exactly one host-provided step, if present. Physics engines can
+  // vary their final substep to cover the outer frame exactly.
+  const TimeNano next_step_nanos = next_step_nanos_.exchange(0);
+  if (next_step_nanos > 0) {
+    current_sim_time_.fetch_add(next_step_nanos);
+    return;
+  }
+
+  // Otherwise consume one fixed step so callers can iterate over accumulated
+  // render-frame time using the legacy engine-driven behavior.
   if (!HasPendingStep()) {
     return;
   }

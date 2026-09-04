@@ -38,20 +38,23 @@ build.cmd simlibs_debug
 
 Replace `simlibs_debug` with `simlibs_release` for a release build.
 
-The debug executable is generated at
-`build/win64/Debug/samples/projectairsim_runtime/projectairsim-runtime.exe` on Windows
-and `build/linux64/Debug/samples/projectairsim_runtime/projectairsim-runtime` on Linux.
-For a release build, use the corresponding `build/win64/Release` or
-`build/linux64/Release` path.
+The build tree is keyed by the selected toolchain so different Unreal versions
+cannot reuse an incompatible CMake compiler cache. On Windows it is generated
+under `build/win64/<toolchain>/Debug`; on Linux it is generated under
+`build/linux64/<resolved-UE_ROOT-directory>/Debug`, or
+`build/linux64/system/Debug` when `UE_ROOT` is unset. For a release build, use
+the corresponding `Release` directory.
 
 Start the Runtime from the repository root:
 
 ```powershell
-.\build\win64\Debug\samples\projectairsim_runtime\projectairsim-runtime.exe
+$runtime = Get-ChildItem .\build\win64\*\Debug\samples\projectairsim_runtime\projectairsim-runtime.exe |
+  Select-Object -First 1
+& $runtime.FullName
 ```
 
 ```bash
-./build/linux64/Debug/samples/projectairsim_runtime/projectairsim-runtime
+./build/linux64/system/Debug/samples/projectairsim_runtime/projectairsim-runtime
 ```
 
 With the Project AirSim Python client environment activated, run the demo in a

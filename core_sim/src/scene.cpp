@@ -78,8 +78,7 @@ class Scene::Impl : public ComponentWithTopicsAndServiceMethods {
  public:
   Impl(const Logger& logger, const TopicManager& topic_manager,
        const std::string& parent_topic_path,
-       const ServiceManager& service_manager,
-       const StateManager& state_manager,
+       const ServiceManager& service_manager, const StateManager& state_manager,
        const std::string& working_simulation_path);
 
   void LoadSceneWithJSON(ConfigJson config_json);
@@ -247,7 +246,8 @@ Scene::Scene(const Logger& logger, const TopicManager& topic_manager,
              const StateManager& state_manager,
              const std::string& working_simulation_path)
     : pimpl_(std::make_shared<Impl>(logger, topic_manager, parent_topic_path,
-                                    service_manager, state_manager, working_simulation_path)) {}
+                                    service_manager, state_manager,
+                                    working_simulation_path)) {}
 
 void Scene::LoadWithJSON(ConfigJson config_json) {
   pimpl_->LoadSceneWithJSON(config_json);
@@ -336,6 +336,11 @@ const ClockSettings& Scene::GetClockSettings() const {
 }
 
 bool Scene::ExternalTick() { return pimpl_->SceneTick(); }
+
+bool Scene::ExternalTick(TimeNano step_nanos) {
+  SimClock::Get()->SetNextStep(step_nanos);
+  return pimpl_->SceneTick();
+}
 
 const SegmentationSettings& Scene::GetSegmentationSettings() const {
   return pimpl_->GetSegmentationSettings();
@@ -822,24 +827,23 @@ json Scene::Impl::Step(TimeNano dt_ns) {
       auto& robot = static_cast<Robot&>(*actor);
       const auto& kin = robot.GetKinematics();
 
-      json state = json{
-          {"position",
-           {{"x", kin.pose.position.x()},
-            {"y", kin.pose.position.y()},
-            {"z", kin.pose.position.z()}}},
-          {"orientation",
-           {{"w", kin.pose.orientation.w()},
-            {"x", kin.pose.orientation.x()},
-            {"y", kin.pose.orientation.y()},
-            {"z", kin.pose.orientation.z()}}},
-          {"linear_velocity",
-           {{"x", kin.twist.linear.x()},
-            {"y", kin.twist.linear.y()},
-            {"z", kin.twist.linear.z()}}},
-          {"angular_velocity",
-           {{"x", kin.twist.angular.x()},
-            {"y", kin.twist.angular.y()},
-            {"z", kin.twist.angular.z()}}}};
+      json state = json{{"position",
+                         {{"x", kin.pose.position.x()},
+                          {"y", kin.pose.position.y()},
+                          {"z", kin.pose.position.z()}}},
+                        {"orientation",
+                         {{"w", kin.pose.orientation.w()},
+                          {"x", kin.pose.orientation.x()},
+                          {"y", kin.pose.orientation.y()},
+                          {"z", kin.pose.orientation.z()}}},
+                        {"linear_velocity",
+                         {{"x", kin.twist.linear.x()},
+                          {"y", kin.twist.linear.y()},
+                          {"z", kin.twist.linear.z()}}},
+                        {"angular_velocity",
+                         {{"x", kin.twist.angular.x()},
+                          {"y", kin.twist.angular.y()},
+                          {"z", kin.twist.angular.z()}}}};
 
       json events = robot.DrainStepEvents();
 
@@ -959,14 +963,14 @@ void Scene::Impl::RegisterServiceMethods() {
       sim_get_actors.CreateMethodHandler(&Scene::Impl::SimGetActors, *this);
   RegisterServiceMethod(sim_get_actors, sim_get_actors_handler);
 
-    auto import_ned_trajectory = ServiceMethod(
+  auto import_ned_trajectory = ServiceMethod(
       "ImportNEDTrajectory",
       {"traj_name", "time", "pose_x", "pose_y", "pose_z", "pose_roll",
        "pose_pitch", "pose_yaw", "vel_x_lin", "vel_y_lin", "vel_z_lin"});
-    auto import_ned_trajectory_handler =
+  auto import_ned_trajectory_handler =
       import_ned_trajectory.CreateMethodHandler(
-        &Scene::Impl::ImportNEDTrajectory, *this);
-    RegisterServiceMethod(import_ned_trajectory, import_ned_trajectory_handler);
+          &Scene::Impl::ImportNEDTrajectory, *this);
+  RegisterServiceMethod(import_ned_trajectory, import_ned_trajectory_handler);
 
   auto set_wind_vel = ServiceMethod("SetWindVelocity", {"v_x", "v_y", "v_z"});
   auto set_wind_vel_handler =
@@ -1057,7 +1061,7 @@ bool Scene::Impl::SceneTick() {
       // After kinematics have been updated, update each actor's environment
       // to match the new state, and then update the sensor state to match the
       // new environments.
-        for (auto& actor : actors_) {
+      for (auto& actor : actors_) {
         if (actor->GetType() == ActorType::kRobot) {
           auto& robot = static_cast<Robot&>(*actor);
 
@@ -1283,6 +1287,8 @@ void Scene::Loader::LoadClockSettings(const json& json) {
   impl_.logger_.LogVerbose(impl_.name_, "[%s] Loading 'clock' settings.",
                            impl_.id_.c_str());
 
+  impl_.clock_settings_ = ClockSettings();
+
   auto clock_json = JsonUtils::GetJsonObject(json, Constant::Config::clock);
   if (JsonUtils::IsEmpty(clock_json)) {
     impl_.logger_.LogVerbose(
@@ -1325,6 +1331,25 @@ void Scene::Loader::LoadClockSettings(const json& json) {
 
     impl_.clock_settings_.pause_on_start =
         JsonUtils::GetInteger(clock_json, Constant::Config::pause_on_start, 0);
+
+    impl_.clock_settings_.engine_substepping = JsonUtils::GetBoolean(
+        clock_json, Constant::Config::engine_substepping, false);
+    if (impl_.clock_settings_.engine_substepping &&
+        impl_.clock_settings_.step <= 0) {
+      throw Error(
+          "'clock.step-ns' must be positive when "
+          "'clock.engine-substepping' is enabled.");
+    }
+
+    if (JsonUtils::HasKey(clock_json, Constant::Config::engine_fixed_fps)) {
+      impl_.clock_settings_.engine_fixed_fps = JsonUtils::GetNumber<float>(
+          clock_json, Constant::Config::engine_fixed_fps,
+          impl_.clock_settings_.engine_fixed_fps);
+      if (impl_.clock_settings_.engine_fixed_fps <= 0.0f) {
+        throw Error("'clock.engine-fixed-fps' must be positive.");
+      }
+      impl_.clock_settings_.engine_fixed_fps_enabled = true;
+    }
   } catch (...) {
     throw;
   }

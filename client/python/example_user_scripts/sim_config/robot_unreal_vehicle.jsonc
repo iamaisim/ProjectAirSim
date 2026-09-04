@@ -1,8 +1,9 @@
 {
   // Example configuration for an unreal vehicle physics robot.
   // The dynamic model is fully handled by a UE5 AActor (Blueprint or C++)
-  // that implements the IProjectAirSimVehicle interface. ProjectAirSim reads
-  // kinematics from it and forwards indexed parameter values to it.
+  // that implements IProjectAirSimVehicle to receive indexed parameter values.
+  // Project AirSim reads kinematics independently from Chaos or standard UE
+  // component state.
   //
   // No links, joints, or Project AirSim actuator components need to be defined —
   // those are modeled within the Unreal vehicle AActor itself.
@@ -12,7 +13,7 @@
   "physics-type": "unreal-physics",
 
   // UE5 Blueprint or C++ class path for the unreal vehicle.
-  // The class MUST implement IProjectAirSimVehicle.
+  // The class MUST implement IProjectAirSimVehicle to receive parameter signals.
   // If omitted, the system will search the world for any actor implementing the interface.
   // Examples:
   //   "/ProjectAirSim/VehicleTemplate/Blueprints/SportsCar/SportsCar_Pawn.SportsCar_Pawn_C"  (Plugin Blueprint)
@@ -75,15 +76,15 @@
       "type": "imu",
       "enabled": true,
       "accelerometer": {
-        "velocity-random-walk": 2.353e-3,
+        "velocity-random-walk": 0.0,
         "tau": 800,
-        "bias-stability": 3.53e-4,
+        "bias-stability": 0.0,
         "turn-on-bias": "0 0 0"
       },
       "gyroscope": {
-        "angle-random-walk": 8.72644e-5,
+        "angle-random-walk": 0.0,
         "tau": 500,
-        "bias-stability": 2.23014e-5,
+        "bias-stability": 0.0,
         "turn-on-bias": "0 0 0"
       }
     },

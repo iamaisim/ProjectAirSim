@@ -1,12 +1,16 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI CONSULTING CORP
 //
 // MIT License. All rights reserved.
 
 #include "UnrealScene.h"
 
+#include <algorithm>
+#include <cmath>
+#include <deque>
 #include <limits>
 
+#include "Chaos/SimCallbackObject.h"
 #include "CineCameraActor.h"
 #include "Components/SkinnedMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -16,6 +20,10 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/PlayerInput.h"
 #include "Kismet/GameplayStatics.h"
+#include "Misc/EngineVersionComparison.h"
+#include "PBDRigidsSolver.h"
+#include "Physics/Experimental/PhysScene_Chaos.h"
+#include "PhysicsEngine/PhysicsSettings.h"
 #include "ProjectAirSim.h"
 #include "Robot/UnrealEnvActor.h"
 #include "Robot/UnrealRobot.h"
@@ -30,6 +38,109 @@
 
 namespace projectairsim = microsoft::projectairsim;
 
+#if UE_VERSION_OLDER_THAN(5, 7, 0)
+constexpr Chaos::ESimCallbackOptions kProjectAirSimSceneCallbackOptions =
+    Chaos::ESimCallbackOptions::Presimulate;
+#else
+constexpr Chaos::ESimCallbackOptions kProjectAirSimSceneCallbackOptions =
+    Chaos::ESimCallbackOptions::Presimulate |
+    Chaos::ESimCallbackOptions::PostSolve;
+#endif
+
+struct FProjectAirSimSceneSubstepInput : public Chaos::FSimCallbackInput {
+  void Reset() {}
+};
+
+struct FProjectAirSimSceneSubstepOutput : public Chaos::FSimCallbackOutput {
+  TArray<float> DeltaSeconds;
+
+  void Reset() { DeltaSeconds.Reset(); }
+};
+
+class FProjectAirSimSceneSubstepCallback
+    : public Chaos::TSimCallbackObject<FProjectAirSimSceneSubstepInput,
+                                       FProjectAirSimSceneSubstepOutput,
+                                       kProjectAirSimSceneCallbackOptions> {
+ protected:
+  void OnPreSimulate_Internal() override {
+#if UE_VERSION_OLDER_THAN(5, 7, 0)
+    CaptureDelta_Internal();
+#endif
+  }
+
+#if !UE_VERSION_OLDER_THAN(5, 7, 0)
+  void OnPostSolve_Internal() override { CaptureDelta_Internal(); }
+#endif
+
+ private:
+  void CaptureDelta_Internal() {
+    const float DeltaSeconds = GetDeltaTime_Internal();
+    if (DeltaSeconds > 0.0f) {
+      GetProducerOutputData_Internal().DeltaSeconds.Add(DeltaSeconds);
+    }
+  }
+};
+
+class FProjectAirSimSceneSubstepSampler {
+ public:
+  ~FProjectAirSimSceneSubstepSampler() { Stop(); }
+
+  bool Start(UWorld* World) {
+    if (Callback != nullptr) return true;
+    if (World == nullptr) return false;
+
+    FPhysScene_Chaos* PhysicsScene = World->GetPhysicsScene();
+    if (PhysicsScene == nullptr) return false;
+
+    Solver = PhysicsScene->GetSolver();
+    if (Solver == nullptr) return false;
+
+    Callback = Solver->CreateAndRegisterSimCallbackObject_External<
+        FProjectAirSimSceneSubstepCallback>();
+    if (Callback == nullptr) {
+      Solver = nullptr;
+      return false;
+    }
+    return true;
+  }
+
+  void Stop() {
+    if (Callback != nullptr && Solver != nullptr) {
+      Solver->UnregisterAndFreeSimCallbackObject_External(Callback);
+    }
+    Callback = nullptr;
+    Solver = nullptr;
+    PendingDeltas.clear();
+  }
+
+  bool PopNextDelta(TimeNano& OutDeltaNanos) {
+    DrainOutputs();
+    if (PendingDeltas.empty()) return false;
+
+    OutDeltaNanos = PendingDeltas.front();
+    PendingDeltas.pop_front();
+    return true;
+  }
+
+ private:
+  void DrainOutputs() {
+    if (Callback == nullptr) return;
+
+    while (auto Output = Callback->PopFutureOutputData_External()) {
+      for (const float DeltaSeconds : Output->DeltaSeconds) {
+        if (DeltaSeconds <= 0.0f) continue;
+        PendingDeltas.push_back(std::max<TimeNano>(
+            1, static_cast<TimeNano>(std::llround(DeltaSeconds * 1.0e9))));
+      }
+    }
+
+  }
+
+  Chaos::FPhysicsSolver* Solver = nullptr;
+  FProjectAirSimSceneSubstepCallback* Callback = nullptr;
+  std::deque<TimeNano> PendingDeltas;
+};
+
 AUnrealScene::AUnrealScene(const FObjectInitializer& ObjectInitialize)
     : AActor(ObjectInitialize) {
   PrimaryActorTick.bCanEverTick = true;
@@ -41,18 +152,45 @@ AUnrealScene::AUnrealScene(const FObjectInitializer& ObjectInitialize)
   InputComponent = CreateDefaultSubobject<UInputComponent>("UnrealScene");
 }
 
-AUnrealScene::~AUnrealScene() = default;
+AUnrealScene::~AUnrealScene() { delete scene_substep_sampler_; }
 
 void AUnrealScene::LoadUnrealScene(
     UWorld* World, projectairsim::Scene& Scene,
     const std::unordered_map<std::string, projectairsim::UnrealPhysicsBody*>&
         UnrealPhysicsBodies) {
   UnrealHelpers::SetActorName(this, "UnrealScene");
-  using_unreal_physics = !UnrealPhysicsBodies.empty();
+  const auto Actors = Scene.GetActors();
+  using_unreal_vehicle_physics = std::any_of(
+      Actors.begin(), Actors.end(),
+      [](const std::reference_wrapper<projectairsim::Actor>& Actor) {
+        return Actor.get().GetType() == projectairsim::ActorType::kRobot &&
+               !static_cast<const projectairsim::Robot&>(Actor.get())
+                    .GetUnrealVehicleClass()
+                    .empty();
+      });
+  using_unreal_physics =
+      !UnrealPhysicsBodies.empty() || using_unreal_vehicle_physics;
+
+  const auto& ClockSettings = Scene.GetClockSettings();
+  using_unreal_physics_substep_clock =
+      ClockSettings.type == projectairsim::ClockType::kEngineDriven &&
+      ClockSettings.engine_substepping;
+  UPhysicsSettings* PhysicsSettings = UPhysicsSettings::Get();
+  PhysicsSettings->bSubstepping = using_unreal_physics_substep_clock;
+  if (using_unreal_physics_substep_clock) {
+    PhysicsSettings->MaxSubstepDeltaTime =
+        static_cast<float>(ClockSettings.step / 1.0e9);
+    // UPhysicsSettings clamps MaxSubsteps to 16 in Unreal Engine 5.7.
+    PhysicsSettings->MaxSubsteps = 16;
+  } else if (ClockSettings.engine_substepping) {
+    UnrealLogger::Log(
+        projectairsim::LogLevel::kWarning,
+        TEXT("[UnrealScene] clock.engine-substepping is only supported by "
+             "the engine-driven clock and will be ignored."));
+  }
 
   // Load UnrealRobot actors for each robot in sim scene
-  auto actors = Scene.GetActors();
-  std::for_each(actors.begin(), actors.end(),
+  std::for_each(Actors.begin(), Actors.end(),
                 [this, World, UnrealPhysicsBodies](
                     const std::reference_wrapper<projectairsim::Actor> actor) {
                   LoadUnrealActor(World, actor.get(), UnrealPhysicsBodies);
@@ -107,7 +245,8 @@ void AUnrealScene::LoadUnrealActor(
           it_pbody != UnrealPhysicsBodies.end() ? it_pbody->second : nullptr;
 
       // Load UnrealRobot data from sim_robot
-      unreal_robot->Initialize(sim_robot, sim_physbody, this);
+      unreal_robot->Initialize(sim_robot, sim_physbody, this,
+                               using_unreal_physics_substep_clock);
 
       // Save ptr to unreal_robot
       unreal_actors.Add(unreal_robot);
@@ -147,6 +286,9 @@ void AUnrealScene::LoadUnrealEnvActor(UWorld* World,
 }
 
 void AUnrealScene::UnloadUnrealScene() {
+  delete scene_substep_sampler_;
+  scene_substep_sampler_ = nullptr;
+
   for (auto unreal_actor : unreal_actors) {
     unreal_actor->Destroy();
   }
@@ -294,31 +436,55 @@ void AUnrealScene::BeginPlay() {
 
   // Use static_cast instead of dynamic_cast since RTTI is disabled (/GR-)
   // in Unreal Engine builds. Determine the type from clock settings instead.
-  if (sim_scene &&
-      (sim_scene->GetClockSettings().type ==
-         projectairsim::ClockType::kEngineDriven ||
-       sim_scene->GetClockSettings().type ==
-         projectairsim::ClockType::kExternalClock)) {
+  if (sim_scene && (sim_scene->GetClockSettings().type ==
+                        projectairsim::ClockType::kEngineDriven ||
+                    sim_scene->GetClockSettings().type ==
+                        projectairsim::ClockType::kExternalClock)) {
     unreal_driven_clock_ = static_cast<projectairsim::EngineDrivenClock*>(
         projectairsim::SimClock::Get());
   } else {
     unreal_driven_clock_ = nullptr;
   }
   using_unreal_driven_clock = unreal_driven_clock_ != nullptr;
+  using_unreal_physics_substep_clock =
+      sim_scene &&
+      sim_scene->GetClockSettings().type ==
+          projectairsim::ClockType::kEngineDriven &&
+      sim_scene->GetClockSettings().engine_substepping;
+
+  if (using_unreal_physics_substep_clock && !using_unreal_vehicle_physics) {
+    scene_substep_sampler_ = new FProjectAirSimSceneSubstepSampler();
+    if (!scene_substep_sampler_->Start(unreal_world)) {
+      delete scene_substep_sampler_;
+      scene_substep_sampler_ = nullptr;
+      using_unreal_physics_substep_clock = false;
+      UnrealLogger::Log(
+          projectairsim::LogLevel::kWarning,
+          TEXT("[UnrealScene] Could not register the scene physics substep "
+               "sampler; falling back to configured clock steps."));
+    }
+  }
+  UnrealLogger::Log(
+      projectairsim::LogLevel::kTrace,
+      TEXT("[UnrealScene] engine-driven=%s unreal-physics=%s substep-clock=%s"),
+      using_unreal_driven_clock ? TEXT("true") : TEXT("false"),
+      using_unreal_physics ? TEXT("true") : TEXT("false"),
+      using_unreal_physics_substep_clock ? TEXT("true") : TEXT("false"));
 
   // Set up Unreal loop timing
-  if (sim_scene &&
-      (sim_scene->GetClockSettings().type ==
-           projectairsim::ClockType::kSteppable ||
-       sim_scene->GetClockSettings().type ==
-         projectairsim::ClockType::kEngineDriven ||
-       sim_scene->GetClockSettings().type ==
-           projectairsim::ClockType::kExternalClock)) {
-    // For steppable and host-driven clocks, synchronize Unreal's
-    // DeltaTime
-    // to the configured simulation step.
+  if (sim_scene && (sim_scene->GetClockSettings().type ==
+                        projectairsim::ClockType::kSteppable ||
+                    sim_scene->GetClockSettings().type ==
+                        projectairsim::ClockType::kEngineDriven ||
+                    sim_scene->GetClockSettings().type ==
+                        projectairsim::ClockType::kExternalClock)) {
+    // For steppable and fixed host-driven clocks, synchronize Unreal's
+    // DeltaTime to the configured simulation step. A substep-driven clock
+    // instead receives each actual Chaos step duration.
     double sim_step_sec = sim_scene->GetClockSettings().step / 1.0e9;
-    FApp::SetFixedDeltaTime(sim_step_sec);  // persists in UE project
+    if (!using_unreal_physics_substep_clock) {
+      FApp::SetFixedDeltaTime(sim_step_sec);  // persists in UE project
+    }
 
     if (using_unreal_physics) {
       // If scene has any robots with Unreal Physics, steppable sim clock must
@@ -333,18 +499,44 @@ void AUnrealScene::BeginPlay() {
       // FApp::SetUseFixedTimeStep(true);
       // FApp::SetBenchmarking(true);
 
-      // Since using UnrealPhysics means the physics step is linked to the
-      // engine step, set engine to cap max FPS execution rate to sim step
-      // period (1x real time or slower if FPS can't keep up)
-      double sim_fps = 1.0 / sim_step_sec;
-      GEngine->FixedFrameRate = sim_fps;   // persists in UE project
-      GEngine->bUseFixedFrameRate = true;  // persists in UE project
+      if (using_unreal_physics_substep_clock) {
+        // Chaos divides each variable render frame into configured physics
+        // substeps, so do not force the render loop to the core_sim step.
+        GEngine->bUseFixedFrameRate = false;
+      } else {
+        // Since using UnrealPhysics means the physics step is linked to the
+        // engine step, cap max FPS to the configured simulation period.
+        double sim_fps = 1.0 / sim_step_sec;
+        GEngine->FixedFrameRate = sim_fps;   // persists in UE project
+        GEngine->bUseFixedFrameRate = true;  // persists in UE project
+      }
     }
   } else {
     // For non-steppable clock, set persistent engine settings to defaults
     FApp::SetFixedDeltaTime(1 / 30.0);    // set to default from App.cpp
     GEngine->FixedFrameRate = 30.0f;      // set to default from GameEngine.cpp
     GEngine->bUseFixedFrameRate = false;  // set to default from GameEngine.cpp
+  }
+
+  if (using_unreal_physics_substep_clock) {
+    // This setting persists across scene loads. A substep-driven scene must
+    // not inherit the fixed frame rate selected by a previous scene unless
+    // engine-fixed-fps explicitly enables it below.
+    GEngine->bUseFixedFrameRate = false;
+  }
+
+  if (sim_scene) {
+    const auto& ClockSettings = sim_scene->GetClockSettings();
+    if (ClockSettings.engine_fixed_fps_enabled) {
+      const double FixedFrameRate = ClockSettings.engine_fixed_fps;
+      FApp::SetFixedDeltaTime(1.0 / FixedFrameRate);
+      GEngine->FixedFrameRate = FixedFrameRate;
+      GEngine->bUseFixedFrameRate = true;
+      UnrealLogger::Log(
+          projectairsim::LogLevel::kTrace,
+          TEXT("[UnrealScene] Fixed Unreal frame rate set to %.3f FPS."),
+          FixedFrameRate);
+    }
   }
 
   // Set up keyboard input bindings (use Tab key to switch chase cam target)
@@ -410,9 +602,8 @@ void AUnrealScene::BeginPlay() {
                 return std::numeric_limits<double>::quiet_NaN();
               }
 
-              const auto terrain_rel_m =
-                  world_api->GetZAtPoint(static_cast<float>(x_ned_m),
-                                         static_cast<float>(y_ned_m));
+              const auto terrain_rel_m = world_api->GetZAtPoint(
+                  static_cast<float>(x_ned_m), static_cast<float>(y_ned_m));
 
               if (!std::isfinite(terrain_rel_m)) {
                 return std::numeric_limits<double>::quiet_NaN();
@@ -438,10 +629,10 @@ void AUnrealScene::BeginPlay() {
        sim_scene->GetSceneType() == projectairsim::SceneType::kBlackShark);
 
   if (sim_scene->GetSceneType() == projectairsim::SceneType::kBlackShark) {
-    black_shark_renderer.reset(new BlackSharkRenderer(sim_scene->GetHomeGeoPoint()));
+    black_shark_renderer.reset(
+        new BlackSharkRenderer(sim_scene->GetHomeGeoPoint()));
     black_shark_renderer->Initialize(unreal_world, isGisScene);
   }
-
 
   time_of_day->initialize(unreal_world, isGisScene);
   time_of_day->set(tod_setting.enabled, tod_setting.start_datetime,
@@ -474,16 +665,75 @@ void AUnrealScene::Tick(float DeltaTime) {
   bool is_simclock_paused = projectairsim::SimClock::Get()->IsPaused();
 
   if (using_unreal_driven_clock && unreal_driven_clock_ != nullptr) {
-    if (!is_unreal_paused) {
-      unreal_driven_clock_->AccumulateStep(
-          UnrealHelpers::DeltaTimeToNanos(DeltaTime));
+    // A previously loaded non-Unreal-physics scene can leave the Unreal world
+    // paused while waiting for sim time. Resume it before waiting for Chaos
+    // samples, otherwise no physics callback can produce the first substep.
+    if (is_unreal_paused && !is_simclock_paused) {
+      UGameplayStatics::SetGamePaused(unreal_world, false);
+    }
 
-      while (unreal_driven_clock_->HasPendingStep()) {
-        if (!sim_scene->ExternalTick()) {
-          UnrealLogger::Log(
-              projectairsim::LogLevel::kWarning,
-              TEXT("[UnrealScene] Engine-driven scene tick failed."));
-          break;
+    if (!is_unreal_paused) {
+      if (using_unreal_physics_substep_clock) {
+        while (true) {
+          TimeNano SubstepDeltaNanos = 0;
+          bool HasSubstep = false;
+          if (using_unreal_vehicle_physics) {
+            for (AUnrealRobot* UnrealRobot : unreal_actors) {
+              if (UnrealRobot != nullptr &&
+                  UnrealRobot->PeekProjectAirSimVehicleSubstepDelta(
+                      SubstepDeltaNanos)) {
+                HasSubstep = true;
+                break;
+              }
+            }
+          } else if (scene_substep_sampler_ != nullptr) {
+            HasSubstep =
+                scene_substep_sampler_->PopNextDelta(SubstepDeltaNanos);
+          }
+          if (!HasSubstep || SubstepDeltaNanos <= 0) break;
+
+          const TimeNano NextSimTime =
+              projectairsim::SimClock::Get()->NowSimNanos() + SubstepDeltaNanos;
+          for (AUnrealRobot* UnrealRobot : unreal_actors) {
+            if (UnrealRobot != nullptr) {
+              UnrealRobot->ApplyProjectAirSimVehicleSubstepKinematics(
+                  NextSimTime);
+            }
+          }
+
+          // Run the full core_sim scene exactly once for this Chaos substep,
+          // using its actual duration instead of iterating the configured
+          // fixed step over the render-frame DeltaTime.
+          if (!sim_scene->ExternalTick(SubstepDeltaNanos)) {
+            UnrealLogger::Log(
+                projectairsim::LogLevel::kWarning,
+                TEXT("[UnrealScene] Substep-driven scene tick failed."));
+            break;
+          }
+        }
+      } else {
+        unreal_driven_clock_->AccumulateStep(
+            UnrealHelpers::DeltaTimeToNanos(DeltaTime));
+
+        while (unreal_driven_clock_->HasPendingStep()) {
+          // Preserve the fixed-step engine-driven behavior when physics
+          // substepping is not driving core_sim.
+          const TimeNano NextSimTime =
+              projectairsim::SimClock::Get()->NowSimNanos() +
+              sim_scene->GetClockSettings().step;
+          for (AUnrealRobot* UnrealRobot : unreal_actors) {
+            if (UnrealRobot != nullptr) {
+              UnrealRobot->ApplyProjectAirSimVehicleSubstepKinematics(
+                  NextSimTime);
+            }
+          }
+
+          if (!sim_scene->ExternalTick()) {
+            UnrealLogger::Log(
+                projectairsim::LogLevel::kWarning,
+                TEXT("[UnrealScene] Engine-driven scene tick failed."));
+            break;
+          }
         }
       }
     }
@@ -699,6 +949,8 @@ nlohmann::json AUnrealScene::Get3DBoundingBoxServiceMethod(
 }
 
 void AUnrealScene::EndPlay(const EEndPlayReason::Type EndPlayReason) {
+  delete scene_substep_sampler_;
+  scene_substep_sampler_ = nullptr;
   Super::EndPlay(EndPlayReason);
 }
 

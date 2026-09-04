@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation. 
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI CONSULTING CORP
 
 // MIT License. All rights reserved.
@@ -84,6 +84,8 @@ class Constant {
     static constexpr const char* actors = "actors";
     static constexpr const char* env_actors = "environment-actors";
     static constexpr const char* clock = "clock";
+    static constexpr const char* engine_fixed_fps = "engine-fixed-fps";
+    static constexpr const char* engine_substepping = "engine-substepping";
     static constexpr const char* steppable = "steppable";
     static constexpr const char* real_time = "real-time";
     static constexpr const char* engine_driven = "engine-driven";
@@ -206,9 +208,12 @@ class Constant {
     static constexpr const char* motion_blur_amount = "motion-blur-amount";
     static constexpr const char* target_gamma = "target-gamma";
     static constexpr const char* max_depth_meters = "max-depth-meters";
-    static constexpr const char* chromatic_aberration_intensity = "chromatic-aberration-intensity";
-    static constexpr const char* depth_of_field_focal_region = "depth-of-field-focal-region";
-    static constexpr const char* depth_of_field_transition_region = "depth-of-field-transition-region";
+    static constexpr const char* chromatic_aberration_intensity =
+        "chromatic-aberration-intensity";
+    static constexpr const char* depth_of_field_focal_region =
+        "depth-of-field-focal-region";
+    static constexpr const char* depth_of_field_transition_region =
+        "depth-of-field-transition-region";
     static constexpr const char* noise_settings = "noise-settings";
     static constexpr const char* rand_contrib = "rand-contrib";
     static constexpr const char* rand_speed = "rand-speed";
@@ -349,7 +354,8 @@ class Constant {
     static constexpr const char* livox_avia = "livox_avia";
     static constexpr const char* livox_mid70 = "livox_mid70";
     static constexpr const char* report_point_cloud = "report-point-cloud";
-    static constexpr const char* report_azimuth_elevation_range = "report-azimuth-elevation-range";
+    static constexpr const char* report_azimuth_elevation_range =
+        "report-azimuth-elevation-range";
     // Distance sensor related config parameters
     static constexpr const char* distance_sensor = "distance-sensor";
     static constexpr const char* min_distance = "min-distance";
@@ -396,8 +402,7 @@ class Constant {
     static constexpr const char* jsbsim_script = "jsbsim-script";
     static constexpr const char* jsbsim_model = "jsbsim-model";
     static constexpr const char* jsbsim_root_path = "jsbsim-root-path";
-    static constexpr const char* jsbsim_aircraft_path =
-        "jsbsim-aircraft-path";
+    static constexpr const char* jsbsim_aircraft_path = "jsbsim-aircraft-path";
     static constexpr const char* jsbsim_engine_path = "jsbsim-engine-path";
     static constexpr const char* jsbsim_systems_path = "jsbsim-systems-path";
     static constexpr const char* jsbsim_dt = "jsbsim-dt";
@@ -434,7 +439,8 @@ class Constant {
     static constexpr const char* coeff_of_thrust = "coeff-of-thrust";
     static constexpr const char* coeff_of_torque = "coeff-of-torque";
     static constexpr const char* wheel_type = "wheel-type";
-    static constexpr const char* coeff_of_wheel_torque = "coeff-of-wheel-torque";
+    static constexpr const char* coeff_of_wheel_torque =
+        "coeff-of-wheel-torque";
     static constexpr const char* coeff_of_friction = "coeff-of-friction";
     static constexpr const char* air_density = "air-density";
     static constexpr const char* max_rpm = "max-rpm";
@@ -445,16 +451,14 @@ class Constant {
     static constexpr const char* jsbsim_cmd = "jsbsim-cmd";
     static constexpr const char* jsbsim_state = "jsbsim-state";
     static constexpr const char* jsbsim_cmd_engine = "jsbsim-cmd-engine";
-    static constexpr const char* jsbsim_cmd_steering =
-        "jsbsim-cmd-steering";
+    static constexpr const char* jsbsim_cmd_steering = "jsbsim-cmd-steering";
     static constexpr const char* jsbsim_cmd_brake = "jsbsim-cmd-brake";
     static constexpr const char* wheel_settings = "wheel-settings";
     static constexpr const char* unreal_vehicle = "unreal-vehicle";
     static constexpr const char* unreal_vehicle_settings =
         "unreal-vehicle-settings";
     static constexpr const char* parameter_index = "parameter-index";
-    static constexpr const char* control_signal_index =
-        "control-signal-index";
+    static constexpr const char* control_signal_index = "control-signal-index";
     static constexpr const char* steering_connected = "steering-connected";
     static constexpr const char* engine_connected = "engine";
     static constexpr const char* steering = "steering";
@@ -466,17 +470,17 @@ class Constant {
     static constexpr const char* simple_flight_api_settings =
         "simple-flight-api-settings";
     static constexpr const char* jsbsim_api = "jsbsim-api";
-    static constexpr const char* jsbsim_api_settings =
-        "jsbsim-api-settings";
+    static constexpr const char* jsbsim_api_settings = "jsbsim-api-settings";
     static constexpr const char* simple_drive_api = "simple-drive-api";
     static constexpr const char* simple_drive_api_settings =
         "simple-drive-api-settings";
     static constexpr const char* px4_api = "px4-api";
     static constexpr const char* px4_api_settings = "px4-api-settings";
     static constexpr const char* ardupilot_api = "ardupilot-api";
-    static constexpr const char* ardupilot_api_settings = "ardupilot-api-settings";
+    static constexpr const char* ardupilot_api_settings =
+        "ardupilot-api-settings";
     static constexpr const char* actuator_order = "actuator-order";
-    static constexpr const char* actuator_id = "actuator-id";   
+    static constexpr const char* actuator_id = "actuator-id";
     static constexpr const char* inertia = "inertia";
     static constexpr const char* matrix = "matrix";
     static constexpr const char* ixx = "ixx";

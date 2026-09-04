@@ -100,20 +100,13 @@ The supplied Project AirSim SUV is ready to run without Blueprint changes. Follo
 section when integrating a different Chaos vehicle or an actor with custom
 Unreal physics.
 
-### Choose a Blueprint base
+### Keep the vehicle's Blueprint base
 
-There are two supported approaches:
-
-1. **Existing Chaos Pawn:** keep its current parent class and add the
-   `ProjectAirSimVehicle` interface under **Class Settings > Implemented
-   Interfaces**.
-2. **New force-driven actor:** create a Blueprint derived from **Project AirSim
-   Vehicle Actor Base**. This class implements the interface, kinematic getters,
-   signal storage, and a basic force response.
-
-For a Chaos vehicle, keeping its vehicle Pawn parent is normally the right
-choice because its movement component already owns engine, wheel, suspension,
-steering, and brake behavior.
+Keep the vehicle's existing Actor or Pawn parent class and add the
+`ProjectAirSimVehicle` interface under **Class Settings > Implemented
+Interfaces**. A Chaos vehicle should retain its vehicle Pawn parent because its
+movement component already owns engine, wheel, suspension, steering, and brake
+behavior.
 
 ### Prepare a Chaos vehicle Pawn
 
@@ -148,19 +141,22 @@ For an existing Pawn:
 
 The C++ interface is `IProjectAirSimVehicle`.
 
-The interface exposes:
+The interface exposes only the actuator-input bridge:
 
 | Function | Purpose |
 | --- | --- |
 | `SetParameterSignal(Index, Signal)` | Receive an indexed parameter value |
-| `GetPosition` / `GetRotation` | Override pose reporting when actor transform is insufficient |
-| `GetLinearVelocity` / `GetAngularVelocity` | Override velocity reporting |
-| `GetLinearAcceleration` / `GetAngularAcceleration` | Optional acceleration reporting |
-| `ResetToSpawnPose` | Restore custom vehicle state during simulation reset |
 
-Project AirSim can derive common kinematics from the actor and its physics
-component. Override the getters only when the vehicle stores or calculates them
-differently.
+Kinematics are independent of this interface. For a simulating rigid body,
+Project AirSim captures position, rotation, linear velocity, and angular
+velocity directly from Chaos. Linear and angular acceleration are derived from
+consecutive velocity samples because Chaos does not expose an equivalent stable
+acceleration state for this integration. Actors without a simulating rigid body
+use their Unreal component or actor transform, with velocity and acceleration
+derived by finite differences.
+
+On reset, Project AirSim restores the configured spawn transform and zeroes the
+selected physics component's velocities directly.
 
 ### Map parameters to Chaos
 
@@ -191,11 +187,6 @@ Event SetParameterSignal(Index, Signal)
 
 The mapping is an implementation detail of the Blueprint. Python sends only
 indices and signals.
-
-If the Blueprint derives from `ProjectAirSimVehicleActorBase`, the base class
-stores these three signals and can apply a basic force/torque response. Set
-**Apply Default Actuator Forces** to false before implementing a different
-force model, otherwise both responses may act on the vehicle.
 
 ### Configure the custom Blueprint
 

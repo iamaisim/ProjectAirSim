@@ -108,8 +108,11 @@ when Project AirSim reports topic information.
 The simulator publishes `/Sim/<scene>/clock` from the scene tick. The bridge
 subscribes to that native clock stream and republishes every sample on ROS
 `/clock`; it does not poll `GetSimTime`. Sensor message headers likewise retain
-their native per-sample `time_stamp` values. A missing or invalid sensor
-timestamp is published as zero and is never replaced with the bridge's ROS time.
+their native per-sample `time_stamp` values. If a sensor payload has no valid
+`time_stamp`, the bridge warns and publishes the conventional
+invalid/uninitialized ROS timestamp (`sec: 0`, `nanosec: 0`) instead of
+substituting the bridge's current time. ROS time fields are integers, so they
+cannot represent NaN.
 
 ## Topics
 

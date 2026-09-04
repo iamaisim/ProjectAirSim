@@ -134,11 +134,10 @@ std_msgs::msg::Header MakeHeader(rclcpp::Node& node,
 }
 
 // Stamp from the simulator's own per-sample timestamp when the payload carries
-// one, falling back to the node clock otherwise. The simulator emits
-// time_stamp in nanoseconds as the first member of every sensor message map,
-// for example core_sim/src/message/imu_message.cpp:39. Without this the header
-// is quantised to the /clock period and consumers that drop duplicate stamps,
-// discard most of the stream.
+// one. Missing or invalid sensor timestamps remain the conventional zero ROS
+// timestamp; they must never be replaced with the bridge node's current time.
+// The simulator emits time_stamp in nanoseconds as the first member of every
+// sensor message map, for example core_sim/src/message/imu_message.cpp:39.
 std_msgs::msg::Header MakeHeader(rclcpp::Node& node,
                                  const std::string& frame_id, const json& msg) {
   std::int64_t time_stamp = 0;

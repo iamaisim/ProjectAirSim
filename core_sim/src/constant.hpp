@@ -206,6 +206,9 @@ class Constant {
     static constexpr const char* auto_exposure_histogram_log_max =
         "auto-exposure-histogram-log-max";
     static constexpr const char* motion_blur_amount = "motion-blur-amount";
+    static constexpr const char* lumen_gi_enabled = "lumen-gi-enabled";
+    static constexpr const char* lumen_reflections_enabled =
+        "lumen-reflections-enabled";
     static constexpr const char* target_gamma = "target-gamma";
     static constexpr const char* max_depth_meters = "max-depth-meters";
     static constexpr const char* chromatic_aberration_intensity =

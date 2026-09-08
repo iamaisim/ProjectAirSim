@@ -11,9 +11,10 @@
 [![Ubuntu](https://img.shields.io/badge/Ubuntu-22.04-E95420?logo=ubuntu&logoColor=white)](docs/development/dev_setup_linux.md)
 [![Unreal Engine](https://img.shields.io/badge/Unreal%20Engine-5.2%20%7C%205.7-0E1128?logo=unrealengine&logoColor=white)](docs/development/use_source.md)
 [![ROS 2](https://img.shields.io/badge/ROS%202-Humble-22314E?logo=ros&logoColor=white)](docs/ros/ros2.md)
-[![Python](https://img.shields.io/badge/Python-%3E%3D3.7-3776AB?logo=python&logoColor=white)](docs/client_setup.md)
+[![Python](https://img.shields.io/badge/Python-%3E3.10-3776AB?logo=python&logoColor=white)](docs/client_setup.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-2EA043.svg)](docs/license.md)
 [![IAMAI Simulations](https://img.shields.io/badge/IAMAI-Simulations-1F6FEB)](https://iamaisim.com/)
+[![Discord](https://img.shields.io/badge/Discord-Join%20the%20community-5865F2?logo=discord&logoColor=white)](https://discord.gg/XprQ2w64uj)
 
 </div>
 
@@ -33,7 +34,8 @@ integration for every host.
 
 Project AirSim builds on the work of
 [AirSim](https://github.com/microsoft/AirSim) and provides a modular framework
-for drones, fixed-wing aircraft, robots, and other autonomous systems.
+for drones, fixed-wing aircraft, unmanned ground vehicles (UGVs), and other
+autonomous systems.
 
 **[Download the latest release](https://github.com/iamaisim/ProjectAirSim/releases/latest)** ·
 **[Use a pre-built environment](docs/development/use_prebuilt.md)** ·
@@ -51,7 +53,7 @@ for drones, fixed-wing aircraft, robots, and other autonomous systems.
 </tr>
 <tr>
 <td width="50%"><img src="docs/images/wind_turbine_inspection.gif" width="100%" alt="Aircraft inspecting wind turbines"><br><sub><b>Wind Turbine Inspection.</b> Inspect renewable-energy infrastructure in a large Unreal environment.</sub></td>
-<td width="50%"><img src="docs/images/large_tilt_rotor_vtol_cesium.gif" width="100%" alt="Large tilt-rotor VTOL fixed-wing aircraft flying over Cesium terrain"><br><sub><b>Large Tilt-Rotor VTOL Fixed-Wing + Cesium.</b> Simulate VTOL flight over geospatial Cesium terrain.</sub></td>
+<td width="50%"><img src="docs/images/vehicle_caravan.gif" width="100%" alt="Caravan of unmanned ground and aerial vehicles traversing a mountain village"><br><sub><b>Multi-Vehicle Caravan.</b> Simulate UGVs and aerial vehicles together with multiple sensor integration.</sub></td>
 </tr>
 </table>
 
@@ -80,6 +82,8 @@ The current `main` branch lets you:
 - Integrate custom controllers, actuators, sensors, and robot models.
 - Simulate fixed-wing aircraft with JSBSim, including Cessna 310 and Skywalker
   X8 examples.
+- Simulate UGVs through Unreal Blueprint vehicle integration, including the
+  SimpleDrive SUV example.
 - Connect autonomy software through Python and C++ client libraries or the ROS 2
   C++ bridge.
 - Work with cameras, LiDAR, radar, IMU, GPS, barometer, magnetometer, airspeed,
@@ -192,14 +196,14 @@ assume compatibility with current Project AirSim or Unity releases.
 - [Fast Physics](docs/physics/fast-physics.md)
 - [JSBSim physics](docs/physics/jsbsim.md)
 - [Simulink physics](docs/physics/matlab.md)
+- [Unreal and UGV Blueprint vehicle integration](docs/unreal_vehicle_blueprint_setup.md)
 - [ROS 2 C++ bridge](docs/ros/ros2.md)
 - [Sensor configuration](docs/config_robot.md#sensor-settings)
 - [Headless and cloud execution](docs/development/headless_cloud.md)
 
 ## Supported Development Platforms
 
-The supported development baseline is derived from the repository build scripts
-and package metadata:
+The supported development baseline is:
 
 | Component | Supported version or behavior |
 | --- | --- |
@@ -209,7 +213,7 @@ and package metadata:
 | CMake and C++ | CMake **3.15 or newer** and C++17 |
 | Linux compiler | Unreal's packaged toolchain when `UE_ROOT` is set; otherwise Clang 13 |
 | Windows compiler | `build.cmd` selects MSVC 14.37 for UE 5.2 and MSVC 14.44 for UE 5.7 |
-| Python client | Python **3.7 or newer**, below Python 4 |
+| Python client | Python **newer than 3.10**, below Python 4 |
 | ROS 2 C++ bridge | **ROS 2 Humble** on Ubuntu 22.04 |
 
 `setup_linux_dev_tools.sh` recognizes some additional Ubuntu releases, but that

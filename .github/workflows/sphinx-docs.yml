@@ -68,7 +68,7 @@ jobs:
           cp \
             docs/images/adjustable_weather.gif \
             docs/images/airtaxi_in_dynamic_city.jpg \
-            docs/images/large_tilt_rotor_vtol_cesium.gif \
+            docs/images/vehicle_caravan.gif \
             docs/images/simulate_your_swarm.gif \
             docs/images/wind_turbine_inspection.gif \
             docs/build/html/images/

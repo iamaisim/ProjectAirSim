@@ -13,3 +13,7 @@
 
 // Convenience macro.
 #define UE_IS_SUPPORTED (UE_IS_5_2 || UE_IS_5_7_OR_5_8)
+
+// Compile Lumen capture settings only for UE 5.5+.
+#define UE_SUPPORTS_LUMEN_SCENE_CAPTURES \
+  (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 5)

@@ -12,7 +12,7 @@ from .env_actor import EnvActor
 from .static_sensor_actor import StaticSensorActor
 from .unreal_vehicle import UnrealVehicle
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 
 __all__ = [
     "Drone",

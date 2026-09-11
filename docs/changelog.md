@@ -5,6 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-09-11
+
+### Fixed
+- Python camera display failure on `16FC1` depth images: convert only the visualization copy to finite, normalized float32 before OpenCV display, preserving the original metric float16 data ([#211](https://github.com/iamaisim/ProjectAirSim/pull/211), fixes [#210](https://github.com/iamaisim/ProjectAirSim/issues/210))
+
+### Changed
+- Updated the project README and vehicle illustration ([#208](https://github.com/iamaisim/ProjectAirSim/pull/208))
+- Updated Python and C++ client package versions to 1.0.2
+
 ## [1.0.1] - 2026-09-06
 
 ### Added
@@ -67,7 +76,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 - `__has_feature` macro MSVC compatibility for Windows toolchains
 
-[Unreleased]: https://github.com/iamaisim/ProjectAirSim/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/iamaisim/ProjectAirSim/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/iamaisim/ProjectAirSim/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/iamaisim/ProjectAirSim/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/iamaisim/ProjectAirSim/compare/v0.3.0...v1.0.0
 [0.3.0]: https://github.com/iamaisim/ProjectAirSim/compare/v0.2.0...v0.3.0

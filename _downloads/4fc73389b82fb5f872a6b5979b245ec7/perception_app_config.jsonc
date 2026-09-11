@@ -1,0 +1,38 @@
+{
+    "scene": "perception_dfw_scene.jsonc",
+    "landing-pad": [
+        {
+            "name": "TakeoffPad_Speedway",
+            "x": -575.15863,
+            "y": 11.198,
+            "z": -69.097,
+            "seg_ID": 125
+        }
+    ],
+    "moves": [
+        {
+            "name": "Move Up",
+            "num-loops": 60, // #times the MoveByVelocity task will be executed
+            "task-duration": 0.07, // duration of each task
+            "v-north": 0.0,
+            "v-east": 0.0,
+            "v-down": -3.0,
+            "weather": 3,
+            "time-of-day": "2021-09-20 12:00:00"
+        },
+        {
+            "name": "Move Down",
+            "num-loops": 80,
+            "task-duration": 0.07,
+            "v-north": 0.0,
+            "v-east": 0.0,
+            "v-down": 3.0,
+            "weather": 0,
+            "time-of-day": "2020-01-01 09:00:00"
+        }
+    ],
+    "perception-arch": "compass",
+    "perception-pretrained-model": "pretrained-basiclandingpad-perception-model.pth.tar", //place model in the same directory as the script or provide full path
+    "perception-gpu": 0, //GPU ID
+    "bb-normalized": true //Wether model out is normalized
+}

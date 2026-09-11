@@ -1,0 +1,526 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unreal Vehicle &mdash; Project Airsim 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Configuration JSONC Settings" href="config.html" />
+    <link rel="prev" title="Running Headless (Docker)" href="development/headless_cloud.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transition_from_airsim.html">Transitioning from AirSim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system_specs.html">System Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions (FAQ)</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="development/use_prebuilt.html">Using Pre-built Binary Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/use_source.html">Build From Source as a Developer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="client_setup.html">Project AirSim Client Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use_plugin.html">Using Project AirSim Plugin in Custom Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/dev_setup_linux.html">Developer Initial Setup for Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/dev_setup_win.html">Developer Initial Setup for Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/vscode_user_settings.html">Optional VS Code User Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/headless_cloud.html">Running Headless (Docker)</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Unreal Vehicle</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#included-files">Included files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-the-example">Run the example</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#build-and-start-blocks">1. Build and start Blocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#install-the-python-client">2. Install the Python client</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run-the-client-script">3. Run the client script</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#how-control-reaches-unreal-engine">How control reaches Unreal Engine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#blueprint-setup-for-a-custom-vehicle">Blueprint setup for a custom vehicle</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#keep-the-vehicle-s-blueprint-base">Keep the vehicle’s Blueprint base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#prepare-a-chaos-vehicle-pawn">Prepare a Chaos vehicle Pawn</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#add-the-projectairsimvehicle-interface">Add the ProjectAirSimVehicle interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#map-parameters-to-chaos">Map parameters to Chaos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configure-the-custom-blueprint">Configure the custom Blueprint</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#connect-a-controller-with-bridge-actuators">Connect a controller with bridge actuators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-vehicle-does-not-spawn">The vehicle does not spawn</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-script-cannot-find-the-scene-configuration">The script cannot find the scene configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-vehicle-spawns-but-does-not-move">The vehicle spawns but does not move</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#suv-assets">SUV assets</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="config.html">Configuration JSONC Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_scene.html">Scene Configuration Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_robot.html">Robot Configuration Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multiple_robots.html">Multiple Robots in a Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_line_switches.html">Command Line Switches</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_line_switches.html#environment-variables">Environment Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gis_scenes.html">GIS Scenes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modify_drone_physical.html">How to Modify a Drone’s Physical Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modify_drone_visual.html">How to Modify a Drone’s Visual Appearance</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="physics/fast-physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/jsbsim.html">JSBSim Physics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/matlab.html">Matlab Physics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/no_physics.html">No Physics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/sensors/display.html">Sensor data visualization/display</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/ardupilot.html">ArduPilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Scene &amp; Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/scene/sim_clock_internal.html">Simulation Clock</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">APIs &amp; Programmatic Control</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_client.html">Project AirSim C++ Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ros/ros2.html">Project AirSim ROS2 C++ Bridge</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python Client API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/client_api/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Unreal Vehicle</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/unreal_vehicle_blueprint_setup.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="unreal-vehicle">
+<h1>Unreal Vehicle<a class="headerlink" href="#unreal-vehicle" title="Link to this heading"></a></h1>
+<p>Project AirSim can use an Unreal Engine vehicle for its dynamics while exposing
+indexed parameter values to Python. The included example uses the Chaos-based SUV
+from <a class="reference external" href="https://github.com/iamaisim/ProjectAirSim"><code class="docutils literal notranslate"><span class="pre">iamaisim/ProjectAirSim</span></code></a>.</p>
+<p>The user-facing API is <code class="docutils literal notranslate"><span class="pre">UnrealVehicle.set_parameter(index,</span> <span class="pre">value)</span></code>. The
+<code class="docutils literal notranslate"><span class="pre">SetParameterSignal</span></code> Blueprint event receives the same index and value.</p>
+<section id="included-files">
+<h2>Included files<a class="headerlink" href="#included-files" title="Link to this heading"></a></h2>
+<p>The repository already contains everything needed by the example:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Purpose</p></th>
+<th class="head"><p>Path</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Unreal SUV Blueprint and assets</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unreal/Blocks/Plugins/ProjectAirSim/Content/VehicleAdv/SUV/</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Robot configuration</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">client/python/example_user_scripts/sim_config/robot_unreal_vehicle.jsonc</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Scene configuration</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">client/python/example_user_scripts/sim_config/scene_unreal_vehicle.jsonc</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Runnable Python example</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">client/python/example_user_scripts/hello_unreal_vehicle.py</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>The robot configuration selects the included Blueprint class:</p>
+<div class="highlight-jsonc notranslate"><div class="highlight"><pre><span></span>{
+  "physics-type": "unreal-physics",
+  "unreal-vehicle-class": "/ProjectAirSim/VehicleAdv/SUV/SuvCarPawn.SuvCarPawn_C"
+}
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">SetParameter</span></code> service is registered for a valid Unreal vehicle actor; no
+Project AirSim controller is required.</p>
+</section>
+<section id="run-the-example">
+<h2>Run the example<a class="headerlink" href="#run-the-example" title="Link to this heading"></a></h2>
+<section id="build-and-start-blocks">
+<h3>1. Build and start Blocks<a class="headerlink" href="#build-and-start-blocks" title="Link to this heading"></a></h3>
+<p>Build Project AirSim and launch the Blocks Unreal project using the normal
+<a class="reference internal" href="development/use_source.html"><span class="std std-doc">source build instructions</span></a>. Start Play in the
+Unreal Editor, or launch a built Blocks executable, and leave it running while
+the Python client connects.</p>
+<p>The included SUV assets must be present under the ProjectAirSim plugin content
+directory shown above. They are already included in this repository.</p>
+</section>
+<section id="install-the-python-client">
+<h3>2. Install the Python client<a class="headerlink" href="#install-the-python-client" title="Link to this heading"></a></h3>
+<p>Follow the <a class="reference internal" href="client_setup.html"><span class="std std-doc">Python client setup</span></a> and activate its environment.</p>
+</section>
+<section id="run-the-client-script">
+<h3>3. Run the client script<a class="headerlink" href="#run-the-client-script" title="Link to this heading"></a></h3>
+<p>From the repository root:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">cd client/python/example_user_scripts</span>
+<span class="go">python hello_unreal_vehicle.py</span>
+</pre></div>
+</div>
+<p>The script loads <code class="docutils literal notranslate"><span class="pre">scene_unreal_vehicle.jsonc</span></code>, sends indexed parameter values,
+and prints kinematics while the SUV moves.</p>
+<p>The essential Python API is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">projectairsim</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProjectAirSimClient</span><span class="p">,</span> <span class="n">World</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">projectairsim.unreal_vehicle</span><span class="w"> </span><span class="kn">import</span> <span class="n">UnrealVehicle</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">ProjectAirSimClient</span><span class="p">()</span>
+<span class="n">client</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+
+<span class="n">world</span> <span class="o">=</span> <span class="n">World</span><span class="p">(</span>
+    <span class="n">client</span><span class="p">,</span>
+    <span class="s2">"scene_unreal_vehicle.jsonc"</span><span class="p">,</span>
+    <span class="n">delay_after_load_sec</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">vehicle</span> <span class="o">=</span> <span class="n">UnrealVehicle</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">world</span><span class="p">,</span> <span class="s2">"UnrealVehicle"</span><span class="p">)</span>
+
+<span class="n">vehicle</span><span class="o">.</span><span class="n">set_parameter</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+<span class="n">vehicle</span><span class="o">.</span><span class="n">set_parameter</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+<span class="n">vehicle</span><span class="o">.</span><span class="n">set_parameter</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Kinematics are available through <code class="docutils literal notranslate"><span class="pre">vehicle.get_kinematics()</span></code>. Example scripts
+can define aliases for parameter indices to keep control code readable.</p>
+</section>
+</section>
+<section id="how-control-reaches-unreal-engine">
+<h2>How control reaches Unreal Engine<a class="headerlink" href="#how-control-reaches-unreal-engine" title="Link to this heading"></a></h2>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Python UnrealVehicle.set_parameter(index, value)
+    -&gt; SetParameter service
+    -&gt; Project AirSim Unreal bridge
+    -&gt; Blueprint SetParameterSignal(Index, Signal)
+    -&gt; Chaos vehicle movement component
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">SetParameter</span></code> and <code class="docutils literal notranslate"><span class="pre">SetParameterSignal</span></code> both use the parameter index and signal.</p>
+</section>
+<section id="blueprint-setup-for-a-custom-vehicle">
+<h2>Blueprint setup for a custom vehicle<a class="headerlink" href="#blueprint-setup-for-a-custom-vehicle" title="Link to this heading"></a></h2>
+<p>The supplied Project AirSim SUV is ready to run without Blueprint changes. Follow this
+section when integrating a different Chaos vehicle or an actor with custom
+Unreal physics.</p>
+<section id="keep-the-vehicle-s-blueprint-base">
+<h3>Keep the vehicle’s Blueprint base<a class="headerlink" href="#keep-the-vehicle-s-blueprint-base" title="Link to this heading"></a></h3>
+<p>Keep the vehicle’s existing Actor or Pawn parent class and add the
+<code class="docutils literal notranslate"><span class="pre">ProjectAirSimVehicle</span></code> interface under <strong>Class Settings &gt; Implemented
+Interfaces</strong>. A Chaos vehicle should retain its vehicle Pawn parent because its
+movement component already owns engine, wheel, suspension, steering, and brake
+behavior.</p>
+</section>
+<section id="prepare-a-chaos-vehicle-pawn">
+<h3>Prepare a Chaos vehicle Pawn<a class="headerlink" href="#prepare-a-chaos-vehicle-pawn" title="Link to this heading"></a></h3>
+<p>The Blueprint needs a configured <code class="docutils literal notranslate"><span class="pre">ChaosWheeledVehicleMovementComponent</span></code>, wheel
+setups, skeletal mesh, physics asset, and collision. Verify that the vehicle can
+move normally inside Unreal before connecting it to Project AirSim.</p>
+<p>When a runtime-spawned vehicle requires explicit activation, add this setup to
+<strong>Event BeginPlay</strong>:</p>
+<ol class="arabic simple">
+<li><p>Get the vehicle movement component.</p></li>
+<li><p>Cast it to <code class="docutils literal notranslate"><span class="pre">ChaosWheeledVehicleMovementComponent</span></code>.</p></li>
+<li><p>Store the result in a Blueprint variable for the control events.</p></li>
+<li><p>Call <strong>Activate</strong> on the movement component.</p></li>
+<li><p>Call <strong>Spawn Default Controller</strong> if the Pawn requires possession.</p></li>
+</ol>
+<p><img alt="BeginPlay setup that activates the Chaos vehicle movement component and spawns the default controller" src="_images/begin-play-setup.png" /></p>
+<p>Whether <code class="docutils literal notranslate"><span class="pre">Spawn</span> <span class="pre">Default</span> <span class="pre">Controller</span></code> is required depends on the Pawn. Do not add
+it if the vehicle deliberately uses another possession or controller setup.</p>
+</section>
+<section id="add-the-projectairsimvehicle-interface">
+<h3>Add the ProjectAirSimVehicle interface<a class="headerlink" href="#add-the-projectairsimvehicle-interface" title="Link to this heading"></a></h3>
+<p>For an existing Pawn:</p>
+<ol class="arabic simple">
+<li><p>Open the Blueprint and select <strong>Class Settings</strong>.</p></li>
+<li><p>Find <strong>Interfaces</strong> in the Details panel.</p></li>
+<li><p>Add <strong>ProjectAirSimVehicle</strong>.</p></li>
+<li><p>Compile and save the Blueprint.</p></li>
+</ol>
+<p><img alt="Project AirSim Vehicle listed under Implemented Interfaces" src="_images/implemented-interface.png" /></p>
+<p>The C++ interface is <code class="docutils literal notranslate"><span class="pre">IProjectAirSimVehicle</span></code>.</p>
+<p>The interface exposes only the actuator-input bridge:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Function</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">SetParameterSignal(Index,</span> <span class="pre">Signal)</span></code></p></td>
+<td><p>Receive an indexed parameter value</p></td>
+</tr>
+</tbody>
+</table>
+<p>Kinematics are independent of this interface. For a simulating rigid body,
+Project AirSim captures position, rotation, linear velocity, and angular
+velocity directly from Chaos. Linear and angular acceleration are derived from
+consecutive velocity samples because Chaos does not expose an equivalent stable
+acceleration state for this integration. Actors without a simulating rigid body
+use their Unreal component or actor transform, with velocity and acceleration
+derived by finite differences.</p>
+<p>On reset, Project AirSim restores the configured spawn transform and zeroes the
+selected physics component’s velocities directly.</p>
+</section>
+<section id="map-parameters-to-chaos">
+<h3>Map parameters to Chaos<a class="headerlink" href="#map-parameters-to-chaos" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">SetParameterSignal</span></code> is called once per tick for each parameter received from
+Python. The parameter indices are defined by the vehicle Blueprint. For the
+included SUV, the current indices are:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-right"><p>Index</p></th>
+<th class="head"><p>Signal</p></th>
+<th class="head"><p>Typical Chaos node</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-right"><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
+<td><p>Throttle</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Set</span> <span class="pre">Throttle</span> <span class="pre">Input</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-right"><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
+<td><p>Brake</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Set</span> <span class="pre">Brake</span> <span class="pre">Input</span></code></p></td>
+</tr>
+<tr class="row-even"><td class="text-right"><p><code class="docutils literal notranslate"><span class="pre">2</span></code></p></td>
+<td><p>Steering</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Set</span> <span class="pre">Steering</span> <span class="pre">Input</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>Implement the event with a <strong>Switch on Int</strong>, then forward <code class="docutils literal notranslate"><span class="pre">Value</span></code> to the
+corresponding function on the stored Chaos movement component.</p>
+<p>Typical Blueprint flow:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Event SetParameterSignal(Index, Signal)
+    -&gt; Switch on Int
+       0 -&gt; Set Throttle Input(Signal)
+       1 -&gt; Set Brake Input(Signal)
+       2 -&gt; Set Steering Input(Signal)
+</pre></div>
+</div>
+<p><img alt="SetParameterSignal mapped to Chaos vehicle inputs" src="_images/set-parameter-signal.png" /></p>
+<p>The mapping is an implementation detail of the Blueprint. Python sends only
+indices and signals.</p>
+</section>
+<section id="configure-the-custom-blueprint">
+<h3>Configure the custom Blueprint<a class="headerlink" href="#configure-the-custom-blueprint" title="Link to this heading"></a></h3>
+<p>Point <code class="docutils literal notranslate"><span class="pre">unreal-vehicle-class</span></code> at the generated Blueprint class. No controller is
+needed for direct parameter forwarding:</p>
+<div class="highlight-jsonc notranslate"><div class="highlight"><pre><span></span>{
+  "physics-type": "unreal-physics",
+  "unreal-vehicle-class": "/Game/Vehicles/BP_MyVehicle.BP_MyVehicle_C",
+  "sensors": []
+}
+</pre></div>
+</div>
+<p>Blueprint class paths end in <code class="docutils literal notranslate"><span class="pre">_C</span></code>. Content inside the ProjectAirSim plugin uses
+the <code class="docutils literal notranslate"><span class="pre">/ProjectAirSim/...</span></code> mount point; project content normally uses <code class="docutils literal notranslate"><span class="pre">/Game/...</span></code>.</p>
+<p>Add this robot configuration to a scene and control the actor with
+<code class="docutils literal notranslate"><span class="pre">UnrealVehicle</span></code>, just like the supplied SUV example.</p>
+</section>
+</section>
+<section id="connect-a-controller-with-bridge-actuators">
+<h2>Connect a controller with bridge actuators<a class="headerlink" href="#connect-a-controller-with-bridge-actuators" title="Link to this heading"></a></h2>
+<p>An Unreal vehicle can use any Project AirSim controller. Add one
+<code class="docutils literal notranslate"><span class="pre">unreal-vehicle</span></code> actuator for every controller output that the Blueprint needs.
+The actuator name is the output ID requested from the controller, while
+<code class="docutils literal notranslate"><span class="pre">parameter-index</span></code> selects the <code class="docutils literal notranslate"><span class="pre">SetParameterSignal</span></code> index on the Unreal vehicle:</p>
+<div class="highlight-jsonc notranslate"><div class="highlight"><pre><span></span>{
+  "controller": {
+    "id": "PX4_Controller",
+    "type": "px4-api",
+    "px4-settings": {
+      "actuator-order": [
+        { "id": "motor_1" },
+        { "id": "motor_2" }
+      ]
+    }
+  },
+  "actuators": [
+    {
+      "name": "motor_1",
+      "type": "unreal-vehicle",
+      "enabled": true,
+      "unreal-vehicle-settings": { "parameter-index": 0 }
+    },
+    {
+      "name": "motor_2",
+      "type": "unreal-vehicle",
+      "enabled": true,
+      "unreal-vehicle-settings": { "parameter-index": 1 }
+    }
+  ]
+}
+</pre></div>
+</div>
+<p>Most controllers return one value for each actuator ID, so
+<code class="docutils literal notranslate"><span class="pre">control-signal-index</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">0</span></code>. Controllers such as SimpleDrive return
+several values together. In that case, set <code class="docutils literal notranslate"><span class="pre">control-signal-index</span></code> explicitly
+for each bridge. The supplied <code class="docutils literal notranslate"><span class="pre">robot_unreal_vehicle_simpledrive.jsonc</span></code> maps its
+<code class="docutils literal notranslate"><span class="pre">[throttle,</span> <span class="pre">steering,</span> <span class="pre">brake]</span></code> output to the SUV Blueprint’s <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">2,</span> <span class="pre">1]</span></code>
+parameter indices.</p>
+<p>The SimpleDrive example exposes the standard <code class="docutils literal notranslate"><span class="pre">Rover</span></code> API, including
+<code class="docutils literal notranslate"><span class="pre">set_rover_controls</span></code> and <code class="docutils literal notranslate"><span class="pre">move_on_path_async</span></code>. The same bridge mechanism also
+allows drone controllers and custom controllers to drive an Unreal vehicle
+without controller-specific Unreal code.</p>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<section id="the-vehicle-does-not-spawn">
+<h3>The vehicle does not spawn<a class="headerlink" href="#the-vehicle-does-not-spawn" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Confirm the class path is
+<code class="docutils literal notranslate"><span class="pre">/ProjectAirSim/VehicleAdv/SUV/SuvCarPawn.SuvCarPawn_C</span></code>.</p></li>
+<li><p>Confirm the SUV assets are present in the ProjectAirSim plugin.</p></li>
+<li><p>Check <code class="docutils literal notranslate"><span class="pre">projectairsim_server.log</span></code> for class-loading errors.</p></li>
+</ul>
+</section>
+<section id="the-script-cannot-find-the-scene-configuration">
+<h3>The script cannot find the scene configuration<a class="headerlink" href="#the-script-cannot-find-the-scene-configuration" title="Link to this heading"></a></h3>
+<p>Run it from <code class="docutils literal notranslate"><span class="pre">client/python/example_user_scripts</span></code>, as shown above, so the default
+simulation configuration directory resolves to its <code class="docutils literal notranslate"><span class="pre">sim_config</span></code> subdirectory.</p>
+</section>
+<section id="the-vehicle-spawns-but-does-not-move">
+<h3>The vehicle spawns but does not move<a class="headerlink" href="#the-vehicle-spawns-but-does-not-move" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Confirm Python uses <code class="docutils literal notranslate"><span class="pre">UnrealVehicle.set_parameter()</span></code> with valid parameter
+indices and values.</p></li>
+<li><p>Confirm the Blueprint implements <code class="docutils literal notranslate"><span class="pre">ProjectAirSimVehicle</span></code> and maps indices 0,
+1, and 2 to its Chaos movement component.</p></li>
+<li><p>Confirm the Unreal vehicle movement component is active and the wheels have
+valid Chaos configurations.</p></li>
+</ul>
+</section>
+<section id="suv-assets">
+<h3>SUV assets<a class="headerlink" href="#suv-assets" title="Link to this heading"></a></h3>
+<p>When <code class="docutils literal notranslate"><span class="pre">UE_ROOT</span></code> is set, the <code class="docutils literal notranslate"><span class="pre">simlibs_*</span></code> build targets automatically download the
+SUV asset pack from the URL in <code class="docutils literal notranslate"><span class="pre">tools/assets/suv-assets.json</span></code> and install it at
+<code class="docutils literal notranslate"><span class="pre">unreal/Blocks/Plugins/ProjectAirSim/Content/VehicleAdv/SUV</span></code>. The installer
+records that URL and downloads the pack again if the configured URL changes,
+for example when switching from version 1.0.0 to 1.1.0.</p>
+<p>Developers can create a new pack from an installed SUV directory with:</p>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="p">.\</span><span class="n">tools</span><span class="p">\</span><span class="n">assets</span><span class="p">\</span><span class="n">package_suv_assets</span><span class="p">.</span><span class="n">ps1</span> <span class="p">`</span>
+    <span class="n">-OutputPath</span> <span class="n">C</span><span class="p">:\</span><span class="n">tmp</span><span class="p">\</span><span class="n">ProjectAirSim-SUV-Assets-v1</span><span class="p">.</span><span class="n">0</span><span class="p">.</span><span class="n">0</span><span class="p">.</span><span class="n">zip</span>
+</pre></div>
+</div>
+<p>or on Linux:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./tools/assets/package_suv_assets.sh<span class="w"> </span>/tmp/ProjectAirSim-SUV-Assets-v1.0.0.zip
+</pre></div>
+</div>
+<p>After publishing a new pack, update <code class="docutils literal notranslate"><span class="pre">tools/assets/suv-assets.json</span></code> with its
+version, URL, filename, and SHA-256 checksum.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="development/headless_cloud.html" class="btn btn-neutral float-left" title="Running Headless (Docker)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="config.html" class="btn btn-neutral float-right" title="Configuration JSONC Settings" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

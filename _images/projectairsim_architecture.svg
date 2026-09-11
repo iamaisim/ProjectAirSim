@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="430" viewBox="0 0 1100 430" role="img" aria-labelledby="title desc">
+  <title id="title">Project AirSim architecture</title>
+  <desc id="desc">Python, C++, and ROS 2 clients connect through network APIs to either Project AirSim Runtime or the Unreal Engine plugin. Both hosts use common simulation libraries for scenes, physics, controllers, sensors, and time.</desc>
+  <style>
+    text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #172033; }
+    .heading { font-size: 22px; font-weight: 700; }
+    .label { font-size: 18px; font-weight: 600; }
+    .detail { font-size: 15px; }
+    .client { fill: #e8f2ff; stroke: #2f6feb; stroke-width: 2; }
+    .api { fill: #fff4d6; stroke: #bf8700; stroke-width: 2; }
+    .host { fill: #edf8ee; stroke: #2da44e; stroke-width: 2; }
+    .core { fill: #f3e8ff; stroke: #8250df; stroke-width: 2; }
+    .arrow { stroke: #57606a; stroke-width: 2.5; fill: none; marker-end: url(#arrowhead); }
+  </style>
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#57606a"/>
+    </marker>
+  </defs>
+
+  <text x="550" y="34" text-anchor="middle" class="heading">Project AirSim hosts share one simulation core and client contract</text>
+
+  <rect x="70" y="70" width="960" height="62" rx="10" class="client"/>
+  <text x="550" y="96" text-anchor="middle" class="label">Autonomy clients</text>
+  <text x="550" y="119" text-anchor="middle" class="detail">Python client  •  C++ client  •  ROS 2 C++ bridge</text>
+
+  <path d="M550 132 L550 166" class="arrow"/>
+  <rect x="315" y="168" width="470" height="52" rx="10" class="api"/>
+  <text x="550" y="200" text-anchor="middle" class="label">Project AirSim network APIs</text>
+
+  <path d="M470 220 L300 260" class="arrow"/>
+  <path d="M630 220 L800 260" class="arrow"/>
+
+  <rect x="70" y="262" width="460" height="78" rx="10" class="host"/>
+  <text x="300" y="291" text-anchor="middle" class="label">Project AirSim Runtime</text>
+  <text x="300" y="317" text-anchor="middle" class="detail">Lightweight, headless, engine-independent host</text>
+
+  <rect x="570" y="262" width="460" height="78" rx="10" class="host"/>
+  <text x="800" y="291" text-anchor="middle" class="label">Unreal Engine plugin</text>
+  <text x="800" y="317" text-anchor="middle" class="detail">3D worlds, rendering, meshes, cameras, LiDAR, radar</text>
+
+  <path d="M300 340 L430 374" class="arrow"/>
+  <path d="M800 340 L670 374" class="arrow"/>
+  <rect x="150" y="376" width="800" height="46" rx="10" class="core"/>
+  <text x="550" y="405" text-anchor="middle" class="label">Common simulation libraries: scenes • physics • controllers • sensors • clocks</text>
+</svg>

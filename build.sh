@@ -10,4 +10,8 @@ if [ -z "$UE_ROOT" ]; then
     echo "Warning: The UE_ROOT environment variable is not set." >&2
 fi
 
-make -f build_linux.mk $1
+if [ "$(uname -s)" = "Darwin" ]; then
+    make -f build_macos.mk "$@"
+else
+    make -f build_linux.mk "$@"
+fi

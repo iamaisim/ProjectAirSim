@@ -20,7 +20,9 @@
 #include "json.hpp"
 #include "onnxruntime_cxx_api.h"
 #include "sensor_impl.hpp"
+#ifdef USE_TENSORRT
 #include "tensorrt_provider_factory.h"
+#endif
 
 namespace microsoft {
 namespace projectairsim {
@@ -589,13 +591,21 @@ std::vector<uint8_t> Camera::Impl::RunOnnxModelOnImages(ImageMessage imgMsg) {
 
       if (camera_settings.post_process_model_settings.execution_provider ==
           "cuda") {
+#ifdef USE_CUDA
         logger_.LogVerbose(name_, "Trying to add CUDA EP since it is enabled.");
         throw_on_onnx_status(OrtSessionOptionsAppendExecutionProvider_CUDA(
                                  onnx_.session_options, 0),
                              "CUDA");
         logger_.LogVerbose(name_, "onnx CUDA session declared");
+#else
+        logger_.LogWarning(
+            name_,
+            "ONNX execution provider 'cuda' requested, but this build does "
+            "not include CUDA support. Falling back to CPU.");
+#endif
       } else if (camera_settings.post_process_model_settings
                      .execution_provider == "tensorrt") {
+#if defined(USE_TENSORRT) && defined(USE_CUDA)
         throw_on_onnx_status(OrtSessionOptionsAppendExecutionProvider_Tensorrt(
                                  onnx_.session_options, 0),
                              "TensorRT");
@@ -603,6 +613,12 @@ std::vector<uint8_t> Camera::Impl::RunOnnxModelOnImages(ImageMessage imgMsg) {
                                  onnx_.session_options, 0),
                              "CUDA");
         logger_.LogVerbose(name_, "onnx TensorRT session declared");
+#else
+        logger_.LogWarning(
+            name_,
+            "ONNX execution provider 'tensorrt' requested, but this build "
+            "does not include TensorRT/CUDA support. Falling back to CPU.");
+#endif
       }
       logger_.LogVerbose(name_, "onnx Creating session");
       auto model_file = camera_settings.post_process_model_settings.filepath;

@@ -47,6 +47,12 @@ but that installation logic is not a supported-platform guarantee. See
 For details on getting your dev environment set up, choose your platform:
 - **[Developer Initial Setup for Windows](dev_setup_win)**
 - **[Developer Initial Setup for Linux](dev_setup_linux)**
+- **[Developer Initial Setup for macOS](dev_setup_macos.md)**: Apple Silicon
+  SimLibs and headless Runtime source builds, with Release unit tests on macOS
+  15. Runtime integration and Unreal/Blocks on Mac are not yet validated.
+
+The Unreal development instructions below apply to Windows and Linux. Use the
+macOS guide for the supported Mac build targets and their current limits.
 
 ---
 

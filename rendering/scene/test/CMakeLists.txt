@@ -34,6 +34,8 @@ set_target_properties(
 # Add dependency to core_sim_gtests since it copies the runtime DLLs into ${SIMLIBS_TEST_DIR}
 if(WIN32)
     add_dependencies(${TARGET_NAME} rendering_scene core_sim core_sim_gtests nng-external gtest_main)
+elseif(APPLE)
+    add_dependencies(${TARGET_NAME} rendering_scene core_sim core_sim_gtests nng-external gtest_main)
 else()
     add_dependencies(${TARGET_NAME} rendering_scene core_sim core_sim_gtests nng-external openssl-external gtest_main)
 endif()
@@ -61,7 +63,7 @@ target_link_libraries(
         rendering_scene
         core_sim
         nng
-        lvmon
+        $<$<BOOL:${PROJECTAIRSIM_ENABLE_LVMON}>:lvmon>
 )
 else()
 target_link_libraries(
@@ -71,7 +73,7 @@ target_link_libraries(
         rendering_scene
         core_sim
         nng
-        lvmon
+        $<$<BOOL:${PROJECTAIRSIM_ENABLE_LVMON}>:lvmon>
         ${OPENSSL_CRYPTO_LIBRARY} # Client authorization
 )
 endif()

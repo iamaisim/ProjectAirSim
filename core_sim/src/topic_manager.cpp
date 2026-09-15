@@ -227,9 +227,7 @@ class TopicManager::Impl {
   int port_;
   char* recv_buffer_;
   size_t recv_buffer_size_;
-  Dispatcher recv_dispatcher_;
   std::thread recv_thread_;
-  Dispatcher send_dispatcher_;
   nng_socket topic_socket_;
   std::atomic<bool> state_;
   std::atomic<int> active_pipe_count_;
@@ -239,6 +237,12 @@ class TopicManager::Impl {
       topic_published_callback_;
   // TODO Configure a set of topic paths to have the topic callback enabled for
   bool enable_topic_published_callback_;
+
+  // Members are destroyed in reverse declaration order. Join the dispatchers
+  // before releasing the topic table, callbacks, or other state they access.
+  // Stop receiving work before stopping the sender it can enqueue work on.
+  Dispatcher send_dispatcher_;
+  Dispatcher recv_dispatcher_;
 };
 
 // class TopicManager
@@ -312,15 +316,15 @@ TopicManager::Impl::Impl(const Logger& logger,
       port_(default_port),
       recv_buffer_(nullptr),
       recv_buffer_size_(0),
-      recv_dispatcher_("recv_dispatcher", logger),
       recv_thread_(),
-      send_dispatcher_("send_dispatcher", logger),
       topic_socket_(NNG_SOCKET_INITIALIZER),
       state_(false),
       active_pipe_count_(0),
       topic_table_(),
       topic_published_callback_(nullptr),
-      enable_topic_published_callback_(false) {}
+      enable_topic_published_callback_(false),
+      send_dispatcher_("send_dispatcher", logger),
+      recv_dispatcher_("recv_dispatcher", logger) {}
 
 void TopicManager::Impl::Load(const json& config_json) {
   local_address_ = JsonUtils::GetString(config_json, Constant::Config::ip,

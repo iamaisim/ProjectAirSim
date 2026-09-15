@@ -111,6 +111,8 @@ set_target_properties(${TARGET_NAME} PROPERTIES
 
 if(WIN32)
     add_dependencies(${TARGET_NAME} nng-external jsbsim-repo copy_jsbsim_models)
+elseif(APPLE)
+    add_dependencies(${TARGET_NAME} nng-external jsbsim-repo copy_jsbsim_models)
 else()
     add_dependencies(${TARGET_NAME} nng-external jsbsim-repo copy_jsbsim_models openssl-external zlib-external)
 endif()
@@ -154,7 +156,7 @@ if(WIN32)
             Bcrypt # Client authorization
             Crypt32 # Client authorization
             Ncrypt # Client authorization
-            lvmon
+            $<$<BOOL:${PROJECTAIRSIM_ENABLE_LVMON}>:lvmon>
             jsbsim
     )
 else()

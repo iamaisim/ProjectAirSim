@@ -23,7 +23,7 @@ add_library(
     sim_unity_wrapper.cpp
 )
 
-if(NOT WIN32)
+if(UNIX AND NOT APPLE)
     set(DEP_OPENSSL openssl-external)
 endif()
 add_dependencies(
@@ -73,7 +73,7 @@ if(WIN32)
             ws2_32  # req by nng on Win
             mswsock  # req by nng on Win
             advapi32  # req by nng on Win
-            lvmon
+            $<$<BOOL:${PROJECTAIRSIM_ENABLE_LVMON}>:lvmon>
     )
 else()
     target_link_libraries(

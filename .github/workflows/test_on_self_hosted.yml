@@ -38,6 +38,7 @@ jobs:
   build-and-test:
     if: |
       (github.event.pull_request.base.ref == 'main' || github.event.pull_request.base.ref == 'main_public') &&
+      github.head_ref != 'ci/macos-build' &&
       !github.event.pull_request.draft &&
       contains(github.event.pull_request.labels.*.name, 'run-self-hosted')
     runs-on: [self-hosted]

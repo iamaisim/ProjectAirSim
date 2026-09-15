@@ -26,6 +26,7 @@ client_setup.md
 use_plugin.md
 development/dev_setup_linux.md
 development/dev_setup_win.md
+development/dev_setup_macos.md
 development/vscode_user_settings.md
 development/headless_cloud.md
 unreal_vehicle_blueprint_setup.md

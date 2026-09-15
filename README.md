@@ -209,6 +209,7 @@ The supported development baseline is:
 | --- | --- |
 | Linux | **Ubuntu 22.04** is the primary supported distribution |
 | Windows | **Windows 11** with Visual Studio 2022 C++ build tools |
+| macOS | **Apple Silicon (ARM64), macOS 15 CI**: SimLibs Release build/tests and headless Runtime build; see [Mac setup and scope](docs/development/dev_setup_macos.md) |
 | Unreal Engine | **5.2 or 5.7** |
 | CMake and C++ | CMake **3.15 or newer** and C++17 |
 | Linux compiler | Unreal's packaged toolchain when `UE_ROOT` is set; otherwise Clang 13 |

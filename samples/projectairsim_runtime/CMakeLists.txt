@@ -33,6 +33,16 @@ if(WIN32)
         multirotor_api
         rendering_scene
     )
+elseif(APPLE)
+    add_dependencies(
+        ${TARGET_NAME}
+        simserver
+        core_sim
+        nng-external
+        physics
+        multirotor_api
+        rendering_scene
+    )
 else()
     add_dependencies(
         ${TARGET_NAME}
@@ -78,7 +88,7 @@ if(WIN32)
             ws2_32  # req by nng on Win
             mswsock  # req by nng on Win
             advapi32  # req by nng on Win
-            lvmon
+            $<$<BOOL:${PROJECTAIRSIM_ENABLE_LVMON}>:lvmon>
     )
 else()
     target_link_libraries(
@@ -92,8 +102,11 @@ else()
         rendering_scene
         nng
         ${OPENSSL_CRYPTO_LIBRARY} # Client authorization
-        dl     # Required by static libcrypto (dlopen/dlsym)
 )
+endif()
+
+if(UNIX AND NOT APPLE)
+    target_link_libraries(${TARGET_NAME} PRIVATE dl) # Required by static libcrypto
 endif()
 
 # Keep the standalone runtime self-contained. Both core_sim and physics use
@@ -101,6 +114,12 @@ endif()
 # documented output directory must not depend on a developer shell or PATH.
 if(WIN32)
     set(RUNTIME_ONNX_SHARED_LIB "${ONNX_LIB_DIR}/onnxruntime.dll")
+elseif(APPLE)
+    set(RUNTIME_ONNX_SHARED_LIBS "${ONNXRUNTIME_LIBRARY}")
+    if(DEFINED ONNXRUNTIME_ALIAS_LIBRARY AND NOT ONNXRUNTIME_ALIAS_LIBRARY STREQUAL "${ONNXRUNTIME_LIBRARY}")
+        list(APPEND RUNTIME_ONNX_SHARED_LIBS "${ONNXRUNTIME_ALIAS_LIBRARY}")
+    endif()
+    set_target_properties(${TARGET_NAME} PROPERTIES BUILD_RPATH "@loader_path")
 else()
     set(RUNTIME_ONNX_SHARED_LIB "${ONNXRUNTIME_LIBRARY}")
     set_target_properties(${TARGET_NAME} PROPERTIES BUILD_RPATH "$ORIGIN")
@@ -112,8 +131,25 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${JSBSIM_SHARED_LIB}"
             "$<TARGET_FILE_DIR:${TARGET_NAME}>"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${RUNTIME_ONNX_SHARED_LIB}"
-            "$<TARGET_FILE_DIR:${TARGET_NAME}>"
     COMMENT "Copying Project AirSim Runtime shared-library dependencies"
 )
+
+if(APPLE)
+    foreach(RUNTIME_ONNX_SHARED_LIB IN LISTS RUNTIME_ONNX_SHARED_LIBS)
+        add_custom_command(
+            TARGET ${TARGET_NAME}
+            POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "${RUNTIME_ONNX_SHARED_LIB}"
+                    "$<TARGET_FILE_DIR:${TARGET_NAME}>"
+        )
+    endforeach()
+else()
+    add_custom_command(
+        TARGET ${TARGET_NAME}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${RUNTIME_ONNX_SHARED_LIB}"
+                "$<TARGET_FILE_DIR:${TARGET_NAME}>"
+    )
+endif()

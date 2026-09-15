@@ -34,7 +34,9 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")  # Have to match UE (uses /MD
 include(FetchContent)
 include(ExternalProject)
 
-if (UNIX)
+if(APPLE)
+    message("Building/linking against the macOS system toolchain")
+elseif(UNIX)
     if(DEFINED ENV{UE_ROOT} AND NOT "$ENV{UE_ROOT}" STREQUAL "")
         # Build/link against UE's packaged Linux toolchain instead of system-installed toolchain
         # Note: This must be set BEFORE `project()` is called
@@ -53,6 +55,11 @@ endif()
 
 # Set up project
 project("ProjectAirSimLibs")
+
+set(PROJECTAIRSIM_ENABLE_LVMON ON)
+if(APPLE)
+    set(PROJECTAIRSIM_ENABLE_LVMON OFF)
+endif()
 
 if(PROJECTAIRSIM_USE_UE_TOOLCHAIN)
     set(UE_LEGACY_LIBCXX_ROOT "${UE_ROOT_PATH}/Engine/Source/ThirdParty/Unix/LibCxx")
@@ -124,6 +131,11 @@ if(WIN32)
     # Disable manifest generation for executables to avoid build failures due to Windows write
     # permission issues (possibly from file locks by antivirus or other OS file protection)
     add_link_options(/MANIFEST:NO)
+elseif(APPLE)
+    add_compile_definitions(__CLANG__)
+    add_compile_options(-ferror-limit=10
+        $<$<COMPILE_LANGUAGE:CXX>:-stdlib=libc++>)
+    add_link_options($<$<LINK_LANGUAGE:CXX>:-stdlib=libc++>)
 elseif(UNIX)
     add_compile_definitions(__CLANG__)
     add_compile_options(-ferror-limit=10
@@ -160,8 +172,23 @@ set(JSBSIM_LIB_DIR ${CMAKE_BINARY_DIR}/_deps/jsbsim-install/lib)
 set(JSBSIM_STAGE_ROOT ${CMAKE_BINARY_DIR}/thirdparty/jsbsim)
 set(JSBSIM_INCLUDE_DIR ${JSBSIM_STAGE_ROOT}/include)
 set(JSBSIM_MODEL_COPY_SCRIPT ${CMAKE_BINARY_DIR}/cmake/CopyJsbsimModels.cmake)
+set(JSBSIM_PATCH_SCRIPT ${CMAKE_BINARY_DIR}/cmake/PatchJsbsim.cmake)
 
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/cmake)
+file(WRITE ${JSBSIM_PATCH_SCRIPT} [=[
+if(NOT DEFINED SOURCE_FILE)
+    message(FATAL_ERROR "SOURCE_FILE must be provided")
+endif()
+
+file(READ "${SOURCE_FILE}" SOURCE_CONTENT)
+string(REPLACE
+    "add_subdirectory(utils)"
+    "# add_subdirectory(utils) # disabled by ProjectAirSim"
+    SOURCE_CONTENT
+    "${SOURCE_CONTENT}"
+)
+file(WRITE "${SOURCE_FILE}" "${SOURCE_CONTENT}")
+]=])
 file(WRITE ${JSBSIM_MODEL_COPY_SCRIPT} [=[
 if(NOT DEFINED UPSTREAM_SRC_DIR OR
    NOT DEFINED LOCAL_MODELS_DIR OR
@@ -217,6 +244,8 @@ configure_file("${UPSTREAM_LICENSE_FILE}" "${DST_ROOT_DIR}/JSBSim_LICENSE.txt" C
 
 # Platform-specific settings for JSBSim
 if(WIN32)
+    set(JSBSIM_LIBRARY_TYPE SHARED)
+    set(JSBSIM_BUILD_SHARED_LIBS ON)
     set(JSBSIM_C_COMPILER ${CMAKE_C_COMPILER})
     set(JSBSIM_CXX_COMPILER ${CMAKE_CXX_COMPILER})
     set(JSBSIM_CXX_FLAGS "")
@@ -225,7 +254,20 @@ if(WIN32)
     set(JSBSIM_SHARED_LIB ${JSBSIM_BIN_DIR}/JSBSim.dll)
     set(JSBSIM_IMPORT_LIB ${JSBSIM_LIB_DIR}/JSBSim.lib)
     set(JSBSIM_BYPRODUCTS ${JSBSIM_SHARED_LIB} ${JSBSIM_IMPORT_LIB})
+elseif(APPLE)
+    set(JSBSIM_LIBRARY_TYPE STATIC)
+    set(JSBSIM_BUILD_SHARED_LIBS OFF)
+    set(JSBSIM_C_COMPILER ${CMAKE_C_COMPILER})
+    set(JSBSIM_CXX_COMPILER ${CMAKE_CXX_COMPILER})
+    set(JSBSIM_CXX_FLAGS "-stdlib=libc++")
+    set(JSBSIM_LINKER_FLAGS "-stdlib=libc++")
+    set(JSBSIM_STANDARD_LIBRARIES "")
+    set(JSBSIM_SHARED_LIB ${JSBSIM_LIB_DIR}/libJSBSim.a)
+    set(JSBSIM_IMPORT_LIB "")
+    set(JSBSIM_BYPRODUCTS ${JSBSIM_SHARED_LIB})
 else()
+    set(JSBSIM_LIBRARY_TYPE SHARED)
+    set(JSBSIM_BUILD_SHARED_LIBS ON)
     set(JSBSIM_C_COMPILER ${CMAKE_C_COMPILER})
     set(JSBSIM_CXX_COMPILER ${CMAKE_CXX_COMPILER})
     if(PROJECTAIRSIM_USE_UE_TOOLCHAIN)
@@ -254,7 +296,7 @@ set(JSBSIM_CMAKE_ARGS
     -DCMAKE_POSITION_INDEPENDENT_CODE=True
     -DCMAKE_BUILD_TYPE:STRING=${JSBSIM_BUILD_TYPE}
     -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_BINARY_DIR}/_deps/jsbsim-install
-    -DBUILD_SHARED_LIBS=ON
+    -DBUILD_SHARED_LIBS=${JSBSIM_BUILD_SHARED_LIBS}
     -DBUILD_PYTHON_MODULE=OFF
     -DBUILD_DOCS=OFF
     # Disable SONAME versioning so libJSBSim.so doesn't require libJSBSim.so.1 symlink at runtime
@@ -262,6 +304,11 @@ set(JSBSIM_CMAKE_ARGS
     # Fix RPATH issue with Ninja generator
     -DCMAKE_BUILD_WITH_INSTALL_RPATH=TRUE
 )
+if(APPLE)
+    # Homebrew currently provides CMake 4, which no longer enables compatibility
+    # with the pre-3.5 policy version declared by the pinned JSBSim 1.1.12.
+    list(APPEND JSBSIM_CMAKE_ARGS -DCMAKE_POLICY_VERSION_MINIMUM=3.5)
+endif()
 if(UNIX AND PROJECTAIRSIM_USE_UE_TOOLCHAIN)
     list(APPEND JSBSIM_CMAKE_ARGS
         -DCMAKE_SYSROOT=${CMAKE_SYSROOT}
@@ -274,7 +321,9 @@ endif()
 
 if(UNIX)
     set(JSBSIM_PATCH_COMMAND
-        sed -i "s|^add_subdirectory(utils)|# add_subdirectory(utils) # disabled by ProjectAirSim|" <SOURCE_DIR>/CMakeLists.txt
+        ${CMAKE_COMMAND}
+        -DSOURCE_FILE=<SOURCE_DIR>/CMakeLists.txt
+        -P ${JSBSIM_PATCH_SCRIPT}
     )
 else()
     set(JSBSIM_PATCH_COMMAND ${CMAKE_COMMAND} -E echo "No JSBSim patch needed on Windows")
@@ -302,7 +351,7 @@ ExternalProject_Add(jsbsim-repo
         -DCMAKE_BUILD_TYPE:STRING=${JSBSIM_BUILD_TYPE}
         -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_BINARY_DIR}/_deps/jsbsim-install
         -DCMAKE_MSVC_RUNTIME_LIBRARY:STRING=MultiThreadedDLL
-        -DBUILD_SHARED_LIBS:BOOL=ON
+        -DBUILD_SHARED_LIBS:BOOL=${JSBSIM_BUILD_SHARED_LIBS}
         -DBUILD_PYTHON_MODULE:BOOL=OFF
         -DBUILD_DOCS:BOOL=OFF
     TEST_COMMAND    ""  # disable test step
@@ -353,7 +402,7 @@ add_custom_target(copy_jsbsim_models ALL
 add_dependencies(copy_jsbsim_models jsbsim-repo)
 
 # Add jsbsim as imported library
-add_library(jsbsim SHARED IMPORTED)
+add_library(jsbsim ${JSBSIM_LIBRARY_TYPE} IMPORTED)
 if(WIN32)
     set_target_properties(jsbsim PROPERTIES
         IMPORTED_LOCATION ${JSBSIM_SHARED_LIB}
@@ -466,10 +515,22 @@ if(WIN32)
 else()
     set(ASSIMP_LIBRARY_SUFFIX_OVERRIDE "")
 endif()
-if(PROJECTAIRSIM_USE_UE_TOOLCHAIN)
+if(APPLE)
+    set(ASSIMP_LINKER_FLAGS "-stdlib=libc++")
+    # Assimp 5.2.5 bundles an old zlib that does not compile cleanly with the
+    # AppleClang version on current GitHub-hosted macOS runners. Use the modern
+    # Homebrew zlib selected through ZLIB_HOME instead. Assimp 5.2.5 ships a
+    # custom FindZLIB module that specifically uses that variable.
+    set(ASSIMP_BUILD_ZLIB OFF)
+    set(ASSIMP_ZLIB_ARGS -DZLIB_HOME:PATH=${ZLIB_HOME})
+elseif(PROJECTAIRSIM_USE_UE_TOOLCHAIN)
     set(ASSIMP_LINKER_FLAGS "-stdlib=libc++ -L${UE_LIBCXX_LIB_DIR} -lc++abi")
+    set(ASSIMP_BUILD_ZLIB ON)
+    set(ASSIMP_ZLIB_ARGS "")
 else()
     set(ASSIMP_LINKER_FLAGS "-stdlib=libc++ -lc++abi")
+    set(ASSIMP_BUILD_ZLIB ON)
+    set(ASSIMP_ZLIB_ARGS "")
 endif()
 ExternalProject_Add(assimp-external
     GIT_REPOSITORY          https://github.com/assimp/assimp.git
@@ -493,10 +554,11 @@ ExternalProject_Add(assimp-external
         -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}\ ${ASSIMP_EXTRA_CXX_FLAGS}
         "-DCMAKE_EXE_LINKER_FLAGS=${ASSIMP_LINKER_FLAGS}"
         "-DCMAKE_SHARED_LINKER_FLAGS=${ASSIMP_LINKER_FLAGS}"
-	    -DASSIMP_WARNINGS_AS_ERRORS=OFF
+        -DASSIMP_WARNINGS_AS_ERRORS=OFF
         -DCMAKE_POSITION_INDEPENDENT_CODE=True
         -DBUILD_SHARED_LIBS=OFF
-        -DASSIMP_BUILD_ZLIB=ON  # force build of assimp's packaged zlib in case it detects it existing in a python environment
+        -DASSIMP_BUILD_ZLIB=${ASSIMP_BUILD_ZLIB}
+        ${ASSIMP_ZLIB_ARGS}
         -DASSIMP_BUILD_TESTS=OFF
         -DASSIMP_BUILD_ASSIMP_TOOLS=OFF
         ${ASSIMP_LIBRARY_SUFFIX_OVERRIDE}
@@ -607,7 +669,14 @@ if(NOT tinygltf_POPULATED)
     # Note: tinygltf is only used internally by sim libs, so no need to package it with other sim libs
 endif()
 
-if(UNIX)
+if(APPLE)
+    # macOS does not provide OpenSSL as part of the SDK. Use the Homebrew
+    # package installed by setup_macos_dev_tools.sh.
+    set(OPENSSL_USE_STATIC_LIBS TRUE)
+    find_package(OpenSSL 3 REQUIRED)
+    get_filename_component(OPENSSL_LIB_DIR "${OPENSSL_CRYPTO_LIBRARY}" DIRECTORY)
+    message("Using macOS OpenSSL from ${OPENSSL_LIB_DIR}")
+elseif(UNIX)
     # Set up dependency: openssl
     message("Setting up [openssl] dependency as an external project...")
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -675,7 +744,10 @@ if(UNIX)
     )
 endif()
 
-if(UNIX)
+if(APPLE)
+    set(onnx_url https://github.com/microsoft/onnxruntime/releases/download/v1.12.1/onnxruntime-osx-universal2-1.12.1.tgz)
+    set(onnx_hash SHA256=3dbea8861d40eb8bf0d0549c7d149cda26447e4cfee7e3f475918b15bbc446d4)
+elseif(UNIX)
     set(onnx_url https://github.com/microsoft/onnxruntime/releases/download/v1.12.1/onnxruntime-linux-x64-gpu-1.12.1.tgz)
     set(onnx_hash MD5=27adfa51648d2713608f35c3c6957a4f)
 
@@ -748,16 +820,40 @@ if(NOT onnxruntime_POPULATED)
 
     message("Packaging [onnxruntime] to ${UE_PLUGIN_SIMLIBS_DIR}/shared_libs")
     file(COPY "${ONNX_INCLUDE_DIR}" DESTINATION "${UE_PLUGIN_SIMLIBS_DIR}/shared_libs/onnxruntime")
-    file(COPY "${ONNX_LIB_DIR}" DESTINATION "${UE_PLUGIN_SIMLIBS_DIR}/shared_libs" FILES_MATCHING PATTERN "*onn*.dll" PATTERN "*onn*.lib" PATTERN "*.so*")
+    file(COPY "${ONNX_LIB_DIR}" DESTINATION "${UE_PLUGIN_SIMLIBS_DIR}/shared_libs" FILES_MATCHING PATTERN "*onn*.dll" PATTERN "*onn*.lib" PATTERN "*.so*" PATTERN "*.dylib*")
 
     message("Packaging [onnxruntime] to ${UNITY_WRAPPER_DLL_DIR}")
-    file(COPY "${ONNX_LIB_DIR}/" DESTINATION "${UNITY_WRAPPER_DLL_DIR}/" FILES_MATCHING PATTERN "*onn*.dll" PATTERN "*onn*.lib" PATTERN "*.so*")
+    file(COPY "${ONNX_LIB_DIR}/" DESTINATION "${UNITY_WRAPPER_DLL_DIR}/" FILES_MATCHING PATTERN "*onn*.dll" PATTERN "*onn*.lib" PATTERN "*.so*" PATTERN "*.dylib*")
 
-    add_definitions(-DUSE_CUDA)
-    add_definitions(-DUSE_TENSORRT)
+    if(NOT APPLE)
+        add_definitions(-DUSE_CUDA)
+        add_definitions(-DUSE_TENSORRT)
+    endif()
 endif()
 
-if(UNIX)
+if(APPLE)
+    file(GLOB _ONNXRUNTIME_DYLIBS "${ONNX_LIB_DIR}/libonnxruntime*.dylib")
+    set(ONNXRUNTIME_LIBRARY "")
+    set(ONNXRUNTIME_ALIAS_LIBRARY "")
+    foreach(_ONNXRUNTIME_DYLIB IN LISTS _ONNXRUNTIME_DYLIBS)
+        get_filename_component(_ONNXRUNTIME_DYLIB_NAME "${_ONNXRUNTIME_DYLIB}" NAME)
+        if(_ONNXRUNTIME_DYLIB_NAME STREQUAL "libonnxruntime.dylib")
+            set(ONNXRUNTIME_ALIAS_LIBRARY "${_ONNXRUNTIME_DYLIB}")
+        elseif(NOT ONNXRUNTIME_LIBRARY)
+            set(ONNXRUNTIME_LIBRARY "${_ONNXRUNTIME_DYLIB}")
+        endif()
+    endforeach()
+    if(NOT ONNXRUNTIME_LIBRARY)
+        set(ONNXRUNTIME_LIBRARY "${ONNX_LIB_DIR}/libonnxruntime.dylib")
+    endif()
+    if(NOT ONNXRUNTIME_ALIAS_LIBRARY)
+        set(ONNXRUNTIME_ALIAS_LIBRARY "${ONNXRUNTIME_LIBRARY}")
+    endif()
+    add_library(onnxruntime SHARED IMPORTED GLOBAL)
+    set_target_properties(onnxruntime PROPERTIES
+        IMPORTED_LOCATION "${ONNXRUNTIME_LIBRARY}"
+    )
+elseif(UNIX)
     set(ONNXRUNTIME_LIBRARY "${ONNX_LIB_DIR}/libonnxruntime.so")
     if(PROJECTAIRSIM_USE_UE_TOOLCHAIN)
         function(projectairsim_resolve_ue_runtime_library OUTPUT_VARIABLE LIBRARY_NAME)
@@ -872,7 +968,10 @@ add_subdirectory(samples)
 add_subdirectory(physics)
 add_subdirectory(mavlinkcom)
 add_subdirectory(rendering)
-add_subdirectory(tools)
+if(NOT APPLE)
+    # LVMon's TCP transport currently only implements Windows and Linux.
+    add_subdirectory(tools)
+endif()
 add_subdirectory(unity)
 add_subdirectory(vehicle_apis)
 
@@ -891,7 +990,7 @@ if(BUILD_TESTING)
         COMMENT "Staging SimLibs test runtime dependencies"
     )
     add_dependencies(simlibs_test_runtime_dependencies jsbsim-repo)
-    if(UNIX)
+    if(UNIX AND NOT APPLE)
         add_dependencies(simlibs_test_runtime_dependencies zlib-external)
     endif()
 

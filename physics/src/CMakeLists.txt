@@ -66,7 +66,7 @@ if(WIN32)
             ws2_32  # req by nng on Win
             mswsock  # req by nng on Win
             advapi32  # req by nng on Win
-            lvmon
+            $<$<BOOL:${PROJECTAIRSIM_ENABLE_LVMON}>:lvmon>
             jsbsim
     )
 else()

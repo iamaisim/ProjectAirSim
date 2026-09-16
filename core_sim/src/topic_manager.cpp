@@ -12,6 +12,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <shared_mutex>
 #include <sstream>
 #include <stdexcept>
@@ -223,6 +224,8 @@ class TopicManager::Impl {
   std::string local_address_;
   Logger log_;
   mutable std::shared_timed_mutex manager_lock_;
+  // Serialize complete Start/Stop transitions without blocking topic callbacks.
+  std::mutex lifecycle_lock_;
   std::string name_;
   int port_;
   char* recv_buffer_;
@@ -379,7 +382,9 @@ void TopicManager::Impl::HandleNNGPipeEvent(nng_pipe pipe, nng_pipe_ev ev) {
 }
 
 void TopicManager::Impl::Start() {
+  std::lock_guard<std::mutex> lifecycle_lock(lifecycle_lock_);
   std::unique_lock<std::shared_timed_mutex> exclusive_lock(manager_lock_);
+  if (state_.load()) return;
 
   int rv = nng_pair0_open(&topic_socket_);
   if (rv != 0) {
@@ -469,12 +474,20 @@ void TopicManager::Impl::Start() {
 }
 
 void TopicManager::Impl::Stop() {
+  std::lock_guard<std::mutex> lifecycle_lock(lifecycle_lock_);
   std::unique_lock<std::shared_timed_mutex> exclusive_lock(manager_lock_);
+  if (!state_.load()) return;
 
   send_dispatcher_.stop();
   recv_dispatcher_.stop();
 
   state_ = false;
+
+  // RecvLoop and the NNG disconnect callback both acquire manager_lock_.
+  // Waiting for either while holding it would prevent shutdown from finishing.
+  // lifecycle_lock_ keeps another Start/Stop from changing the socket or thread
+  // until this complete shutdown has finished.
+  exclusive_lock.unlock();
 
   if (recv_thread_.joinable()) {
     try {
@@ -494,6 +507,7 @@ void TopicManager::Impl::Stop() {
     log_.LogError(name_, "nng_close failed with '%s'.", errno_str);
   }
 
+  exclusive_lock.lock();
   topic_socket_ = NNG_SOCKET_INITIALIZER;
   active_pipe_count_.store(0, std::memory_order_release);
 

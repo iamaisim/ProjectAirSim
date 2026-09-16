@@ -184,20 +184,6 @@ jobs:
       if: matrix.toolchain == '5.7'
       env:
         UE_ROOT: ''
-    - name: Generate Blocks VS Code project files
-      shell: bash
-      run: |
-        set -euo pipefail
-        chmod +x unreal/Blocks/blocks_genprojfiles_vscode.sh
-        unreal/Blocks/blocks_genprojfiles_vscode.sh
-    - name: Build and package Unreal Shipping for integration
-      if: steps.simlibs.outcome == 'success'
-      shell: bash
-      run: |-
-        set -euo pipefail
-        # UE 5.7 Release libraries are built here solely for packaged integration.
-        # Reuse only this job's libraries for Unreal targets.
-        ./build.sh --assume-old=simlibs_release blocks_shipping package_blocks_shipping
     - name: Set up integration Python
       uses: actions/setup-python@v5
       with:
@@ -214,8 +200,37 @@ jobs:
         source "$AIRSIM_PY_ENV/bin/activate"
         python -m pip install --upgrade pip
         python -m pip install -e "client/python/projectairsim[datacollection]"
-        python -m pip install pytest pytest-cov
+        python -m pip install pytest pytest-cov pytest-timeout psutil
       if: matrix.toolchain == '5.7'
+    - name: Run offline Python regressions
+      shell: bash
+      run: |-
+        set -euo pipefail
+        source "$AIRSIM_PY_ENV/bin/activate"
+        cd client/python/projectairsim/tests
+        python -m pytest -v --sim-host offline --timeout=120 --junitxml=pytest-offline.xml
+    - name: Run PAS Runtime regressions
+      shell: bash
+      run: |-
+        set -euo pipefail
+        source "$AIRSIM_PY_ENV/bin/activate"
+        runtime="$(find build/linux64 -path '*/Debug/samples/projectairsim_runtime/projectairsim-runtime' -type f -print -quit)"
+        test -n "$runtime"
+        python tools/ci/run_runtime_regressions.py --runtime "$runtime"
+    - name: Generate Blocks VS Code project files
+      shell: bash
+      run: |
+        set -euo pipefail
+        chmod +x unreal/Blocks/blocks_genprojfiles_vscode.sh
+        unreal/Blocks/blocks_genprojfiles_vscode.sh
+    - name: Build and package Unreal Shipping for integration
+      if: steps.simlibs.outcome == 'success'
+      shell: bash
+      run: |-
+        set -euo pipefail
+        # UE 5.7 Release libraries are built here solely for packaged integration.
+        # Reuse only this job's libraries for Unreal targets.
+        ./build.sh --assume-old=simlibs_release blocks_shipping package_blocks_shipping
     - name: Clean stale simulator processes and ports
       shell: bash
       run: |
@@ -284,7 +299,7 @@ jobs:
         set -euo pipefail
         source "$AIRSIM_PY_ENV/bin/activate"
         cd client/python/projectairsim/tests
-        python -m pytest -v --junitxml=pytest-results.xml
+        python -m pytest -v --sim-host unreal --timeout=180 --junitxml=pytest-unreal.xml
       if: matrix.toolchain == '5.7'
     - name: Stop packaged Blocks
       if: always() && matrix.toolchain == '5.7'

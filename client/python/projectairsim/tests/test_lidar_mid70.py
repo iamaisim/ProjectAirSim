@@ -10,7 +10,8 @@ import pytest
 
 from typing import Deque
 
-from projectairsim import ProjectAirSimClient, Drone, World
+from projectairsim import ProjectAirSimClient, Drone
+from regression_support import RegressionWorld as World
 from projectairsim.utils import projectairsim_log
 
 
@@ -145,7 +146,7 @@ def lidar_test():
             scene_config_file="scene_test_lidar_mid70.jsonc",
             sim_config_path="sim_config",
             drone_name="Drone1",
-            lidar_sensor_name="lidar1",
+            lidar_sensor_name="LidarMid70",
         )
     )
 
@@ -157,3 +158,5 @@ class TestClientBase:
 
         # Interval of report-frequency setting, Mid-70 defaults to 10 Hz
         assert lidar_test.sec_report_interval_avg == pytest.approx(0.1, rel=0.1)
+
+pytestmark = pytest.mark.unreal

@@ -35,3 +35,5 @@ class TestClientBase:
         assert robo.client.state is False
         assert len(robo.client.socket_topics.dialers) == 0
         robo.client.connect() # needed if the client will be teared down.
+
+pytestmark = pytest.mark.runtime

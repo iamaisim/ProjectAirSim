@@ -58,7 +58,7 @@ jobs:
     - name: Run offline Python tests
       working-directory: client/python/projectairsim/tests
       run: |
-        python -m pytest -v \
+        python -m pytest -v --sim-host offline \
           test_json_schema.py \
           test_datacollection/test_datacollector_config.py \
           --junitxml=python-${{ matrix.python-version }}-results.xml

@@ -30,6 +30,11 @@ def read_scene(name, directory=CONFIG):
 
 def runtime_scene(config):
     config = deepcopy(config)
+    clock = config["clock"]
+    if clock["type"] == "steppable":
+        # Advance the same physics step ten times per wall-clock step interval.
+        # The host may run slower when limited by computation or timer precision.
+        clock["real-time-update-rate"] = max(1, clock["step-ns"] // 10)
     for actor in config["actors"]:
         robot = actor.get("robot-config", {})
         robot["sensors"] = [s for s in robot.get("sensors", [])

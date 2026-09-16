@@ -17,7 +17,10 @@ def test_runtime_removes_rendered_sensors_without_mutating_source():
     sensors = adapted["actors"][0]["robot-config"]["sensors"]
     assert {s["type"] for s in sensors} == {
         "imu", "gps", "barometer", "magnetometer", "airspeed"}
-    assert adapted["clock"] == original["clock"]
+    expected_clock = deepcopy(original["clock"])
+    expected_clock["real-time-update-rate"] = 300_000
+    assert adapted["clock"] == expected_clock
+    assert adapted["clock"]["step-ns"] == original["clock"]["step-ns"] == 3_000_000
     assert adapted["actors"][0]["robot-config"]["controller"] == original["actors"][0]["robot-config"]["controller"]
 
 

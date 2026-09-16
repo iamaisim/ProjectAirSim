@@ -2,8 +2,6 @@
 
 <div align="center">
 
-[![Build Sphinx Docs](https://github.com/iamaisim/ProjectAirSim/actions/workflows/sphinx-docs.yml/badge.svg?branch=main)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/sphinx-docs.yml)
-
 [![Latest release](https://img.shields.io/github/v/release/iamaisim/ProjectAirSim?label=release)](https://github.com/iamaisim/ProjectAirSim/releases/latest)
 [![Ubuntu](https://img.shields.io/badge/Ubuntu-22.04-E95420?logo=ubuntu&logoColor=white)](docs/development/dev_setup_linux.md)
 [![Unreal Engine](https://img.shields.io/badge/Unreal%20Engine-5.2%20%7C%205.7-0E1128?logo=unrealengine&logoColor=white)](docs/development/use_source.md)

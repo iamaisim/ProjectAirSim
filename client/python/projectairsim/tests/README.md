@@ -35,7 +35,12 @@ client CPU profiling use Runtime. The hello-drone smoke checks flight and IMU;
 image content and image/pose correspondence remain covered by Unreal tests. The test-only `RegressionWorld` removes
 rendered sensors from these configurations before sending them to the server.
 It preserves fresh scenes for cases that change controllers, clocks, or battery
-configuration. Production client scene-loading behavior is unchanged.
+configuration. Steppable Runtime clocks target 10x real time by setting
+`real-time-update-rate` to `step-ns / 10`: the existing 3,000,000 ns physics
+step stays unchanged, while the wall-clock update interval is 300,000 ns.
+Actual throughput depends on host timer precision and compute capacity.
+Explicit paused stepping still uses the requested simulated duration. Unreal
+clock settings and production client scene-loading behavior are unchanged.
 
 ## One Unreal scene
 

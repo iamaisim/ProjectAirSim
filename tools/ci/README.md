@@ -48,6 +48,8 @@ Use a virtual environment with `projectairsim[datacollection]`, `pytest`, and
 python -W error::SyntaxWarning -m compileall -q -f client/python/projectairsim/src client/python/projectairsim/tests client/python/example_user_scripts
 python -m unittest discover -s tools/ci -p test_validate_configs.py -v
 python tools/ci/check_layered_ci_flows.py
+# Requires CMake and Ninja; checks Unity gating with isolated fixture artifacts.
+python tools/ci/check_unity_build_opt_in.py
 # On Linux/WSL with GNU Make and Bash:
 python tools/ci/check_linux_build_reuse.py
 python tools/ci/validate_configs.py <changed JSON/JSONC paths>

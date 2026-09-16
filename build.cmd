@@ -6,6 +6,19 @@ REM MIT License.
 setlocal ENABLEDELAYEDEXPANSION
 
 set "ROOT_DIR=%~dp0"
+set "PAS_BUILD_UNITY=OFF"
+REM Preserve the original tail: SHIFT tokenizes unquoted NMake assignments at =.
+set "PAS_BUILD_ARGS= %* "
+:parse_build_args
+if "%~1"=="" goto :build_args_ready
+if /i "%~1"=="--unity" (
+  set "PAS_BUILD_UNITY=ON"
+  set "PAS_BUILD_ARGS=!PAS_BUILD_ARGS: --unity = !"
+  set "PAS_BUILD_ARGS=!PAS_BUILD_ARGS: "--unity" = !"
+)
+shift
+goto :parse_build_args
+:build_args_ready
 
 REM =====================================================
 REM Check Visual Studio environment
@@ -169,7 +182,7 @@ REM =====================================================
 REM Build
 REM =====================================================
 
-nmake /f build_windows.mk %*
+nmake /f build_windows.mk !PAS_BUILD_ARGS! PAS_BUILD_UNITY=!PAS_BUILD_UNITY!
 if errorlevel 1 (
   goto :buildfailed_nomsg
 )

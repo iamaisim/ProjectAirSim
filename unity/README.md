@@ -17,6 +17,38 @@ Project AirSim simulation libraries can be hosted by a 3D engine other than
 Unreal Engine. It is useful as an architectural reference for evaluating or
 developing additional simulation hosts.
 
+## Opt-in native builds
+
+Normal SimLibs builds do **not** compile `sim_unity_wrapper` or stage Unity
+plugin dependencies. Add `--unity` to explicitly include those artifacts:
+
+```powershell
+# Windows: run from the repository root
+.\build.cmd --unity simlibs_release
+.\build.cmd --unity simlibs_debug
+```
+
+```bash
+# Linux/macOS: run from the repository root
+./build.sh --unity simlibs_release
+./build.sh --unity simlibs_debug
+```
+
+The flag can appear before or after the target. It includes the Unity wrapper
+and its dependency staging under `unity/BlocksUnity/Assets/Plugins`; shared
+SimLibs needed by Runtime and Unreal still build normally without the flag.
+It does not build the Unity Editor project or imply supported Unity compatibility.
+
+Each build-script invocation defaults back to Unity disabled, even when reusing
+a build directory previously configured with `--unity`. Existing plugin files
+are left on disk; disabling Unity prevents new builds/copies, not deletion.
+
+For direct CMake use, the equivalent option is
+`-DPROJECTAIRSIM_BUILD_UNITY=ON`. It defaults to `OFF` in a new cache. CMake
+remembers explicit options, so pass `-DPROJECTAIRSIM_BUILD_UNITY=OFF` to disable
+Unity again when configuring directly. Direct Make/NMake users can pass
+`PAS_BUILD_UNITY=ON` (default `OFF`).
+
 ## Contents
 
 - `BlocksUnity/`: Unity example project, scenes, assets, and C# host code.

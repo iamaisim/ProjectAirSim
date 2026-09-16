@@ -4,7 +4,11 @@
 // MIT License. All rights reserved.
 
 #include <chrono>
+#include <cstdio>
+#include <cstdlib>
+#include <future>
 #include <string>
+#include <thread>
 
 #include "gtest/gtest.h"
 #include "msgpack.hpp"
@@ -158,4 +162,77 @@ TEST(TopicManager, BlockingReceiveAllowsBoundedStopWithoutTraffic) {
   const auto elapsed = std::chrono::steady_clock::now() - start;
 
   EXPECT_LT(elapsed, std::chrono::seconds(1));
+}
+
+namespace {
+
+void RequireNngSuccess(int result) {
+  if (result != 0) {
+    std::fprintf(stderr, "NNG setup failed: %s\n", nng_strerror(result));
+    std::_Exit(2);
+  }
+}
+
+void CheckConnectedShutdown(bool pending_frames) {
+  // A deadlock must fail in a bounded child process, not hang the test runner.
+  std::thread([] {
+    std::this_thread::sleep_for(std::chrono::seconds(10));
+    std::fprintf(stderr, "TopicManager shutdown timed out\n");
+    std::_Exit(3);
+  }).detach();
+
+  projectairsim::Logger logger(
+      [](const std::string&, projectairsim::LogLevel, const std::string&) {});
+  {
+    projectairsim::TopicManager manager(logger);
+    const int port = pending_frames ? 18992 : 18991;
+    manager.Load(nlohmann::json{{"ip", "127.0.0.1"}, {"port", port}});
+    const std::string url = "tcp://127.0.0.1:" + std::to_string(port);
+
+    for (int iteration = 0; iteration < 3; ++iteration) {
+      manager.Start();
+      nng_socket peer = NNG_SOCKET_INITIALIZER;
+      RequireNngSuccess(nng_pair0_open(&peer));
+      RequireNngSuccess(nng_socket_set_ms(peer, NNG_OPT_SENDTIMEO, 1000));
+      RequireNngSuccess(nng_dial(peer, url.c_str(), nullptr, 0));
+
+      if (pending_frames) {
+        // Even an unknown topic takes manager_lock_ in RecvLoop. Queue frames
+        // while stopping to exercise the receive path as well as disconnect.
+        const std::string frame = PackTopicFrame(
+            projectairsim::FrameType::kSubscribe, "/shutdown-test", "");
+        for (int frame_index = 0; frame_index < 16; ++frame_index) {
+          RequireNngSuccess(nng_send(peer, const_cast<char*>(frame.data()),
+                                     frame.size(), 0));
+        }
+        std::promise<void> start;
+        const auto ready = start.get_future().share();
+        std::thread first([&] { ready.wait(); manager.Stop(); });
+        std::thread second([&] { ready.wait(); manager.Stop(); });
+        start.set_value();
+        first.join();
+        second.join();
+      } else {
+        manager.Stop();
+      }
+
+      // Keep the peer open until Stop returns: closing it beforehand hides
+      // the disconnect callback's lock cycle. Repeated Stop must be harmless.
+      manager.Stop();
+      RequireNngSuccess(nng_close(peer));
+    }
+  }
+  std::_Exit(0);
+}
+
+}  // namespace
+
+TEST(TopicManagerDeathTest, ConnectedClientCanStopAndRestart) {
+  ::testing::GTEST_FLAG(death_test_style) = "threadsafe";
+  ASSERT_EXIT(CheckConnectedShutdown(false), ::testing::ExitedWithCode(0), "");
+}
+
+TEST(TopicManagerDeathTest, PendingFramesAndConcurrentStopsCanRestart) {
+  ::testing::GTEST_FLAG(death_test_style) = "threadsafe";
+  ASSERT_EXIT(CheckConnectedShutdown(true), ::testing::ExitedWithCode(0), "");
 }

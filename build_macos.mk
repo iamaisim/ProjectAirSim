@@ -41,7 +41,8 @@ rebuild_all: clean all
 CMAKE_BUILD_DIR = build/macos
 OPENSSL_ROOT_DIR ?= $(shell brew --prefix openssl@3)
 ZLIB_HOME ?= $(shell brew --prefix zlib)
-CMAKE_CMD = cmake -G "Ninja" \
+CMAKE_EXTRA_ARGS ?=
+CMAKE_CMD = cmake $(CMAKE_EXTRA_ARGS) -G "Ninja" \
 	-DOPENSSL_ROOT_DIR="$(OPENSSL_ROOT_DIR)" \
 	-DZLIB_HOME="$(ZLIB_HOME)"
 CMAKE_DBG_BUILD_CMD = cmake --build $(CMAKE_BUILD_DIR)/Debug

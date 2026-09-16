@@ -1,5 +1,5 @@
 {
-    "$schema": "./schemas/datacollector_config_schema.jsonc",
+    "$schema": "../../schemas/datacollector_config_schema.jsonc",
     "env-spec": {
         "assets": {},
         "weather": [ // Dict(WeatherParameter, WeatherIntensityRange(0.0-1.0)Array [start, end, step])

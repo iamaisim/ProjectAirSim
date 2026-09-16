@@ -61,7 +61,10 @@ CMAKE_BUILD_DIR = build\win64\$(PAS_TOOLCHAIN_ID)
 !else
 CMAKE_BUILD_DIR = build\win64\system
 !endif
-CMAKE_CMD = cmake -G "Ninja" \
+!ifndef CMAKE_EXTRA_ARGS
+CMAKE_EXTRA_ARGS =
+!endif
+CMAKE_CMD = cmake $(CMAKE_EXTRA_ARGS) -G "Ninja" \
 				  -DCMAKE_C_COMPILER=cl.exe \
 				  -DCMAKE_CXX_COMPILER=cl.exe \
 				  -S "%CD%"

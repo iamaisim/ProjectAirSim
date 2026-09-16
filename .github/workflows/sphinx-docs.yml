@@ -1,26 +1,15 @@
-name: Build and Deploy Sphinx Docs
+name: Build Sphinx Docs
 
+# Called only by the run-ci PR workflow after component selection.
 on:
-  workflow_dispatch:
-  push:
-    branches: [main, main_public]
-    paths:
-      - ".github/workflows/sphinx-docs.yml"
-      - "README.md"
-      - "docs/**"
-      - "client/python/projectairsim/docs/**"
-      - "client/python/projectairsim/src/**"
-  pull_request:
-    branches: [main, main_public]
-    paths:
-      - ".github/workflows/sphinx-docs.yml"
-      - "README.md"
-      - "docs/**"
-      - "client/python/projectairsim/docs/**"
-      - "client/python/projectairsim/src/**"
+  workflow_call:
+
+permissions:
+  contents: read
 
 jobs:
   build-docs:
+    if: github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'run-ci'
     runs-on: ubuntu-latest
 
     steps:
@@ -39,6 +28,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+          cache: pip
+          cache-dependency-path: |
+            docs/requirements.txt
+            client/python/projectairsim/docs/requirements.txt
 
       - name: Install dependencies for main docs
         working-directory: ./docs
@@ -80,12 +73,3 @@ jobs:
         run: |
           mkdir -p docs/build/html/client_api
           cp -r client/python/projectairsim/docs/build/html/* docs/build/html/client_api/
-
-      - name: Deploy to gh_page branch
-        if: github.event_name == 'push'
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/build/html
-          publish_branch: gh_page
-          force_orphan: true

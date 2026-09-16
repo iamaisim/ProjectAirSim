@@ -1,0 +1,27 @@
+name: Cheap Python unit checks
+'on':
+  workflow_call:
+    inputs:
+      python_compatibility_result:
+        type: string
+        required: true
+permissions:
+  contents: read
+jobs:
+  python-cheap:
+    name: Cheap Python unit checks
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+    - name: Confirm all supported Python versions passed
+      env:
+        PYTHON_COMPATIBILITY_RESULT: ${{ inputs.python_compatibility_result }}
+      shell: bash
+      run: |
+        set -euo pipefail
+        if [ "$PYTHON_COMPATIBILITY_RESULT" != "success" ]; then
+          echo "Python compatibility matrix result: $PYTHON_COMPATIBILITY_RESULT" >&2
+          exit 1
+        fi
+        echo "Python 3.9 through 3.14 compatibility checks passed."
+    if: github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'run-ci'

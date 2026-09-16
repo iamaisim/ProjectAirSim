@@ -38,8 +38,11 @@ else
   mv AirSim$PROJECT_NAME.code-workspace $PROJECT_NAME.code-workspace
 
   # Fix UE's generated game target binary names from UnrealGame to the project name in launch.json
-  sed -i "s/UnrealGame-/$PROJECT_NAME-/g" .vscode/launch.json
-  sed -i "s/UnrealGame\"/$PROJECT_NAME\"/g" .vscode/launch.json
+  if [ -f .vscode/launch.json ]
+  then
+    sed -i "s/UnrealGame-/$PROJECT_NAME-/g" .vscode/launch.json
+    sed -i "s/UnrealGame\"/$PROJECT_NAME\"/g" .vscode/launch.json
+  fi
 
   # Add Project AirSim Python debugging entries to UE-generated VS Code files.
   if command -v python3 >/dev/null 2>&1

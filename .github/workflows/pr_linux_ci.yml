@@ -1,0 +1,302 @@
+name: Linux final regression
+'on':
+  workflow_call: {}
+permissions:
+  contents: read
+jobs:
+  linux:
+    name: Ubuntu 22.04 / ${{ matrix.toolchain }}
+    if: github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'run-ci' && contains(github.event.pull_request.labels.*.name, 'run-regressions')
+    runs-on:
+    - self-hosted
+    - Linux
+    - X64
+    timeout-minutes: 480
+    concurrency:
+      group: projectairsim-linux-${{ github.repository }}
+      cancel-in-progress: false
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        toolchain:
+        - '5.7'
+    env:
+      UE_ROOT: ''
+      AIRSIM_PY_ENV: ${{ github.workspace }}/airsimenv
+      PROJECTAIRSIM_CI: '1'
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        clean: true
+    - name: Require Ubuntu 22.04
+      shell: bash
+      run: |-
+        set -euo pipefail
+        source /etc/os-release
+        if [[ "$ID" != ubuntu || "$VERSION_ID" != 22.04 ]]; then
+          echo "This workflow requires an Ubuntu 22.04 self-hosted runner." >&2
+          exit 1
+        fi
+    - name: Select SimLibs toolchain
+      shell: bash
+      env:
+        TOOLCHAIN: ${{ matrix.toolchain }}
+      run: bash tools/ci/select_unreal_root.sh "$TOOLCHAIN"
+    - name: Build and test SimLibs once
+      id: simlibs
+      shell: bash
+      run: |-
+        set -euo pipefail
+        # A single make invocation visits each phony SimLibs target only once, even
+        # though the test targets also depend on it.
+        ./build.sh simlibs_debug simlibs_release test_simlibs_debug
+    - name: Build and test standalone C++ client
+      if: matrix.toolchain == '5.7'
+      env:
+        UE_ROOT: ''
+      shell: bash
+      run: |-
+        set -euo pipefail
+        ./build_cpp_client.sh debug --tests
+        cmake --build client/cpp/build_linux/Debug --target package
+    - name: Extract standalone C++ client package
+      shell: bash
+      run: |
+        set -euo pipefail
+        archive="$(find packages/projectairsim_cpp_client -maxdepth 1 -name 'ProjectAirSimCppClient-*-linux64.tar.gz' -print -quit)"
+        if [ -z "$archive" ]; then
+          echo "ProjectAirSim C++ client package was not created." >&2
+          exit 1
+        fi
+
+        mkdir -p _cpp_client_ci/package
+        tar -xzf "$archive" -C _cpp_client_ci/package
+      if: matrix.toolchain == '5.7'
+    - name: Verify JSBSim SimLibs artifacts
+      shell: bash
+      run: |
+        set -euo pipefail
+        test -d unreal/Blocks/Plugins/ProjectAirSim/SimLibs/core_sim/jsbsim/include
+        test -f unreal/Blocks/Plugins/ProjectAirSim/SimLibs/core_sim/jsbsim/lib/Debug/libJSBSim.so
+    - name: Smoke-test CMake package
+      shell: bash
+      run: |
+        set -euo pipefail
+        package_config="$(find _cpp_client_ci/package -name 'ProjectAirSimCppClientConfig.cmake' -print -quit)"
+        if [ -z "$package_config" ]; then
+          find _cpp_client_ci/package -maxdepth 6 -print || true
+          echo "ProjectAirSim C++ client CMake config was not found before smoke test." >&2
+          exit 1
+        fi
+
+        package_config="$(realpath "$package_config")"
+        package_config_dir="$(dirname "$package_config")"
+        echo "Using ProjectAirSimCppClient_DIR=$package_config_dir"
+
+        mkdir -p _cpp_client_ci/consumer
+        cat > _cpp_client_ci/consumer/CMakeLists.txt <<'EOF'
+        cmake_minimum_required(VERSION 3.20)
+        project(ProjectAirSimCppClientConsumer LANGUAGES CXX)
+
+        set(CMAKE_CXX_STANDARD 17)
+        set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+        find_package(ProjectAirSimCppClient REQUIRED)
+
+        add_executable(consumer main.cpp)
+        target_link_libraries(consumer PRIVATE ProjectAirSim::Client)
+        EOF
+
+        cat > _cpp_client_ci/consumer/main.cpp <<'EOF'
+        #include <ProjectAirsimClient/Client.h>
+
+        int main() {
+          return microsoft::projectairsim::client::Client::GetVersion() == nullptr;
+        }
+        EOF
+
+        cmake -S _cpp_client_ci/consumer \
+          -B _cpp_client_ci/consumer/build \
+          -G Ninja \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DProjectAirSimCppClient_DIR="$package_config_dir" \
+          -DCMAKE_PREFIX_PATH="$package_config_dir"
+
+        cmake --build _cpp_client_ci/consumer/build --config Debug --parallel
+      if: matrix.toolchain == '5.7'
+      env:
+        UE_ROOT: ''
+    - name: Check existing ROS tooling
+      id: ros-tools
+      if: matrix.toolchain == '5.7'
+      shell: bash
+      run: |
+        set -euo pipefail
+        if [[ -f /opt/ros/humble/setup.bash ]] && command -v rosdep >/dev/null && command -v colcon >/dev/null; then
+          echo "installed=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "installed=false" >> "$GITHUB_OUTPUT"
+        fi
+    - name: Set up ROS 2 Humble
+      uses: ros-tooling/setup-ros@v0.7
+      with:
+        required-ros-distributions: humble
+      if: matrix.toolchain == '5.7' && steps.ros-tools.outputs.installed != 'true'
+    - name: Install ROS package dependencies
+      shell: bash
+      run: |
+        set -euo pipefail
+        if [[ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]]; then
+          sudo -n rosdep init
+        fi
+        rosdep update --rosdistro humble
+        rosdep install --from-paths ros/projectairsim_ros2_cpp --ignore-src --rosdistro humble -y
+      if: matrix.toolchain == '5.7'
+    - name: Build ROS 2 C++ node
+      shell: bash
+      run: |
+        set -eo pipefail
+        source /opt/ros/humble/setup.bash
+        set -u
+        colcon build \
+          --base-paths ros \
+          --packages-select projectairsim_ros2_cpp \
+          --cmake-args -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug \
+          --event-handlers console_direct+
+      if: matrix.toolchain == '5.7'
+      env:
+        UE_ROOT: ''
+    - name: Run ROS 2 C++ node tests
+      shell: bash
+      run: |
+        set -eo pipefail
+        source /opt/ros/humble/setup.bash
+        source install/setup.bash
+        set -u
+        colcon test \
+          --base-paths ros \
+          --packages-select projectairsim_ros2_cpp \
+          --return-code-on-test-failure \
+          --event-handlers console_direct+
+        colcon test-result --test-result-base build --verbose
+      if: matrix.toolchain == '5.7'
+      env:
+        UE_ROOT: ''
+    - name: Generate Blocks VS Code project files
+      shell: bash
+      run: |
+        set -euo pipefail
+        chmod +x unreal/Blocks/blocks_genprojfiles_vscode.sh
+        unreal/Blocks/blocks_genprojfiles_vscode.sh
+    - name: Build and package Unreal Shipping for integration
+      if: steps.simlibs.outcome == 'success'
+      shell: bash
+      run: |-
+        set -euo pipefail
+        # UE 5.7 Release libraries are built here solely for packaged integration.
+        # Reuse only this job's libraries for Unreal targets.
+        ./build.sh --assume-old=simlibs_release blocks_shipping package_blocks_shipping
+    - name: Set up integration Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: pip
+        cache-dependency-path: client/python/projectairsim/pyproject.toml
+      if: matrix.toolchain == '5.7'
+    - name: Setup Python integration environment
+      shell: bash
+      run: |
+        set -euo pipefail
+        rm -rf "$AIRSIM_PY_ENV"
+        python -m venv "$AIRSIM_PY_ENV"
+        source "$AIRSIM_PY_ENV/bin/activate"
+        python -m pip install --upgrade pip
+        python -m pip install -e "client/python/projectairsim[datacollection]"
+        python -m pip install pytest pytest-cov
+      if: matrix.toolchain == '5.7'
+    - name: Clean stale simulator processes and ports
+      shell: bash
+      run: |
+        set -euo pipefail
+        pkill -f UnrealEditor || true
+        pkill -f Blocks || true
+        sleep 2
+        for p in 8989 8990 8991 41451; do
+          lsof -ti :"$p" | xargs -r kill -9 || true
+        done
+        rm -f packaged.pid packaged.log
+      if: matrix.toolchain == '5.7'
+    - name: Launch packaged Blocks Shipping binary
+      shell: bash
+      run: |
+        set -euo pipefail
+        export DISPLAY=:0
+        export SDL_VIDEODRIVER=x11
+
+        packaged_binary="$(find packages/Blocks/Shipping -type f -name 'Blocks.sh' -print -quit)"
+        if [ -z "$packaged_binary" ]; then
+          find packages/Blocks/Shipping -maxdepth 5 -print || true
+          echo "Could not find packaged Blocks.sh under packages/Blocks/Shipping" >&2
+          exit 1
+        fi
+
+        chmod +x "$packaged_binary"
+        "$packaged_binary" \
+          -RenderOffScreen \
+          -vulkan \
+          -nosound -unattended -nopause -NoSplash -log \
+          -ResX=640 -ResY=480 \
+          -qualitylevel=0 \
+          > packaged.log 2>&1 &
+        echo $! > packaged.pid
+      if: matrix.toolchain == '5.7'
+    - name: Wait for simulator readiness
+      shell: bash
+      run: |
+        set -euo pipefail
+        source "$AIRSIM_PY_ENV/bin/activate"
+        echo "Waiting for ProjectAirSim sockets on ports 8989/8990..."
+        for _ in {1..240}; do
+          if ps -p "$(cat packaged.pid)" > /dev/null 2>&1; then
+            if lsof -i :8989 >/dev/null 2>&1 && lsof -i :8990 >/dev/null 2>&1; then
+              echo "Ports 8989/8990 are listening, validating client handshake..."
+              if timeout 30 python -c 'from projectairsim import ProjectAirSimClient; c=ProjectAirSimClient(); c.connect(); c.get_topic_info(); c.disconnect(); print("Simulator ready")'; then
+                echo "Simulator is ready"
+                exit 0
+              fi
+            fi
+          else
+            echo "Packaged Blocks process exited unexpectedly"
+            tail -n 300 packaged.log || true
+            exit 1
+          fi
+          sleep 1
+        done
+        echo "Simulator failed to start within timeout (240 sec)"
+        tail -n 300 packaged.log || true
+        exit 1
+      if: matrix.toolchain == '5.7'
+    - name: Run Python integration tests
+      shell: bash
+      run: |
+        set -euo pipefail
+        source "$AIRSIM_PY_ENV/bin/activate"
+        cd client/python/projectairsim/tests
+        python -m pytest -v --junitxml=pytest-results.xml
+      if: matrix.toolchain == '5.7'
+    - name: Stop packaged Blocks
+      if: always() && matrix.toolchain == '5.7'
+      shell: bash
+      run: |
+        if [ -f packaged.pid ]; then
+          kill "$(cat packaged.pid)" || true
+        fi
+        pkill -f Blocks || true
+    - name: Dump packaged Blocks logs on failure
+      if: failure() && matrix.toolchain == '5.7'
+      shell: bash
+      run: |
+        echo "==== Packaged Blocks Log Output ===="
+        cat packaged.log || true

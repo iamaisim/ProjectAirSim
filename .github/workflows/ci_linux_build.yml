@@ -1,0 +1,60 @@
+name: Linux SimLibs build and tests
+'on':
+  workflow_call: {}
+permissions:
+  contents: read
+jobs:
+  linux:
+    name: Ubuntu 22.04 / ${{ matrix.toolchain }}
+    if: github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'run-ci'
+    runs-on:
+    - self-hosted
+    - Linux
+    - X64
+    timeout-minutes: 480
+    concurrency:
+      group: projectairsim-linux-${{ github.repository }}
+      cancel-in-progress: false
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        toolchain:
+        - '5.2'
+    env:
+      UE_ROOT: ''
+      AIRSIM_PY_ENV: ${{ github.workspace }}/airsimenv
+      PROJECTAIRSIM_CI: '1'
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        clean: true
+    - name: Require Ubuntu 22.04
+      shell: bash
+      run: |-
+        set -euo pipefail
+        source /etc/os-release
+        if [[ "$ID" != ubuntu || "$VERSION_ID" != 22.04 ]]; then
+          echo "This workflow requires an Ubuntu 22.04 self-hosted runner." >&2
+          exit 1
+        fi
+    - name: Select SimLibs toolchain
+      shell: bash
+      env:
+        TOOLCHAIN: ${{ matrix.toolchain }}
+      run: bash tools/ci/select_unreal_root.sh "$TOOLCHAIN"
+    - name: Build and test SimLibs once
+      id: simlibs
+      shell: bash
+      run: |-
+        set -euo pipefail
+        # A single make invocation visits each phony SimLibs target only once, even
+        # though the test targets also depend on it.
+        ./build.sh simlibs_debug test_simlibs_debug
+    - name: Verify JSBSim SimLibs artifacts
+      shell: bash
+      run: |
+        set -euo pipefail
+        test -d unreal/Blocks/Plugins/ProjectAirSim/SimLibs/core_sim/jsbsim/include
+        test -f unreal/Blocks/Plugins/ProjectAirSim/SimLibs/core_sim/jsbsim/lib/Debug/libJSBSim.so

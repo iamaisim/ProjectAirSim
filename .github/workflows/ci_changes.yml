@@ -1,0 +1,116 @@
+name: Detect changed components
+'on':
+  workflow_call:
+    outputs:
+      configs:
+        value: ${{ jobs.changes.outputs.configs }}
+      python:
+        value: ${{ jobs.changes.outputs.python }}
+      windows:
+        value: ${{ jobs.changes.outputs.windows }}
+      macos:
+        value: ${{ jobs.changes.outputs.macos }}
+      docs:
+        value: ${{ jobs.changes.outputs.docs }}
+      linux:
+        value: ${{ jobs.changes.outputs.linux }}
+permissions:
+  contents: read
+  pull-requests: read
+jobs:
+  changes:
+    name: Detect changed components
+    runs-on: ubuntu-22.04
+    outputs:
+      configs: ${{ steps.filter.outputs.configs }}
+      python: ${{ steps.filter.outputs.python }}
+      windows: ${{ steps.filter.outputs.windows }}
+      macos: ${{ steps.filter.outputs.macos }}
+      docs: ${{ steps.filter.outputs.docs }}
+      linux: ${{ steps.filter.outputs.linux }}
+    steps:
+    - name: Detect relevant changes
+      id: filter
+      uses: dorny/paths-filter@v3
+      with:
+        filters: |
+          configs:
+          - '**/*.json'
+          - '**/*.jsonc'
+          - tools/ci/validate_configs.py
+          - tools/ci/test_validate_configs.py
+          - .github/workflows/pr_ci_orchestrator.yml
+          - .github/workflows/ci_configs.yml
+          - .github/workflows/ci_changes.yml
+          python:
+          - client/python/projectairsim/src/**
+          - client/python/projectairsim/tests/**
+          - client/python/projectairsim/pyproject.toml
+          - client/python/projectairsim/README.md
+          - client/python/example_user_scripts/**/*.py
+          - .github/workflows/pr_ci_orchestrator.yml
+          - .github/workflows/ci_python.yml
+          - .github/workflows/ci_python_result.yml
+          - .github/workflows/ci_changes.yml
+          windows:
+          - .github/workflows/pr_ci_orchestrator.yml
+          - CMakeLists.txt
+          - core_sim/**
+          - mavlinkcom/**
+          - physics/**
+          - rendering/**
+          - samples/**
+          - simserver/**
+          - unity/**
+          - vehicle_apis/**
+          - tools/CMakeLists.txt
+          - tools/lvmon/**
+          - tools/projectairsimpp/**
+          - build.cmd
+          - build_windows.mk
+          - build_cpp_client.cmd
+          - client/cpp/**
+          - .github/workflows/ci_windows.yml
+          - .github/workflows/ci_changes.yml
+          macos:
+          - .github/workflows/pr_ci_orchestrator.yml
+          - CMakeLists.txt
+          - core_sim/**
+          - mavlinkcom/**
+          - physics/**
+          - rendering/**
+          - samples/**
+          - simserver/**
+          - unity/**
+          - vehicle_apis/**
+          - tools/CMakeLists.txt
+          - tools/lvmon/**
+          - tools/projectairsimpp/**
+          - build.sh
+          - build_macos.mk
+          - setup_macos_dev_tools.sh
+          - .github/workflows/ci_macos.yml
+          - .github/workflows/ci_changes.yml
+          docs:
+          - .github/workflows/pr_ci_orchestrator.yml
+          - .github/workflows/sphinx-docs.yml
+          - README.md
+          - docs/**
+          - client/python/projectairsim/docs/**
+          - client/python/projectairsim/src/**
+          - .github/workflows/ci_changes.yml
+          linux:
+          - .github/workflows/pr_ci_orchestrator.yml
+          - .github/workflows/ci_changes.yml
+          - .github/workflows/ci_linux_build.yml
+          - .github/workflows/pr_linux_ci.yml
+          - build.sh
+          - build_linux.mk
+          - build_cpp_client.sh
+          - setup_linux_dev_tools.sh
+          - unreal-linux-toolchain.cmake
+          - ros/**
+          - unreal/**
+          - tools/update_blocks_vscode.py
+          - tools/ci/select_unreal_root.sh
+    if: github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'run-ci'

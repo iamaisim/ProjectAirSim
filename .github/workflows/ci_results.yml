@@ -1,0 +1,127 @@
+name: Comment Layered CI results
+'on':
+  workflow_call:
+    inputs:
+      config_validation_result:
+        type: string
+        required: true
+      python_cheap_result:
+        type: string
+        required: true
+      windows_cheap_result:
+        type: string
+        required: true
+      changes_result:
+        type: string
+        required: true
+      macos_tests_result:
+        type: string
+        required: true
+      docs_build_result:
+        type: string
+        required: true
+      linux_build_result:
+        type: string
+        required: true
+      linux_ci_result:
+        type: string
+        required: true
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  comment-layered-ci-results:
+    name: Comment Layered CI results
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+    - name: Comment results on PR
+      uses: actions/github-script@v7
+      env:
+        RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        CONFIG_STATUS: ${{ inputs.config_validation_result }}
+        PYTHON_STATUS: ${{ inputs.python_cheap_result }}
+        WINDOWS_STATUS: ${{ inputs.windows_cheap_result }}
+        CHANGES_STATUS: ${{ inputs.changes_result }}
+        MACOS_STATUS: ${{ inputs.macos_tests_result }}
+        DOCS_STATUS: ${{ inputs.docs_build_result }}
+        LINUX_BUILD_STATUS: ${{ inputs.linux_build_result }}
+        LINUX_CI_STATUS: ${{ inputs.linux_ci_result }}
+      with:
+        script: |
+          const marker = '<!-- projectairsim-layered-ci -->';
+          const issue_number = context.payload.pull_request?.number;
+          if (!issue_number) {
+            core.info('No pull_request context found; skipping comment.');
+            return;
+          }
+
+          const statuses = [
+            ['Final Linux regression', process.env.LINUX_CI_STATUS],
+            ['Linux SimLibs', process.env.LINUX_BUILD_STATUS],
+            ['Config validation', process.env.CONFIG_STATUS],
+            ['Cheap Python checks', process.env.PYTHON_STATUS],
+            ['Windows SimLibs/C++', process.env.WINDOWS_STATUS],
+            ['Change detection', process.env.CHANGES_STATUS],
+            ['macOS', process.env.MACOS_STATUS],
+            ['Documentation', process.env.DOCS_STATUS],
+          ];
+
+          const iconFor = (status) => {
+            switch (status) {
+              case 'success': return '[pass]';
+              case 'failure': return '[fail]';
+              case 'cancelled': return '[cancelled]';
+              case 'skipped': return '[skipped]';
+              default: return '[unknown]';
+            }
+          };
+
+          const overallFailure = statuses.some(([, status]) =>
+            status === 'failure' || status === 'cancelled'
+          );
+          const overall = overallFailure ? 'failure' : 'success';
+          const rows = statuses
+            .map(([name, status]) => `- ${iconFor(status)} ${name}: **${status}**`)
+            .join('\n');
+
+          const body = [
+            marker,
+            `### ${iconFor(overall)} ProjectAirSim Layered CI`,
+            '',
+            rows,
+            '',
+            `[View full workflow run](${process.env.RUN_URL})`,
+          ].join('\n');
+
+          const { owner, repo } = context.repo;
+          const comments = await github.paginate(github.rest.issues.listComments, {
+            owner,
+            repo,
+            issue_number,
+            per_page: 100,
+          });
+
+          const existing = comments.find(
+            (comment) =>
+              comment.user?.type === 'Bot' &&
+              typeof comment.body === 'string' &&
+              comment.body.includes(marker)
+          );
+
+          if (existing) {
+            await github.rest.issues.updateComment({
+              owner,
+              repo,
+              comment_id: existing.id,
+              body,
+            });
+          } else {
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number,
+              body,
+            });
+          }
+    if: github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'run-ci'

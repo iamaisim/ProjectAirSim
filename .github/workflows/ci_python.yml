@@ -1,0 +1,72 @@
+name: Python compatibility
+'on':
+  workflow_call: {}
+permissions:
+  contents: read
+jobs:
+  python-compatibility:
+    name: Python ${{ matrix.python-version }} compatibility
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+        - '3.9'
+        - '3.10'
+        - '3.11'
+        - '3.12'
+        - '3.13'
+        - '3.14'
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: pip
+        cache-dependency-path: client/python/projectairsim/pyproject.toml
+    - name: Build and install Python wheel
+      working-directory: client/python/projectairsim
+      run: |
+        set -euo pipefail
+        python -m pip install --upgrade pip
+        python -m pip install build
+        python -m build --wheel
+        wheel_path="$(find dist -maxdepth 1 -name '*.whl' -print -quit)"
+        if [ -z "$wheel_path" ]; then
+          echo "ProjectAirSim Python wheel was not created." >&2
+          exit 1
+        fi
+        python -m pip install "${wheel_path}[datacollection]" pytest
+        python -m pip check
+    - name: Smoke-test installed package resources
+      run: |
+        python - <<'PY'
+        from projectairsim.utils import load_text_resource
+
+        schema = load_text_resource("schema/robot_config_schema.jsonc")
+        if not schema.strip():
+            raise RuntimeError("Installed robot config schema is empty")
+        PY
+    - name: Compile Python sources and scripts
+      run: |
+        python -W error::SyntaxWarning -m compileall \
+          client/python/projectairsim/src \
+          client/python/projectairsim/tests \
+          client/python/example_user_scripts
+    - name: Run offline Python tests
+      working-directory: client/python/projectairsim/tests
+      run: |
+        python -m pytest -v \
+          test_json_schema.py \
+          test_datacollection/test_datacollector_config.py \
+          --junitxml=python-${{ matrix.python-version }}-results.xml
+    - name: Upload Python compatibility results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: python-${{ matrix.python-version }}-results
+        path: client/python/projectairsim/tests/python-${{ matrix.python-version }}-results.xml
+        if-no-files-found: ignore
+    if: github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'run-ci'

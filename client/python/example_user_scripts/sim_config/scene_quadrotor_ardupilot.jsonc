@@ -8,7 +8,7 @@
         "xyz": "0.0 0.0 -4.0",
         "rpy-deg": "0 0 0"
       },
-      "robot-config": "robot_quadrotor_ardupilot.jsonc"
+      "robot-config": "../ardupilot/sim_config/robot_ardu_quadrotor.jsonc"
     }
   ],
   "clock": {

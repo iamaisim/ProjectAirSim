@@ -8,7 +8,7 @@ ProjectAirSim utilities
 import logging
 import math
 from typing import Dict, List, Tuple
-import importlib.resources as resources
+from importlib.resources import files
 import msgpack
 import numpy as np
 import collections
@@ -25,20 +25,13 @@ from projectairsim.geodetic_converter import GeodeticConverter
 def load_text_resource(resource_path: str) -> str:
     """Loads a package text resource and returns its contents.
 
-    Uses importlib.resources.files() when available (Python >= 3.9).
-    Falls back to pkg_resources for older Python versions.
+    Uses importlib.resources.files(), available in every supported Python version.
     """
-    if hasattr(resources, "files"):
-        # Preferred API: importlib.resources.files() (Python >= 3.9)
-        return (
-            resources.files(__package__)
-            .joinpath(resource_path)
-            .read_text(encoding="utf-8")
-        )
-    # Compatibility fallback for Python < 3.9
-    import pkg_resources
-
-    return pkg_resources.resource_string(__package__, resource_path).decode("utf-8")
+    return (
+        files(__package__)
+        .joinpath(*resource_path.split("/"))
+        .read_text(encoding="utf-8")
+    )
 
 
 def get_pitch_between_traj_points(point1, point2):
@@ -376,8 +369,7 @@ def decode_bytes(data: bytes):
     except msgpack.FormatError:
         # If not valid msgpack data, try unpacking as a binary string
         data_decoded = data.decode()
-    finally:
-        return data_decoded
+    return data_decoded
 
 
 def decode_dict(data: Dict):

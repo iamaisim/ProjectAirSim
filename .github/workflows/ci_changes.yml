@@ -10,8 +10,6 @@ name: Detect changed components
         value: ${{ jobs.changes.outputs.windows }}
       macos:
         value: ${{ jobs.changes.outputs.macos }}
-      docs:
-        value: ${{ jobs.changes.outputs.docs }}
       linux:
         value: ${{ jobs.changes.outputs.linux }}
 permissions:
@@ -26,7 +24,6 @@ jobs:
       python: ${{ steps.filter.outputs.python }}
       windows: ${{ steps.filter.outputs.windows }}
       macos: ${{ steps.filter.outputs.macos }}
-      docs: ${{ steps.filter.outputs.docs }}
       linux: ${{ steps.filter.outputs.linux }}
     steps:
     - name: Detect relevant changes
@@ -90,14 +87,6 @@ jobs:
           - build_macos.mk
           - setup_macos_dev_tools.sh
           - .github/workflows/ci_macos.yml
-          - .github/workflows/ci_changes.yml
-          docs:
-          - .github/workflows/pr_ci_orchestrator.yml
-          - .github/workflows/sphinx-docs.yml
-          - README.md
-          - docs/**
-          - client/python/projectairsim/docs/**
-          - client/python/projectairsim/src/**
           - .github/workflows/ci_changes.yml
           linux:
           - .github/workflows/pr_ci_orchestrator.yml

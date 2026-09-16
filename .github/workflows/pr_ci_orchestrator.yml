@@ -67,14 +67,9 @@ jobs:
     - linux-build
     if: '!cancelled() && needs.linux-build.result == ''success'' && contains(github.event.pull_request.labels.*.name, ''macOS'') && (needs.windows-cheap.result == ''success'' || needs.windows-cheap.result == ''skipped'')'
     uses: ./.github/workflows/ci_macos.yml
-  docs-build:
-    name: Documentation validation
-    needs: changes
-    if: needs.changes.outputs.docs == 'true'
-    uses: ./.github/workflows/sphinx-docs.yml
   linux-ci:
     name: Final Linux regression after all checks
-    if: '!cancelled() && github.event.label.name == ''run-ci'' && contains(github.event.pull_request.labels.*.name, ''run-regressions'') && needs.linux-build.result == ''success'' && (needs.windows-cheap.result == ''success'' || needs.windows-cheap.result == ''skipped'') && (needs.macos-tests.result == ''success'' || needs.macos-tests.result == ''skipped'') && (needs.config-validation.result == ''success'' || needs.config-validation.result == ''skipped'') && (needs.python-cheap.result == ''success'' || needs.python-cheap.result == ''skipped'') && (needs.docs-build.result == ''success'' || needs.docs-build.result == ''skipped'')'
+    if: '!cancelled() && github.event.label.name == ''run-ci'' && contains(github.event.pull_request.labels.*.name, ''run-regressions'') && needs.linux-build.result == ''success'' && (needs.windows-cheap.result == ''success'' || needs.windows-cheap.result == ''skipped'') && (needs.macos-tests.result == ''success'' || needs.macos-tests.result == ''skipped'') && (needs.config-validation.result == ''success'' || needs.config-validation.result == ''skipped'') && (needs.python-cheap.result == ''success'' || needs.python-cheap.result == ''skipped'')'
     uses: ./.github/workflows/pr_linux_ci.yml
     needs:
     - linux-build
@@ -82,7 +77,6 @@ jobs:
     - macos-tests
     - config-validation
     - python-cheap
-    - docs-build
   comment-layered-ci-results:
     name: Comment Layered CI results
     needs:
@@ -91,7 +85,6 @@ jobs:
     - python-cheap
     - windows-cheap
     - macos-tests
-    - docs-build
     - linux-build
     - linux-ci
     if: ${{ !cancelled() && github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'run-ci' }}
@@ -102,7 +95,6 @@ jobs:
       windows_cheap_result: ${{ needs.windows-cheap.result }}
       changes_result: ${{ needs.changes.result }}
       macos_tests_result: ${{ needs.macos-tests.result }}
-      docs_build_result: ${{ needs.docs-build.result }}
       linux_build_result: ${{ needs.linux-build.result }}
       linux_ci_result: ${{ needs.linux-ci.result }}
 'on':

@@ -2,10 +2,7 @@
 
 <div align="center">
 
-[![Build and Deploy Sphinx Docs](https://github.com/iamaisim/ProjectAirSim/actions/workflows/sphinx-docs.yml/badge.svg?branch=main)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/sphinx-docs.yml)
-[![Linux SimLibs Release Tests](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_linux_simlibs_release.yml/badge.svg?branch=main)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_linux_simlibs_release.yml)
-[![Windows Build and Tests](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_windows.yml/badge.svg?branch=main)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_windows.yml)
-[![C++ Client and ROS 2 CI](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_cpp_client.yml/badge.svg?branch=main)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_cpp_client.yml)
+[![Build Sphinx Docs](https://github.com/iamaisim/ProjectAirSim/actions/workflows/sphinx-docs.yml/badge.svg?branch=main)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/sphinx-docs.yml)
 
 [![Latest release](https://img.shields.io/github/v/release/iamaisim/ProjectAirSim?label=release)](https://github.com/iamaisim/ProjectAirSim/releases/latest)
 [![Ubuntu](https://img.shields.io/badge/Ubuntu-22.04-E95420?logo=ubuntu&logoColor=white)](docs/development/dev_setup_linux.md)

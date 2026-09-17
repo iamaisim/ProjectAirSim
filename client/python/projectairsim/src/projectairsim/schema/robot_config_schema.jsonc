@@ -754,7 +754,9 @@
           "streaming-enabled": { "type": "boolean" },
           "pixels-as-float": { "type": "boolean" },
           "compress": { "type": "boolean" },
-          "target-gamma": { "type": "number" }
+          "target-gamma": { "type": "number" },
+          "lumen-gi-enabled": { "type": "boolean" },
+          "lumen-reflections-enabled": { "type": "boolean" }
         }
       }
     },

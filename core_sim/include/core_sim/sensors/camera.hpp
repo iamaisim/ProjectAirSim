@@ -101,6 +101,23 @@ struct CaptureSettings {
   float auto_exposure_histogram_log_max =
       std::numeric_limits<float>::quiet_NaN();  // 4;
   float motion_blur_amount = std::numeric_limits<float>::quiet_NaN();
+  // Lumen dynamic GI / reflections for this capture's scene render (UE 5.5+
+  // supports Lumen in scene captures). Tri-state, kLumenAuto when the key is
+  // absent from the config:
+  //   auto: Scene (RGB) captures mirror the project's methods
+  //         (r.DynamicGlobalIlluminationMethod / r.ReflectionMethod) so the
+  //         captured image matches the viewport; every other image type
+  //         resolves to None (their output is a replacement material — GI
+  //         underneath is pure GPU/VRAM waste).
+  //   1:    force Lumen for this capture.
+  //   0:    force the method to None. This must be an active override — an
+  //         un-overridden capture inherits the project CVar, so "no override"
+  //         does not mean "no Lumen".
+  // Each Lumen-enabled capture maintains its own Lumen scene (GPU time +
+  // VRAM cost).
+  static constexpr int kLumenAuto = -1;
+  int lumen_gi_enabled = kLumenAuto;
+  int lumen_reflections_enabled = kLumenAuto;
   float target_gamma =
       2.5f;  // This would be reset to kSceneTargetGamma for scene as default
   int projection_mode = 0;  // ECameraProjectionMode::Perspective

@@ -26,6 +26,7 @@ default:
 	@echo. all_no_test = Build + Package everything
 	@echo. clean = Clean sim libs and Blocks build files
 	@echo.
+	@echo. --unity = Include experimental Unity native artifacts ^(default: off^)
 	@echo. simlibs_debug = Build sim libs for Debug
 	@echo. simlibs_release = Build sim libs for Release
 	@echo. test_simlibs_debug = Test sim libs for Debug
@@ -64,7 +65,10 @@ CMAKE_BUILD_DIR = build\win64\system
 !ifndef CMAKE_EXTRA_ARGS
 CMAKE_EXTRA_ARGS =
 !endif
-CMAKE_CMD = cmake $(CMAKE_EXTRA_ARGS) -G "Ninja" \
+!ifndef PAS_BUILD_UNITY
+PAS_BUILD_UNITY = OFF
+!endif
+CMAKE_CMD = cmake -DPROJECTAIRSIM_BUILD_UNITY=$(PAS_BUILD_UNITY) $(CMAKE_EXTRA_ARGS) -G "Ninja" \
 				  -DCMAKE_C_COMPILER=cl.exe \
 				  -DCMAKE_CXX_COMPILER=cl.exe \
 				  -S "%CD%"

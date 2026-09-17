@@ -31,21 +31,16 @@ import pytest
 
 psutil = pytest.importorskip("psutil")
 
-from projectairsim import ProjectAirSimClient, Drone, World
+from projectairsim import ProjectAirSimClient, Drone
+from regression_support import RegressionWorld as World
 from projectairsim.types import ImageType
 
 STEP_3MS = 3_000_000
 STEP_10MS = 10_000_000
 STEP_20MS = 20_000_000
 
-SIM_CONFIG_PATH = str(
-    Path(__file__).resolve().parent.parent
-    / "client"
-    / "python"
-    / "example_user_scripts"
-    / "sim_config"
-)
-SCENE_CONFIG = "scene_basic_drone.jsonc"
+SIM_CONFIG_PATH = str(Path(__file__).resolve().parent / "sim_config")
+SCENE_CONFIG = "scene_test_drone.jsonc"
 
 MEASURE_SEC = 5.0  # measurement window per case
 
@@ -315,3 +310,5 @@ class TestCPUProfile:
                 print(f"\n  Hottest thread ({key}): "
                       f"TID {top['tid']} at {top['cpu_pct']:.1f}%")
         print()
+
+pytestmark = pytest.mark.runtime

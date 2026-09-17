@@ -40,8 +40,8 @@ def test_geo_locations(data_generator: DataGenerator):
     geo_locations = data_generator.geo_locations
     assert type(geo_locations) == dict
     assert (
-        len(geo_locations.keys()) == 5
-    )  # 4 from config. 1 from API (test_datacolletion_apis.py)
+        len(geo_locations.keys()) == 4
+    )  # Each test receives the four configured locations.
 
     for location_name in geo_locations.keys():
         location = geo_locations.get(location_name)
@@ -107,3 +107,5 @@ def test_env_actor_trajectory(data_generator: DataGenerator):
         location = data_generator.geo_locations.get(location_name)
         if location.name == "Blocks-random":
             assert location.env_actor_trajectory != []
+
+pytestmark = pytest.mark.unreal

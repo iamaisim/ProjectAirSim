@@ -1,15 +1,20 @@
 name: Build Sphinx Docs
 
-# Called only by the run-ci PR workflow after component selection.
+# Build documentation only when documentation changes reach main.
 on:
-  workflow_call:
+  push:
+    branches:
+      - main
+    paths:
+      - README.md
+      - docs/**
+      - client/python/projectairsim/docs/**
 
 permissions:
   contents: read
 
 jobs:
   build-docs:
-    if: github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'run-ci'
     runs-on: ubuntu-latest
 
     steps:

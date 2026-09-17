@@ -25,6 +25,7 @@ default:
 	@echo " rebuild_all = Clean, build, test, and package Debug and Release SimLibs"
 	@echo " clean = Clean macOS SimLibs build files and staged outputs"
 	@echo
+	@echo " --unity = Include experimental Unity native artifacts (default: off)"
 	@echo " simlibs_debug = Build SimLibs for Debug"
 	@echo " simlibs_release = Build SimLibs for Release"
 	@echo " test_simlibs_debug = Test SimLibs for Debug"
@@ -42,7 +43,8 @@ CMAKE_BUILD_DIR = build/macos
 OPENSSL_ROOT_DIR ?= $(shell brew --prefix openssl@3)
 ZLIB_HOME ?= $(shell brew --prefix zlib)
 CMAKE_EXTRA_ARGS ?=
-CMAKE_CMD = cmake $(CMAKE_EXTRA_ARGS) -G "Ninja" \
+PAS_BUILD_UNITY ?= OFF
+CMAKE_CMD = cmake -DPROJECTAIRSIM_BUILD_UNITY=$(PAS_BUILD_UNITY) $(CMAKE_EXTRA_ARGS) -G "Ninja" \
 	-DOPENSSL_ROOT_DIR="$(OPENSSL_ROOT_DIR)" \
 	-DZLIB_HOME="$(ZLIB_HOME)"
 CMAKE_DBG_BUILD_CMD = cmake --build $(CMAKE_BUILD_DIR)/Debug

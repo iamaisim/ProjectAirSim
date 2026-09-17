@@ -144,7 +144,7 @@ def check_contract(workflow):
         assert required <= set(caller.get('with', {}))
     changes = load_workflow(WORKFLOW_PATH.parent / 'ci_changes.yml')
     assert set(triggers(changes)['workflow_call']['outputs']) == set(path_filters(workflow))
-    for name in ('sphinx-docs.yml', 'ci_changes.yml', 'ci_configs.yml', 'ci_python.yml', 'ci_python_result.yml', 'ci_windows.yml', 'ci_macos.yml', 'ci_results.yml', 'ci_linux_build.yml'):
+    for name in ('ci_changes.yml', 'ci_configs.yml', 'ci_python.yml', 'ci_python_result.yml', 'ci_windows.yml', 'ci_macos.yml', 'ci_results.yml', 'ci_linux_build.yml'):
         reusable = load_workflow(WORKFLOW_PATH.parent / name)
         assert set(triggers(reusable)) == {'workflow_call'}, name
         for job in reusable['jobs'].values():
@@ -199,15 +199,14 @@ def check_linux_steps(workflow):
                     assert toolchain == '5.7'
                     counts[4] += 1
         assert tuple(counts) == (1, 1, 1, 1, 1), counts
-    # Simulator setup, launch, tests, cleanup, and evidence all share the latest-only guard.
-    start = next(i for i, step in enumerate(linux['steps']) if step.get('name') == 'Set up integration Python')
-    end = len(linux['steps'])
-    for step in linux['steps'][start:end]:
-        for version in ('system', '5.2'):
-            assert not condition_value(step['if'], {'inputs.integration': True, 'matrix.toolchain': version, '_failure': True})
+    commands = '\n'.join(s.get('run', '') for s in linux['steps'])
+    assert '--sim-host offline' in commands and '--sim-host unreal' in commands
+    assert 'run_runtime_regressions.py' in commands
+    names = [s.get('name') for s in linux['steps']]
+    assert names.index('Run PAS Runtime regressions') < names.index('Build and package Unreal Shipping for integration')
     ue = next(s for s in linux['steps'] if s.get('name') == 'Build and package Unreal Shipping for integration')
     assert not condition_value(ue['if'], {'inputs.integration': True, 'steps.simlibs.outcome': 'failure'})
-    assert {'linux-build', 'windows-cheap', 'macos-tests', 'docs-build'} <= set(workflow['jobs']['linux-ci']['needs'])
+    assert {'linux-build', 'windows-cheap', 'macos-tests'} <= set(workflow['jobs']['linux-ci']['needs'])
     assert 'linux-build' in workflow['jobs']['windows-cheap']['needs']
     assert all('uses' in job and 'steps' not in job for job in workflow['jobs'].values())
     independent = load_workflow(WORKFLOW_PATH.parent / 'pr_linux_ci.yml')
@@ -226,7 +225,7 @@ def run_scenarios(workflow):
     baseline = {'changes', 'comment-layered-ci-results'}
     python = {'python-compatibility', 'python-cheap'}
     native = {'linux-build', 'windows-cheap', 'macos-tests'}
-    full = baseline | python | native | {'config-validation', 'docs-build', 'linux-ci'}
+    full = baseline | python | native | {'config-validation', 'linux-ci'}
     allfiles = ('.github/workflows/pr_ci_orchestrator.yml',)
     count = 0
 
@@ -249,12 +248,12 @@ def run_scenarios(workflow):
     check('workflow run-ci', allfiles, full - {'linux-ci'})
     check('workflow full request', allfiles, full, labels=('run-regressions', 'windows', 'macOS'))
     for name, path, jobs in (
-        ('docs', 'docs/config.md', {'docs-build'}),
-        ('README', 'README.md', {'docs-build'}),
+        ('docs', 'docs/config.md', set()),
+        ('README', 'README.md', set()),
         ('validator', 'tools/ci/validate_configs.py', {'config-validation'}),
         ('validator tests', 'tools/ci/test_validate_configs.py', {'config-validation'}),
         ('release utility', 'tools/release/build.py', set()),
-        ('Python source', 'client/python/projectairsim/src/projectairsim/utils.py', python | {'docs-build'}),
+        ('Python source', 'client/python/projectairsim/src/projectairsim/utils.py', python),
         ('Python example', 'client/python/example_user_scripts/drone.py', python),
         ('example config', 'client/python/example_user_scripts/sim_config/scene.jsonc', {'config-validation'}),
         ('native source', 'core_sim/src/a.cpp', native),
@@ -267,21 +266,20 @@ def run_scenarios(workflow):
         ('Linux build workflow', '.github/workflows/ci_linux_build.yml', native),
         ('Linux regression workflow', '.github/workflows/pr_linux_ci.yml', native),
         ('Python workflow', '.github/workflows/ci_python.yml', python),
-        ('docs workflow', '.github/workflows/sphinx-docs.yml', {'docs-build'}),
+        ('docs workflow', '.github/workflows/sphinx-docs.yml', set()),
     ):
         check(name, (path,), baseline | jobs)
     for failed, expected in (
         ('changes', baseline),
-        ('config-validation', baseline | {'config-validation', 'docs-build'}),
-        ('python-compatibility', baseline | python | {'config-validation', 'docs-build'}),
-        ('linux-build', baseline | python | {'config-validation', 'docs-build', 'linux-build'}),
+        ('config-validation', baseline | {'config-validation'}),
+        ('python-compatibility', baseline | python | {'config-validation'}),
+        ('linux-build', baseline | python | {'config-validation', 'linux-build'}),
         ('windows-cheap', full - {'linux-ci', 'macos-tests'}),
         ('macos-tests', full - {'linux-ci'}),
-        ('docs-build', full - {'linux-ci'}),
         ('linux-ci', full),
     ):
         check(failed + ' failure', allfiles, expected, failures=(failed,), labels=('run-regressions', 'windows', 'macOS'))
-    check('full request overrides docs-only filter', ('README.md',), baseline | native | {'docs-build', 'linux-ci'}, labels=('run-regressions', 'windows', 'macOS'))
+    check('full request overrides docs-only filter', ('README.md',), baseline | native | {'linux-ci'}, labels=('run-regressions', 'windows', 'macOS'))
     check('no platform labels', allfiles, full - {'windows-cheap', 'macos-tests', 'linux-ci'}, labels=())
     check('Windows opt-in only', allfiles, full - {'macos-tests', 'linux-ci'}, labels=('windows',))
     check('macOS without Windows', allfiles, full - {'windows-cheap', 'linux-ci'}, labels=('macOS',))

@@ -17,9 +17,6 @@ name: Comment Layered CI results
       macos_tests_result:
         type: string
         required: true
-      docs_build_result:
-        type: string
-        required: true
       linux_build_result:
         type: string
         required: true
@@ -44,7 +41,6 @@ jobs:
         WINDOWS_STATUS: ${{ inputs.windows_cheap_result }}
         CHANGES_STATUS: ${{ inputs.changes_result }}
         MACOS_STATUS: ${{ inputs.macos_tests_result }}
-        DOCS_STATUS: ${{ inputs.docs_build_result }}
         LINUX_BUILD_STATUS: ${{ inputs.linux_build_result }}
         LINUX_CI_STATUS: ${{ inputs.linux_ci_result }}
       with:
@@ -64,7 +60,6 @@ jobs:
             ['Windows SimLibs/C++', process.env.WINDOWS_STATUS],
             ['Change detection', process.env.CHANGES_STATUS],
             ['macOS', process.env.MACOS_STATUS],
-            ['Documentation', process.env.DOCS_STATUS],
           ];
 
           const iconFor = (status) => {

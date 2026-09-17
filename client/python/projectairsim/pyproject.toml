@@ -70,6 +70,7 @@ datacollection = [
 ]
 tests = [
   "pytest",
+  "pytest-timeout",
   "psutil>=5.9.0",
 ]
 

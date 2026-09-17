@@ -112,6 +112,7 @@ set(SIMLIBS_PACKAGE_DIR ${CMAKE_SOURCE_DIR}/packages/projectairsim_simlibs)
 set(SIMLIBS_SHARED_LIB_DIR ${SIMLIBS_PACKAGE_DIR}/shared_libs)
 set(SIMLIBS_TEST_DIR ${CMAKE_BINARY_DIR}/unit_tests)
 set(UE_PLUGIN_SIMLIBS_DIR ${CMAKE_SOURCE_DIR}/unreal/Blocks/Plugins/ProjectAirSim/SimLibs)
+option(PROJECTAIRSIM_BUILD_UNITY "Build and stage experimental Unity host artifacts" OFF)
 set(UNITY_WRAPPER_DLL_DIR ${CMAKE_SOURCE_DIR}/unity/BlocksUnity/Assets/Plugins)
 set(MATLAB_PHYSICS_DIR ${CMAKE_SOURCE_DIR}/physics/matlab_sfunc)
 set(JSBSIM_CORESIM_DIR ${CMAKE_SOURCE_DIR}/core_sim/jsbsim)
@@ -793,9 +794,15 @@ elseif(UNIX)
     ExternalProject_Add_Step(zlib-external post-install
         COMMAND ${CMAKE_COMMAND} -E echo "Packaging [zlib] installed outputs to ${UE_PLUGIN_SIMLIBS_DIR}/shared_libs"
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${ZLIB_INSTALL_LIB_DIR}" "${UE_PLUGIN_SIMLIBS_DIR}/shared_libs"
-        COMMAND ${CMAKE_COMMAND} -E copy_directory "${ZLIB_INSTALL_LIB_DIR}" "${UNITY_WRAPPER_DLL_DIR}"
         DEPENDEES install
     )
+    if(PROJECTAIRSIM_BUILD_UNITY)
+        ExternalProject_Add_Step(zlib-external post-install-unity
+            COMMAND ${CMAKE_COMMAND} -E copy_directory "${ZLIB_INSTALL_LIB_DIR}" "${UNITY_WRAPPER_DLL_DIR}"
+            DEPENDEES install
+        )
+    endif()
+
 else()
     set(onnx_url https://github.com/microsoft/onnxruntime/releases/download/v1.12.1/onnxruntime-win-x64-gpu-1.12.1.zip)
     set(onnx_hash MD5=dd6d6ba7aaaa58dd9ef8528dfcb822d2)
@@ -822,13 +829,15 @@ if(NOT onnxruntime_POPULATED)
     file(COPY "${ONNX_INCLUDE_DIR}" DESTINATION "${UE_PLUGIN_SIMLIBS_DIR}/shared_libs/onnxruntime")
     file(COPY "${ONNX_LIB_DIR}" DESTINATION "${UE_PLUGIN_SIMLIBS_DIR}/shared_libs" FILES_MATCHING PATTERN "*onn*.dll" PATTERN "*onn*.lib" PATTERN "*.so*" PATTERN "*.dylib*")
 
-    message("Packaging [onnxruntime] to ${UNITY_WRAPPER_DLL_DIR}")
-    file(COPY "${ONNX_LIB_DIR}/" DESTINATION "${UNITY_WRAPPER_DLL_DIR}/" FILES_MATCHING PATTERN "*onn*.dll" PATTERN "*onn*.lib" PATTERN "*.so*" PATTERN "*.dylib*")
-
     if(NOT APPLE)
         add_definitions(-DUSE_CUDA)
         add_definitions(-DUSE_TENSORRT)
     endif()
+endif()
+
+if(PROJECTAIRSIM_BUILD_UNITY)
+    message("Packaging [onnxruntime] to ${UNITY_WRAPPER_DLL_DIR}")
+    file(COPY "${ONNX_LIB_DIR}/" DESTINATION "${UNITY_WRAPPER_DLL_DIR}/" FILES_MATCHING PATTERN "*onn*.dll" PATTERN "*onn*.lib" PATTERN "*.so*" PATTERN "*.dylib*")
 endif()
 
 if(APPLE)
@@ -972,7 +981,9 @@ if(NOT APPLE)
     # LVMon's TCP transport currently only implements Windows and Linux.
     add_subdirectory(tools)
 endif()
-add_subdirectory(unity)
+if(PROJECTAIRSIM_BUILD_UNITY)
+    add_subdirectory(unity)
+endif()
 add_subdirectory(vehicle_apis)
 
 if(BUILD_TESTING)

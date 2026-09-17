@@ -278,11 +278,11 @@ def test_config_initializes_config(full_config):
 
 
 def test_config_returns_static_entity_configs(
-    data_generator: DataGenerator, full_config
+    data_generator_config: DataGenerator, full_config
 ):
     # * Act / Assert
     assert (
-        data_generator.randomization_config.get_static_entity_configs()
+        data_generator_config.randomization_config.get_static_entity_configs()
         == full_config
     )
 
@@ -560,3 +560,5 @@ def test_entity_converts_coordinates_from_geo_to_ue(landingpad_with_translater):
 
 
 # TODO: Add test for axis options exception thrown
+
+pytestmark = pytest.mark.offline

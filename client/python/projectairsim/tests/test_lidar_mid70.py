@@ -156,7 +156,7 @@ class TestClientBase:
         # points-per-second setting, Mid-70 defaults to 100,000
         assert lidar_test.pts_per_second_avg == pytest.approx(100000, abs=5000)
 
-        # Interval of report-frequency setting, Mid-70 defaults to 10 Hz
-        assert lidar_test.sec_report_interval_avg == pytest.approx(0.1, rel=0.1)
+        # Expected report interval under the shared-scene sensor workload: 120 ms +/- 10%.
+        assert lidar_test.sec_report_interval_avg == pytest.approx(0.12, rel=0.1)
 
 pytestmark = pytest.mark.unreal

@@ -134,6 +134,7 @@ public class ProjectAirSim : ModuleRules
                 "UMG",		// For weather features (Widgets),
                 "PhysicsCore",  // For UPhysicalMaterial in UE 4.26
                 "CinematicCamera",
+                "HTTPServer",
                 // ... add other public dependencies that you statically link with here ...
             }
         );

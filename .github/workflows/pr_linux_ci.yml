@@ -20,7 +20,7 @@ jobs:
       max-parallel: 1
       matrix:
         toolchain:
-        - '5.7'
+        - '5.8'
     env:
       UE_ROOT: ''
       AIRSIM_PY_ENV: ${{ github.workspace }}/airsimenv
@@ -53,7 +53,7 @@ jobs:
         # though the test targets also depend on it.
         ./build.sh simlibs_debug simlibs_release test_simlibs_debug
     - name: Build and test standalone C++ client
-      if: matrix.toolchain == '5.7'
+      if: matrix.toolchain == '5.8'
       env:
         UE_ROOT: ''
       shell: bash
@@ -73,7 +73,7 @@ jobs:
 
         mkdir -p _cpp_client_ci/package
         tar -xzf "$archive" -C _cpp_client_ci/package
-      if: matrix.toolchain == '5.7'
+      if: matrix.toolchain == '5.8'
     - name: Verify JSBSim SimLibs artifacts
       shell: bash
       run: |
@@ -125,12 +125,12 @@ jobs:
           -DCMAKE_PREFIX_PATH="$package_config_dir"
 
         cmake --build _cpp_client_ci/consumer/build --config Debug --parallel
-      if: matrix.toolchain == '5.7'
+      if: matrix.toolchain == '5.8'
       env:
         UE_ROOT: ''
     - name: Check existing ROS tooling
       id: ros-tools
-      if: matrix.toolchain == '5.7'
+      if: matrix.toolchain == '5.8'
       shell: bash
       run: |
         set -euo pipefail
@@ -143,7 +143,7 @@ jobs:
       uses: ros-tooling/setup-ros@v0.7
       with:
         required-ros-distributions: humble
-      if: matrix.toolchain == '5.7' && steps.ros-tools.outputs.installed != 'true'
+      if: matrix.toolchain == '5.8' && steps.ros-tools.outputs.installed != 'true'
     - name: Install ROS package dependencies
       shell: bash
       run: |
@@ -153,7 +153,7 @@ jobs:
         fi
         rosdep update --rosdistro humble
         rosdep install --from-paths ros/projectairsim_ros2_cpp --ignore-src --rosdistro humble -y
-      if: matrix.toolchain == '5.7'
+      if: matrix.toolchain == '5.8'
     - name: Build ROS 2 C++ node
       shell: bash
       run: |
@@ -165,7 +165,7 @@ jobs:
           --packages-select projectairsim_ros2_cpp \
           --cmake-args -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug \
           --event-handlers console_direct+
-      if: matrix.toolchain == '5.7'
+      if: matrix.toolchain == '5.8'
       env:
         UE_ROOT: ''
     - name: Run ROS 2 C++ node tests
@@ -181,7 +181,7 @@ jobs:
           --return-code-on-test-failure \
           --event-handlers console_direct+
         colcon test-result --test-result-base build --verbose
-      if: matrix.toolchain == '5.7'
+      if: matrix.toolchain == '5.8'
       env:
         UE_ROOT: ''
     - name: Set up integration Python
@@ -190,7 +190,7 @@ jobs:
         python-version: '3.12'
         cache: pip
         cache-dependency-path: client/python/projectairsim/pyproject.toml
-      if: matrix.toolchain == '5.7'
+      if: matrix.toolchain == '5.8'
     - name: Setup Python integration environment
       shell: bash
       run: |
@@ -201,7 +201,7 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install -e "client/python/projectairsim[datacollection]"
         python -m pip install pytest pytest-cov pytest-timeout psutil
-      if: matrix.toolchain == '5.7'
+      if: matrix.toolchain == '5.8'
     - name: Run offline Python regressions
       shell: bash
       run: |-
@@ -223,14 +223,17 @@ jobs:
         set -euo pipefail
         chmod +x unreal/Blocks/blocks_genprojfiles_vscode.sh
         unreal/Blocks/blocks_genprojfiles_vscode.sh
-    - name: Build and package Unreal Shipping for integration
+    - name: Build Blocks Editor for integration
       if: steps.simlibs.outcome == 'success'
       shell: bash
       run: |-
         set -euo pipefail
-        # UE 5.7 Release libraries are built here solely for packaged integration.
-        # Reuse only this job's libraries for Unreal targets.
-        ./build.sh --assume-old=simlibs_release blocks_shipping package_blocks_shipping
+        # Development Editor uses this job's existing Release SimLibs.
+        "$UE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh" ShaderCompileWorker Linux Development -waitmutex
+        "$UE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh" BlocksEditor Linux Development \
+          -project="$(pwd)/unreal/Blocks/Blocks.uproject" -waitmutex
+        test -x "$UE_ROOT/Engine/Binaries/Linux/ShaderCompileWorker"
+        test -x "$UE_ROOT/Engine/Binaries/Linux/UnrealEditor"
     - name: Clean stale simulator processes and ports
       shell: bash
       run: |
@@ -241,40 +244,35 @@ jobs:
         for p in 8989 8990 8991 41451; do
           lsof -ti :"$p" | xargs -r kill -9 || true
         done
-        rm -f packaged.pid packaged.log
-      if: matrix.toolchain == '5.7'
-    - name: Launch packaged Blocks Shipping binary
+        rm -f unreal.pid unreal.log
+      if: matrix.toolchain == '5.8'
+    - name: Launch Blocks in Unreal Editor
       shell: bash
       run: |
         set -euo pipefail
         export DISPLAY=:0
         export SDL_VIDEODRIVER=x11
 
-        packaged_binary="$(find packages/Blocks/Shipping -type f -name 'Blocks.sh' -print -quit)"
-        if [ -z "$packaged_binary" ]; then
-          find packages/Blocks/Shipping -maxdepth 5 -print || true
-          echo "Could not find packaged Blocks.sh under packages/Blocks/Shipping" >&2
-          exit 1
-        fi
-
-        chmod +x "$packaged_binary"
-        "$packaged_binary" \
+        "$UE_ROOT/Engine/Binaries/Linux/UnrealEditor" \
+          "$(pwd)/unreal/Blocks/Blocks.uproject" \
+          -game \
           -RenderOffScreen \
           -vulkan \
           -nosound -unattended -nopause -NoSplash -log \
           -ResX=640 -ResY=480 \
           -qualitylevel=0 \
-          > packaged.log 2>&1 &
-        echo $! > packaged.pid
-      if: matrix.toolchain == '5.7'
+          > unreal.log 2>&1 &
+        echo $! > unreal.pid
+      if: matrix.toolchain == '5.8'
     - name: Wait for simulator readiness
       shell: bash
       run: |
         set -euo pipefail
         source "$AIRSIM_PY_ENV/bin/activate"
         echo "Waiting for ProjectAirSim sockets on ports 8989/8990..."
-        for _ in {1..240}; do
-          if ps -p "$(cat packaged.pid)" > /dev/null 2>&1; then
+        # First Editor launch may compile shaders for the uncooked content.
+        for _ in {1..600}; do
+          if ps -p "$(cat unreal.pid)" > /dev/null 2>&1; then
             if lsof -i :8989 >/dev/null 2>&1 && lsof -i :8990 >/dev/null 2>&1; then
               echo "Ports 8989/8990 are listening, validating client handshake..."
               if timeout 30 python -c 'from projectairsim import ProjectAirSimClient; c=ProjectAirSimClient(); c.connect(); c.get_topic_info(); c.disconnect(); print("Simulator ready")'; then
@@ -283,16 +281,16 @@ jobs:
               fi
             fi
           else
-            echo "Packaged Blocks process exited unexpectedly"
-            tail -n 300 packaged.log || true
+            echo "Blocks Editor process exited unexpectedly"
+            tail -n 300 unreal.log || true
             exit 1
           fi
           sleep 1
         done
-        echo "Simulator failed to start within timeout (240 sec)"
-        tail -n 300 packaged.log || true
+        echo "Simulator failed to start within timeout (600 sec)"
+        tail -n 300 unreal.log || true
         exit 1
-      if: matrix.toolchain == '5.7'
+      if: matrix.toolchain == '5.8'
     - name: Run Python integration tests
       shell: bash
       run: |
@@ -300,18 +298,18 @@ jobs:
         source "$AIRSIM_PY_ENV/bin/activate"
         cd client/python/projectairsim/tests
         python -m pytest -v --sim-host unreal --timeout=180 --junitxml=pytest-unreal.xml
-      if: matrix.toolchain == '5.7'
-    - name: Stop packaged Blocks
-      if: always() && matrix.toolchain == '5.7'
+      if: matrix.toolchain == '5.8'
+    - name: Stop Blocks Editor
+      if: always() && matrix.toolchain == '5.8'
       shell: bash
       run: |
-        if [ -f packaged.pid ]; then
-          kill "$(cat packaged.pid)" || true
+        if [ -f unreal.pid ]; then
+          kill "$(cat unreal.pid)" || true
         fi
-        pkill -f Blocks || true
-    - name: Dump packaged Blocks logs on failure
-      if: failure() && matrix.toolchain == '5.7'
+        pkill -f UnrealEditor || true
+    - name: Dump Blocks Editor logs on failure
+      if: failure() && matrix.toolchain == '5.8'
       shell: bash
       run: |
-        echo "==== Packaged Blocks Log Output ===="
-        cat packaged.log || true
+        echo "==== Blocks Editor Log Output ===="
+        cat unreal.log || true

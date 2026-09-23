@@ -181,7 +181,7 @@ def check_linux_steps(workflow):
         counts = [0, 0, 0, 0, 0]
         context = {'steps.ros-tools.outputs.installed': installed}
         toolchains = linux['strategy']['matrix']['toolchain']
-        assert toolchains == ['5.7']
+        assert toolchains == ['5.8']
         for toolchain in toolchains:
             context.update({'matrix.toolchain': toolchain, 'steps.simlibs.outcome': 'skipped'})
             for step in linux['steps']:
@@ -194,19 +194,29 @@ def check_linux_steps(workflow):
                 name = step.get('name', '')
                 if name == 'Build and test standalone C++ client': counts[1] += 1
                 if name == 'Build ROS 2 C++ node': counts[2] += 1
-                if name == 'Build and package Unreal Shipping for integration': counts[3] += 1
+                if name == 'Build Blocks Editor for integration': counts[3] += 1
                 if name == 'Run Python integration tests':
-                    assert toolchain == '5.7'
+                    assert toolchain == '5.8'
                     counts[4] += 1
         assert tuple(counts) == (1, 1, 1, 1, 1), counts
     commands = '\n'.join(s.get('run', '') for s in linux['steps'])
     assert '--sim-host offline' in commands and '--sim-host unreal' in commands
     assert 'run_runtime_regressions.py' in commands
     names = [s.get('name') for s in linux['steps']]
-    assert names.index('Run PAS Runtime regressions') < names.index('Build and package Unreal Shipping for integration')
-    ue = next(s for s in linux['steps'] if s.get('name') == 'Build and package Unreal Shipping for integration')
+    assert names.index('Run PAS Runtime regressions') < names.index('Build Blocks Editor for integration')
+    ue = next(s for s in linux['steps'] if s.get('name') == 'Build Blocks Editor for integration')
+    assert 'BlocksEditor Linux Development' in ue['run']
+    assert 'ShaderCompileWorker Linux Development' in ue['run']
+    assert 'package_blocks' not in commands and 'blocks_shipping' not in commands
+    launch = next(s for s in linux['steps'] if s.get('name') == 'Launch Blocks in Unreal Editor')
+    assert '/Engine/Binaries/Linux/UnrealEditor' in launch['run']
+    assert 'Blocks.uproject' in launch['run'] and '-game' in launch['run']
+    assert 'packaged.pid' not in commands and 'packaged.log' not in commands
     assert not condition_value(ue['if'], {'inputs.integration': True, 'steps.simlibs.outcome': 'failure'})
-    assert {'linux-build', 'windows-cheap', 'macos-tests'} <= set(workflow['jobs']['linux-ci']['needs'])
+    assert {'linux-build', 'config-validation', 'python-cheap'} <= set(workflow['jobs']['linux-ci']['needs'])
+    assert not {'windows-cheap', 'macos-tests'} & set(workflow['jobs']['linux-ci']['needs'])
+    assert 'linux-ci' in workflow['jobs']['windows-cheap']['needs']
+    assert {'linux-ci', 'windows-cheap'} <= set(workflow['jobs']['macos-tests']['needs'])
     assert 'linux-build' in workflow['jobs']['windows-cheap']['needs']
     assert all('uses' in job and 'steps' not in job for job in workflow['jobs'].values())
     independent = load_workflow(WORKFLOW_PATH.parent / 'pr_linux_ci.yml')
@@ -274,9 +284,9 @@ def run_scenarios(workflow):
         ('config-validation', baseline | {'config-validation'}),
         ('python-compatibility', baseline | python | {'config-validation'}),
         ('linux-build', baseline | python | {'config-validation', 'linux-build'}),
-        ('windows-cheap', full - {'linux-ci', 'macos-tests'}),
-        ('macos-tests', full - {'linux-ci'}),
-        ('linux-ci', full),
+        ('windows-cheap', full - {'macos-tests'}),
+        ('macos-tests', full),
+        ('linux-ci', full - {'windows-cheap', 'macos-tests'}),
     ):
         check(failed + ' failure', allfiles, expected, failures=(failed,), labels=('run-regressions', 'windows', 'macOS'))
     check('full request overrides docs-only filter', ('README.md',), baseline | native | {'linux-ci'}, labels=('run-regressions', 'windows', 'macOS'))

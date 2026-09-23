@@ -39,7 +39,7 @@ jobs:
     with:
       python_compatibility_result: ${{ needs.python-compatibility.result }}
   linux-build:
-    name: Linux SimLibs before Windows
+    name: Linux SimLibs before integration
     needs:
     - changes
     - config-validation
@@ -50,13 +50,22 @@ jobs:
       (needs.config-validation.result == 'success' || needs.config-validation.result == 'skipped') &&
       (needs.python-cheap.result == 'success' || needs.python-cheap.result == 'skipped')
     uses: ./.github/workflows/ci_linux_build.yml
+  linux-ci:
+    name: Linux integration in Blocks Editor
+    if: '!cancelled() && github.event.label.name == ''run-ci'' && contains(github.event.pull_request.labels.*.name, ''run-regressions'') && needs.linux-build.result == ''success'' && (needs.config-validation.result == ''success'' || needs.config-validation.result == ''skipped'') && (needs.python-cheap.result == ''success'' || needs.python-cheap.result == ''skipped'')'
+    uses: ./.github/workflows/pr_linux_ci.yml
+    needs:
+    - linux-build
+    - config-validation
+    - python-cheap
   windows-cheap:
     name: Windows SimLibs and C++ build targets
     needs:
     - changes
     - config-validation
     - linux-build
-    if: '!cancelled() && needs.linux-build.result == ''success'' && contains(github.event.pull_request.labels.*.name, ''windows'')'
+    - linux-ci
+    if: '!cancelled() && needs.linux-build.result == ''success'' && (needs.linux-ci.result == ''success'' || needs.linux-ci.result == ''skipped'') && contains(github.event.pull_request.labels.*.name, ''windows'')'
     uses: ./.github/workflows/ci_windows.yml
   macos-tests:
     name: macOS Debug validation after Windows
@@ -65,18 +74,9 @@ jobs:
     - config-validation
     - windows-cheap
     - linux-build
-    if: '!cancelled() && needs.linux-build.result == ''success'' && contains(github.event.pull_request.labels.*.name, ''macOS'') && (needs.windows-cheap.result == ''success'' || needs.windows-cheap.result == ''skipped'')'
+    - linux-ci
+    if: '!cancelled() && needs.linux-build.result == ''success'' && (needs.linux-ci.result == ''success'' || needs.linux-ci.result == ''skipped'') && contains(github.event.pull_request.labels.*.name, ''macOS'') && (needs.windows-cheap.result == ''success'' || needs.windows-cheap.result == ''skipped'')'
     uses: ./.github/workflows/ci_macos.yml
-  linux-ci:
-    name: Final Linux regression after all checks
-    if: '!cancelled() && github.event.label.name == ''run-ci'' && contains(github.event.pull_request.labels.*.name, ''run-regressions'') && needs.linux-build.result == ''success'' && (needs.windows-cheap.result == ''success'' || needs.windows-cheap.result == ''skipped'') && (needs.macos-tests.result == ''success'' || needs.macos-tests.result == ''skipped'') && (needs.config-validation.result == ''success'' || needs.config-validation.result == ''skipped'') && (needs.python-cheap.result == ''success'' || needs.python-cheap.result == ''skipped'')'
-    uses: ./.github/workflows/pr_linux_ci.yml
-    needs:
-    - linux-build
-    - windows-cheap
-    - macos-tests
-    - config-validation
-    - python-cheap
   comment-layered-ci-results:
     name: Comment Layered CI results
     needs:

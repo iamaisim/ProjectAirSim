@@ -40,13 +40,16 @@ REM =====================================================
 set "UE_DETECTED=0"
 set "UE_MINOR="
 
-if "%UE_ROOT%"=="" (
+REM Accept UE_ROOT with or without surrounding quotes.
+if defined UE_ROOT set "UE_ROOT=!UE_ROOT:"=!"
+
+if not defined UE_ROOT (
   echo:
   echo UE_ROOT not set. Building without Unreal Engine integration.
   goto :select_msvc_default
 )
 
-set "BUILD_VERSION_FILE=%UE_ROOT%\Engine\Build\Build.version"
+set "BUILD_VERSION_FILE=!UE_ROOT!\Engine\Build\Build.version"
 
 if not exist "!BUILD_VERSION_FILE!" (
   echo:
@@ -72,6 +75,8 @@ REM =====================================================
 if "%UE_MINOR%"=="2" (
   set "MSVC_VER=14.37"
 ) else if "%UE_MINOR%"=="7" (
+  set "MSVC_VER=14.44"
+) else if "%UE_MINOR%"=="8" (
   set "MSVC_VER=14.44"
 ) else (
   echo:

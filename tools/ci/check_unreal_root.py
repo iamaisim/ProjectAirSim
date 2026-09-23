@@ -19,9 +19,9 @@ def main():
         home.mkdir()
         output = root / 'github-env'
         env = dict(os.environ, HOME=str(home), GITHUB_ENV=str(output))
-        for key in ('UE_ROOT_5_2', 'UE_ROOT_5_7', 'BASH_ENV', 'ENV'):
+        for key in ('UE_ROOT_5_2', 'UE_ROOT_5_7', 'UE_ROOT_5_8', 'BASH_ENV', 'ENV'):
             env.pop(key, None)
-        for version, variable in (('5.2', 'UE_ROOT_5_2'), ('5.7', 'UE_ROOT_5_7')):
+        for version, variable in (('5.2', 'UE_ROOT_5_2'), ('5.7', 'UE_ROOT_5_7'), ('5.8', 'UE_ROOT_5_8')):
             for inherited in (False, True):
                 # The guard would skip exports under ordinary noninteractive source.
                 rc = 'case $- in *i*) ;; *) return ;; esac\necho startup-noise\n'
@@ -42,7 +42,7 @@ def main():
                                     capture_output=True, text=True)
             assert result.returncode != 0
             assert output.read_text() == ''
-    print('PASS: both UE versions, host precedence, guarded/noisy bashrc, spaces, missing/invalid roots')
+    print('PASS: all three UE versions, host precedence, guarded/noisy bashrc, spaces, missing/invalid roots')
 
 
 if __name__ == '__main__':

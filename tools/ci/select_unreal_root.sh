@@ -4,6 +4,7 @@ set -euo pipefail
 case "${1:-}" in
   5.2) variable=UE_ROOT_5_2 ;;
   5.7) variable=UE_ROOT_5_7 ;;
+  5.8) variable=UE_ROOT_5_8 ;;
   *) echo "Unsupported Unreal version: ${1:-missing}" >&2; exit 1 ;;
 esac
 

@@ -17,7 +17,7 @@
 #include "SceneTextureParameters.h"
 
 // Access to FPostProcessingInputs definition from internal Renderer headers
-#if UE_IS_5_7
+#if UE_IS_5_7_OR_5_8
     #include "Runtime/Renderer/Internal/PostProcess/PostProcessInputs.h"
 #elif UE_IS_5_2
     #include "Runtime/Renderer/Private/PostProcess/PostProcessing.h"
@@ -168,7 +168,7 @@ void FLidarIntensitySceneViewExtension::PrePostProcessPass_RenderThread(
   const FScreenPassTextureViewportParameters SceneTextureViewportParams =
       GetTextureViewportParameters(SceneColorTextureViewport);
 
-#if UE_IS_5_7
+#if UE_IS_5_7_OR_5_8
   FSceneTextureShaderParameters SceneTextures =
       CreateSceneTextureShaderParameters(
           GraphBuilder, View, ESceneTextureSetupMode::All);
@@ -218,7 +218,7 @@ void FLidarIntensitySceneViewExtension::PrePostProcessPass_RenderThread(
             FScreenPassPipelineState(VertexShader, PixelShader,
                                      DefaultBlendState, DepthStencilState),
             [&](FRHICommandListImmediate& RHICmdList) {
-                #if UE_IS_5_7
+                #if UE_IS_5_7_OR_5_8
                     // View UB is already bound via PostProcessMaterialParameters->View;
                     // SetShaderParameters commits everything in one scratch batch.
                     // Do not call VS/PS->SetParameters here — it would dirty the

@@ -103,6 +103,8 @@ class Robot::Impl : public ActorImpl {
 
   void RegisterServiceMethods();
 
+  std::string GetRobotType();
+
   KinematicsMessage GetGroundTruthKinematics();
 
   bool SetGroundTruthKinematics(const KinematicsMessage& kinematics);
@@ -162,6 +164,7 @@ class Robot::Impl : public ActorImpl {
   const std::string& GetControlConnectionSettings() const;
   void SetControlConnectionSettings(const std::string& control_conn_settings);
   const std::string& GetUnrealVehicleClass() const;
+  const std::string& GetWheeledVehicleClass() const;
   bool GetStartLanded() const;
   void SetStartLanded(bool start_landed);
 
@@ -171,6 +174,7 @@ class Robot::Impl : public ActorImpl {
   void UpdateCollisionInfo(const CollisionInfo& collision_info);
   void SetHasCollided(bool has_collided);
   void UpdateControlInput();
+  std::vector<float> GetControllerOutput() const;
   void UpdateActuators(const TimeNano sim_time, const TimeNano sim_dt_nanos);
   void UpdateKinematics(const Kinematics& kinematics,
                         TimeNano external_time_stamp = -1);
@@ -208,7 +212,7 @@ class Robot::Impl : public ActorImpl {
   TimeNano last_actuated_rotation_simtime_;
   TimeNano kinematics_updated_timestamp_{0};
 
-  PhysicsType physics_type_;
+  PhysicsType physics_type_ = PhysicsType::kNonPhysics;
   std::string jsbsim_script_;
   std::string jsbsim_model_;
   std::string jsbsim_root_path_;
@@ -221,6 +225,7 @@ class Robot::Impl : public ActorImpl {
   std::string physics_connection_settings_;
   std::string control_connection_settings_;
   std::string unreal_vehicle_class_;
+  std::string wheeled_vehicle_class_;
   bool start_landed_;
 
   std::string controller_type_;
@@ -235,6 +240,8 @@ class Robot::Impl : public ActorImpl {
   float total_power_ = 0.0f;
 
   std::unique_ptr<IController> controller_;
+  std::vector<float> controller_output_;
+  mutable std::mutex controller_output_lock_;
 
   std::vector<std::unique_ptr<Actuator>> actuators_;
   std::vector<std::reference_wrapper<Actuator>> actuators_ref_;
@@ -485,6 +492,14 @@ const std::string& Robot::GetUnrealVehicleClass() const {
       ->GetUnrealVehicleClass();
 }
 
+const std::string& Robot::GetWheeledVehicleClass() const {
+  return static_cast<Robot::Impl*>(pimpl_.get())->GetWheeledVehicleClass();
+}
+
+std::string Robot::GetRobotType() const {
+  return static_cast<Robot::Impl*>(pimpl_.get())->GetRobotType();
+}
+
 bool Robot::GetStartLanded() const {
   return static_cast<Robot::Impl*>(pimpl_.get())->GetStartLanded();
 }
@@ -537,6 +552,10 @@ void Robot::SetHasCollided(bool has_collided) {
 
 void Robot::UpdateControlInput() {
   static_cast<Robot::Impl*>(pimpl_.get())->UpdateControlInput();
+}
+
+std::vector<float> Robot::GetControllerOutput() const {
+  return static_cast<Robot::Impl*>(pimpl_.get())->GetControllerOutput();
 }
 
 void Robot::UpdateActuators(const TimeNano sim_time,
@@ -813,6 +832,11 @@ void Robot::Impl::RegisterServiceMethod(const ServiceMethod& method,
 
 void Robot::Impl::RegisterServiceMethods() {
   // Register internal Service Methods offered by the Robot Class
+  auto get_robot_type = ServiceMethod(topic_path_ + "/GetRobotType", {});
+  service_manager_.RegisterMethod(
+      get_robot_type,
+      get_robot_type.CreateMethodHandler(&Robot::Impl::GetRobotType, *this));
+
   auto get_gt_kinematics =
       ServiceMethod(topic_path_ + "/GetGroundTruthKinematics", {""});
   auto get_gt_kinematics_handler = get_gt_kinematics.CreateMethodHandler(
@@ -1148,6 +1172,14 @@ void Robot::Impl::SetActuatedTransforms(
   last_actuated_rotation_simtime_ = time_stamp;
 }
 
+std::string Robot::Impl::GetRobotType() {
+  if (!wheeled_vehicle_class_.empty()) return "wheeled-vehicle";
+  if (!unreal_vehicle_class_.empty()) return "unreal-vehicle";
+  if (physics_type_ == PhysicsType::kJSBSimPhysics) return "jsbsim";
+  if (physics_type_ == PhysicsType::kFastPhysics) return "drone";
+  return "other";
+}
+
 const PhysicsType& Robot::Impl::GetPhysicsType() const { return physics_type_; }
 
 void Robot::Impl::SetPhysicsType(const PhysicsType& phys_type) {
@@ -1188,6 +1220,10 @@ void Robot::Impl::SetControlConnectionSettings(
 
 const std::string& Robot::Impl::GetUnrealVehicleClass() const {
   return unreal_vehicle_class_;
+}
+
+const std::string& Robot::Impl::GetWheeledVehicleClass() const {
+  return wheeled_vehicle_class_;
 }
 
 bool Robot::Impl::GetStartLanded() const { return start_landed_; }
@@ -1286,7 +1322,21 @@ void Robot::Impl::UpdateControlInput() {
   // like Simulink that has a blocking wait loop for passing messages.
   if (controller_ != nullptr) {
     controller_->Update();
+
+    // SimpleDrive has a backend-neutral [throttle, steering, brake] output.
+    // Capture it here, on the controller's simulation thread, so an engine
+    // adapter can safely consume it without JSON bridge actuators.
+    if (controller_type_ == Constant::Config::simple_drive_api) {
+      auto output = controller_->GetControlSignals("");
+      std::lock_guard<std::mutex> lock(controller_output_lock_);
+      controller_output_ = std::move(output);
+    }
   }
+}
+
+std::vector<float> Robot::Impl::GetControllerOutput() const {
+  std::lock_guard<std::mutex> lock(controller_output_lock_);
+  return controller_output_;
 }
 
 void Robot::Impl::UpdateActuators(const TimeNano sim_time,
@@ -1522,7 +1572,8 @@ void Robot::Loader::LoadLinks(const json& json) {
   auto links_json = JsonUtils::GetArray(json, Constant::Config::links);
   if (JsonUtils::IsEmptyArray(links_json)) {
     if (impl_.physics_type_ == PhysicsType::kUnrealPhysics &&
-        !impl_.unreal_vehicle_class_.empty()) {
+        (!impl_.unreal_vehicle_class_.empty() ||
+         !impl_.wheeled_vehicle_class_.empty())) {
       impl_.logger_.LogWarning(
           impl_.name_,
           "[%s] 'links' missing or empty. Continuing for unreal vehicle physics.",
@@ -1652,6 +1703,14 @@ void Robot::Loader::LoadPhysicsType(const json& json) {
     impl_.physics_type_ = PhysicsType::kUnrealPhysics;
     impl_.unreal_vehicle_class_ = JsonUtils::GetString(
         json, Constant::Config::unreal_vehicle_class, "");
+    impl_.wheeled_vehicle_class_ = JsonUtils::GetString(
+        json, Constant::Config::wheeled_vehicle_class, "");
+    if (!impl_.unreal_vehicle_class_.empty() &&
+        !impl_.wheeled_vehicle_class_.empty()) {
+      throw Error(
+          "Robot cannot specify both 'unreal-vehicle-class' and "
+          "'wheeled-vehicle-class'.");
+    }
   } else if (physics_type == Constant::Config::jsbsim_physics) {
     impl_.physics_type_ = PhysicsType::kJSBSimPhysics;
     impl_.jsbsim_script_ =

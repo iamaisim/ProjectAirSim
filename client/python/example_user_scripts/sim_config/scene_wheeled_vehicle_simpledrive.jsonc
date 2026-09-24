@@ -1,0 +1,34 @@
+{
+  "id": "SceneWheeledVehicleSimpleDrive",
+  "actors": [
+    {
+      "type": "robot",
+      "name": "WheeledVehicle",
+      "origin": {
+        "xyz": "-500.0 0.0 -4.0",
+        "rpy-deg": "0 0 0"
+      },
+      "robot-config": "robot_wheeled_vehicle_simpledrive.jsonc"
+    }
+  ],
+  "clock": {
+    "type": "engine-driven",
+    // Use 3 ms as Chaos' maximum physics substep, not as the outer render
+    // frame. Without substepping, this would demand 333 FPS and make the
+    // vehicle run in slow motion whenever rendering cannot keep up.
+    "step-ns": 3000000,
+    "engine-substepping": true,
+    "pause-on-start": false
+  },
+  "home-geo-point": {
+    "latitude": 47.641468,
+    "longitude": -122.140165,
+    "altitude": 122.0
+  },
+  "segmentation": {
+    "initialize-ids": true,
+    "ignore-existing": false,
+    "use-owner-name": true
+  },
+  "scene-type": "UnrealNative"
+}

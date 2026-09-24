@@ -13,6 +13,7 @@
 #include "core_sim/error.hpp"
 #include "core_sim/logger.hpp"
 #include "core_sim/service_manager.hpp"
+#include "core_sim/service_method.hpp"
 #include "gtest/gtest.h"
 #include "json.hpp"
 #include "state_manager.hpp"
@@ -29,6 +30,10 @@ namespace projectairsim {
 
 class Scene {
  public:
+  static ServiceMethod MakeRobotTypeMethod(const std::string& path) {
+    return ServiceMethod(path + "/GetRobotType", {});
+  }
+
   static Robot MakeRobot(const std::string& id) {
     Transform origin = {{0, 0, 0}, {1, 0, 0, 0}};
     auto callback = [](const std::string& component, LogLevel level,
@@ -60,6 +65,25 @@ class Scene {
 namespace projectairsim = microsoft::projectairsim;
 
 namespace {
+
+class TestSimpleDriveController : public projectairsim::IController {
+ public:
+  void BeginUpdate() override {}
+  void EndUpdate() override {}
+  void Reset() override {}
+  void SetKinematics(const projectairsim::Kinematics*) override {}
+  void Update() override { output_ = {0.7f, -0.25f, 0.1f}; }
+  std::vector<float> GetControlSignals(const std::string&) override {
+    return output_;
+  }
+  const GimbalState& GetGimbalSignal(const std::string&) override {
+    return gimbal_state_;
+  }
+
+ private:
+  std::vector<float> output_;
+  GimbalState gimbal_state_{};
+};
 
 std::string GetProjectAirSimPluginPath() {
   return std::string(PROJECTAIRSIM_SOURCE_DIR) +
@@ -166,6 +190,119 @@ TEST(Robot, GetLinks) {
   EXPECT_EQ(robot.GetLinks().size(), 2);
 }
 
+TEST(Robot, LoadsWheeledVehicleClassWithoutLinks) {
+  json json = R"({
+      "physics-type": "unreal-physics",
+      "wheeled-vehicle-class": "/Game/Vehicles/Test.Test_C"
+    })"_json;
+  auto robot = projectairsim::Scene::MakeRobot("a");
+
+  projectairsim::Scene::LoadRobot(robot, json);
+
+  EXPECT_EQ(robot.GetWheeledVehicleClass(),
+            "/Game/Vehicles/Test.Test_C");
+  EXPECT_TRUE(robot.GetUnrealVehicleClass().empty());
+  EXPECT_TRUE(robot.GetLinks().empty());
+}
+
+TEST(Robot, RejectsBothUnrealVehicleClassOptions) {
+  json json = R"({
+      "physics-type": "unreal-physics",
+      "unreal-vehicle-class": "/Game/Vehicles/Generic.Generic_C",
+      "wheeled-vehicle-class": "/Game/Vehicles/Wheeled.Wheeled_C"
+    })"_json;
+  auto robot = projectairsim::Scene::MakeRobot("a");
+
+  EXPECT_THROW(projectairsim::Scene::LoadRobot(robot, json),
+               projectairsim::Error);
+}
+
+TEST(Robot, RobotTypeClassFieldsTakePriorityOverPhysics) {
+  for (const auto& field : {"wheeled-vehicle-class", "unreal-vehicle-class"}) {
+    auto robot = projectairsim::Scene::MakeRobot("CarA");
+    const json config = {
+        {"physics-type", "unreal-physics"}, {field, "/Game/Car.Car_C"}};
+    projectairsim::Scene::LoadRobot(robot, config);
+    const std::string expected = std::string(field) == "wheeled-vehicle-class"
+                                     ? "wheeled-vehicle" : "unreal-vehicle";
+    EXPECT_EQ(robot.GetRobotType(), expected);
+    // The identity comes from validated class fields, not the physics enum.
+    robot.SetPhysicsType(projectairsim::PhysicsType::kFastPhysics);
+    EXPECT_EQ(robot.GetRobotType(), expected);
+    robot.SetPhysicsType(projectairsim::PhysicsType::kJSBSimPhysics);
+    EXPECT_EQ(robot.GetRobotType(), expected);
+  }
+}
+
+TEST(Robot, RobotTypePhysicsRulesIgnoreControllerAndName) {
+  for (const auto& controller : {"simple-flight-api", "ardupilot-api",
+                                "jsbsim-api", "px4-api", "simple-drive-api"}) {
+    auto robot = projectairsim::Scene::MakeRobot("UnrealVehicle_WheeledVehicle");
+    const json config = {
+        {"links", json::array({json{{"name", "Frame"}}})},
+        {"controller", {{"id", "Controller"}, {"type", controller}}}};
+    projectairsim::Scene::LoadRobot(robot, config);
+    EXPECT_EQ(robot.GetRobotType(), "other");
+    robot.SetPhysicsType(projectairsim::PhysicsType::kFastPhysics);
+    EXPECT_EQ(robot.GetRobotType(), "drone");
+    robot.SetPhysicsType(projectairsim::PhysicsType::kJSBSimPhysics);
+    EXPECT_EQ(robot.GetRobotType(), "jsbsim");
+    for (auto physics : {projectairsim::PhysicsType::kNonPhysics,
+                         projectairsim::PhysicsType::kUnrealPhysics,
+                         projectairsim::PhysicsType::kMatlabPhysics}) {
+      robot.SetPhysicsType(physics);
+      EXPECT_EQ(robot.GetRobotType(), "other");
+    }
+  }
+}
+
+TEST(Robot, RobotTypeHandlerIsZeroArgumentStringAndReadOnly) {
+  auto robot = projectairsim::Scene::MakeRobot("CarB");
+  const json config = {
+      {"physics-type", "unreal-physics"},
+      {"wheeled-vehicle-class", "/Game/Car.Car_C"}};
+  projectairsim::Scene::LoadRobot(robot, config);
+  auto method = projectairsim::Scene::MakeRobotTypeMethod("/Sim/Scene/robots/CarB");
+  EXPECT_EQ(method.GetName(), "/Sim/Scene/robots/CarB/GetRobotType");
+  EXPECT_TRUE(method.GetParamsList().empty());
+  std::function<std::string()> getter = [&robot]() { return robot.GetRobotType(); };
+  auto handler = method.CreateMethodHandler(getter);
+  const auto position = robot.GetKinematics().pose.position;
+  const auto orientation = robot.GetKinematics().pose.orientation;
+  const auto outputs = robot.GetControllerOutput();
+  for (int i = 0; i < 3; ++i) {
+    const auto result = handler({});
+    EXPECT_TRUE(result.is_string());
+    EXPECT_EQ(result, "wheeled-vehicle");
+  }
+  EXPECT_THROW(handler({1}), projectairsim::Error);
+  EXPECT_TRUE(robot.GetKinematics().pose.position.isApprox(position));
+  EXPECT_TRUE(robot.GetKinematics().pose.orientation.isApprox(orientation));
+  EXPECT_EQ(robot.GetControllerOutput(), outputs);
+  auto other = projectairsim::Scene::MakeRobotTypeMethod("/Sim/Scene/robots/CarA");
+  EXPECT_NE(other.GetName(), method.GetName());
+}
+
+TEST(Robot, CapturesSimpleDriveOutputWithoutActuators) {
+  json json = R"({
+      "physics-type": "unreal-physics",
+      "wheeled-vehicle-class": "/Game/Vehicles/Test.Test_C",
+      "controller": {
+        "id": "SimpleDrive",
+        "type": "simple-drive-api"
+      }
+    })"_json;
+  auto robot = projectairsim::Scene::MakeRobot("a");
+  projectairsim::Scene::LoadRobot(robot, json);
+  robot.SetController(std::make_unique<TestSimpleDriveController>());
+
+  robot.UpdateControlInput();
+
+  EXPECT_EQ(robot.GetControllerOutput(),
+            (std::vector<float>{0.7f, -0.25f, 0.1f}));
+  EXPECT_TRUE(robot.GetActuators().empty());
+}
+
 TEST(Robot, JSBSimDtDefaultsWhenOmitted) {
   json json = R"({
       "physics-type": "jsbsim-physics",
@@ -179,6 +316,7 @@ TEST(Robot, JSBSimDtDefaultsWhenOmitted) {
 
   EXPECT_DOUBLE_EQ(robot.GetJSBSimDtSec(),
                    projectairsim::kDefaultJSBSimDtSec);
+  EXPECT_EQ(robot.GetRobotType(), "jsbsim");
 }
 
 TEST(Robot, JSBSimDtLoadsCustomValue) {

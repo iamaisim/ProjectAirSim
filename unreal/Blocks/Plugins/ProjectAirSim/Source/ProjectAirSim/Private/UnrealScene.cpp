@@ -163,10 +163,13 @@ void AUnrealScene::LoadUnrealScene(
   using_unreal_vehicle_physics = std::any_of(
       Actors.begin(), Actors.end(),
       [](const std::reference_wrapper<projectairsim::Actor>& Actor) {
-        return Actor.get().GetType() == projectairsim::ActorType::kRobot &&
-               !static_cast<const projectairsim::Robot&>(Actor.get())
-                    .GetUnrealVehicleClass()
-                    .empty();
+        if (Actor.get().GetType() != projectairsim::ActorType::kRobot) {
+          return false;
+        }
+        const auto& Robot =
+            static_cast<const projectairsim::Robot&>(Actor.get());
+        return !Robot.GetUnrealVehicleClass().empty() ||
+               !Robot.GetWheeledVehicleClass().empty();
       });
   using_unreal_physics =
       !UnrealPhysicsBodies.empty() || using_unreal_vehicle_physics;

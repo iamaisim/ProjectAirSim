@@ -263,6 +263,7 @@ Single-vehicle services use the configured `vehicle_name`, default `Drone1`:
 | `/projectairsim/Drone1/disarm` | `projectairsim_ros2_cpp/srv/Disarm` |
 | `/projectairsim/Drone1/move_to_position` | `projectairsim_ros2_cpp/srv/MoveToPosition` |
 | `/projectairsim/Drone1/move_on_path` | `projectairsim_ros2_cpp/srv/MoveOnPath` |
+| `/projectairsim/Drone1/set_parameter` | `projectairsim_ros2_cpp/srv/SetParameter` |
 
 Global, group, and scene services:
 
@@ -313,6 +314,47 @@ ros2 service call /projectairsim/Drone1/move_to_position projectairsim_ros2_cpp/
 ros2 service call /projectairsim/Drone1/land projectairsim_ros2_cpp/srv/Land \
   "{wait_on_last_task: true}"
 ```
+
+For a native wheeled vehicle, start the bridge with
+`vehicle_name:=WheeledVehicle`. The typed service keeps the same indexed
+interface (`0` throttle, `1` steering, `2` brake). On the first indexed control
+request for each robot, the bridge queries
+`/Sim/<scene>/robots/<robot>/GetRobotType` with no arguments. Robot names are
+arbitrary: `wheeled-vehicle` maps to `SetThrottle`, `SetSteering`, and `SetBrakes`;
+`unreal-vehicle` forwards `SetParameter` unchanged, preserving Blueprint indices.
+`drone`, `jsbsim`, and `other` reject this indexed control service; existing
+flight services are unchanged. Invalid wheeled indices, failed/missing RPCs,
+malformed results, and unknown types return an explicit error without sending a
+control RPC. There is no name-based fallback. An empty requested name uses the
+configured `vehicle_name`. Python/C++ WheeledVehicle clients use named controls.
+
+The server classifies validated vehicle-class fields first, then JSBSim physics
+as `jsbsim`, FastPhysics as `drone`, and otherwise `other`, independently of the
+controller. This identifies the configured backend, not spawn/drive readiness.
+Valid results are cached by full scene/robot path until the bridge reconnects
+or successfully loads a scene; failed lookups are retried, not cached. Older
+simulators without `GetRobotType` cannot use this indexed routing service.
+
+To attach without reloading, leave `scene_config` empty (its default). World
+discovers the scene and robot names from topics without fetching configuration
+or resetting the scene. No backend launch parameter or extra JSONC mapping is
+needed. External scene changes are not adopted automatically: reconnect the
+bridge or load the scene through its own load service with
+`is_primary_client: true`.
+
+The native topic channel is single-consumer (PAIR0). When ROS owns it, connect
+Python diagnostics with `client.connect_services()` rather than `connect()`;
+otherwise the competing topic connection can prevent clock and TF delivery.
+
+Example:
+
+```bash
+ros2 service call /projectairsim/WheeledVehicle/set_parameter \
+  projectairsim_ros2_cpp/srv/SetParameter "{index: 0, value: 0.7}"
+```
+
+See [Native Wheeled Vehicles](../wheeled_vehicle.md) for the complete setup and
+SimpleDrive workflow.
 
 Reload a scene at runtime:
 

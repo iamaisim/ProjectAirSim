@@ -80,6 +80,9 @@ class Robot : public Actor {
   const std::string& GetControlConnectionSettings() const;
   void SetControlConnectionSettings(const std::string& control_conn_settings);
   const std::string& GetUnrealVehicleClass() const;
+  const std::string& GetWheeledVehicleClass() const;
+  // Configured backend identity, not spawn/physics readiness.
+  std::string GetRobotType() const;
   bool GetStartLanded() const;
   void SetStartLanded(bool start_landed);
 
@@ -143,6 +146,10 @@ class Robot : public Actor {
   void UpdateCollisionInfo(const CollisionInfo& collision_info);
   void SetHasCollided(bool has_collided);
   void UpdateControlInput();
+  // Returns the latest controller output captured on the simulation thread.
+  // This lets engine adapters consume controller-native channels without
+  // requiring placeholder actuators solely for signal transport.
+  std::vector<float> GetControllerOutput() const;
   void UpdateActuators(const TimeNano sim_time, const TimeNano sim_dt_nanos);
   // TODO Rename to UpdateKinematics() to SetKinematics() since this is set by
   // external components like the physics model or API calls?

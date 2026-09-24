@@ -410,6 +410,8 @@ class Constant {
     static constexpr const char* jsbsim_ground_mode_constant = "constant";
     static constexpr const char* jsbsim_ground_mode_terrain = "terrain";
     static constexpr const char* unreal_vehicle_class = "unreal-vehicle-class";
+    static constexpr const char* wheeled_vehicle_class =
+        "wheeled-vehicle-class";
     static constexpr const char* restitution = "restitution";
     static constexpr const char* friction = "friction";
     static constexpr const char* body_box_xyz = "body-box-xyz";

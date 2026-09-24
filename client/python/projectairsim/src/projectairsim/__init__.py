@@ -13,7 +13,7 @@ from .static_sensor_actor import StaticSensorActor
 from .unreal_vehicle import UnrealVehicle
 from .wheeled_vehicle import WheeledVehicle
 
-__version__ = "1.0.2"
+__version__ = "1.1.0"
 
 __all__ = [
     "Drone",

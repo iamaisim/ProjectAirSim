@@ -1,13 +1,4 @@
-"""
-Copyright (C) 2025 IAMAI CONSULTING CORP
-MIT License.
-
-Project AirSim Unreal vehicle example driven by SimpleDrive.
-
-Loads scene_unreal_vehicle_simpledrive.jsonc (unreal-physics vehicle +
-simple-drive-api controller), arms the vehicle, and commands a 3-point
-MoveOnPath trajectory.
-"""
+"""Drive an AWheeledVehiclePawn along a 3-point zero-wiring SimpleDrive path."""
 
 import asyncio
 
@@ -46,16 +37,17 @@ async def main():
     try:
         client.connect()
         projectairsim_log().info("Connected to Project AirSim")
-
         world = World(
-            client, "scene_unreal_vehicle_simpledrive.jsonc", delay_after_load_sec=2
+            client,
+            "scene_wheeled_vehicle_simpledrive.jsonc",
+            delay_after_load_sec=2,
         )
-        # Rover client exposes SimpleDrive APIs; physics remains unreal-vehicle.
-        rover = Rover(client, world, "UnrealVehicle")
 
+        # Rover exposes the SimpleDrive API. The configured Unreal actor is an
+        # AWheeledVehiclePawn and needs no Blueprint interface or actuators.
+        rover = Rover(client, world, "WheeledVehicle")
         projectairsim_log().info("Enabling API control")
         assert rover.enable_api_control()
-
         projectairsim_log().info("Arming vehicle")
         assert rover.arm()
 

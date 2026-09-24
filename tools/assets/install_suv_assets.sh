@@ -25,8 +25,8 @@ Options:
   --url URL            Override the download URL from suv-assets.json.
   --sha256 HASH        Override the expected SHA-256 checksum.
   --destination PATH   Override the VehicleAdv destination directory.
-  --force              Replace an existing SUV installation.
-  --ensure             Install or update the SUV to the manifest URL.
+  --force              Replace existing SUV directories included in the pack.
+  --ensure             Install or update the SUV pack to the manifest URL.
   -h, --help           Show this help.
 EOF
 }
@@ -60,7 +60,13 @@ if [[ "$ensure" == true && -d "$destination" ]]; then
     if [[ -f "$metadata_path" ]]; then
         installed_url="$(sed -n 's/^[[:space:]]*"url":[[:space:]]*"\([^"]*\)".*/\1/p' "$metadata_path")"
     fi
-    if [[ -n "$url" && "$installed_url" == "$url" ]]; then
+    installed_complete=true
+    for asset in SuvCarPawn.uasset SUV_TorqueCurve.uasset SuvWheel_Front.uasset; do
+        if [[ ! -f "$destination/$asset" ]]; then
+            installed_complete=false
+        fi
+    done
+    if [[ -n "$url" && "$installed_url" == "$url" && "$installed_complete" == true && ! -e "$destination_root/SUV_UE52" ]]; then
         echo "SUV assets already match manifest URL; skipping download."
         exit 0
     fi
@@ -97,19 +103,45 @@ if [[ ! -f "$staged_suv/SuvCarPawn.uasset" ]]; then
     exit 1
 fi
 
-if [[ -e "$destination" ]]; then
-    if [[ "$force" != true ]]; then
-        echo "SUV assets already exist at '$destination'. Use --force to replace them." >&2
+staged_ue52="$staging_dir/SUV_UE52"
+if [[ -d "$staged_ue52" ]]; then
+    # Older combined archives keep the UE 5.2 overrides in a second folder.
+    cp -a "$staged_ue52/." "$staged_suv/"
+    rm -rf -- "$staged_ue52"
+fi
+for asset in SuvCarPawn.uasset SUV_TorqueCurve.uasset SuvWheel_Front.uasset; do
+    if [[ ! -f "$staged_suv/$asset" ]]; then
+        echo "Invalid SUV asset pack: SUV/$asset was not found. The pack must include the UE 5.2 vehicle assets." >&2
         exit 1
     fi
-    rm -rf -- "$destination"
-fi
+done
+legacy_directory="$destination_root/SUV_UE52"
+
+# Check every destination before replacing any existing asset directory.
+for target in "$destination" "$legacy_directory"; do
+    if [[ -e "$target" && "$force" != true ]]; then
+        echo "SUV assets already exist at '$target'. Use --force to replace them." >&2
+        exit 1
+    fi
+done
 
 mkdir -p -- "$destination_root"
+if [[ -e "$destination" ]]; then
+    rm -rf -- "$destination"
+fi
 mv -- "$staged_suv" "$destination"
+echo "Installed merged UE 5.2 SUV assets at: $destination"
+if [[ -e "$legacy_directory" ]]; then
+    rm -rf -- "$legacy_directory"
+    echo "Removed legacy SUV_UE52 directory: $legacy_directory"
+fi
+installed_url="$url"
+if [[ -z "$installed_url" && "$actual_sha256" == "$expected_sha256" ]]; then
+    installed_url="$(manifest_value url)"
+fi
 cat > "$metadata_path" <<EOF
 {
-  "url": "$url"
+  "url": "$installed_url",
+  "includesUE52": true
 }
 EOF
-echo "Installed SUV assets at: $destination"

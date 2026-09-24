@@ -13,6 +13,10 @@
       "description": "UE5 Blueprint or C++ class path for the Unreal vehicle. It must implement IProjectAirSimVehicle to receive indexed parameter signals; kinematics are read independently from Chaos or standard UE component state.",
       "type": "string"
     },
+    "wheeled-vehicle-class": {
+      "description": "UE5 Blueprint or C++ class path for an AWheeledVehiclePawn. Project AirSim applies fixed throttle, steering, and brake parameters directly; no IProjectAirSimVehicle implementation is required.",
+      "type": "string"
+    },
     "jsbsim-root-path": {
       "description": "Path to the JSBSim models root, relative to the simulation working path",
       "type": "string",
@@ -449,6 +453,13 @@
     }
   },
   "required": [ "physics-type" ],
+  "allOf": [
+    {
+      "not": {
+        "required": [ "unreal-vehicle-class", "wheeled-vehicle-class" ]
+      }
+    }
+  ],
 
   //Standard Definitions used in the Schema
   "definitions": {

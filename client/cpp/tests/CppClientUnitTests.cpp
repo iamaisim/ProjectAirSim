@@ -114,6 +114,7 @@ struct TestEnvironment {
   std::shared_ptr<asc::World> world;
   std::shared_ptr<asc::Drone> drone;
   std::shared_ptr<asc::Rover> rover;
+  std::shared_ptr<asc::WheeledVehicle> wheeled_vehicle;
   std::shared_ptr<asc::EnvActor> env_actor;
   std::shared_ptr<asc::StaticSensorActor> static_sensor_actor;
 };
@@ -130,7 +131,7 @@ bool CreateWorld(TestEnvironment* env) {
     return false;
   }
   if (!Expect(env->world->Initialize(env->client) == asc::Status::OK,
-              "World::Initialize should derive scene from topic info")) {
+              "World::Initialize should discover the existing scene")) {
     return false;
   }
   return true;
@@ -155,6 +156,19 @@ bool CreateRover(TestEnvironment* env) {
   if (!Expect(env->rover->Initialize(env->client, env->world, "Rover1") ==
                   asc::Status::OK,
               "Rover::Initialize should attach to the world topic")) {
+    return false;
+  }
+  return true;
+}
+
+bool CreateWheeledVehicle(TestEnvironment* env) {
+  if (!CreateWorld(env)) return false;
+
+  env->wheeled_vehicle = std::make_shared<asc::WheeledVehicle>();
+  if (!Expect(env->wheeled_vehicle->Initialize(env->client, env->world,
+                                               "WheeledVehicle") ==
+                  asc::Status::OK,
+              "WheeledVehicle::Initialize should attach to the world topic")) {
     return false;
   }
   return true;
@@ -1467,6 +1481,75 @@ bool TestRoverAPIsUseExpectedServiceMethods() {
   return true;
 }
 
+bool TestWheeledVehicleAPIsUseExpectedServiceMethods() {
+  TestEnvironment env;
+  if (!CreateWheeledVehicle(&env)) return false;
+
+  bool success = false;
+  int id = 0;
+  struct ControlCase {
+    std::string method;
+    float value;
+    std::function<asc::Status()> invoke;
+  };
+  const std::vector<ControlCase> controls = {
+      {"SetThrottle", 0.7f,
+       [&]() { return env.wheeled_vehicle->SetThrottle(0.7f, &success); }},
+      {"SetSteering", -0.25f,
+       [&]() { return env.wheeled_vehicle->SetSteering(-0.25f, &success); }},
+      {"SetBrakes", 1.0f,
+       [&]() { return env.wheeled_vehicle->SetBrakes(1.0f, &success); }},
+  };
+  for (const auto& control : controls) {
+    for (bool applied : {true, false}) {
+      success = !applied;
+      fake_nngi::PushServiceResponse(SuccessResponse(id++, applied));
+      if (!Expect(control.invoke() == asc::Status::OK,
+                  "WheeledVehicle::" + control.method + " should succeed") ||
+          !Expect(success == applied, "Control should propagate applied result") ||
+          !ExpectLastRequest(
+              "/Sim/SceneUnit/robots/WheeledVehicle/" + control.method,
+              [&](const json& params) {
+                return params.size() == 1 && params["value"] == control.value;
+              },
+              "WheeledVehicle::" + control.method)) {
+        return false;
+      }
+    }
+    fake_nngi::PushServiceResponse(ErrorResponse(id++, "control rejected"));
+    if (!Expect(control.invoke() == asc::Status::RejectedByServer,
+                "Control should propagate server errors")) {
+      return false;
+    }
+  }
+
+  json kinematics;
+  fake_nngi::PushServiceResponse(
+      SuccessResponse(id++, json{{"pose", json::object()}}));
+  if (!Expect(env.wheeled_vehicle->GetKinematics(&kinematics) ==
+                  asc::Status::OK,
+              "WheeledVehicle::GetKinematics should succeed") ||
+      !ExpectLastRequest(
+          "/Sim/SceneUnit/robots/WheeledVehicle/GetGroundTruthKinematics",
+          "WheeledVehicle::GetKinematics")) {
+    return false;
+  }
+
+  fake_nngi::PushServiceResponse(
+      SuccessResponse(id++, json{{"pose", json::object()}}));
+  if (!Expect(env.wheeled_vehicle->GetGroundTruthKinematics(&kinematics) ==
+                  asc::Status::OK,
+              "WheeledVehicle::GetGroundTruthKinematics should succeed") ||
+      !ExpectLastRequest(
+          "/Sim/SceneUnit/robots/WheeledVehicle/GetGroundTruthKinematics",
+          "WheeledVehicle::GetGroundTruthKinematics")) {
+    return false;
+  }
+
+  env.client->Disconnect();
+  return true;
+}
+
 bool TestEnvActorAPIsUseExpectedServiceMethods() {
   TestEnvironment env;
   if (!CreateEnvActor(&env)) return false;
@@ -1522,6 +1605,20 @@ bool TestEnvActorAPIsUseExpectedServiceMethods() {
   return true;
 }
 
+bool TestWorldAttachesThroughDiscoveryWithoutLoading() {
+  TestEnvironment env;
+  if (!CreateWorld(&env)) return false;
+  if (!Expect(std::string(env.world->GetParentTopic()) == "/Sim/SceneUnit",
+              "Attach should discover the scene topic root") ||
+      !Expect(env.world->GetDrones() == std::vector<std::string>{"Drone1"},
+              "Attach should discover robot names") ||
+      !Expect(env.world->GetConfiguration().empty(),
+              "Discovery attachment must leave configuration empty") ||
+      !Expect(fake_nngi::SentServiceMessages().empty(),
+              "Attach must not request configuration or reload the scene")) return false;
+  env.client->Disconnect();
+  return true;
+}
 bool TestStaticSensorActorAPIsUseExpectedServiceMethods() {
   TestEnvironment env;
   if (!CreateStaticSensorActor(&env)) return false;
@@ -1557,8 +1654,10 @@ int main() {
   failed += TestClientPublishSendsTopicMessage() ? 0 : 1;
   failed += TestClientTopicAndLifecycleAPIsUseExpectedMessages() ? 0 : 1;
   failed += TestWorldAPIsUseExpectedServiceMethods() ? 0 : 1;
+  failed += TestWorldAttachesThroughDiscoveryWithoutLoading() ? 0 : 1;
   failed += TestDroneAPIsUseExpectedServiceMethods() ? 0 : 1;
   failed += TestRoverAPIsUseExpectedServiceMethods() ? 0 : 1;
+  failed += TestWheeledVehicleAPIsUseExpectedServiceMethods() ? 0 : 1;
   failed += TestEnvActorAPIsUseExpectedServiceMethods() ? 0 : 1;
   failed += TestStaticSensorActorAPIsUseExpectedServiceMethods() ? 0 : 1;
 

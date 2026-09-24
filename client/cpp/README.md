@@ -33,6 +33,7 @@ The C++ client provides the same simulation control capabilities as the Python c
 | `Client.h` | `Client` — connects to the simulation server |
 | `World.h` | `World` — loads scenes, controls physics step |
 | `Drone.h` | `Drone` — takeoff, move, land, arm/disarm |
+| `WheeledVehicle.h` | `WheeledVehicle` — native throttle, steering, and brake control |
 | `AsyncResult.h` | `AsyncResult` — non-blocking operation handles |
 | `Status.h` | `Status` enum and `GetStatusString()` |
 | `Types.h` | `LandedState`, `ReadyState`, vectors, poses |
@@ -70,7 +71,9 @@ Build the C++ client independently of the simulation libraries:
 
 Binaries are placed in:
 - `client/cpp/build_linux/Debug/hello_drone`
+- `client/cpp/build_linux/Debug/hello_wheeled_vehicle`
 - `client/cpp/build_linux/Release/hello_drone`
+- `client/cpp/build_linux/Release/hello_wheeled_vehicle`
 
 ### On Windows
 

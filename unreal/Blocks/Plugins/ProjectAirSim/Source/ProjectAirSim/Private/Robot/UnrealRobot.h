@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "Camera/CameraComponent.h"
+#include "ChaosVehicleWheel.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -32,6 +33,25 @@ class AUnrealScene;
 class FProjectAirSimVehicleSubstepSampler;
 class UUnrealCamera;
 class UChaosWheeledVehicleMovementComponent;
+
+// A usable default for permissive AWheeledVehiclePawn configurations that
+// leave their wheel slots on the inert ChaosVehicleWheel base class. Custom
+// wheel classes are never replaced.
+UCLASS(NotBlueprintable)
+class UProjectAirSimDefaultFrontVehicleWheel : public UChaosVehicleWheel {
+  GENERATED_BODY()
+
+ public:
+  UProjectAirSimDefaultFrontVehicleWheel();
+};
+
+UCLASS(NotBlueprintable)
+class UProjectAirSimDefaultRearVehicleWheel : public UChaosVehicleWheel {
+  GENERATED_BODY()
+
+ public:
+  UProjectAirSimDefaultRearVehicleWheel();
+};
 
 UCLASS()
 class AUnrealRobot : public AActor {
@@ -121,6 +141,20 @@ class AUnrealRobot : public AActor {
 
   bool SetParameter(int32 Index, float Value);
 
+  bool SetThrottle(float Value);
+
+  bool SetSteering(float Value);
+
+  bool SetBrakes(float Value);
+
+  bool QueueWheeledVehicleControl(int32 Index, float Value);
+
+  void ApplyThrottle(float Value);
+
+  void ApplySteering(float Value);
+
+  void ApplyBrake(float Value);
+
   void TickProjectAirSimVehicle(float DeltaTime);
 
   void EnsureProjectAirSimVehicleSubstepSampler();
@@ -175,7 +209,14 @@ class AUnrealRobot : public AActor {
   // Whether the actor accepts indexed parameter signals. Kinematics are always
   // read independently from Chaos or standard Unreal component state.
   bool bProjectAirSimVehicleHasInterface = false;
+  bool bIsWheeledVehicle = false;
   bool bProjectAirSimVehicleParameterServiceRegistered = false;
+  bool bWheeledVehicleControlServicesRegistered = false;
+  bool bUnrealVehicleActuationModeLogged = false;
+  bool bLastUnrealVehicleMechanicalSimEnabled = false;
+  bool bWheeledVehicleActuationModeLogged = false;
+  bool bLastWheeledVehicleMechanicalSimEnabled = false;
+  bool bWheeledVehicleSimpleDriveLogged = false;
   TMap<int32, float> ProjectAirSimVehicleParameters;
   FProjectAirSimVehicleSubstepSampler* ProjectAirSimVehicleSubstepSampler =
       nullptr;

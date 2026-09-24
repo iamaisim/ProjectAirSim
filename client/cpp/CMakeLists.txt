@@ -157,10 +157,11 @@ add_library(ProjectAirsimClient STATIC
     ProjectAirsimClientLib/src/Types.cpp
     ProjectAirsimClientLib/src/Utils.cpp
     ProjectAirsimClientLib/src/World.cpp
-        ProjectAirsimClientLib/src/Rover.cpp
-        ProjectAirsimClientLib/src/EnvActor.cpp
-        ProjectAirsimClientLib/src/StaticSensorActor.cpp
-        ${PROJECTAIRSIM_ROOT}/core_sim/src/math_utils.cpp
+    ProjectAirsimClientLib/src/WheeledVehicle.cpp
+    ProjectAirsimClientLib/src/Rover.cpp
+    ProjectAirsimClientLib/src/EnvActor.cpp
+    ProjectAirsimClientLib/src/StaticSensorActor.cpp
+    ${PROJECTAIRSIM_ROOT}/core_sim/src/math_utils.cpp
 )
 
 target_include_directories(ProjectAirsimClient
@@ -291,6 +292,7 @@ add_library(ProjectAirsimClientMocked STATIC
     ProjectAirsimClientLib/src/Types.cpp
     ProjectAirsimClientLib/src/Utils.cpp
     ProjectAirsimClientLib/src/World.cpp
+    ProjectAirsimClientLib/src/WheeledVehicle.cpp
     ProjectAirsimClientLib/src/Rover.cpp
     ProjectAirsimClientLib/src/EnvActor.cpp
     ProjectAirsimClientLib/src/StaticSensorActor.cpp
@@ -356,6 +358,10 @@ add_executable(user_rover_scenario
     example_user_apps/UserRoverScenario/UserRoverScenario.cpp
 )
 
+add_executable(hello_wheeled_vehicle
+    example_user_apps/HelloWheeledVehicle/HelloWheeledVehicle.cpp
+)
+
 add_executable(user_env_actor_scenario
     example_user_apps/UserEnvActorScenario/UserEnvActorScenario.cpp
 )
@@ -405,6 +411,11 @@ target_link_libraries(user_rover_scenario
         ProjectAirsimClient
 )
 
+target_link_libraries(hello_wheeled_vehicle
+    PRIVATE
+        ProjectAirsimClient
+)
+
 target_link_libraries(user_env_actor_scenario
     PRIVATE
         ProjectAirsimClient
@@ -440,6 +451,7 @@ if(NOT WIN32)
     target_link_libraries(cpp_client_scenarios PRIVATE Threads::Threads)
     target_link_libraries(user_scenario_template PRIVATE Threads::Threads)
     target_link_libraries(user_rover_scenario PRIVATE Threads::Threads)
+    target_link_libraries(hello_wheeled_vehicle PRIVATE Threads::Threads)
     target_link_libraries(user_env_actor_scenario PRIVATE Threads::Threads)
     target_link_libraries(user_static_sensor_scenario PRIVATE Threads::Threads)
     target_link_libraries(user_lidar_scenario PRIVATE Threads::Threads)
@@ -460,6 +472,7 @@ set(PROJECTAIRSIM_CPP_CLIENT_EXAMPLE_TARGETS
     cpp_client_scenarios
     user_scenario_template
     user_rover_scenario
+    hello_wheeled_vehicle
     user_env_actor_scenario
     user_static_sensor_scenario
     user_lidar_scenario

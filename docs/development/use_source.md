@@ -1,6 +1,6 @@
 # Build From Source as a Developer
 
-For many usage scenarios, **[Using Pre-built Binary Environments](use_prebuilt)** or **[Using Project AirSim Plugin in Custom Environments](../use_plugin)** is enough to get a simulation up and running. The main development would then be done by setting up the **[Config JSON Settings](../config)** and using the **[Project AirSim Client](../client_setup)** and **[APIs](../api)** to drive the simulation for the particular usage application.
+For many usage scenarios, **[Using Pre-built Binary Environments](use_prebuilt.md)** or **[Using Project AirSim Plugin in Custom Environments](../use_plugin.md)** is enough to get a simulation up and running. The main development would then be done by setting up the **[Config JSON Settings](../config.md)** and using the **[Project AirSim Client](../client_setup.md)** and **[APIs](../api.md)** to drive the simulation for the particular usage application.
 
 If deeper customization or extending new features is needed, building the Project AirSim framework from source can be done through the process described below.
 
@@ -42,11 +42,11 @@ projectairsim
 Project AirSim's primary supported development platforms are Windows 11 and
 Ubuntu 22.04. The Linux setup script recognizes some additional Ubuntu releases,
 but that installation logic is not a supported-platform guarantee. See
-**[System Specifications](../system_specs)** for more details.
+**[System Specifications](../system_specs.md)** for more details.
 
 For details on getting your dev environment set up, choose your platform:
-- **[Developer Initial Setup for Windows](dev_setup_win)**
-- **[Developer Initial Setup for Linux](dev_setup_linux)**
+- **[Developer Initial Setup for Windows](dev_setup_win.md)**
+- **[Developer Initial Setup for Linux](dev_setup_linux.md)**
 - **[Developer Initial Setup for macOS](dev_setup_macos.md)**: Apple Silicon
   SimLibs and headless Runtime source builds, with Release unit tests on macOS
   15. Runtime integration and Unreal/Blocks on Mac are not yet validated.
@@ -60,8 +60,8 @@ macOS guide for the supported Mac build targets and their current limits.
 
 Choose your development tool:
 
-- **[Command Line (Windows/Linux)](#command-line-windows-linux)**
-- **[VS Code (Windows/Linux)](#vs-code-windows-linux)**
+- **[Command Line (Windows/Linux)](#command-line-windowslinux)**
+- **[VS Code (Windows/Linux)](#vs-code-windowslinux)**
 - **[Visual Studio 2019 (Windows only)](#visual-studio-2019-windows-only)**
 
 **Note:** Project AirSim sim libs uses CMake which saves build configuration information in a cache, so **if you switch tools** between using command line, VS Code, or Visual Studio 2019 to drive the CMake project in the same folder, you should **clear the cache** by running `build clean` so the next tool can reset the configuration and build again properly. The standalone C++ client uses its own build directories under `client/cpp/`.
@@ -339,7 +339,7 @@ However, it is possible to use Visual Studio to do both in a single project by f
 
 2. Launch the Blocks simulation and start play.
 
-3. Switch to `projectairsim/python` directory using a command line with an activated Python environment that was set up during the **[Project AirSim Client Setup](../client_setup)**.
+3. Switch to `projectairsim/python` directory using a command line with an activated Python environment that was set up during the **[Project AirSim Client Setup](../client_setup.md)**.
 
 4. Start executing a client script to load the simulation configured in step 1 and interact with the simulation.
 

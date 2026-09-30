@@ -1357,7 +1357,8 @@ void Robot::Impl::UpdateActuators(const TimeNano sim_time,
 
   // Update tilt actuator first since they affect other actuators
   for (auto& actuator : actuators_) {
-    if (actuator->GetType() == ActuatorType::kTilt) {
+    if (actuator->GetType() == ActuatorType::kTilt &&
+        actuator->IsEnabled()) {
       // Call actuator to update its output for its current control signal
       std::vector<float> control_signals =
           controller_->GetControlSignals(actuator->GetId());
@@ -1376,12 +1377,8 @@ void Robot::Impl::UpdateActuators(const TimeNano sim_time,
 
   // Update non-tilt actuators
   for (auto& actuator : actuators_) {
-    if (actuator->GetType() == ActuatorType::kGimbal) {
-      if (actuator->IsEnabled()) {
-        auto& gimbal = static_cast<Gimbal&>(*actuator);
-        gimbal.UpdateGimbal(sim_dt_nanos);
-      }
-    } else if (actuator->GetType() != ActuatorType::kTilt) {
+    if (actuator->GetType() != ActuatorType::kTilt &&
+        actuator->IsEnabled()) {
       // Do pre-processing specific to actuator type
       if (actuator->GetType() == ActuatorType::kRotor) {
         // For rotor actuators, update their air_density from current
@@ -1394,8 +1391,12 @@ void Robot::Impl::UpdateActuators(const TimeNano sim_time,
       }
 
       // Call actuator to update its output for its current control signal
-      std::vector<float> control_signals =
-          controller_->GetControlSignals(actuator->GetId());
+      std::vector<float> control_signals;
+      // Gimbal actuators are handled separately, as they are not controlled by the controller.
+      // Instead, they are controlled by the gimbal command, if not handled some warnings will be thrown by the controller every tick.
+      if (actuator->GetType() != ActuatorType::kGimbal) {
+        control_signals = controller_->GetControlSignals(actuator->GetId());
+      }
 
       actuator->UpdateActuatorOutput(std::move(control_signals), sim_dt_nanos);
     }

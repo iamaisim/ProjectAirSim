@@ -741,12 +741,13 @@ class Robot(object):
         command = {
             key: value for key, value in values.items() if value is not None
         }
-        request = {
+        set_gimbal_command_req: Dict = {
             "method": f"{self.parent_topic}/actuators/{gimbal_id}/SetCommand",
             "params": {"command": command},
             "version": 1.0,
         }
-        return self.client.request(request)
+        success = self.client.request(set_gimbal_command_req)
+        return success
 
     def get_gimbal_state(self, gimbal_id: str) -> Dict:
         """Return the simulated gimbal angles, rates, and lock flags.

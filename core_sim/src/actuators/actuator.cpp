@@ -33,5 +33,9 @@ const std::string& Actuator::GetChildLink() const {
   return pimpl_->GetChildLink();
 }
 
+bool Actuator::UpdateFaultInjectionEnabledState(bool enabled) {
+  return pimpl_->UpdateFaultInjectionEnabledState(enabled);
+}
+
 }  // namespace projectairsim
 }  // namespace microsoft

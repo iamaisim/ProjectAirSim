@@ -76,13 +76,9 @@ class TestSimpleDriveController : public projectairsim::IController {
   std::vector<float> GetControlSignals(const std::string&) override {
     return output_;
   }
-  const GimbalState& GetGimbalSignal(const std::string&) override {
-    return gimbal_state_;
-  }
 
  private:
   std::vector<float> output_;
-  GimbalState gimbal_state_{};
 };
 
 std::string GetProjectAirSimPluginPath() {

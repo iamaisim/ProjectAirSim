@@ -113,7 +113,7 @@ TEST(Gimbal, UpdateGimbalUsesRateLimitedSetpointsAndUpdatesTransform) {
 
   // Act: apply the protocol-independent command and advance one second.
   gimbal->SetCommand(command);
-  gimbal->UpdateGimbal(1'000'000'000LL);
+  gimbal->UpdateActuatorOutput({}, 1'000'000'000LL);
 
   // Assert: check result from `const auto& state = gimbal->GetGimbalState();`.
   const auto& state = gimbal->GetGimbalState();
@@ -159,20 +159,54 @@ TEST(Gimbal, RateOnlyCommandIntegratesUntilStopped) {
   command.yaw_rate = 0.4f;
   gimbal->SetCommand(command);
 
-  gimbal->UpdateGimbal(500'000'000LL);
+  gimbal->UpdateActuatorOutput({}, 500'000'000LL);
   auto state = gimbal->GetGimbalState();
   EXPECT_NEAR(state.yaw, 0.2f, 1.0e-6f);
   EXPECT_NEAR(state.yaw_rate, 0.4f, 1.0e-6f);
 
-  gimbal->UpdateGimbal(500'000'000LL);
+  gimbal->UpdateActuatorOutput({}, 500'000'000LL);
   state = gimbal->GetGimbalState();
   EXPECT_NEAR(state.yaw, 0.4f, 1.0e-6f);
   EXPECT_NEAR(state.yaw_rate, 0.4f, 1.0e-6f);
 
   // A command without an angle or rate holds the current position.
   gimbal->SetCommand(projectairsim::GimbalCommand());
-  gimbal->UpdateGimbal(500'000'000LL);
+  gimbal->UpdateActuatorOutput({}, 500'000'000LL);
   state = gimbal->GetGimbalState();
   EXPECT_NEAR(state.yaw, 0.4f, 1.0e-6f);
   EXPECT_FLOAT_EQ(state.yaw_rate, 0.0f);
+}
+
+TEST(Gimbal, FaultInjectionHoldsPositionAndZerosRates) {
+  const json config_json = {
+      {"name", "gimbal_fault"},
+      {"type", "gimbal"},
+      {"enabled", true},
+      {"parent-link", "body"},
+      {"child-link", "camera_mount"},
+  };
+
+  auto actuator = projectairsim::LoadActuatorFromJson(config_json);
+  auto* gimbal = dynamic_cast<projectairsim::Gimbal*>(actuator.get());
+  ASSERT_NE(gimbal, nullptr);
+
+  projectairsim::GimbalCommand command;
+  command.yaw_rate = 0.4f;
+  gimbal->SetCommand(command);
+  gimbal->UpdateActuatorOutput({}, 500'000'000LL);
+  auto state = gimbal->GetGimbalState();
+  EXPECT_NEAR(state.yaw, 0.2f, 1.0e-6f);
+  EXPECT_NEAR(state.yaw_rate, 0.4f, 1.0e-6f);
+
+  EXPECT_TRUE(gimbal->UpdateFaultInjectionEnabledState(true));
+  gimbal->UpdateActuatorOutput({}, 1'000'000'000LL);
+  state = gimbal->GetGimbalState();
+  EXPECT_NEAR(state.yaw, 0.2f, 1.0e-6f);
+  EXPECT_FLOAT_EQ(state.yaw_rate, 0.0f);
+
+  EXPECT_TRUE(gimbal->UpdateFaultInjectionEnabledState(false));
+  gimbal->UpdateActuatorOutput({}, 500'000'000LL);
+  state = gimbal->GetGimbalState();
+  EXPECT_NEAR(state.yaw, 0.4f, 1.0e-6f);
+  EXPECT_NEAR(state.yaw_rate, 0.4f, 1.0e-6f);
 }

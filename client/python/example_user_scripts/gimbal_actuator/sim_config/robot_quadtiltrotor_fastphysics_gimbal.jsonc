@@ -576,7 +576,7 @@
         "MC_PITCH_MAX": 0.262, // rad
         "MC_YAW_P": 1.2,
         "MC_YAW_D": 0.8,
-        
+
         // Multirotor Position PID
         "MPC_XY_P": 0.05,
         "MPC_XY_I": 0.01,

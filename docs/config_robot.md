@@ -568,7 +568,7 @@ Actuators are used to apply forces and torques to links based on controller comm
 | Parameter | Value | Description |
 | --------- | ----- | ----------- |
 | `name` | string | Name identifier for the actuator. |
-| `type` | `rotor`, `lift-drag-control-surface`, or `tilt` | Type of actuator.  See below. |
+| `type` | `rotor`, `lift-drag-control-surface`, `tilt`, or `gimbal` | Type of actuator. See below. |
 | `enabled` | bool | Enable or disable the actuator without having to delete the config object. |
 | `parent-link` | string | Name identifier for the actuator's parent link, which the actuator will apply its forces/torques to. |
 | `child-link` | string | Name identifier for the actuator's child link, which is currently only used to visually spin propeller links without using joint physics. |
@@ -587,8 +587,71 @@ The supported actuator types are:
 | `lift-drag-control-surface` | Provides movement for wing-like surfaces such as ailerons and rudders. |
 | `rotor` | An actuator that supplies continuous rotation such as the motor for a propeller. |
 | `tilt` | An actuator that supplies limited rotation such as the motor for a tilting rotor pod.  Similar to `lift-drag-control-surface` but more flexible (and more complex to configure.) |
+| `gimbal` | Rotates a camera mount from protocol-independent angle and angular-rate commands. |
 
 The settings for each actuator type is below.
+
+### Gimbal actuator
+
+A camera gimbal consists of a `gimbal` actuator and a camera sensor whose
+`gimbal-id` names that actuator:
+
+```json
+{
+  "name": "Gimbal_Chase_Actuator",
+  "type": "gimbal",
+  "enabled": true,
+  "parent-link": "Frame",
+  "child-link": "camera_mount",
+  "origin": {
+    "xyz": "0 0 0",
+    "rpy-deg": "0 -10 0"
+  }
+}
+```
+
+```json
+"gimbal": {
+  "gimbal-id": "Gimbal_Chase_Actuator",
+  "lock-roll": true,
+  "lock-pitch": true,
+  "lock-yaw": false
+}
+```
+
+The Python client can command this actuator independently of the configured
+flight controller. Angles use radians and rates use radians per second:
+
+```python
+import math
+
+# Rotate continuously at 20 degrees/second.
+robot.set_gimbal_command(
+    "Gimbal_Chase_Actuator", yaw_rate=math.radians(20.0)
+)
+
+# Stop and hold the current angle.
+robot.set_gimbal_command("Gimbal_Chase_Actuator", yaw_rate=0.0)
+
+# Move toward a target at a limited rate.
+robot.set_gimbal_command(
+    "Gimbal_Chase_Actuator",
+    pitch=math.radians(-30.0),
+    pitch_rate=math.radians(-10.0),
+)
+
+state = robot.get_gimbal_state("Gimbal_Chase_Actuator")
+```
+
+An angle without a rate is applied immediately. A rate without an angle is
+integrated continuously. Supplying both moves toward the angle at the requested
+rate. Omitting both for an axis holds its current angle. PX4/MAVLink gimbal
+messages are translated to the same actuator command internally.
+
+The command and state also carry roll, pitch, and yaw lock flags for protocol
+adapters. The Unreal camera's inherit/lock behavior is currently configured by
+the camera's `gimbal` block when the scene loads; changing these flags at
+runtime does not reconfigure the Unreal Spring Arm.
 
 ### Lift-drag-control actuator settings:
 

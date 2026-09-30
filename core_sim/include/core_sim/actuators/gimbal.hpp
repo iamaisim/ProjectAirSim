@@ -10,7 +10,6 @@
 #include <string>
 
 #include "core_sim/actuators/actuator.hpp"
-#include "core_sim/actuators/control_mapper.hpp"
 #include "core_sim/physics_common_types.hpp"
 #include "core_sim/transforms/transform.hpp"
 
@@ -68,11 +67,7 @@ class Gimbal : public Actuator {
   void UpdateActuatorOutput(std::vector<float>&& control_signals,
                             const TimeNano sim_dt_nanos) override;
 
-  const std::string& GetTargetID(void) const;
-
   void SetCommand(const GimbalCommand& command);
-
-  void UpdateGimbal(const TimeNano sim_dt_nanos);
 
   GimbalState GetGimbalState() const;
 

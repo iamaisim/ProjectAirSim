@@ -42,6 +42,7 @@ class Logger;
 class TopicManager;
 class ServiceManager;
 class StateManager;
+struct GimbalCommand;
 
 class Robot : public Actor {
  public:
@@ -68,6 +69,11 @@ class Robot : public Actor {
   int GetSensorIndex(const std::string& sensor_id) const;
 
   const std::vector<std::reference_wrapper<Actuator>>& GetActuators() const;
+
+  // Applies a protocol-independent command directly to a gimbal actuator.
+  // Returns false when the ID does not name an enabled gimbal actuator.
+  bool SetGimbalCommand(const std::string& gimbal_id,
+                        const GimbalCommand& command);
 
   const PhysicsType& GetPhysicsType() const;
   void SetPhysicsType(const PhysicsType& phys_type);

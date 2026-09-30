@@ -53,8 +53,6 @@ class MavLinkApi : public VTOLFWApiBase {
   void SetKinematics(const Kinematics* kinematics) override;
   void Update() override;
   std::vector<float> GetControlSignals(const std::string& actuator_id) override;
-  const IController::GimbalState& GetGimbalSignal(
-      const std::string& gimbal_id) override;
 
   //---------------------------------------------------------------------------
   // IMultirotorApi overrides
@@ -317,7 +315,7 @@ class MavLinkApi : public VTOLFWApiBase {
   std::unordered_map<std::string, int> actuator_id_to_output_idx_map_;
   std::unordered_map<std::string, float> actuator_id_to_output_scale_map_;
   std::unordered_map<std::string, int> gimbal_id_to_component_id_;
-  std::unordered_map<int, GimbalState> gimbal_component_id_to_state_;
+  std::unordered_map<int, std::string> gimbal_component_id_to_id_;
   // How many can we support with a single connection?
   static constexpr int kControlOutputsCount = 16;
 
@@ -385,7 +383,7 @@ class MavLinkApi : public VTOLFWApiBase {
   mavlinkcom::MavLinkHilGps last_gps_message_;
 
   std::mutex mocap_pose_mutex_, heartbeat_mutex_, set_mode_mutex_,
-      status_text_mutex_, last_message_mutex_, gimbal_mutex_;
+      status_text_mutex_, last_message_mutex_;
 
   // variables required for VehicleApiBase implementation
   bool got_first_heartbeat_ = false, is_hil_mode_set_ = false,

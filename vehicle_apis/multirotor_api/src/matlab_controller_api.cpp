@@ -222,13 +222,6 @@ std::vector<float> MatlabControllerApi::GetControlSignals(const std::string& act
   return std::vector<float>(1, motor_output_.at(actuator_map_itr->second));
 }
 
-const IController::GimbalState& MatlabControllerApi::GetGimbalSignal(
-    const std::string& gimbal_id) {
-  throw std::runtime_error(
-      "This flight controller does not support externally-controlled gimbal "
-      "devices.");
-}
-
 //---------------------------------------------------------------------------
 // MatlabControllerApi methods
 

@@ -15,6 +15,7 @@
 #include "algorithms.hpp"
 #include "constant.hpp"
 #include "core_sim/actuators/actuator.hpp"
+#include "core_sim/actuators/gimbal.hpp"
 #include "core_sim/earth_utils.hpp"
 #include "core_sim/json_utils.hpp"
 #include "core_sim/logger.hpp"
@@ -74,6 +75,9 @@ class Robot::Impl : public ActorImpl {
   void Load(ConfigJson config_json);
 
   const std::vector<std::reference_wrapper<Actuator>>& GetActuators();
+
+  bool SetGimbalCommand(const std::string& gimbal_id,
+                        const GimbalCommand& command);
 
   const std::vector<Joint>& GetJoints();
 
@@ -385,6 +389,12 @@ void Robot::SetController(std::unique_ptr<IController> controller) {
 
 IController* Robot::GetController() const {
   return static_cast<Robot::Impl*>(pimpl_.get())->GetController();
+}
+
+bool Robot::SetGimbalCommand(const std::string& gimbal_id,
+                             const GimbalCommand& command) {
+  return static_cast<Robot::Impl*>(pimpl_.get())
+      ->SetGimbalCommand(gimbal_id, command);
 }
 
 void Robot::PublishRobotPose(const PoseStampedMessage& pose) {
@@ -1317,9 +1327,10 @@ void Robot::Impl::UpdateActuators(const TimeNano sim_time,
   // Update non-tilt actuators
   for (auto& actuator : actuators_) {
     if (actuator->GetType() == ActuatorType::kGimbal) {
-      auto gimbal_signal = controller_->GetGimbalSignal(actuator->GetId());
-      auto gimbal = static_cast<Gimbal&>(*actuator);
-      gimbal.UpdateGimbal(gimbal_signal, sim_dt_nanos);
+      if (actuator->IsEnabled()) {
+        auto& gimbal = static_cast<Gimbal&>(*actuator);
+        gimbal.UpdateGimbal(sim_dt_nanos);
+      }
     } else if (actuator->GetType() != ActuatorType::kTilt) {
       // Do pre-processing specific to actuator type
       if (actuator->GetType() == ActuatorType::kRotor) {
@@ -1459,8 +1470,12 @@ void Robot::Impl::UpdateCameraPose(Camera* camera) {
     auto gimbal_id = camera->GetGimbalId();
     for (auto& actuator : actuators_) {
       if (actuator->GetId() == gimbal_id) {
-        auto gimbal = static_cast<Gimbal&>(*actuator);
-        auto& state = gimbal.GetGimbalState();
+        if (actuator->GetType() != ActuatorType::kGimbal ||
+            !actuator->IsEnabled()) {
+          continue;
+        }
+        auto& gimbal = static_cast<Gimbal&>(*actuator);
+        auto state = gimbal.GetGimbalState();
         auto new_pose =
             TransformUtils::ToQuaternion(state.roll, state.pitch, state.yaw);
         auto& curr_pose = camera->GetDesiredPose();
@@ -1471,6 +1486,20 @@ void Robot::Impl::UpdateCameraPose(Camera* camera) {
       }
     }
   }
+}
+
+bool Robot::Impl::SetGimbalCommand(const std::string& gimbal_id,
+                                   const GimbalCommand& command) {
+  for (auto& actuator : actuators_) {
+    if (actuator->GetId() != gimbal_id) continue;
+    if (actuator->GetType() != ActuatorType::kGimbal ||
+        !actuator->IsEnabled()) {
+      return false;
+    }
+    static_cast<Gimbal&>(*actuator).SetCommand(command);
+    return true;
+  }
+  return false;
 }
 
 void Robot::Impl::SetHomeGeoPoint(const HomeGeoPoint& home_geo_point) {

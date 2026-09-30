@@ -44,8 +44,6 @@ class MultirotorApiBase : public IController,
   void Update() override = 0;
   std::vector<float> GetControlSignals(
       const std::string& actuator_id) override = 0;
-  const IController::GimbalState& GetGimbalSignal(
-      const std::string& gimbal_id) override;
 
   //---------------------------------------------------------------------------
   // IMultirotorApi

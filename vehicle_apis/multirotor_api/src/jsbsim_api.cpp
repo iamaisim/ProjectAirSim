@@ -44,11 +44,6 @@ void JSBSimApi::SetKinematics(const Kinematics* /*kinematics*/) {}
 
 void JSBSimApi::Update() {}
 
-const IController::GimbalState& JSBSimApi::GetGimbalSignal(
-    const std::string& /*gimbal_id*/) {
-  return gimbal_state_;
-}
-
 float JSBSimApi::GetJSBSimProperty(const std::string& property) {
   std::lock_guard<std::mutex> lock(jsbsim_property_mutex_);
   return GetJSBSimPropertyUnlocked(property);

@@ -294,12 +294,6 @@ bool MultirotorApiBase::LandServiceMethod(float timeout_sec,
   return Land(timeout_sec, _service_method_start_time);
 }
 
-const IController::GimbalState& MultirotorApiBase::GetGimbalSignal(
-    const std::string& gimbal_id) {
-  throw std::runtime_error(
-      "This flight controller does not support following gimbal devices");
-}
-
 bool MultirotorApiBase::Land(float timeout_sec,
                              int64_t command_start_time_nanos) {
   SingleTaskCall lock(this);

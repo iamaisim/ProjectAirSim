@@ -396,7 +396,8 @@ void MavLinkApi::InitializeGimbalStatus(const Robot& robot) {
       }
       auto comp_id = static_cast<int>(gimbal_comp[gimbal_idx]);
       gimbal_id_to_component_id_.emplace(gimbal_id, comp_id);
-      gimbal_component_id_to_state_.emplace(comp_id, GimbalState());
+      gimbal_component_id_to_id_.emplace(comp_id, gimbal_id);
+      ++gimbal_idx;
     }
   }
 }
@@ -423,23 +424,6 @@ std::vector<float> MavLinkApi::GetControlSignals(const std::string& actuator_id)
                           : scale_itr->second;
   return std::vector<float>(
       1, control_outputs_[actuator_map_itr->second] * scale);
-}
-
-const IController::GimbalState& MavLinkApi::GetGimbalSignal(
-    const std::string& gimbal_id) {
-  auto gimbal_map_itr = gimbal_id_to_component_id_.find(gimbal_id);
-  if (gimbal_map_itr == gimbal_id_to_component_id_.end()) {
-    GetLogger().LogWarning(
-        GetControllerName(),
-        "MavLinkApi::GetGimbalSignal() called for invalid actuator: %s",
-        gimbal_id.c_str());
-    static auto gimbal = GimbalState();
-    return gimbal;
-  }
-  auto comp_id = gimbal_map_itr->second;
-  std::lock_guard<std::mutex> guard(gimbal_mutex_);
-  auto gimbal_state_itr = gimbal_component_id_to_state_.find(comp_id);
-  return gimbal_state_itr->second;
 }
 
 //---------------------------------------------------------------------------
@@ -1495,6 +1479,7 @@ void MavLinkApi::SetupGimbalConnection(const std::string& remoteIpAddr) {
 
 void MavLinkApi::HandleGimbalMessages(const mavlinkcom::MavLinkMessage& msg) {
   if (msg.msgid == CommandLongMessage.msgid) {
+    CommandLongMessage.decode(msg);
     if (CommandLongMessage.command ==
         static_cast<int>(mavlinkcom::MAV_CMD::MAV_CMD_REQUEST_MESSAGE)) {
       int msg_id = static_cast<int>(CommandLongMessage.param1 + 0.5);
@@ -1518,37 +1503,38 @@ void MavLinkApi::HandleGimbalMessages(const mavlinkcom::MavLinkMessage& msg) {
              mavlinkcom::MavLinkGimbalDeviceSetAttitude::kMessageId) {
     GimbalDeviceSetAttitude.decode(msg);
     auto comp_id = GimbalDeviceSetAttitude.target_component;
-    auto gimbal_state_itr = gimbal_component_id_to_state_.find(comp_id);
-    auto current_gimbal_state = &gimbal_state_itr->second;
+    auto gimbal_id_itr = gimbal_component_id_to_id_.find(comp_id);
+    if (gimbal_id_itr == gimbal_component_id_to_id_.end()) {
+      AddStatusMessage("Ignoring command for unknown gimbal component " +
+                       std::to_string(comp_id));
+      return;
+    }
     auto quat =
         Quaternion(GimbalDeviceSetAttitude.q[0], GimbalDeviceSetAttitude.q[1],
                    GimbalDeviceSetAttitude.q[2], GimbalDeviceSetAttitude.q[3]);
     auto rpy = TransformUtils::ToRPY(quat);
-    {
-      std::lock_guard<std::mutex> guard(gimbal_mutex_);
-      current_gimbal_state->roll = rpy[0];
-      current_gimbal_state->pitch = rpy[1];
-      current_gimbal_state->yaw = rpy[2];
-
-      current_gimbal_state->roll_vel =
-          GimbalDeviceSetAttitude.angular_velocity_x;
-      current_gimbal_state->pitch_vel =
-          GimbalDeviceSetAttitude.angular_velocity_y;
-      current_gimbal_state->yaw_vel =
-          GimbalDeviceSetAttitude.angular_velocity_z;
-
-      current_gimbal_state->roll_lock =
-          (GimbalDeviceSetAttitude.flags &
-           static_cast<uint16_t>(
-               mavlinkcom::GIMBAL_DEVICE_FLAGS::GIMBAL_DEVICE_FLAGS_ROLL_LOCK));
-      current_gimbal_state->pitch_lock =
-          (GimbalDeviceSetAttitude.flags &
-           static_cast<uint16_t>(mavlinkcom::GIMBAL_DEVICE_FLAGS::
-                                     GIMBAL_DEVICE_FLAGS_PITCH_LOCK));
-      current_gimbal_state->yaw_lock =
-          (GimbalDeviceSetAttitude.flags &
-           static_cast<uint16_t>(
-               mavlinkcom::GIMBAL_DEVICE_FLAGS::GIMBAL_DEVICE_FLAGS_YAW_LOCK));
+    GimbalCommand command;
+    command.roll = rpy[0];
+    command.pitch = rpy[1];
+    command.yaw = rpy[2];
+    command.roll_rate = GimbalDeviceSetAttitude.angular_velocity_x;
+    command.pitch_rate = GimbalDeviceSetAttitude.angular_velocity_y;
+    command.yaw_rate = GimbalDeviceSetAttitude.angular_velocity_z;
+    command.roll_lock =
+        (GimbalDeviceSetAttitude.flags &
+         static_cast<uint16_t>(
+             mavlinkcom::GIMBAL_DEVICE_FLAGS::GIMBAL_DEVICE_FLAGS_ROLL_LOCK));
+    command.pitch_lock =
+        (GimbalDeviceSetAttitude.flags &
+         static_cast<uint16_t>(mavlinkcom::GIMBAL_DEVICE_FLAGS::
+                                   GIMBAL_DEVICE_FLAGS_PITCH_LOCK));
+    command.yaw_lock =
+        (GimbalDeviceSetAttitude.flags &
+         static_cast<uint16_t>(
+             mavlinkcom::GIMBAL_DEVICE_FLAGS::GIMBAL_DEVICE_FLAGS_YAW_LOCK));
+    if (!sim_robot_.SetGimbalCommand(gimbal_id_itr->second, command)) {
+      AddStatusMessage("Unable to apply command to gimbal " +
+                       gimbal_id_itr->second);
     }
   } else if (msg.msgid ==
              mavlinkcom::MavLinkAutopilotStateForGimbalDevice::kMessageId) {
@@ -2048,13 +2034,11 @@ void MavLinkApi::ProcessQgcMessages(const mavlinkcom::MavLinkMessage& msg) {
 
 void MavLinkApi::SendGimbalState() {
   auto& actuators = sim_robot_.GetActuators();
-  int gimbal_idx = 0;
   for (auto& actuator_wrapper : actuators) {
     auto& actuator = actuator_wrapper.get();
     if (actuator.GetType() == ActuatorType::kGimbal) {
-      auto gimbal = static_cast<Gimbal&>(actuator);
+      auto& gimbal = static_cast<Gimbal&>(actuator);
       auto state = gimbal.GetGimbalState();
-      auto gimbal_id = actuator.GetId();
       mavlinkcom::MavLinkGimbalDeviceAttitudeStatus msg;
       auto quat =
           TransformUtils::ToQuaternion(state.roll, state.pitch, state.yaw);
@@ -2062,15 +2046,14 @@ void MavLinkApi::SendGimbalState() {
       msg.q[1] = quat.x();
       msg.q[2] = quat.y();
       msg.q[3] = quat.z();
-      msg.angular_velocity_x = state.roll_vel;
-      msg.angular_velocity_y = state.pitch_vel;
-      msg.angular_velocity_z = state.yaw_vel;
+      msg.angular_velocity_x = state.roll_rate;
+      msg.angular_velocity_y = state.pitch_rate;
+      msg.angular_velocity_z = state.yaw_rate;
       msg.time_boot_ms = GetSimTimeMicros() / 1000;
       msg.protocol_version = 2;
       msg.target_system = 0;
       msg.target_component = 0;
       gimbal_node_->sendMessage(msg);
-      gimbal_idx++;
     }
   }
   last_gimbal_time_ = SimClock::Get()->NowSimMicros();

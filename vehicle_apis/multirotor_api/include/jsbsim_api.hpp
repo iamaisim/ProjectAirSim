@@ -42,7 +42,6 @@ class JSBSimApi : public IController {
   void SetKinematics(const Kinematics* kinematics) override;
   void Update() override;
   std::vector<float> GetControlSignals(const std::string& actuator_id) override;
-  const GimbalState& GetGimbalSignal(const std::string& gimbal_id) override;
 
   float GetJSBSimProperty(const std::string& property);
   bool SetJSBSimProperty(const std::string& property, float value);
@@ -59,7 +58,6 @@ class JSBSimApi : public IController {
   Robot sim_robot_;
   std::unordered_map<std::string, int> actuator_id_to_output_idx_map_;
   std::mutex jsbsim_property_mutex_;
-  GimbalState gimbal_state_{};
 };
 
 }  // namespace projectairsim

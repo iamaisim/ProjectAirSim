@@ -4,7 +4,7 @@ MIT License.
 Shared base class for ProjectAirSim robot clients.
 """
 
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from projectairsim.types import ImageType, Pose, Quaternion, Vector3
 from projectairsim.utils import geo_to_ned_coordinates, projectairsim_log
@@ -706,6 +706,59 @@ class Robot(object):
         }
         success = self.client.request(toggle_actuator_fault_req)
         return success
+
+    def set_gimbal_command(
+        self,
+        gimbal_id: str,
+        roll: Optional[float] = None,
+        pitch: Optional[float] = None,
+        yaw: Optional[float] = None,
+        roll_rate: Optional[float] = None,
+        pitch_rate: Optional[float] = None,
+        yaw_rate: Optional[float] = None,
+        roll_lock: Optional[bool] = None,
+        pitch_lock: Optional[bool] = None,
+        yaw_lock: Optional[bool] = None,
+    ) -> bool:
+        """Send a protocol-independent command to a gimbal actuator.
+
+        Angles are in radians and angular rates are in radians/second. Omitted
+        angles and rates are not commanded. Supplying an angle without a rate
+        moves immediately; supplying both rate-limits motion toward the angle;
+        supplying only a rate commands continuous rotation.
+        """
+        values = {
+            "roll": roll,
+            "pitch": pitch,
+            "yaw": yaw,
+            "roll_rate": roll_rate,
+            "pitch_rate": pitch_rate,
+            "yaw_rate": yaw_rate,
+            "roll_lock": roll_lock,
+            "pitch_lock": pitch_lock,
+            "yaw_lock": yaw_lock,
+        }
+        command = {
+            key: value for key, value in values.items() if value is not None
+        }
+        request = {
+            "method": f"{self.parent_topic}/actuators/{gimbal_id}/SetCommand",
+            "params": {"command": command},
+            "version": 1.0,
+        }
+        return self.client.request(request)
+
+    def get_gimbal_state(self, gimbal_id: str) -> Dict:
+        """Return the simulated gimbal angles, rates, and lock flags.
+
+        Angles are in radians and angular rates are in radians/second.
+        """
+        request = {
+            "method": f"{self.parent_topic}/actuators/{gimbal_id}/GetState",
+            "params": {},
+            "version": 1.0,
+        }
+        return self.client.request(request)
 
     def reset_camera_pose(
         self, camera_id: str, wait_for_pose_update: bool = True

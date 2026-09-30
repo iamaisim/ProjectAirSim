@@ -6,6 +6,7 @@
 #include "core_sim/actuators/gimbal.hpp"
 
 #include <memory>
+#include <mutex>
 #include <string>
 
 #include "actuator_impl.hpp"
@@ -48,6 +49,8 @@ class Gimbal::Impl : public ActuatorImpl {
 
   void CreateTopics();
 
+  void RegisterServiceMethods();
+
   const Transform& GetOrigin() const;
 
   void OnBeginUpdate() override;
@@ -56,13 +59,18 @@ class Gimbal::Impl : public ActuatorImpl {
 
   const ActuatedTransforms& GetActuatedTransforms() const;
 
-   void UpdateActuatorOutput(std::vector<float> && control_signals,
+  void UpdateActuatorOutput(std::vector<float>&& control_signals,
                             const TimeNano sim_dt_nanos);
 
-  void UpdateGimbal(IController::GimbalState& new_state,
-                    const TimeNano sim_dt_nanos);
+  void SetCommand(const GimbalCommand& command);
 
-  const IController::GimbalState& GetGimbalState() const;
+  bool SetCommandFromJson(json command_json);
+
+  void UpdateGimbal(const TimeNano sim_dt_nanos);
+
+  GimbalState GetGimbalState() const;
+
+  json GetStateAsJson();
 
   double calcSetpoint(double dt, double lastSetpoint, double newSetpoint,
                       double newRateSetpoint);
@@ -72,7 +80,9 @@ class Gimbal::Impl : public ActuatorImpl {
   ActuatedTransforms actuated_transforms_;
 
   Gimbal::Loader loader_;
-  IController::GimbalState gimbal_state_;
+  GimbalCommand command_;
+  GimbalState gimbal_state_;
+  mutable std::mutex state_mutex_;
 
   std::vector<Topic> topics_;
 };
@@ -108,17 +118,20 @@ const ActuatedTransforms& Gimbal::GetActuatedTransforms() const {
   return static_cast<Gimbal::Impl*>(pimpl_.get())->GetActuatedTransforms();
 }
 
-void Gimbal::UpdateGimbal(IController::GimbalState& new_state,
-                          const TimeNano sim_dt_nanos) {
-  return static_cast<Gimbal::Impl*>(pimpl_.get())
-      ->UpdateGimbal(new_state, sim_dt_nanos);
+void Gimbal::SetCommand(const GimbalCommand& command) {
+  static_cast<Gimbal::Impl*>(pimpl_.get())->SetCommand(command);
 }
 
-const IController::GimbalState& Gimbal::GetGimbalState() const {
-  return static_cast<Gimbal::Impl*>(pimpl_.get())->GetGimbalState();
-};
+void Gimbal::UpdateGimbal(const TimeNano sim_dt_nanos) {
+  static_cast<Gimbal::Impl*>(pimpl_.get())->UpdateGimbal(sim_dt_nanos);
+}
 
-void Gimbal::UpdateActuatorOutput(std::vector<float> && control_signals, const TimeNano sim_dt_nanos){
+GimbalState Gimbal::GetGimbalState() const {
+  return static_cast<Gimbal::Impl*>(pimpl_.get())->GetGimbalState();
+}
+
+void Gimbal::UpdateActuatorOutput(std::vector<float>&& control_signals,
+                                  const TimeNano sim_dt_nanos) {
   static_cast<Gimbal::Impl*>(pimpl_.get())
       ->UpdateActuatorOutput(std::move(control_signals), sim_dt_nanos);
 }
@@ -141,6 +154,7 @@ Gimbal::Impl::Impl(const std::string& id, bool is_enabled,
       actuated_transforms_() {
   SetTopicPath();
   CreateTopics();
+  RegisterServiceMethods();
 }
 
 void Gimbal::Impl::Load(ConfigJson config_json) {
@@ -150,50 +164,115 @@ void Gimbal::Impl::Load(ConfigJson config_json) {
 
 void Gimbal::Impl::CreateTopics() {}
 
+void Gimbal::Impl::RegisterServiceMethods() {
+  ActuatorImpl::RegisterServiceMethods();
+
+  auto set_command =
+      ServiceMethod(topic_path_ + "/SetCommand", {"command"});
+  auto set_command_handler = set_command.CreateMethodHandler(
+      &Gimbal::Impl::SetCommandFromJson, *this);
+  service_manager_.RegisterMethod(set_command, set_command_handler);
+
+  auto get_state = ServiceMethod(topic_path_ + "/GetState", {""});
+  auto get_state_handler =
+      get_state.CreateMethodHandler(&Gimbal::Impl::GetStateAsJson, *this);
+  service_manager_.RegisterMethod(get_state, get_state_handler);
+}
+
 void Gimbal::Impl::OnBeginUpdate() {}
 
 void Gimbal::Impl::OnEndUpdate() {}
-const IController::GimbalState& Gimbal::Impl::GetGimbalState() const {
+
+GimbalState Gimbal::Impl::GetGimbalState() const {
+  std::lock_guard<std::mutex> guard(state_mutex_);
   return gimbal_state_;
-};
+}
 
-void Gimbal::Impl::UpdateGimbal(IController::GimbalState& new_state,
-                                const TimeNano sim_dt_nanos) {
-  TimeSec dt = SimClock::Get()->NanosToSec(sim_dt_nanos);
-  auto roll =
-      calcSetpoint(dt, gimbal_state_.roll, new_state.roll, new_state.roll_vel);
-  auto pitch = calcSetpoint(dt, gimbal_state_.pitch, new_state.pitch,
-                            new_state.pitch_vel);
-  auto yaw =
-      calcSetpoint(dt, gimbal_state_.yaw, new_state.yaw, new_state.yaw_vel);
+void Gimbal::Impl::SetCommand(const GimbalCommand& command) {
+  std::lock_guard<std::mutex> guard(state_mutex_);
+  command_ = command;
+}
 
-  // Need to pass these on to Unreal?
-  gimbal_state_.yaw_lock = new_state.yaw_lock;
-  gimbal_state_.roll_lock = new_state.roll_lock;
-  gimbal_state_.pitch_lock = new_state.pitch_lock;
+bool Gimbal::Impl::SetCommandFromJson(json command_json) {
+  GimbalCommand command;
+  auto get_optional_float = [&command_json](const char* key) {
+    if (!command_json.contains(key) || command_json.at(key).is_null()) {
+      return NAN;
+    }
+    return command_json.at(key).get<float>();
+  };
 
-  gimbal_state_.yaw_vel = new_state.yaw_vel;
-  gimbal_state_.roll_vel = new_state.roll_vel;
-  gimbal_state_.pitch_vel = new_state.pitch_vel;
+  command.roll = get_optional_float("roll");
+  command.pitch = get_optional_float("pitch");
+  command.yaw = get_optional_float("yaw");
+  command.roll_rate = get_optional_float("roll_rate");
+  command.pitch_rate = get_optional_float("pitch_rate");
+  command.yaw_rate = get_optional_float("yaw_rate");
+
+  {
+    std::lock_guard<std::mutex> guard(state_mutex_);
+    command.roll_lock = command_json.value("roll_lock", command_.roll_lock);
+    command.pitch_lock = command_json.value("pitch_lock", command_.pitch_lock);
+    command.yaw_lock = command_json.value("yaw_lock", command_.yaw_lock);
+    command_ = command;
+  }
+  return true;
+}
+
+json Gimbal::Impl::GetStateAsJson() {
+  auto state = GetGimbalState();
+  return {{"roll", state.roll},
+          {"pitch", state.pitch},
+          {"yaw", state.yaw},
+          {"roll_rate", state.roll_rate},
+          {"pitch_rate", state.pitch_rate},
+          {"yaw_rate", state.yaw_rate},
+          {"roll_lock", state.roll_lock},
+          {"pitch_lock", state.pitch_lock},
+          {"yaw_lock", state.yaw_lock}};
+}
+
+void Gimbal::Impl::UpdateGimbal(const TimeNano sim_dt_nanos) {
+  std::lock_guard<std::mutex> guard(state_mutex_);
+  const TimeSec dt = SimClock::Get()->NanosToSec(sim_dt_nanos);
+  auto roll = calcSetpoint(dt, gimbal_state_.roll, command_.roll,
+                           command_.roll_rate);
+  auto pitch = calcSetpoint(dt, gimbal_state_.pitch, command_.pitch,
+                            command_.pitch_rate);
+  auto yaw = calcSetpoint(dt, gimbal_state_.yaw, command_.yaw,
+                          command_.yaw_rate);
+
+  gimbal_state_.yaw_lock = command_.yaw_lock;
+  gimbal_state_.roll_lock = command_.roll_lock;
+  gimbal_state_.pitch_lock = command_.pitch_lock;
+
+  if (dt > 0.0) {
+    gimbal_state_.roll_rate = (roll - gimbal_state_.roll) / dt;
+    gimbal_state_.pitch_rate = (pitch - gimbal_state_.pitch) / dt;
+    gimbal_state_.yaw_rate = (yaw - gimbal_state_.yaw) / dt;
+  } else {
+    gimbal_state_.roll_rate = 0.0f;
+    gimbal_state_.pitch_rate = 0.0f;
+    gimbal_state_.yaw_rate = 0.0f;
+  }
 
   if (roll == gimbal_state_.roll && pitch == gimbal_state_.pitch &&
       yaw == gimbal_state_.yaw) {
     return;
-  } else {
-    gimbal_state_.roll = roll;
-    gimbal_state_.pitch = pitch;
-    gimbal_state_.yaw = yaw;
-    auto quat_output_ = TransformUtils::ToQuaternion(
-        gimbal_state_.roll, gimbal_state_.pitch, gimbal_state_.yaw);
-
-    actuated_transforms_[child_link_] =
-        ActuatedTransform(Affine3(quat_output_.toRotationMatrix()));
   }
+
+  gimbal_state_.roll = roll;
+  gimbal_state_.pitch = pitch;
+  gimbal_state_.yaw = yaw;
+  const auto output_quaternion = TransformUtils::ToQuaternion(
+      gimbal_state_.roll, gimbal_state_.pitch, gimbal_state_.yaw);
+
+  actuated_transforms_[child_link_] =
+      ActuatedTransform(Affine3(output_quaternion.toRotationMatrix()));
 }
 
-void Gimbal::Impl::UpdateActuatorOutput(std::vector<float> && control_signals, const TimeNano sim_dt_nanos) {
-  return;
-}
+void Gimbal::Impl::UpdateActuatorOutput(std::vector<float>&&,
+                                        const TimeNano) {}
 
 const ActuatedTransforms& Gimbal::Impl::GetActuatedTransforms() const {
   return actuated_transforms_;
@@ -253,6 +332,7 @@ void Gimbal::Loader::LoadOriginSettings(const json& json) {
     auto origin = JsonUtils::GetTransform(json, Constant::Config::origin);
     auto rpy = TransformUtils::ToRPY(origin.rotation_);
 
+    std::lock_guard<std::mutex> guard(impl_.state_mutex_);
     impl_.gimbal_state_.roll = rpy.x();
     impl_.gimbal_state_.pitch = rpy.y();
     impl_.gimbal_state_.yaw = rpy.z();

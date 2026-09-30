@@ -50,13 +50,6 @@ std::vector<float> ManualControllerApi::GetControlSignals(const std::string& act
   return std::vector<float>(1, output);
 }
 
-const IController::GimbalState& ManualControllerApi::GetGimbalSignal(
-    const std::string& gimbal_id) {
-  throw std::runtime_error(
-      "This flight controller does not support externally-controlled gimbal "
-      "devices.");
-}
-
 //---------------------------------------------------------------------------
 // ManualControllerApi methods
 

@@ -565,6 +565,7 @@ def load_scene_config_as_dict(
 
     return (data, filepaths)
 
+
 def merge_dicts(d1, d2):
     """Recursively merges dict d2 into dict d1"""
     for k, v in d2.items():
@@ -576,23 +577,39 @@ def merge_dicts(d1, d2):
             d1[k] = v
     return d1
 
+
 def merge_lists(l1, l2):
-    """Merges two lists of dictionaries, matching elements by the 'name' key if present"""
+    """Merge dictionary lists by a supported identity key."""
     result = l1[:]
     for item2 in l2:
-        if isinstance(item2, dict) and "name" in item2:
-            # Try to find the corresponding item in l1 based on 'name'
-            matching_item = next((item1 for item1 in result if item1.get("name") == item2["name"]), None)
+        identity_key = next(
+            (
+                key
+                for key in ("name", "id", "image-type")
+                if isinstance(item2, dict) and key in item2
+            ),
+            None,
+        )
+        if identity_key is not None:
+            # Actuators/links use "name", sensors/joints use "id", and camera
+            # capture settings use "image-type".
+            matching_item = next(
+                (
+                    item1
+                    for item1 in result
+                    if isinstance(item1, dict)
+                    and item1.get(identity_key) == item2[identity_key]
+                ),
+                None,
+            )
             if matching_item:
-                # Merge the dictionaries
                 merge_dicts(matching_item, item2)
             else:
-                # If no match, append the item from l2
                 result.append(item2)
         else:
-            # If it's not a dictionary or doesn't have a 'name', just append it
             result.append(item2)
     return result
+
 
 def validate_json(json_data, file_name) -> None:
     """Validates a JSON according to a given schema

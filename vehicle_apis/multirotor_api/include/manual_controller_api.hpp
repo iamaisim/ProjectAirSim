@@ -34,8 +34,6 @@ class ManualControllerApi : public IController {
   void SetKinematics(const Kinematics* kinematics) override;
   void Update() override;
   std::vector<float> GetControlSignals(const std::string& actuator_id) override;
-  const IController::GimbalState& GetGimbalSignal(
-      const std::string& gimbal_id) override;
 
   //---------------------------------------------------------------------------
   // ManualController

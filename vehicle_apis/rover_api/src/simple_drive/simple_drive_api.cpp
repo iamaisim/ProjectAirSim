@@ -141,12 +141,6 @@ std::vector<float> SimpleDriveApi::GetControlSignals(
   }
 }
 
-const projectairsim::IController::GimbalState& SimpleDriveApi::GetGimbalSignal(
-    const std::string& gimbal_id) {
-  throw std::runtime_error(
-      "This controller does not support following gimbal devices");
-}
-
 bool SimpleDriveApi::SetRoverControls(float engine, float steering_angle,
                                       float brake) {
   if (!api_control_enabled_) {

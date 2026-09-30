@@ -100,25 +100,29 @@ TEST(Gimbal, UpdateGimbalUsesRateLimitedSetpointsAndUpdatesTransform) {
   auto* gimbal = dynamic_cast<projectairsim::Gimbal*>(actuator.get());
   ASSERT_NE(gimbal, nullptr);
 
-  projectairsim::IController::GimbalState command;
+  projectairsim::GimbalCommand command;
   command.roll = 1.0f;
   command.pitch = -1.0f;
   command.yaw = 0.25f;
-  command.roll_vel = 0.5f;
-  command.pitch_vel = -0.25f;
-  command.yaw_vel = NAN;
+  command.roll_rate = 0.5f;
+  command.pitch_rate = -0.25f;
+  command.yaw_rate = NAN;
   command.roll_lock = true;
   command.pitch_lock = false;
   command.yaw_lock = true;
 
-  // Act: run `gimbal->UpdateGimbal(command, 1'000'000'000LL);`.
-  gimbal->UpdateGimbal(command, 1'000'000'000LL);
+  // Act: apply the protocol-independent command and advance one second.
+  gimbal->SetCommand(command);
+  gimbal->UpdateGimbal(1'000'000'000LL);
 
   // Assert: check result from `const auto& state = gimbal->GetGimbalState();`.
   const auto& state = gimbal->GetGimbalState();
   EXPECT_FLOAT_EQ(state.roll, 0.5f);
   EXPECT_FLOAT_EQ(state.pitch, -0.25f);
   EXPECT_FLOAT_EQ(state.yaw, 0.25f);
+  EXPECT_FLOAT_EQ(state.roll_rate, 0.5f);
+  EXPECT_FLOAT_EQ(state.pitch_rate, -0.25f);
+  EXPECT_FLOAT_EQ(state.yaw_rate, 0.25f);
   EXPECT_TRUE(state.roll_lock);
   EXPECT_FALSE(state.pitch_lock);
   EXPECT_TRUE(state.yaw_lock);
@@ -132,4 +136,43 @@ TEST(Gimbal, UpdateGimbalUsesRateLimitedSetpointsAndUpdatesTransform) {
       projectairsim::TransformUtils::ToQuaternion(0.5f, -0.25f, 0.25f);
   projectairsim::ExpectRotationMatches(transform_it->second.affine3.linear(),
                                        expected_quaternion.toRotationMatrix());
+}
+
+TEST(Gimbal, RateOnlyCommandIntegratesUntilStopped) {
+  const json config_json = R"({
+    "name": "gimbal_2",
+    "type": "gimbal",
+    "enabled": true,
+    "parent-link": "body",
+    "child-link": "camera_mount",
+    "origin": {
+      "xyz": "0 0 0",
+      "rpy-deg": "0 0 0"
+    }
+  })"_json;
+
+  auto actuator = projectairsim::LoadActuatorFromJson(config_json);
+  auto* gimbal = dynamic_cast<projectairsim::Gimbal*>(actuator.get());
+  ASSERT_NE(gimbal, nullptr);
+
+  projectairsim::GimbalCommand command;
+  command.yaw_rate = 0.4f;
+  gimbal->SetCommand(command);
+
+  gimbal->UpdateGimbal(500'000'000LL);
+  auto state = gimbal->GetGimbalState();
+  EXPECT_NEAR(state.yaw, 0.2f, 1.0e-6f);
+  EXPECT_NEAR(state.yaw_rate, 0.4f, 1.0e-6f);
+
+  gimbal->UpdateGimbal(500'000'000LL);
+  state = gimbal->GetGimbalState();
+  EXPECT_NEAR(state.yaw, 0.4f, 1.0e-6f);
+  EXPECT_NEAR(state.yaw_rate, 0.4f, 1.0e-6f);
+
+  // A command without an angle or rate holds the current position.
+  gimbal->SetCommand(projectairsim::GimbalCommand());
+  gimbal->UpdateGimbal(500'000'000LL);
+  state = gimbal->GetGimbalState();
+  EXPECT_NEAR(state.yaw, 0.4f, 1.0e-6f);
+  EXPECT_FLOAT_EQ(state.yaw_rate, 0.0f);
 }

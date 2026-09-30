@@ -74,8 +74,6 @@ class SimpleDriveApi : public AckermannApiBase {
   void SetKinematics(const Kinematics* kinematics) override;
   void Update(void) override;
   std::vector<float> GetControlSignals(const std::string& actuator_id) override;
-  const IController::GimbalState& GetGimbalSignal(
-      const std::string& gimbal_id) override;
 
  protected:
   enum class VehicleStateType {

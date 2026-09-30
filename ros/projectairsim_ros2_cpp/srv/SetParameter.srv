@@ -1,0 +1,5 @@
+int32 index
+float32 value
+---
+bool success
+string status

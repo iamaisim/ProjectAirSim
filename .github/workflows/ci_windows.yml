@@ -1,0 +1,25 @@
+name: Windows SimLibs and C++ build targets
+'on':
+  workflow_call: {}
+permissions:
+  contents: read
+jobs:
+  windows-cheap:
+    name: Windows SimLibs and C++ build targets
+    runs-on: windows-2022
+    timeout-minutes: 180
+    steps:
+    - uses: actions/checkout@v4
+    - name: Enable Developer Command Prompt
+      uses: ilammy/msvc-dev-cmd@v1
+    - name: Compile standalone C++ client
+      shell: cmd
+      run: |
+        call .\build_cpp_client.cmd debug
+        if errorlevel 1 exit /b 1
+    - name: Compile SimLibs without tests
+      shell: cmd
+      run: |
+        call build.cmd simlibs_debug CMAKE_EXTRA_ARGS="-DBUILD_TESTING=OFF"
+        if errorlevel 1 exit /b 1
+    if: github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'run-ci' && contains(github.event.pull_request.labels.*.name, 'windows')

@@ -8,18 +8,10 @@ Pytest end-end test script for hello_drone.py functionality
 import asyncio
 import pytest
 import time
-import numpy as np
 
-from projectairsim import Drone, ProjectAirSimClient, World
+from projectairsim import Drone, ProjectAirSimClient
+from regression_support import RegressionWorld as World
 from projectairsim.utils import projectairsim_log
-
-
-def check_image(img_msg):
-    img_nparr = np.frombuffer(img_msg["data"], dtype="uint8")
-    if img_nparr.size == 0:
-        return
-    if np.sum(img_nparr) == 0:
-        return
 
 
 def check_imu(imu_msg):
@@ -39,11 +31,15 @@ def check_imu(imu_msg):
     assert -5.0 <= ang_vel["z"] <= 5.0
 
 
-async def wait_for_pose_change(multirotor, prev_pose, timeout=2.0):
+async def wait_for_pose_change(multirotor, prev_pose, timeout=10.0):
+    # Wait for a sample produced after command completion, not an older
+    # queued update that merely differs from the pre-command pose.
+    completed_at = multirotor.world.get_sim_time()
     start = time.time()
     while True:
         pose = multirotor.robot_actual_pose
-        if pose is not None and pose != prev_pose:
+        if (pose is not None and pose != prev_pose
+                and pose["time_stamp"] >= completed_at):
             return pose
         if time.time() - start > timeout:
             pytest.fail("Timeout waiting for pose update")
@@ -86,14 +82,6 @@ class TestClientBase:
                 pytest.fail("Timeout waiting for a pose message update")
             await asyncio.sleep(0.1)
 
-        client.subscribe(
-            drone.sensors["DownCamera"]["scene_camera"],
-            lambda _, rgb: check_image(rgb),
-        )
-        client.subscribe(
-            drone.sensors["DownCamera"]["depth_camera"],
-            lambda _, depth: check_image(depth),
-        )
         client.subscribe(
             drone.sensors["IMU1"]["imu_kinematics"],
             lambda _, imu: check_imu(imu),
@@ -169,3 +157,4 @@ class TestClientBase:
 
     def test_hello_drone(self, multirotor):
         asyncio.run(self.main(multirotor))
+pytestmark = pytest.mark.runtime

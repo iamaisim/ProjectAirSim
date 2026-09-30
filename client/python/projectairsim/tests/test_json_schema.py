@@ -47,3 +47,5 @@ def test_load_scene_config_respects_caller_sim_config_path():
     assert filepaths[1] == [
         os.path.join(sim_config_path, "robot_test_quadrotor_fastphysics.jsonc")
     ]
+
+pytestmark = pytest.mark.offline

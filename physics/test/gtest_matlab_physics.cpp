@@ -3,13 +3,18 @@
 
 // MIT License. All rights reserved.
 
+#include <chrono>
+#include <future>
 #include <memory>
+#include <thread>
 
 #include "core_sim/actor/robot.hpp"
+#include "core_sim/message/pose_stamped_message.hpp"
 #include "core_sim/simulator.hpp"
 #include "gtest/gtest.h"
 #include "matlab_physics.hpp"
 #include "test_data/physics_test_config.hpp"  // defines physics_test_config
+#include "topic_manager.hpp"
 
 namespace projectairsim = microsoft::projectairsim;
 
@@ -108,6 +113,70 @@ TEST(MatlabPhysicsBody, WriteRobotData) {
   EXPECT_FLOAT_EQ(updated_kin.twist.linear.x(), 1.0);
   EXPECT_FLOAT_EQ(updated_kin.twist.linear.y(), 1.5);
   EXPECT_FLOAT_EQ(updated_kin.twist.linear.z(), 2.0);
+}
+
+TEST(PhysicsPublication, DestructionWaitsForCallback) {
+  std::promise<void> callback_started;
+  auto started = callback_started.get_future();
+  std::promise<void> release_callback;
+  auto release = release_callback.get_future().share();
+  std::promise<void> callback_destroyed;
+  auto destroyed = callback_destroyed.get_future();
+  auto lifetime = std::shared_ptr<int>(new int(0), [&](int* value) {
+    delete value;
+    callback_destroyed.set_value();
+  });
+
+  projectairsim::Simulator simulator;
+  simulator.LoadSceneWithJSON(physics_test_config);
+  auto& robot = dynamic_cast<projectairsim::Robot&>(
+      simulator.GetScene().GetActors().front().get());
+  auto topic = robot.CreateTopic("teardown", projectairsim::TopicType::kPublished,
+                                 0, projectairsim::MessageType::kPosestamped,
+                                 nullptr);
+  projectairsim::Logger logger([](const std::string&, projectairsim::LogLevel,
+                                  const std::string&) {});
+  auto manager = std::make_unique<projectairsim::TopicManager>(logger);
+  manager->RegisterTopic(topic);
+  manager->SetTopicPublishedCallbackEnabled(true);
+  manager->SetCallbackTopicPublished(
+      [lifetime, release, &callback_started](const std::string&,
+                                           const projectairsim::MessageType&,
+                                           const std::string&) {
+        // Keep a local copy of the gate so the failing implementation can
+        // release its callback storage without invalidating the wait itself.
+        auto gate = release;
+        callback_started.set_value();
+        gate.wait();
+      });
+  lifetime.reset();
+
+  manager->PublishTopic(
+      topic, projectairsim::PoseStampedMessage(
+                 0, projectairsim::Vector3::Zero(),
+                 projectairsim::Quaternion::Identity()));
+  const auto started_status = started.wait_for(std::chrono::seconds(5));
+  if (started_status != std::future_status::ready) {
+    release_callback.set_value();
+    FAIL() << "Publication callback did not start";
+  }
+
+  std::promise<void> destruction_started;
+  auto destroying = destruction_started.get_future();
+  std::thread destroyer([&]() {
+    destruction_started.set_value();
+    manager.reset();
+  });
+  destroying.wait();
+
+  // The callback's storage must remain alive until its worker finishes,
+  // even when manager destruction runs concurrently with publication.
+  EXPECT_EQ(destroyed.wait_for(std::chrono::milliseconds(100)),
+            std::future_status::timeout);
+  release_callback.set_value();
+  destroyer.join();
+  EXPECT_EQ(destroyed.wait_for(std::chrono::seconds(1)),
+            std::future_status::ready);
 }
 
 TEST(MatlabPhysicsBody, ReadRobotData) {

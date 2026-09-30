@@ -12,6 +12,7 @@
 #include "projectairsim_ros2_cpp/srv/raw_request.hpp"
 #include "projectairsim_ros2_cpp/srv/set_object_material.hpp"
 #include "projectairsim_ros2_cpp/srv/set_object_texture.hpp"
+#include "projectairsim_ros2_cpp/srv/set_parameter.hpp"
 #include "projectairsim_ros2_cpp/srv/set_segmentation_id_by_name.hpp"
 #include "projectairsim_ros2_cpp/srv/swap_object_texture.hpp"
 
@@ -61,6 +62,22 @@ TEST(Ros2GeneratedInterfacesRegression, GenericAndClockServicesAreUsable) {
   EXPECT_EQ(raw_request.method, "/Sim/GetBuildCommitHash");
   EXPECT_TRUE(raw_response.success);
   EXPECT_EQ(clock_response.nanosec, 123456789);
+}
+
+TEST(Ros2GeneratedInterfacesRegression,
+     SetParameterUsesIndexedVehicleContract) {
+  projectairsim_ros2_cpp::srv::SetParameter::Request request;
+  request.index = 2;
+  request.value = 1.0F;
+
+  projectairsim_ros2_cpp::srv::SetParameter::Response response;
+  response.success = true;
+  response.status = "OK";
+
+  EXPECT_EQ(request.index, 2);
+  EXPECT_FLOAT_EQ(request.value, 1.0F);
+  EXPECT_TRUE(response.success);
+  EXPECT_EQ(response.status, "OK");
 }
 
 TEST(Ros2GeneratedInterfacesRegression,

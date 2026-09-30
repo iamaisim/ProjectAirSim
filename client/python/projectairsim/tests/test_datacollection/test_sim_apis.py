@@ -7,7 +7,8 @@ End-to-end tests for ProjectAirSim Services, request-response APIs used by the d
 import random
 
 import pytest
-from projectairsim import ProjectAirSimClient, World
+from projectairsim import ProjectAirSimClient
+from regression_support import RegressionWorld as World
 from projectairsim.types import WeatherParameter
 from pynng import NNGException
 
@@ -118,3 +119,5 @@ def test_env_actor_spawning_incorrect_locations(
             location.name == "Blocks-random" or location.name == "Blocks-planned"
         ):  # random from config/ planned from API
             assert env_actor is None
+
+pytestmark = pytest.mark.unreal

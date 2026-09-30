@@ -61,8 +61,9 @@ async def main():
 
         await log_kinematics(rover, "Initial")
 
-        # 3-point NED path near spawn origin (-500, 0, -4)
-        path = [[-480.0, 0.0], [-480.0, 20.0], [-460.0, 20.0]]
+        # Unreal XY waypoints in centimeters: (-48500, 0), (-45000, 0),
+        # (-38000, 2000). SimpleDrive expects NED meters; X/Y keep their signs.
+        path = [[-485.0, 0.0], [-450.0, 0.0], [-380.0, 20.0]]
         projectairsim_log().info(f"MoveOnPath with {len(path)} waypoints: {path}")
         move_task = await rover.move_on_path_async(path=path, velocity=4.0, timeout_sec=60.0)
         await move_task

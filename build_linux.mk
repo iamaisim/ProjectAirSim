@@ -26,6 +26,7 @@ default:
 	@echo " all_no_test = Build + Package everything"
 	@echo " clean = Clean sim libs + Blocks build files"
 	@echo
+	@echo " --unity = Include experimental Unity native artifacts (default: off)"
 	@echo " simlibs_debug = Build sim libs for Debug"
 	@echo " simlibs_release = Build sim libs for Release"
 	@echo " test_simlibs_debug = Test sim libs for Debug"
@@ -65,7 +66,8 @@ CMAKE_BUILD_DIR = build/linux64/$(UE_TOOLCHAIN_ID)
 else
 CMAKE_BUILD_DIR = build/linux64/system
 endif
-CMAKE_CMD = cmake -G "Ninja" -S "$(CURDIR)"
+PAS_BUILD_UNITY ?= OFF
+CMAKE_CMD = cmake -DPROJECTAIRSIM_BUILD_UNITY=$(PAS_BUILD_UNITY) -G "Ninja" -S "$(CURDIR)"
 
 CMAKE_DBG_BUILD_CMD = cmake --build $(CMAKE_BUILD_DIR)/Debug
 CMAKE_REL_BUILD_CMD = cmake --build $(CMAKE_BUILD_DIR)/Release

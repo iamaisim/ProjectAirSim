@@ -45,6 +45,7 @@ TEST(Ros2BridgeSurfaceRegression, InterfacesAreDeclaredAndRegistered) {
       "srv/GetSegmentationIDMap.srv",
       "srv/SetObjectMaterial.srv",
       "srv/SetObjectTexture.srv",
+      "srv/SetParameter.srv",
       "srv/SetSegmentationIDByName.srv",
       "srv/SwapObjectTexture.srv",
   };
@@ -92,6 +93,11 @@ TEST(Ros2BridgeSurfaceRegression, BridgeSourceKeepsConversionSurface) {
       "\"SetObjectTextureFromFile\"",
       "\"SetObjectTextureFromPackagedAsset\"",
       "\"SwapObjectTexture\"",
+      "projectairsim_ros2_cpp::EffectiveVehicleName(",
+      "projectairsim_ros2_cpp::SetVehicleParameter(",
+      "robot_types_.Clear()",
+      "RequestJsonObject(method, params, result, error)",
+      "prefix + \"/set_parameter\"",
   };
 
   for (const auto& token : expected_tokens) {

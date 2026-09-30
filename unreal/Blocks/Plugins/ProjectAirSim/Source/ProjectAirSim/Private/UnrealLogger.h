@@ -15,7 +15,7 @@ DECLARE_LOG_CATEGORY_EXTERN(SimPlugin, All, All);
 
 class UnrealLogger {
  public:
- #if UE_IS_5_7
+ #if UE_IS_5_7_OR_5_8
   template <typename... ArgTypes>
   static void Log(microsoft::projectairsim::LogLevel level,
                   UE::Core::TCheckedFormatString<FString::FmtCharType, ArgTypes...> format, ArgTypes... args);
@@ -33,7 +33,7 @@ class UnrealLogger {
   static std::string GetTimeStamp();
 };
 
-#if UE_IS_5_7
+#if UE_IS_5_7_OR_5_8
 template <typename... ArgTypes>
 inline void UnrealLogger::Log(microsoft::projectairsim::LogLevel level,
                               UE::Core::TCheckedFormatString<FString::FmtCharType, ArgTypes...> format, ArgTypes... args){

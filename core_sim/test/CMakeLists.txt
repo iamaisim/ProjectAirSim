@@ -76,6 +76,8 @@ set_target_properties(
 
 if(WIN32)
     add_dependencies(${TARGET_NAME} core_sim nng-external gtest_main)
+elseif(APPLE)
+    add_dependencies(${TARGET_NAME} core_sim nng-external gtest_main)
 else()
     add_dependencies(${TARGET_NAME} core_sim nng-external openssl-external gtest_main)
 endif()
@@ -131,7 +133,7 @@ if(WIN32)
             Bcrypt # Client authorization
             Crypt32 # Client authorization
             Ncrypt # Client authorization
-            lvmon
+            $<$<BOOL:${PROJECTAIRSIM_ENABLE_LVMON}>:lvmon>
             jsbsim
     )
 else()

@@ -8,7 +8,8 @@ Pytest end-end test script for Camera sensor frames-per-second benchmarking.
 import asyncio
 import time
 import numpy as np
-from projectairsim import ProjectAirSimClient, Drone, World
+from projectairsim import ProjectAirSimClient, Drone
+from regression_support import RegressionWorld as World
 from projectairsim.utils import unpack_image
 from projectairsim.types import ImageType
 import warnings
@@ -120,9 +121,9 @@ class CameraBenchmarker:
                         f"received {self.num_images}"
                     )
                 images = self.projectairsim_drone.get_images(
-                    "DownCamera", [ImageType.SCENE]
+                    "DownCamera", [ImageType.SCENE if self.image_mode == "rgb" else ImageType.DEPTH_PERSPECTIVE]
                 )
-                self.process_image(images[ImageType.SCENE])
+                self.process_image(images[ImageType.SCENE if self.image_mode == "rgb" else ImageType.DEPTH_PERSPECTIVE])
         finally:
             await self.cancel_and_wait_for_move_task(move_task)
 
@@ -216,3 +217,7 @@ def test_depth_benchmarker_reqrep():
 
     print_benchmark_result(benchmarker, image_mode, transport_mode)
     assert benchmarker.avg_fps >= 1
+
+import pytest
+
+pytestmark = pytest.mark.unreal

@@ -39,12 +39,12 @@ def test_add_weather_variation_correct_input(data_generator: DataGenerator):
 def test_add_weather_variation_incorrect_input(data_generator: DataGenerator):
 
     assert type(data_generator.config.env_spec[Config.WEATHER_KEY]) == list
-    assert len(data_generator.config.env_spec[Config.WEATHER_KEY]) == 4
+    assert len(data_generator.config.env_spec[Config.WEATHER_KEY]) == 3
 
     # Test with bad input
     success = data_generator.add_weather_variation(WeatherParameter.DUST, [0.1])
     assert not success
-    assert len(data_generator.config.env_spec[Config.WEATHER_KEY]) == 4
+    assert len(data_generator.config.env_spec[Config.WEATHER_KEY]) == 3
 
 
 def test_update_time_variation_correct_input(data_generator: DataGenerator):
@@ -172,7 +172,7 @@ def test_update_loaction_trajectory_preset_invalid_preset(
 ):
 
     location_name = "Blocks-planned"  # from config
-    traj_2_name = "A2B-random"  # from config
+    traj_2_name = "A2B-planned"  # from config
 
     # Test with preset not in config
     success = data_generator.update_location_trajectory_preset(
@@ -276,3 +276,7 @@ def test_update_augmentation_spec(data_generator: DataGenerator):
     data_generator.update_augmentation_spec(augmentations=[horizontal_flip])
 
     assert data_generator.config.augmentation_spec[0].p == 0.5
+
+import pytest
+
+pytestmark = pytest.mark.unreal

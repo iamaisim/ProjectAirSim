@@ -33,6 +33,7 @@
 #include "projectairsim_ros2_cpp/srv/reset.hpp"
 #include "projectairsim_ros2_cpp/srv/set_object_material.hpp"
 #include "projectairsim_ros2_cpp/srv/set_object_texture.hpp"
+#include "projectairsim_ros2_cpp/srv/set_parameter.hpp"
 #include "projectairsim_ros2_cpp/srv/set_segmentation_id_by_name.hpp"
 #include "projectairsim_ros2_cpp/srv/swap_object_texture.hpp"
 #include "projectairsim_ros2_cpp/srv/takeoff.hpp"
@@ -106,6 +107,7 @@ TEST(Ros2Contracts, SingleVehicleServiceContracts) {
   using projectairsim_ros2_cpp::srv::Land;
   using projectairsim_ros2_cpp::srv::MoveOnPath;
   using projectairsim_ros2_cpp::srv::MoveToPosition;
+  using projectairsim_ros2_cpp::srv::SetParameter;
   using projectairsim_ros2_cpp::srv::Takeoff;
 
   Takeoff::Request takeoff_request;
@@ -163,6 +165,16 @@ TEST(Ros2Contracts, SingleVehicleServiceContracts) {
   move_on_path_request.wait_on_last_task = true;
   EXPECT_EQ(move_on_path_request.path.size(), 1u);
   EXPECT_DOUBLE_EQ(move_on_path_request.path[0].pose.position.x, 5.0);
+
+  SetParameter::Request set_parameter_request;
+  set_parameter_request.index = 1;
+  set_parameter_request.value = -0.25F;
+  SetParameter::Response set_parameter_response;
+  set_parameter_response.success = true;
+  set_parameter_response.status = "OK";
+  EXPECT_EQ(set_parameter_request.index, 1);
+  EXPECT_FLOAT_EQ(set_parameter_request.value, -0.25F);
+  EXPECT_TRUE(set_parameter_response.success);
 }
 
 TEST(Ros2Contracts, GroupServiceContracts) {

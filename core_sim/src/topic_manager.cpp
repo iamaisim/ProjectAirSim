@@ -12,6 +12,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <shared_mutex>
 #include <sstream>
 #include <stdexcept>
@@ -223,13 +224,13 @@ class TopicManager::Impl {
   std::string local_address_;
   Logger log_;
   mutable std::shared_timed_mutex manager_lock_;
+  // Serialize complete Start/Stop transitions without blocking topic callbacks.
+  std::mutex lifecycle_lock_;
   std::string name_;
   int port_;
   char* recv_buffer_;
   size_t recv_buffer_size_;
-  Dispatcher recv_dispatcher_;
   std::thread recv_thread_;
-  Dispatcher send_dispatcher_;
   nng_socket topic_socket_;
   std::atomic<bool> state_;
   std::atomic<int> active_pipe_count_;
@@ -239,6 +240,12 @@ class TopicManager::Impl {
       topic_published_callback_;
   // TODO Configure a set of topic paths to have the topic callback enabled for
   bool enable_topic_published_callback_;
+
+  // Members are destroyed in reverse declaration order. Join the dispatchers
+  // before releasing the topic table, callbacks, or other state they access.
+  // Stop receiving work before stopping the sender it can enqueue work on.
+  Dispatcher send_dispatcher_;
+  Dispatcher recv_dispatcher_;
 };
 
 // class TopicManager
@@ -312,15 +319,15 @@ TopicManager::Impl::Impl(const Logger& logger,
       port_(default_port),
       recv_buffer_(nullptr),
       recv_buffer_size_(0),
-      recv_dispatcher_("recv_dispatcher", logger),
       recv_thread_(),
-      send_dispatcher_("send_dispatcher", logger),
       topic_socket_(NNG_SOCKET_INITIALIZER),
       state_(false),
       active_pipe_count_(0),
       topic_table_(),
       topic_published_callback_(nullptr),
-      enable_topic_published_callback_(false) {}
+      enable_topic_published_callback_(false),
+      send_dispatcher_("send_dispatcher", logger),
+      recv_dispatcher_("recv_dispatcher", logger) {}
 
 void TopicManager::Impl::Load(const json& config_json) {
   local_address_ = JsonUtils::GetString(config_json, Constant::Config::ip,
@@ -375,7 +382,9 @@ void TopicManager::Impl::HandleNNGPipeEvent(nng_pipe pipe, nng_pipe_ev ev) {
 }
 
 void TopicManager::Impl::Start() {
+  std::lock_guard<std::mutex> lifecycle_lock(lifecycle_lock_);
   std::unique_lock<std::shared_timed_mutex> exclusive_lock(manager_lock_);
+  if (state_.load()) return;
 
   int rv = nng_pair0_open(&topic_socket_);
   if (rv != 0) {
@@ -465,12 +474,20 @@ void TopicManager::Impl::Start() {
 }
 
 void TopicManager::Impl::Stop() {
+  std::lock_guard<std::mutex> lifecycle_lock(lifecycle_lock_);
   std::unique_lock<std::shared_timed_mutex> exclusive_lock(manager_lock_);
+  if (!state_.load()) return;
 
   send_dispatcher_.stop();
   recv_dispatcher_.stop();
 
   state_ = false;
+
+  // RecvLoop and the NNG disconnect callback both acquire manager_lock_.
+  // Waiting for either while holding it would prevent shutdown from finishing.
+  // lifecycle_lock_ keeps another Start/Stop from changing the socket or thread
+  // until this complete shutdown has finished.
+  exclusive_lock.unlock();
 
   if (recv_thread_.joinable()) {
     try {
@@ -490,6 +507,7 @@ void TopicManager::Impl::Stop() {
     log_.LogError(name_, "nng_close failed with '%s'.", errno_str);
   }
 
+  exclusive_lock.lock();
   topic_socket_ = NNG_SOCKET_INITIALIZER;
   active_pipe_count_.store(0, std::memory_order_release);
 

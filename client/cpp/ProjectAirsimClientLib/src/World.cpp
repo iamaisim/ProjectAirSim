@@ -1183,7 +1183,7 @@ Status World::Impl::Initialize(std::shared_ptr<Client>& pclient,
       }
     }
 
-    // Create the list of drones
+    // Create the list of robots
     {
       std::regex re("^/Sim/[^/]+/robots/([^/]+)/actual_pose$");
       std::unordered_set<std::string> us_drone;

@@ -166,3 +166,7 @@ def test_step_preserves_event_ordering():
     assert events[0]["sim_time_ns"] < events[1]["sim_time_ns"]
     assert events[0]["type"] == "gate_pass"
     assert events[1]["type"] == "collision"
+
+import pytest
+
+pytestmark = pytest.mark.offline

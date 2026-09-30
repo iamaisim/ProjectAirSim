@@ -6,6 +6,19 @@ REM MIT License.
 setlocal ENABLEDELAYEDEXPANSION
 
 set "ROOT_DIR=%~dp0"
+set "PAS_BUILD_UNITY=OFF"
+REM Preserve the original tail: SHIFT tokenizes unquoted NMake assignments at =.
+set "PAS_BUILD_ARGS= %* "
+:parse_build_args
+if "%~1"=="" goto :build_args_ready
+if /i "%~1"=="--unity" (
+  set "PAS_BUILD_UNITY=ON"
+  set "PAS_BUILD_ARGS=!PAS_BUILD_ARGS: --unity = !"
+  set "PAS_BUILD_ARGS=!PAS_BUILD_ARGS: "--unity" = !"
+)
+shift
+goto :parse_build_args
+:build_args_ready
 
 REM =====================================================
 REM Check Visual Studio environment
@@ -27,13 +40,16 @@ REM =====================================================
 set "UE_DETECTED=0"
 set "UE_MINOR="
 
-if "%UE_ROOT%"=="" (
+REM Accept UE_ROOT with or without surrounding quotes.
+if defined UE_ROOT set "UE_ROOT=!UE_ROOT:"=!"
+
+if not defined UE_ROOT (
   echo:
   echo UE_ROOT not set. Building without Unreal Engine integration.
   goto :select_msvc_default
 )
 
-set "BUILD_VERSION_FILE=%UE_ROOT%\Engine\Build\Build.version"
+set "BUILD_VERSION_FILE=!UE_ROOT!\Engine\Build\Build.version"
 
 if not exist "!BUILD_VERSION_FILE!" (
   echo:
@@ -59,6 +75,8 @@ REM =====================================================
 if "%UE_MINOR%"=="2" (
   set "MSVC_VER=14.37"
 ) else if "%UE_MINOR%"=="7" (
+  set "MSVC_VER=14.44"
+) else if "%UE_MINOR%"=="8" (
   set "MSVC_VER=14.44"
 ) else (
   echo:
@@ -169,7 +187,7 @@ REM =====================================================
 REM Build
 REM =====================================================
 
-nmake /f build_windows.mk %*
+nmake /f build_windows.mk !PAS_BUILD_ARGS! PAS_BUILD_UNITY=!PAS_BUILD_UNITY!
 if errorlevel 1 (
   goto :buildfailed_nomsg
 )

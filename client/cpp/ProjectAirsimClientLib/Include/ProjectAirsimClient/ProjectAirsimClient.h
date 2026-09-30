@@ -16,6 +16,7 @@
 #include "EnvActor.h"
 #include "Rover.h"
 #include "StaticSensorActor.h"
+#include "WheeledVehicle.h"
 
 namespace microsoft {
 namespace projectairsim {

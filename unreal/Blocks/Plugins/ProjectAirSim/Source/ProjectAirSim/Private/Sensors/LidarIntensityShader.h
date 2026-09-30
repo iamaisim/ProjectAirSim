@@ -51,7 +51,7 @@ class FLidarIntensityPS : public FLidarIntensityShader {
   FLidarIntensityPS(
       const ShaderMetaType::CompiledShaderInitializerType& Initializer)
       : FLidarIntensityShader(Initializer) {}
-  #if UE_IS_5_7
+  #if UE_IS_5_7_OR_5_8
     void SetParameters(FRHIBatchedShaderParameters& BatchedParameters, const FSceneView& View) {
       FGlobalShader::SetParameters<FViewUniformShaderParameters>(
           BatchedParameters, View.ViewUniformBuffer);
@@ -80,7 +80,7 @@ class FLidarIntensityVS : public FLidarIntensityShader {
   FLidarIntensityVS(
       const ShaderMetaType::CompiledShaderInitializerType& Initializer)
       : FLidarIntensityShader(Initializer) {}
-  #if UE_IS_5_7
+  #if UE_IS_5_7_OR_5_8
     void SetParameters(FRHIBatchedShaderParameters& BatchedParameters, const FSceneView& View) {
       FGlobalShader::SetParameters<FViewUniformShaderParameters>(
           BatchedParameters, View.ViewUniformBuffer);

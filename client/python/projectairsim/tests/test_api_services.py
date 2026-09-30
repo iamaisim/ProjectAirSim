@@ -14,7 +14,8 @@ from pynng import NNGException
 import pytest
 from typing import Dict
 
-from projectairsim import Drone, ProjectAirSimClient, World
+from projectairsim import Drone, ProjectAirSimClient
+from regression_support import RegressionWorld as World
 from projectairsim.image_utils import segmentation_id_to_color, segmentation_color_to_id
 from projectairsim.utils import geo_to_ned_coordinates
 from projectairsim.types import (
@@ -29,7 +30,7 @@ from projectairsim.types import (
 )
 
 
-@pytest.fixture(scope="module", autouse=True)
+@pytest.fixture(scope="module")
 def client(request) -> ProjectAirSimClient:
     client = ProjectAirSimClient()
     try:
@@ -48,6 +49,7 @@ def client(request) -> ProjectAirSimClient:
     return client
 
 
+@pytest.mark.runtime
 def test_enable_disable_api_control(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -65,6 +67,7 @@ def test_enable_disable_api_control(client):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_arm_disarm(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -91,6 +94,7 @@ async def takeoff_and_land_async(drone):
     await land
 
 
+@pytest.mark.runtime
 def test_takeoff_and_land_async(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -118,6 +122,7 @@ async def takeoff_and_hover_async(drone):
     await hover
 
 
+@pytest.mark.runtime
 def test_takeoff_and_hover_async(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -147,6 +152,7 @@ async def move_by_velocity_async(drone):
     await move_north_up
 
 
+@pytest.mark.runtime
 def test_move_by_velocity_async(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -176,6 +182,7 @@ async def move_by_velocity_z_async(drone):
     await move_at_z
 
 
+@pytest.mark.runtime
 def test_move_by_velocity_z_async(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -205,6 +212,7 @@ async def move_by_velocity_body_frame_async(drone):
     await move_north_up
 
 
+@pytest.mark.runtime
 def test_move_by_velocity_body_frame_async(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -234,6 +242,7 @@ async def move_by_velocity_body_frame_z_async(drone):
     await move_at_z
 
 
+@pytest.mark.runtime
 def test_move_by_velocity_body_frame_z_async(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -261,6 +270,7 @@ async def move_by_heading_async(drone):
     await move_by_heading
 
 
+@pytest.mark.runtime
 def test_move_by_heading_async(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -290,6 +300,7 @@ async def move_to_position_async(drone):
     await move_to_pos
 
 
+@pytest.mark.runtime
 def test_move_to_position_async(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -319,6 +330,7 @@ async def move_to_geo_position_async(drone):
     await move_to_pos
 
 
+@pytest.mark.runtime
 def test_move_to_geo_position_async(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -351,6 +363,7 @@ async def go_home_async(drone):
     await go_home
 
 
+@pytest.mark.runtime
 def test_go_home_async(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -379,6 +392,7 @@ async def move_on_path_async(drone):
     await move_on_path
 
 
+@pytest.mark.runtime
 def test_move_on_path_async(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -407,6 +421,7 @@ async def move_on_geo_path_async(drone):
     await move_on_path
 
 
+@pytest.mark.runtime
 def test_move_on_geo_path_async(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -434,6 +449,7 @@ async def rotate_to_yaw_async(drone):
     await rotate
 
 
+@pytest.mark.runtime
 def test_rotate_yaw_async(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -457,10 +473,11 @@ async def rotate_by_yaw_rate_async(drone):
     take_off = await drone.takeoff_async()
     await take_off
 
-    rotate = await drone.rotate_by_yaw_rate_async(yaw=3.14)
+    rotate = await drone.rotate_by_yaw_rate_async(yaw_rate=0.5, duration=2.0)
     await rotate
 
 
+@pytest.mark.runtime
 def test_rotate_by_yaw_rate_async(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -470,7 +487,7 @@ def test_rotate_by_yaw_rate_async(client):
         assert api_control_enabled is True
         armed = drone.arm()
         assert armed is True
-        asyncio.run(rotate_to_yaw_async(drone))
+        asyncio.run(rotate_by_yaw_rate_async(drone))
         disarmed = drone.disarm()
         assert disarmed is True
         api_control_disabled = drone.disable_api_control()
@@ -479,6 +496,7 @@ def test_rotate_by_yaw_rate_async(client):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_get_sim_clock_type(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -488,6 +506,7 @@ def test_get_sim_clock_type(client):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_get_sim_time(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -499,6 +518,7 @@ def test_get_sim_time(client):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_pause_resume(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -530,6 +550,7 @@ def test_pause_resume(client):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_is_paused(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -549,6 +570,7 @@ def test_is_paused(client):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_continue_for_sim_time(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -570,6 +592,7 @@ def test_continue_for_sim_time(client):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_continue_until_sim_time(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -591,6 +614,7 @@ def test_continue_until_sim_time(client):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_continue_for_n_steps(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -617,6 +641,7 @@ def test_continue_for_n_steps(client):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_continue_for_single_step(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -636,6 +661,7 @@ def test_continue_for_single_step(client):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_list_actors(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -648,6 +674,7 @@ def test_list_actors(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_list_assets(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -661,6 +688,7 @@ def test_list_assets(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_list_objects(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -674,6 +702,7 @@ def test_list_objects(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_get_object_pose(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -693,6 +722,7 @@ def test_get_object_pose(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_get_object_poses(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -723,6 +753,7 @@ def test_get_object_poses(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_set_object_pose(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -749,6 +780,7 @@ def test_set_object_pose(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_get_object_scale(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -765,6 +797,7 @@ def test_get_object_scale(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_set_object_scale(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -781,6 +814,7 @@ def test_set_object_scale(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_spawn_destroy_object(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -843,23 +877,16 @@ def test_spawn_destroy_object(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_spawn_object_at_geo(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
-        # Loaded scene_test_drone.jsonc has the following home geo point to compare
-        # with spawned object lat/lon/alt below:
-        #   "home-geo-point": {
-        #       "latitude": 47.641468,
-        #       "longitude": -122.140165,
-        #       "altitude": 122.0
-        #   },
-
         # Check spawning object with its physics disabled
         object_name: str = "TestLandingPadGeo"
         asset_name: str = "BasicLandingPad"  # Existing asset
-        lat = 47.641468
-        lon = -122.140165
-        alt = 125.0  # 3 m above scene's home geo point above
+        lat = world.home_geo_point["latitude"]
+        lon = world.home_geo_point["longitude"]
+        alt = world.home_geo_point["altitude"] + 3.0
         rotation = [1, 0, 0, 0]
         # Quaternion({"w": 1, "x": 0, "y": 0, "z": 0})
         scale = [1.0, 1.0, 1.0]
@@ -895,6 +922,7 @@ def test_spawn_object_at_geo(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_spawn_object_from_file(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -938,6 +966,7 @@ def test_spawn_object_from_file(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_spawn_object_from_file_at_geo(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -982,6 +1011,7 @@ def test_spawn_object_from_file_at_geo(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_destroy_all_spawned_objects(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -1020,6 +1050,7 @@ def test_destroy_all_spawned_objects(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_enable_disable_weather_visual_effects(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -1034,6 +1065,7 @@ def test_enable_disable_weather_visual_effects(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_set_weather_visual_effects_param(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -1051,6 +1083,7 @@ def test_set_weather_visual_effects_param(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_reset_weather_visual_effects(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -1068,6 +1101,7 @@ def test_reset_weather_visual_effects(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_get_weather_visual_effects(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -1095,6 +1129,7 @@ def test_get_weather_visual_effects(client):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_wind_velocity(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -1107,10 +1142,11 @@ def test_wind_velocity(client):
         raise Exception(str(err))
 
 
-def test_set_object_material(client):
+@pytest.mark.unreal
+def test_set_object_material(client, material_object):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
-        object_name = "OrangeBall"
+        object_name = material_object
         material_path = "/ProjectAirSim/Weather/WeatherFX/Materials/M_Leaf_master"
         status = world.set_object_material(object_name, material_path)
         assert status is True
@@ -1119,12 +1155,14 @@ def test_set_object_material(client):
         raise Exception(str(err))
 
 
-def test_set_object_texture_from_url(client):
+
+@pytest.mark.unreal
+def test_set_object_texture_from_url(client, material_object, texture_url):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
 
-        url = "https://www.jpl.nasa.gov/spaceimages/images/largesize/PIA07782_hires.jpg"
-        object_name = "OrangeBall"
+        url = texture_url
+        object_name = material_object
         status = world.set_object_texture_from_url(object_name, url)
         assert status is True
 
@@ -1132,10 +1170,12 @@ def test_set_object_texture_from_url(client):
         raise Exception(str(err))
 
 
-def test_set_object_texture_from_file(client):
+
+@pytest.mark.unreal
+def test_set_object_texture_from_file(client, material_object):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
-        object_name = "OrangeBall"
+        object_name = material_object
         texture_path = "assets/sample_texture.png"
         status = world.set_object_texture_from_file(object_name, texture_path)
         assert status is True
@@ -1144,10 +1184,12 @@ def test_set_object_texture_from_file(client):
         raise Exception(str(err))
 
 
-def test_set_object_texture_from_packaged_asset(client):
+
+@pytest.mark.unreal
+def test_set_object_texture_from_packaged_asset(client, material_object):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
-        object_name = "Cone"
+        object_name = material_object
         texture_path = "/Game/Geometry/Textures/T_Default_Material_Grid_M"
         status = world.set_object_texture_from_packaged_asset(object_name, texture_path)
         assert status is True
@@ -1156,6 +1198,8 @@ def test_set_object_texture_from_packaged_asset(client):
         raise Exception(str(err))
 
 
+
+@pytest.mark.unreal
 def test_swap_object_texture(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -1164,15 +1208,17 @@ def test_swap_object_texture(client):
         # actor tag is set in Editor's actor details under the "Actor" section, not the
         # component tags in the "Tags" section
         object_actor_tag = "ball"
-        swapped_objects = world.swap_object_texture(object_actor_tag, 1)
-        assert len(swapped_objects) > 0
-
-        swapped_objects = world.swap_object_texture(object_actor_tag, 0)
-        assert len(swapped_objects) > 0
+        try:
+            swapped_objects = world.swap_object_texture(object_actor_tag, 1)
+            assert len(swapped_objects) > 0
+        finally:
+            swapped_objects = world.swap_object_texture(object_actor_tag, 0)
+            assert len(swapped_objects) > 0
 
     except NNGException as err:
         raise Exception(str(err))
     
+@pytest.mark.unreal
 def test_set_light_object_intensity(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -1195,6 +1241,7 @@ def test_set_light_object_intensity(client):
     except NNGException as err:
         raise Exception(str(err))
     
+@pytest.mark.unreal
 def test_set_light_object_color(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -1217,6 +1264,7 @@ def test_set_light_object_color(client):
     except NNGException as err:
         raise Exception(str(err))
 
+@pytest.mark.unreal
 def test_set_light_object_radius(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -1245,6 +1293,7 @@ def test_set_light_object_radius(client):
     except NNGException as err:
         raise Exception(str(err))
 
+@pytest.mark.unreal
 def test_set_time_of_day(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -1263,6 +1312,7 @@ def test_set_time_of_day(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_get_time_of_day(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -1291,6 +1341,7 @@ def test_get_time_of_day(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_set_sun_position_from_datetime(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -1321,6 +1372,7 @@ def test_set_sun_position_from_datetime(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_set_and_get_sun_intensity(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -1335,6 +1387,7 @@ def test_set_and_get_sun_intensity(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_set_and_get_cloud_shadow_strength(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -1349,6 +1402,7 @@ def test_set_and_get_cloud_shadow_strength(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_failure_response_handling(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -1369,6 +1423,7 @@ def test_failure_response_handling(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_get_set_segmentation_id(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -1393,6 +1448,7 @@ def test_get_set_segmentation_id(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_switch_streaming_view(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -1403,6 +1459,7 @@ def test_switch_streaming_view(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_plot_debug_markers(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -1495,6 +1552,7 @@ def test_plot_debug_markers(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_trace_line(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -1507,7 +1565,8 @@ def test_trace_line(client):
         raise Exception(str(err))
 
 
-def test_segmentation_id_to_color(client):
+@pytest.mark.offline
+def test_segmentation_id_to_color():
     try:
         seg_id = 1
         expected_color = Color([153, 108, 6])
@@ -1521,6 +1580,7 @@ def test_segmentation_id_to_color(client):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_get_kinematics(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -1545,21 +1605,27 @@ def test_get_kinematics(client):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_set_kinematics(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
         drone = Drone(client, world, "Drone1")
 
-        kin = drone.get_ground_truth_kinematics()
-        kin["pose"]["position"]["x"] = 123.4
-        assert drone.set_ground_truth_kinematics(kin) is True
-        kin = drone.get_ground_truth_kinematics()
-        assert kin["pose"]["position"]["x"] == pytest.approx(123.4, 0.1)
+        world.pause()
+        try:
+            kin = drone.get_ground_truth_kinematics()
+            kin["pose"]["position"]["x"] = 123.4
+            assert drone.set_ground_truth_kinematics(kin) is True
+            kin = drone.get_ground_truth_kinematics()
+            assert kin["pose"]["position"]["x"] == pytest.approx(123.4, abs=0.1)
+        finally:
+            world.resume()
 
     except NNGException as err:
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_get_ground_truth_geo_location(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -1574,6 +1640,7 @@ def test_get_ground_truth_geo_location(client):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_can_arm(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -1586,6 +1653,7 @@ def test_can_arm(client):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_get_estimated_geo_location(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -1600,6 +1668,7 @@ def test_get_estimated_geo_location(client):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_get_ready_state(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -1613,6 +1682,7 @@ def test_get_ready_state(client):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_get_estimated_kinematics(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -1637,6 +1707,7 @@ def test_get_estimated_kinematics(client):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_landed_state(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -1649,6 +1720,7 @@ def test_landed_state(client):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_battery_state(client):
     try:
         world = World(client, "scene_battery_simple.jsonc", 1)
@@ -1668,6 +1740,7 @@ def test_battery_state(client):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_battery_drain_rate(client):
     try:
         world = World(client, "scene_battery_simple.jsonc", 1)
@@ -1682,6 +1755,7 @@ def test_battery_drain_rate(client):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_battery_health_status(client):
     try:
         world = World(client, "scene_battery_simple.jsonc", 1)
@@ -1696,6 +1770,7 @@ def test_battery_health_status(client):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_get_set_pose(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -1727,6 +1802,7 @@ def test_get_set_pose(client):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_get_set_geo_pose(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -1765,6 +1841,7 @@ def test_get_set_geo_pose(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_get_images(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -1823,6 +1900,7 @@ def test_get_images(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_set_camera_pose(client):
     world = World(client, "scene_test_drone.jsonc", 1)
     drone = Drone(client, world, "Drone1")
@@ -1840,6 +1918,7 @@ def test_set_camera_pose(client):
     assert drone.set_camera_pose("DownCamera", pose) is True
 
 
+@pytest.mark.unreal
 def test_set_camera_focal_length(client):
     world = World(client, "scene_test_drone.jsonc", 1)
     drone = Drone(client, world, "Drone1")
@@ -1847,6 +1926,7 @@ def test_set_camera_focal_length(client):
     assert drone.set_focal_length("DownCamera", ImageType.SCENE, 15.0) is True
 
 
+@pytest.mark.unreal
 def test_set_field_of_view(client):
     world = World(client, "scene_test_drone.jsonc", 1)
     drone = Drone(client, world, "Drone1")
@@ -1854,6 +1934,7 @@ def test_set_field_of_view(client):
     assert drone.set_field_of_view("DownCamera", ImageType.SCENE, 1.0) is True
 
 
+@pytest.mark.unreal
 def test_create_voxel_grid(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -1884,6 +1965,7 @@ def test_create_voxel_grid(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_get_bbox_3d(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -1906,6 +1988,7 @@ def test_get_bbox_3d(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_get_unexisting_bbox_3d(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -1919,6 +2002,7 @@ def test_get_unexisting_bbox_3d(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_get_bbox_3d_spawned(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 0)
@@ -1958,6 +2042,7 @@ def test_get_bbox_3d_spawned(client):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_manual_controller(client):
     try:
         world = World(client, "scene_test_manual_controller_drone.jsonc", 1)
@@ -2002,6 +2087,7 @@ async def request_control_async(drone):
     await request_control
 
 
+@pytest.mark.runtime
 def test_request_control_async(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -2018,6 +2104,7 @@ async def set_mission_mode_async(drone):
     await set_mode
 
 
+@pytest.mark.runtime
 def test_set_mission_mode_async(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -2034,6 +2121,7 @@ async def set_vtol_mode_async(drone):
     await set_mode
 
 
+@pytest.mark.runtime
 def test_set_vtol_mode_async(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
@@ -2045,14 +2133,15 @@ def test_set_vtol_mode_async(client):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_set_external_force(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
         drone = Drone(client, world, "Drone1")
         start_pose = drone.get_ground_truth_pose()["translation"]
 
-        # drone should take off
-        assert drone.set_external_force([0, 0, -10]) is True
+        # 30 N exceeds the complete vehicle weight (including rotor links).
+        assert drone.set_external_force([0, 0, -30]) is True
         time.sleep(2)
         curr_pose = drone.get_ground_truth_pose()["translation"]
         assert start_pose["x"] == curr_pose["x"]
@@ -2063,10 +2152,18 @@ def test_set_external_force(client):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_get_surface_elevation_at_point(client):
     try:
         world = World(client, "scene_test_drone.jsonc", 1)
 
+        # Query static map surfaces, not the shared drone/camera geometry.
+        drone = Drone(client, world, "Drone1")
+        drone.set_pose(Pose({
+            "translation": Vector3({"x": -500, "y": -100, "z": -4}),
+            "rotation": Quaternion({"w": 1, "x": 0, "y": 0, "z": 0}),
+            "frame_id": "DEFAULT_ID",
+        }))
         assert world.get_surface_elevation_at_point(0, 0) == pytest.approx(-2.5, 0.1)
         assert world.get_surface_elevation_at_point(-10, 5) == pytest.approx(-1.0)
         assert world.get_surface_elevation_at_point(21, -35) == pytest.approx(-21)

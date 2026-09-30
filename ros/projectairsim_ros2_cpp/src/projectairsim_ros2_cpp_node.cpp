@@ -33,6 +33,7 @@
 #include "projectairsim_ros2_cpp/msg/radar_scan.hpp"
 #include "projectairsim_ros2_cpp/msg/radar_tracks.hpp"
 #include "projectairsim_ros2_cpp/ros2_conversion_utils.hpp"
+#include "projectairsim_ros2_cpp/vehicle_parameter_mapping.hpp"
 #include "projectairsim_ros2_cpp/srv/arm.hpp"
 #include "projectairsim_ros2_cpp/srv/arm_group.hpp"
 #include "projectairsim_ros2_cpp/srv/cancel_all_requests.hpp"
@@ -57,6 +58,7 @@
 #include "projectairsim_ros2_cpp/srv/reset.hpp"
 #include "projectairsim_ros2_cpp/srv/set_object_material.hpp"
 #include "projectairsim_ros2_cpp/srv/set_object_texture.hpp"
+#include "projectairsim_ros2_cpp/srv/set_parameter.hpp"
 #include "projectairsim_ros2_cpp/srv/set_segmentation_id_by_name.hpp"
 #include "projectairsim_ros2_cpp/srv/swap_object_texture.hpp"
 #include "projectairsim_ros2_cpp/srv/takeoff.hpp"
@@ -207,6 +209,7 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
 
     RCLCPP_INFO(get_logger(), "Connected to Project AirSim at %s (%d/%d)",
                 address_.c_str(), port_topics_, port_services_);
+    robot_types_.Clear();
 
     if (!scene_config_.empty()) {
       const auto scene_config_path =
@@ -281,7 +284,7 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
   }
 
   void DiscoverAndSubscribeIfReady() {
-    if (!scene_loaded_ && !AdoptLoadedSceneIfAvailable()) return;
+    if (!AdoptLoadedSceneIfAvailable()) return;
     DiscoverAndSubscribe();
   }
 
@@ -861,6 +864,29 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
     return drone;
   }
 
+  bool SetParameter(const std::string& vehicle_name, int index, float value,
+                    std::string* status_text) {
+    const auto& effective_name = projectairsim_ros2_cpp::EffectiveVehicleName(
+        vehicle_name, vehicle_name_);
+    const std::string parent_topic = world_->GetParentTopic();
+    if (parent_topic.empty()) {
+      *status_text = "Project AirSim scene parent topic is not resolved";
+      return false;
+    }
+    const auto robot_path = parent_topic + "/robots/" + effective_name;
+    return projectairsim_ros2_cpp::SetVehicleParameter(
+        robot_types_, robot_path, index, value,
+        [this](const std::string& method, const json& params, json* result,
+               std::string* error) {
+          try {
+            return RequestJsonObject(method, params, result, error);
+          } catch (const std::exception& ex) {
+            *error = "Invalid response from " + method + ": " + ex.what();
+            return false;
+          }
+        }, status_text);
+  }
+
   static pasc::Drone::YawControlMode YawModeFromDriveTrain(
       int drive_train_type) {
     return drive_train_type == 1
@@ -1083,6 +1109,7 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
       return false;
     }
 
+    robot_types_.Clear();
     {
       std::lock_guard<std::mutex> lock(drones_mutex_);
       drones_.clear();
@@ -1223,6 +1250,12 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
               request->timeout_sec, request->drive_train_type,
               request->yaw_is_rate, request->yaw, request->lookahead,
               request->adaptive_lookahead, request->wait_on_last_task);
+        });
+    CreateService<projectairsim_ros2_cpp::srv::SetParameter>(
+        prefix + "/set_parameter",
+        [this, vehicle_name](const auto request, auto response) {
+          response->success = SetParameter(vehicle_name, request->index,
+                                           request->value, &response->status);
         });
 
     CreateGroupService<projectairsim_ros2_cpp::srv::TakeoffGroup>(
@@ -1452,6 +1485,7 @@ class ProjectAirSimROS2CppNode final : public rclcpp::Node {
 
   std::shared_ptr<pasc::Client> client_;
   std::shared_ptr<pasc::World> world_;
+  projectairsim_ros2_cpp::RobotTypeCache robot_types_;
   std::mutex client_mutex_;
   std::mutex drones_mutex_;
   std::mutex subscriptions_mutex_;

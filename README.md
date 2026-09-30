@@ -2,14 +2,9 @@
 
 <div align="center">
 
-[![Build and Deploy Sphinx Docs](https://github.com/iamaisim/ProjectAirSim/actions/workflows/sphinx-docs.yml/badge.svg?branch=main)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/sphinx-docs.yml)
-[![Linux SimLibs Release Tests](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_linux_simlibs_release.yml/badge.svg?branch=main)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_linux_simlibs_release.yml)
-[![Windows Build and Tests](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_windows.yml/badge.svg?branch=main)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_windows.yml)
-[![C++ Client and ROS 2 CI](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_cpp_client.yml/badge.svg?branch=main)](https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_cpp_client.yml)
-
 [![Latest release](https://img.shields.io/github/v/release/iamaisim/ProjectAirSim?label=release)](https://github.com/iamaisim/ProjectAirSim/releases/latest)
 [![Ubuntu](https://img.shields.io/badge/Ubuntu-22.04-E95420?logo=ubuntu&logoColor=white)](docs/development/dev_setup_linux.md)
-[![Unreal Engine](https://img.shields.io/badge/Unreal%20Engine-5.2%20%7C%205.7-0E1128?logo=unrealengine&logoColor=white)](docs/development/use_source.md)
+[![Unreal Engine](https://img.shields.io/badge/Unreal%20Engine-5.2%20%7C%205.7%20%7C%205.8-0E1128?logo=unrealengine&logoColor=white)](docs/development/use_source.md)
 [![ROS 2](https://img.shields.io/badge/ROS%202-Humble-22314E?logo=ros&logoColor=white)](docs/ros/ros2.md)
 [![Python](https://img.shields.io/badge/Python-%3E3.10-3776AB?logo=python&logoColor=white)](docs/client_setup.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-2EA043.svg)](docs/license.md)
@@ -209,10 +204,11 @@ The supported development baseline is:
 | --- | --- |
 | Linux | **Ubuntu 22.04** is the primary supported distribution |
 | Windows | **Windows 11** with Visual Studio 2022 C++ build tools |
-| Unreal Engine | **5.2 or 5.7** |
+| macOS | **Apple Silicon (ARM64), macOS 15 CI**: SimLibs Release build/tests and headless Runtime build; see [Mac setup and scope](docs/development/dev_setup_macos.md) |
+| Unreal Engine | **5.2, 5.7, or 5.8** |
 | CMake and C++ | CMake **3.15 or newer** and C++17 |
 | Linux compiler | Unreal's packaged toolchain when `UE_ROOT` is set; otherwise Clang 13 |
-| Windows compiler | `build.cmd` selects MSVC 14.37 for UE 5.2 and MSVC 14.44 for UE 5.7 |
+| Windows compiler | `build.cmd` selects MSVC 14.37 for UE 5.2 and MSVC 14.44 for UE 5.7 and 5.8 |
 | Python client | Python **newer than 3.10**, below Python 4 |
 | ROS 2 C++ bridge | **ROS 2 Humble** on Ubuntu 22.04 |
 
@@ -232,7 +228,7 @@ is summarized below.
 
 ### 1. Install Unreal Engine
 
-Install Unreal Engine 5.2 or 5.7 and set `UE_ROOT` to its installation path.
+Install Unreal Engine 5.2, 5.7, or 5.8 and set `UE_ROOT` to its installation path.
 
 On Linux:
 

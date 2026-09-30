@@ -14,6 +14,8 @@ rendered sensors, or visual fidelity.
 
 ## Supported Capabilities
 
+### Host features
+
 Project AirSim Runtime supports:
 
 - Fast Physics, JSBSim, and Simulink physics models;

@@ -236,7 +236,7 @@ void UDepthLidar::SetupDepthCapture() {
           Cast<UPrimitiveComponent>(UnrealWorld->PersistentLineBatcher));
       DepthCaptureComponent->HideComponent(
           Cast<UPrimitiveComponent>(UnrealWorld->ForegroundLineBatcher));
-#elif UE_IS_5_7
+#elif UE_IS_5_7_OR_5_8
       // UE 5.6+: LineBatcher/PersistentLineBatcher/ForegroundLineBatcher were
       // replaced by GetLineBatcher(ELineBatcherType)
       DepthCaptureComponent->HideComponent(

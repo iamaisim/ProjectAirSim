@@ -375,4 +375,4 @@ def collect_data(
         projectairsim_log().error(f"Exception occurred: {err}", exc_info=True)
     finally:
         client.disconnect()
-        return dataset
+    return dataset

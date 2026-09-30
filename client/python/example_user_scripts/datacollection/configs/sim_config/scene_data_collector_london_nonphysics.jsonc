@@ -19,7 +19,7 @@
         "xyz": "5.0 0.0 -7.0",
         "rpy": "0 0 0"
       },
-      "env_actor_config": "airtaxi_env_actor_london.jsonc"
+      "env-actor-config": "airtaxi_env_actor_london.jsonc"
     }
   ],
   "clock": {

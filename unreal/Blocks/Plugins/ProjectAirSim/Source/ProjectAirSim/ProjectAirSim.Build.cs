@@ -232,7 +232,12 @@ public class ProjectAirSim : ModuleRules
             foreach (var file in onnx_files)
             {
                 var fileName = Path.GetFileName(file);
-                RuntimeDependencies.Add("$(BinaryOutputDir)/" + fileName, PluginDirectory + "/SimLibs/shared_libs/" + fileName);
+                // UBA can alias a symlink and its target while parallel copy actions
+                // are running. Copy from the real file, keeping every runtime name
+                // (including the versioned SONAME) in the output directory.
+                var fileInfo = new FileInfo(file);
+                var sourceFile = fileInfo.ResolveLinkTarget(returnFinalTarget: true)?.FullName ?? file;
+                RuntimeDependencies.Add("$(BinaryOutputDir)/" + fileName, sourceFile);
             }
 
             // JSBSim so

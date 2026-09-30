@@ -54,6 +54,7 @@ def make_sensor_logger(sensor_id: str, stream_name: str, every: int = 20):
         sample_counts[key] += 1
         if sample_counts[key] % every == 0:
             projectairsim_log().info(f"{key}: {summarize_sensor_sample(sample)}")
+            pass
 
     return log_sample
 

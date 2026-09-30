@@ -33,6 +33,8 @@ set_target_properties(
 
 if(WIN32)
     add_dependencies(${TARGET_NAME} multirotor_api core_sim nng-external mavlinkcom gtest_main)
+elseif(APPLE)
+    add_dependencies(${TARGET_NAME} multirotor_api core_sim nng-external mavlinkcom gtest_main)
 else()
     add_dependencies(${TARGET_NAME} multirotor_api core_sim nng-external openssl-external mavlinkcom gtest_main)
 endif()
@@ -68,7 +70,7 @@ target_link_libraries(
         core_sim
         nng
         mavlinkcom
-        lvmon
+        $<$<BOOL:${PROJECTAIRSIM_ENABLE_LVMON}>:lvmon>
 )
 else()
 target_link_libraries(
@@ -79,7 +81,7 @@ target_link_libraries(
         core_sim
         nng
         mavlinkcom
-        lvmon
+        $<$<BOOL:${PROJECTAIRSIM_ENABLE_LVMON}>:lvmon>
         ${OPENSSL_CRYPTO_LIBRARY} # Client authorization
 )
 endif()

@@ -1,0 +1,33 @@
+{
+  // Native Chaos wheeled vehicle controlled directly by Project AirSim.
+  // The class only needs to derive from AWheeledVehiclePawn; it does not need
+  // to implement IProjectAirSimVehicle or a Blueprint SetParameter event.
+  "$schema": "../../projectairsim/src/projectairsim/schema/robot_config_schema.jsonc",
+  "physics-type": "unreal-physics",
+  "wheeled-vehicle-class": "/ProjectAirSim/VehicleAdv/SUV/SuvCarPawn.SuvCarPawn_C",
+  "sensors": [
+    {
+      "id": "Chase",
+      "type": "camera",
+      "enabled": true,
+      "capture-interval": 0.03,
+      "capture-settings": [
+        {
+          "image-type": 0,
+          "width": 640,
+          "height": 480,
+          "fov-degrees": 90,
+          "capture-enabled": true,
+          "streaming-enabled": true,
+          "pixels-as-float": false,
+          "compress": false,
+          "target-gamma": 2.5
+        }
+      ],
+      "origin": {
+        "xyz": "-10.0 1.5 -3.0",
+        "rpy-deg": "0 -15 0"
+      }
+    }
+  ]
+}

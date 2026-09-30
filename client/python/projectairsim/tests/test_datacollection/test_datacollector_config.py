@@ -52,3 +52,5 @@ def test_valid_config_main(config_main, schema):
         jsonschema.validate(instance=config_main, schema=schema)
     except jsonschema.exceptions.ValidationError as err:
         raise err
+
+pytestmark = pytest.mark.offline

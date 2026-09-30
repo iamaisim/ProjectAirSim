@@ -37,3 +37,7 @@ def test_display_image_converts_float16_depth_for_opencv():
     displayed = imshow.call_args.args[1]
     assert displayed.dtype == np.float32
     np.testing.assert_allclose(displayed, [[0.0, 0.25], [1.0, 1.0]])
+
+import pytest
+
+pytestmark = pytest.mark.offline

@@ -11,7 +11,8 @@ import time
 import math
 import numpy as np
 
-from projectairsim import Drone, ProjectAirSimClient, World
+from projectairsim import Drone, ProjectAirSimClient
+from regression_support import RegressionWorld as World
 from projectairsim.utils import quaternion_to_rpy
 
 
@@ -243,3 +244,5 @@ class TestClientBase:
 
     def test_drone_pose(self, robo):
         asyncio.run(self.main(robo))
+
+pytestmark = pytest.mark.unreal

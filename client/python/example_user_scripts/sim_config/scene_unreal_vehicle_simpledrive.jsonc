@@ -44,6 +44,7 @@
       "type": "engine-driven",
       "step-ns": 3000000,
       "real-time-update-rate": 3000000,
+      "engine-substepping": true,
       "pause-on-start": false
     },
     "home-geo-point": {

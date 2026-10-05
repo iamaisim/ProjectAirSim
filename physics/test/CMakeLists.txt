@@ -27,6 +27,7 @@ add_executable(
     gtest_matlab_physics.cpp
     gtest_jsbsim_physics.cpp
     gtest_jsbsim_ground_callback.cpp
+    ${CMAKE_SOURCE_DIR}/samples/projectairsim_runtime/ground_collision_host.cpp
 )
 
 set_target_properties(
@@ -62,6 +63,7 @@ target_include_directories(
     ${TARGET_NAME}
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}/samples/projectairsim_runtime
         ${EIGEN_INCLUDE_DIR}
         ${TARGET_SOURCE_DIR}/include/
         ${TARGET_SOURCE_DIR}/src/  # for private headers

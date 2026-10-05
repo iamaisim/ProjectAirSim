@@ -11,7 +11,9 @@
 #include "core_sim/actor/robot.hpp"
 #include "core_sim/message/pose_stamped_message.hpp"
 #include "core_sim/simulator.hpp"
+#include "ground_collision_host.hpp"
 #include "gtest/gtest.h"
+#include "json.hpp"
 #include "matlab_physics.hpp"
 #include "test_data/physics_test_config.hpp"  // defines physics_test_config
 #include "topic_manager.hpp"
@@ -24,8 +26,9 @@ namespace projectairsim {
 class TestMatlabPhysicsBody : public MatlabPhysicsBody {
  public:
   // Expose parent constructors for testing
-  using MatlabPhysicsBody::MatlabPhysicsBody;
+  using MatlabPhysicsBody::collision_info_;
   using MatlabPhysicsBody::kinematics_;
+  using MatlabPhysicsBody::MatlabPhysicsBody;
 };
 }  // namespace projectairsim
 }  // namespace microsoft
@@ -246,6 +249,44 @@ TEST(MatlabPhysicsBody, CalculateExternalWrench) {
   EXPECT_TRUE(std::isfinite(external_wrench.torque.x()));
   EXPECT_TRUE(std::isfinite(external_wrench.torque.y()));
   EXPECT_TRUE(std::isfinite(external_wrench.torque.z()));
+}
+
+TEST(MatlabPhysicsBody, RuntimeGroundContactReachesPhysicsInput) {
+  for (const char* physics_type : {"fast-physics", "matlab-physics"}) {
+    SCOPED_TRACE(physics_type);
+    auto config = nlohmann::json::parse(physics_test_config);
+    config["actors"][0]["robot-config"]["physics-type"] = physics_type;
+    projectairsim::Simulator simulator;
+    simulator.LoadSceneWithJSON(config.dump());
+    auto& scene = simulator.GetScene();
+    auto& robot =
+        static_cast<projectairsim::Robot&>(scene.GetActors().front().get());
+    projectairsim::GroundCollisionHost host({});
+    host.LoadScene(scene);
+    robot.DrainStepEvents();
+
+    projectairsim::TestMatlabPhysicsBody body(robot);
+    projectairsim::Kinematics kinematics;
+    kinematics.pose.position = {0.0f, 0.0f, 0.0f};
+    body.WriteRobotData(kinematics);
+
+    bool reported_contact = false;
+    const auto deadline =
+        std::chrono::steady_clock::now() + std::chrono::seconds(2);
+    while (!reported_contact && std::chrono::steady_clock::now() < deadline) {
+      for (const auto& event : robot.DrainStepEvents()) {
+        if (event.at("type") == "collision") reported_contact = true;
+      }
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+    host.UnloadScene();
+    ASSERT_TRUE(reported_contact);
+    body.ReadRobotData();
+    EXPECT_TRUE(body.collision_info_.has_collided);
+    EXPECT_FLOAT_EQ(body.collision_info_.normal.z(), -1.0f);
+    EXPECT_FLOAT_EQ(body.collision_info_.impact_point.z(), 0.0f);
+    EXPECT_GT(body.collision_info_.penetration_depth, 0.0f);
+  }
 }
 
 // TODO Add integration tests:

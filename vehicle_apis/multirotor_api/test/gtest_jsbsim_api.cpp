@@ -17,6 +17,7 @@
 #include "core_sim/service_manager.hpp"
 #include "gtest/gtest.h"
 #include "jsbsim_api.hpp"
+#include "robot_test_utils.hpp"
 #include "json.hpp"
 #include "state_manager.hpp"
 #include "topic_manager.hpp"
@@ -25,26 +26,6 @@ using json = nlohmann::json;
 
 namespace microsoft {
 namespace projectairsim {
-
-class Scene {
- public:
-  static Robot MakeJSBSimRobot(const std::string& id) {
-    Transform origin = {{0, 0, 0}, {1, 0, 0, 0}};
-
-    // Keep test logging quiet.
-    auto callback = [](const std::string& component, LogLevel level,
-                       const std::string& message) {};
-    Logger logger(callback);
-
-    return Robot(id, origin, logger, TopicManager(logger), "",
-                 ServiceManager(logger), StateManager(logger),
-                 PROJECTAIRSIM_TEST_PLUGIN_DIR);
-  }
-
-  static void LoadRobot(Robot& robot, ConfigJson config_json) {
-    robot.Load(config_json);
-  }
-};
 
 class JSBSimApiTestPeer {
  public:
@@ -124,7 +105,7 @@ projectairsim::Robot MakeLoadedJSBSimRobot() {
       }
     })"_json;
 
-  auto robot = projectairsim::Scene::MakeJSBSimRobot("jsbsim_api_test");
+  auto robot = projectairsim::Scene::MakeRobot("jsbsim_api_test");
   projectairsim::Scene::LoadRobot(robot, config);
   return robot;
 }
@@ -142,7 +123,7 @@ projectairsim::Robot MakeLoadedJSBSimRobotWithGroundMode(
     })"_json;
   config["jsbsim-ground-mode"] = ground_mode;
 
-  auto robot = projectairsim::Scene::MakeJSBSimRobot("jsbsim_ground_test");
+  auto robot = projectairsim::Scene::MakeRobot("jsbsim_ground_test");
   projectairsim::Scene::LoadRobot(robot, config);
   return robot;
 }
@@ -203,7 +184,7 @@ TEST(JSBSimApi, GroundModeRejectsInvalidMode) {
       }
     })"_json;
 
-  auto robot = projectairsim::Scene::MakeJSBSimRobot("jsbsim_ground_test");
+  auto robot = projectairsim::Scene::MakeRobot("jsbsim_ground_test");
 
   EXPECT_THROW(projectairsim::Scene::LoadRobot(robot, config),
                projectairsim::Error);

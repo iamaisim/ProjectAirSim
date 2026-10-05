@@ -22,7 +22,6 @@ class CancelToken {
   void Reset() {
     is_cancelled_ = false;
     is_complete_ = false;
-    recursion_count_ = 0;
   }
 
   bool IsCancelled() const { return is_cancelled_; }
@@ -44,10 +43,10 @@ class CancelToken {
   }
 
   void Unlock() {
-    wait_mutex_.unlock();
     if (recursion_count_ > 0) {
       --recursion_count_;
     }
+    wait_mutex_.unlock();
   }
 
   void Lock() {

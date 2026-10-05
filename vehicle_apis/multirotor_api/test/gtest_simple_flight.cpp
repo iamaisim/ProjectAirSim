@@ -3,8 +3,11 @@
 
 // MIT License. All rights reserved.
 
+#include <atomic>
 #include <memory>
+#include <thread>
 
+#include "common/canceltoken.hpp"
 #include "gtest/gtest.h"
 #include "simple_flight/AirSimSimpleFlightBoard.hpp"
 #include "simple_flight/AirSimSimpleFlightCommLink.hpp"
@@ -33,4 +36,37 @@ TEST(SimpleFlight, Constructor) {
       state_estimator_fw.get());
   // Assert: check result from `EXPECT_NE(firmware, nullptr);`.
   EXPECT_NE(firmware, nullptr);
+}
+
+TEST(CancelToken, ResetPreservesNestedTaskLocks) {
+  projectairsim::CancelToken token;
+  ASSERT_TRUE(token.Try_lock());
+  token.Cancel();
+  token.Reset();
+  EXPECT_FALSE(token.IsCancelled());
+  EXPECT_EQ(token.GetRecursionCount(), 1);
+  ASSERT_TRUE(token.Try_lock());
+  EXPECT_EQ(token.GetRecursionCount(), 2);
+  token.Unlock();
+  EXPECT_EQ(token.GetRecursionCount(), 1);
+  token.Unlock();
+  EXPECT_EQ(token.GetRecursionCount(), 0);
+}
+
+TEST(CancelToken, CompetingTasksObserveRootLockDepth) {
+  projectairsim::CancelToken token;
+  std::atomic<int> incorrect_depth{0};
+  auto acquire = [&]() {
+    for (int i = 0; i < 100000; ++i) {
+      token.Lock();
+      if (token.GetRecursionCount() != 1) ++incorrect_depth;
+      token.Unlock();
+    }
+  };
+  std::thread first(acquire);
+  std::thread second(acquire);
+  first.join();
+  second.join();
+  EXPECT_EQ(incorrect_depth.load(), 0);
+  EXPECT_EQ(token.GetRecursionCount(), 0);
 }

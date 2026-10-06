@@ -5,12 +5,8 @@ host by IAMAI for fast development iterations. It runs `SimServer`,
 controllers, and Project AirSim physics while providing a flat ground collision
 host without requiring Unreal Engine.
 
-Because Runtime uses the common Project AirSim server, APIs, physics, and
-controller layers, compatible client integrations and scene or robot
-configurations can move between Runtime and an Unreal Engine host. Runtime is
-suited to fast, headless controller, API, physics, automation, and CI workflows;
-the Unreal host can be used when the same workflow requires environment meshes,
-rendered sensors, or visual fidelity.
+Runtime uses the common Project AirSim server, APIs, physics, and controller
+layers. Its supported capabilities and limitations are listed below.
 
 ## Supported Capabilities
 

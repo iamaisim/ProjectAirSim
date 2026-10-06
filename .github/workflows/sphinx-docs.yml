@@ -1,20 +1,27 @@
-name: Build Sphinx Docs
+name: Build and Deploy Sphinx Docs
 
-# Build documentation only when documentation changes reach main.
+# Publish documentation changes from main; allow an explicit rebuild.
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
     paths:
+      - .github/workflows/sphinx-docs.yml
       - README.md
       - docs/**
       - client/python/projectairsim/docs/**
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: sphinx-docs-publish
+  cancel-in-progress: false
 
 jobs:
   build-docs:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:
@@ -78,3 +85,10 @@ jobs:
         run: |
           mkdir -p docs/build/html/client_api
           cp -r client/python/projectairsim/docs/build/html/* docs/build/html/client_api/
+
+      - name: Deploy to gh_page branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/build/html
+          publish_branch: gh_page

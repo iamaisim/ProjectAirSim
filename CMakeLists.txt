@@ -48,8 +48,8 @@ elseif(UNIX)
         set(UNREAL_LINUX_TOOLCHAIN "${CMAKE_SOURCE_DIR}/unreal-linux-toolchain.cmake")
     else()
         message("Building/linking against system-installed toolchain")
-        set(CMAKE_C_COMPILER clang-15)
-        set(CMAKE_CXX_COMPILER clang++-15)
+        set(CMAKE_C_COMPILER clang-13)
+        set(CMAKE_CXX_COMPILER clang++-13)
     endif()
 endif()
 
@@ -677,6 +677,18 @@ if(APPLE)
     find_package(OpenSSL 3 REQUIRED)
     get_filename_component(OPENSSL_LIB_DIR "${OPENSSL_CRYPTO_LIBRARY}" DIRECTORY)
     message("Using macOS OpenSSL from ${OPENSSL_LIB_DIR}")
+    # Unreal links SimLibs archives directly, without CMake's transitive link
+    # dependencies. Stage the same crypto archive used by core_sim, resolving
+    # Homebrew symlinks so the package does not depend on the build machine.
+    get_filename_component(OPENSSL_CRYPTO_REALPATH "${OPENSSL_CRYPTO_LIBRARY}" REALPATH)
+    set(OPENSSL_STAGE_DIR "${UE_PLUGIN_SIMLIBS_DIR}/openssl/$<IF:$<CONFIG:Release>,Release,Debug>")
+    add_custom_target(stage_macos_openssl ALL
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${OPENSSL_STAGE_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${OPENSSL_CRYPTO_REALPATH}" "${OPENSSL_STAGE_DIR}/libcrypto.a"
+        COMMENT "Staging macOS OpenSSL crypto archive for Unreal"
+        VERBATIM
+    )
 elseif(UNIX)
     # Set up dependency: openssl
     message("Setting up [openssl] dependency as an external project...")

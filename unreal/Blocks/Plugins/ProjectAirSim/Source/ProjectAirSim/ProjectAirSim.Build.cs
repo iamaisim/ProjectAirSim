@@ -216,6 +216,14 @@ public class ProjectAirSim : ModuleRules
         }
         else if (isMac)
         {
+            string cryptoLib = Path.Combine(PluginDirectory, "SimLibs", "openssl", buildType, "libcrypto.a");
+            if (!File.Exists(cryptoLib))
+            {
+                throw new BuildException("Missing macOS OpenSSL crypto archive: " + cryptoLib
+                    + ". Build " + buildType + " SimLibs on macOS with './build.sh simlibs_"
+                    + buildType.ToLowerInvariant() + "' before building this Unreal target.");
+            }
+
             string[] onnxFiles = Directory.GetFiles(PluginDirectory + "/SimLibs/shared_libs", "libonnxruntime*.dylib");
             if (onnxFiles.Length == 0)
             {
@@ -233,6 +241,7 @@ public class ProjectAirSim : ModuleRules
                     PluginDirectory + "/SimLibs/nng/" + buildType + "/libnng.a",
                     PluginDirectory + "/SimLibs/assimp/" + buildType + "/libassimp.a",
                     PluginDirectory + "/SimLibs/core_sim/jsbsim/lib/" + buildType + "/libJSBSim.a",
+                    cryptoLib,
                     onnxFiles[0],
                 };
 

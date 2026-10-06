@@ -1,0 +1,388 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Native Wheeled Vehicles &mdash; Project Airsim 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Configuration JSONC Settings" href="config.html" />
+    <link rel="prev" title="Unreal Vehicle" href="unreal_vehicle_blueprint_setup.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Project Airsim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transition_from_airsim.html">Transitioning from AirSim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system_specs.html">System Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions (FAQ)</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="development/use_prebuilt.html">Using Pre-built Binary Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/use_source.html">Build From Source as a Developer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="client_setup.html">Project AirSim Client Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use_plugin.html">Using Project AirSim Plugin in Custom Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/dev_setup_linux.html">Developer Initial Setup for Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/dev_setup_win.html">Developer Initial Setup for Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/dev_setup_macos.html">Developer Setup for macOS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/vscode_user_settings.html">Optional VS Code User Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/headless_cloud.html">Running Headless (Docker)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_vehicle_blueprint_setup.html">Unreal Vehicle</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Native Wheeled Vehicles</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#vehicle-control">Vehicle control</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#python">Python</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#c">C++</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ros-2">ROS 2</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#zero-wiring-simpledrive">Zero-wiring SimpleDrive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#runtime-diagnostics">Runtime diagnostics</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="config.html">Configuration JSONC Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_scene.html">Scene Configuration Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_robot.html">Robot Configuration Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multiple_robots.html">Multiple Robots in a Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_line_switches.html">Command Line Switches</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_line_switches.html#environment-variables">Environment Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gis_scenes.html">GIS Scenes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modify_drone_physical.html">How to Modify a Drone’s Physical Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modify_drone_visual.html">How to Modify a Drone’s Visual Appearance</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="physics/fast-physics.html">Fast Physics for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/jsbsim.html">JSBSim Physics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/matlab.html">Matlab Physics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/no_physics.html">No Physics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Sensors</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html">Supported imaging/capture camera customizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_capture_settings.html#sample-config">Sample config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html">Camera Images Post processing using Neural Network models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#image-post-processing-settings">Image post processing settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_post_processing_with_nn.html#post-processing-model-settings">Post processing model settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/camera_streaming.html">Camera Streaming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html">Lidar sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/lidar.html#lidar-sensor-settings">Lidar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html">Radar sensor overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/radar.html#radar-sensor-settings">Radar sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html">Battery sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensors/battery.html#battery-sensor-settings">Battery sensor settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/sensors/display.html">Sensor data visualization/display</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Controllers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="controllers/controllers.html">Flight Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/simple_flight.html">Simple Flight Controller for Drones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/ardupilot.html">ArduPilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4.html">PX4 Autopilot Flight Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_build.html">Building PX4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_hitl.html">Using a PX4 Controller as Hardware-In-The-Loop (HITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_lockstep.html">PX4 Lockstep Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_multi_vehicle.html">PX4 with Multiple Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl.html">Using a PX4 Controller as Software-In-The-Loop (SITL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/px4/px4_sitl_wsl2.html">PX4 Software-in-the-Loop with WSL 2</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Scene &amp; Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="scene/sim_clock.html">Simulation Clock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene/weather_visual_effects.html">Weather Visual Effects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/scene/sim_clock_internal.html">Simulation Clock</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">APIs &amp; Programmatic Control</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_client.html">Project AirSim C++ Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ros/ros2.html">Project AirSim ROS2 C++ Bridge</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python Client API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://iamaisim.github.io/ProjectAirSim/client_api/index.html">Python Client API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Project Airsim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Native Wheeled Vehicles</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/wheeled_vehicle.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="native-wheeled-vehicles">
+<h1>Native Wheeled Vehicles<a class="headerlink" href="#native-wheeled-vehicles" title="Link to this heading"></a></h1>
+<p>Project AirSim can control an Unreal <code class="docutils literal notranslate"><span class="pre">AWheeledVehiclePawn</span></code> directly, without a
+Blueprint implementing <code class="docutils literal notranslate"><span class="pre">IProjectAirSimVehicle</span></code> or a Blueprint
+<code class="docutils literal notranslate"><span class="pre">SetParameterSignal</span></code> event. This integration is selected with the
+<code class="docutils literal notranslate"><span class="pre">wheeled-vehicle-class</span></code> robot setting.</p>
+<p>Use the existing Unreal Vehicle integration when a Blueprint must define its
+own indexed parameter behavior. Use the native Wheeled Vehicle integration
+when throttle, steering, and brake should go directly to the pawn’s
+<code class="docutils literal notranslate"><span class="pre">ChaosWheeledVehicleMovementComponent</span></code>.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Integration</p></th>
+<th class="head"><p>Robot setting</p></th>
+<th class="head"><p>Blueprint interface required</p></th>
+<th class="head"><p>Control mapping</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Wheeled Vehicle</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">wheeled-vehicle-class</span></code></p></td>
+<td><p>No</p></td>
+<td><p>Fixed: throttle, steering, brake</p></td>
+</tr>
+<tr class="row-odd"><td><p>Unreal Vehicle</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">unreal-vehicle-class</span></code></p></td>
+<td><p>Yes for parameter forwarding</p></td>
+<td><p>Defined by the Blueprint</p></td>
+</tr>
+</tbody>
+</table>
+<p>The two class settings are mutually exclusive in one robot configuration.</p>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h2>
+<p>A minimal native wheeled-vehicle robot uses Unreal physics and points to a
+Blueprint class derived from <code class="docutils literal notranslate"><span class="pre">AWheeledVehiclePawn</span></code>:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">"physics-type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unreal-physics"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"wheeled-vehicle-class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/ProjectAirSim/VehicleAdv/SUV/SuvCarPawn.SuvCarPawn_C"</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The example configurations are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">client/python/example_user_scripts/sim_config/robot_wheeled_vehicle.jsonc</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">client/python/example_user_scripts/sim_config/scene_wheeled_vehicle.jsonc</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">client/python/example_user_scripts/sim_config/robot_wheeled_vehicle_simpledrive.jsonc</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">client/python/example_user_scripts/sim_config/scene_wheeled_vehicle_simpledrive.jsonc</span></code></p></li>
+</ul>
+<p>The pawn must have a usable <code class="docutils literal notranslate"><span class="pre">ChaosWheeledVehicleMovementComponent</span></code>, wheel
+classes, skeletal wheel bones, and drivetrain settings. When Chaos mechanical
+simulation is enabled, Project AirSim applies only Chaos inputs. When it is
+disabled, Project AirSim uses its direct-force fallback instead; the two
+propulsion paths are never active together.</p>
+<p>For an engine-driven Unreal scene, enable physics substepping when using a
+small <code class="docutils literal notranslate"><span class="pre">step-ns</span></code>:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">"clock"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"engine-driven"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"step-ns"</span><span class="p">:</span><span class="w"> </span><span class="mi">3000000</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"engine-substepping"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This treats 3 ms as the maximum Chaos physics substep instead of requiring the
+outer Unreal render loop to sustain 333 FPS.</p>
+</section>
+<section id="vehicle-control">
+<h2>Vehicle control<a class="headerlink" href="#vehicle-control" title="Link to this heading"></a></h2>
+<p>Python and C++ use dedicated <code class="docutils literal notranslate"><span class="pre">SetThrottle</span></code>, <code class="docutils literal notranslate"><span class="pre">SetSteering</span></code>, and <code class="docutils literal notranslate"><span class="pre">SetBrakes</span></code>
+RPCs with a <code class="docutils literal notranslate"><span class="pre">value</span></code> argument and boolean result. There is no <code class="docutils literal notranslate"><span class="pre">SetParameter</span></code>
+alias for WheeledVehicle. ROS 2 retains its indexed <code class="docutils literal notranslate"><span class="pre">set_parameter</span></code> service:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Index</p></th>
+<th class="head"><p>Control</p></th>
+<th class="head"><p>Accepted range</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
+<td><p>Throttle</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[-1,</span> <span class="pre">1]</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
+<td><p>Steering</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[-1,</span> <span class="pre">1]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">2</span></code></p></td>
+<td><p>Brake</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>The bridge rejects unknown wheeled indices; the simulator rejects non-finite values and clamps valid
+finite values to the ranges above.</p>
+<section id="python">
+<h3>Python<a class="headerlink" href="#python" title="Link to this heading"></a></h3>
+<p>From <code class="docutils literal notranslate"><span class="pre">client/python/example_user_scripts</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>hello_wheeled_vehicle.py
+</pre></div>
+</div>
+<p>The Python <code class="docutils literal notranslate"><span class="pre">WheeledVehicle</span></code> interface provides named control methods:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">vehicle</span><span class="o">.</span><span class="n">set_throttle</span><span class="p">(</span><span class="mf">0.7</span><span class="p">)</span>
+<span class="n">vehicle</span><span class="o">.</span><span class="n">set_steering</span><span class="p">(</span><span class="mf">0.45</span><span class="p">)</span>
+<span class="n">vehicle</span><span class="o">.</span><span class="n">set_brakes</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Each method sends its corresponding named RPC directly.</p>
+</section>
+<section id="c">
+<h3>C++<a class="headerlink" href="#c" title="Link to this heading"></a></h3>
+<p>From the repository root:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cmake<span class="w"> </span>-S<span class="w"> </span>client/cpp<span class="w"> </span>-B<span class="w"> </span>client/cpp/build_linux/Debug<span class="w"> </span>-DCMAKE_BUILD_TYPE<span class="o">=</span>Debug
+cmake<span class="w"> </span>--build<span class="w"> </span>client/cpp/build_linux/Debug<span class="w"> </span>--target<span class="w"> </span>hello_wheeled_vehicle<span class="w"> </span>-j<span class="s2">"</span><span class="k">$(</span>nproc<span class="k">)</span><span class="s2">"</span>
+./client/cpp/build_linux/Debug/hello_wheeled_vehicle
+</pre></div>
+</div>
+<p>The public call is:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">bool</span><span class="w"> </span><span class="n">applied</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="n">vehicle</span><span class="p">.</span><span class="n">SetThrottle</span><span class="p">(</span><span class="mf">0.7f</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">applied</span><span class="p">);</span>
+<span class="n">vehicle</span><span class="p">.</span><span class="n">SetSteering</span><span class="p">(</span><span class="mf">0.45f</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">applied</span><span class="p">);</span>
+<span class="n">vehicle</span><span class="p">.</span><span class="n">SetBrakes</span><span class="p">(</span><span class="mf">1.0f</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">applied</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="ros-2">
+<h3>ROS 2<a class="headerlink" href="#ros-2" title="Link to this heading"></a></h3>
+<p>Build and source the bridge, then configure its single-vehicle service name:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>ros
+colcon<span class="w"> </span>build<span class="w"> </span>--packages-select<span class="w"> </span>projectairsim_ros2_cpp
+<span class="nb">source</span><span class="w"> </span>install/setup.bash
+
+ros2<span class="w"> </span>run<span class="w"> </span>projectairsim_ros2_cpp<span class="w"> </span>projectairsim_ros2_cpp_node<span class="w"> </span>--ros-args<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="w"> </span>scene_config:<span class="o">=</span>scene_wheeled_vehicle.jsonc<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="w"> </span>sim_config_path:<span class="o">=</span>../client/python/example_user_scripts/sim_config<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="w"> </span>vehicle_name:<span class="o">=</span>WheeledVehicle
+</pre></div>
+</div>
+<p>In another sourced terminal, apply throttle, steering, and brake:</p>
+<p>The bridge queries <code class="docutils literal notranslate"><span class="pre">/Sim/&lt;scene&gt;/robots/&lt;robot&gt;/GetRobotType</span></code> lazily and caches
+valid results by scene/robot path until reconnect or a successful bridge scene
+load. Robot names are arbitrary. <code class="docutils literal notranslate"><span class="pre">wheeled-vehicle</span></code> enables the mapping below;
+<code class="docutils literal notranslate"><span class="pre">unreal-vehicle</span></code> forwards <code class="docutils literal notranslate"><span class="pre">SetParameter</span></code> with Blueprint-defined indices. <code class="docutils literal notranslate"><span class="pre">drone</span></code>,
+<code class="docutils literal notranslate"><span class="pre">jsbsim</span></code>, and <code class="docutils literal notranslate"><span class="pre">other</span></code> reject indexed controls, leaving other services unchanged.
+Missing/failed queries, malformed results and unknown types return explicit
+errors without a control RPC or name-based fallback; failures are not cached.
+An empty requested name uses <code class="docutils literal notranslate"><span class="pre">vehicle_name</span></code>. No JSONC index mapping is required.
+The simulator must provide <code class="docutils literal notranslate"><span class="pre">GetRobotType</span></code>; its result reports the configured
+backend rather than spawn or mechanical-drivetrain readiness.</p>
+<p>To connect to an already loaded scene, omit <code class="docutils literal notranslate"><span class="pre">scene_config</span></code>; C++ World
+discovers the scene and robot names from topics without fetching configuration,
+reloading or resetting the scene. External scene changes require reconnecting
+the bridge or loading the scene through its load service with
+<code class="docutils literal notranslate"><span class="pre">is_primary_client:</span> <span class="pre">true</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/projectairsim/WheeledVehicle/set_parameter<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>projectairsim_ros2_cpp/srv/SetParameter<span class="w"> </span><span class="s2">"{index: 0, value: 0.7}"</span>
+
+ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/projectairsim/WheeledVehicle/set_parameter<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>projectairsim_ros2_cpp/srv/SetParameter<span class="w"> </span><span class="s2">"{index: 1, value: 0.45}"</span>
+
+ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/projectairsim/WheeledVehicle/set_parameter<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>projectairsim_ros2_cpp/srv/SetParameter<span class="w"> </span><span class="s2">"{index: 2, value: 1.0}"</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="zero-wiring-simpledrive">
+<h2>Zero-wiring SimpleDrive<a class="headerlink" href="#zero-wiring-simpledrive" title="Link to this heading"></a></h2>
+<p>For SimpleDrive, use <code class="docutils literal notranslate"><span class="pre">hello_wheeled_vehicle_simpledrive.py</span></code>. The robot config
+contains a <code class="docutils literal notranslate"><span class="pre">simple-drive-api</span></code> controller but no Unreal Vehicle actuators.
+<code class="docutils literal notranslate"><span class="pre">UnrealRobot</span></code> maps the controller output directly as
+<code class="docutils literal notranslate"><span class="pre">[throttle,</span> <span class="pre">steering,</span> <span class="pre">brake]</span></code> and holds those values as Chaos inputs. Client
+control for this workflow continues to use the normal Rover/SimpleDrive API;
+the Blueprint requires no signal wiring.</p>
+</section>
+<section id="runtime-diagnostics">
+<h2>Runtime diagnostics<a class="headerlink" href="#runtime-diagnostics" title="Link to this heading"></a></h2>
+<p>The Unreal log identifies the active path:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">WheeledVehicle</span> <span class="pre">zero-wiring</span> <span class="pre">SimpleDrive</span> <span class="pre">mapping</span> <span class="pre">active</span></code> confirms direct
+SimpleDrive output mapping.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Chaos</span> <span class="pre">mechanical</span> <span class="pre">drivetrain</span> <span class="pre">(direct-force</span> <span class="pre">fallback</span> <span class="pre">disabled)</span></code> confirms the
+pawn is using its configured Chaos drivetrain.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">direct-force</span> <span class="pre">fallback</span> <span class="pre">active</span></code> confirms mechanical simulation is disabled.</p></li>
+</ul>
+<p>If the pawn fails to load, verify that the asset path exists in the active
+Unreal version and that its generated class derives from
+<code class="docutils literal notranslate"><span class="pre">AWheeledVehiclePawn</span></code>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="unreal_vehicle_blueprint_setup.html" class="btn btn-neutral float-left" title="Unreal Vehicle" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="config.html" class="btn btn-neutral float-right" title="Configuration JSONC Settings" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

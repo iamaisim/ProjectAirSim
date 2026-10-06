@@ -17,6 +17,7 @@ The main C++ client components are:
 | `client/cpp/ProjectAirSimMessageLib/` | Message serialization helpers used by the client. |
 | `client/cpp/NNGI/` | NNG-based transport wrapper. |
 | `client/cpp/example_user_apps/HelloDrone/` | Minimal example application. |
+| `client/cpp/example_user_apps/HelloWheeledVehicle/` | Native wheeled-vehicle control example. |
 | `client/cpp/example_user_apps/CppClientScenarios/` | Scenario-oriented example application. |
 | `client/cpp/example_user_apps/UserScenarioTemplate/` | Starting point for custom C++ user scenarios. |
 | `client/cpp/scripts/` | Linux helper scripts for building and running scenario examples. |
@@ -86,6 +87,7 @@ Example executables are generated in the same directory, including:
 
 ```text
 hello_drone
+hello_wheeled_vehicle
 cpp_client_scenarios
 user_scenario_template
 ```
@@ -148,6 +150,31 @@ configuration files. The repository includes ready-to-run examples in:
 ```text
 client/python/example_user_scripts/sim_config/
 ```
+
+## Running HelloWheeledVehicle
+
+With the Unreal simulator running, build and run the native wheeled-vehicle
+example from the repository root:
+
+```bash
+cmake --build client/cpp/build_linux/Debug --target hello_wheeled_vehicle -j$(nproc)
+./client/cpp/build_linux/Debug/hello_wheeled_vehicle
+```
+
+The example loads `scene_wheeled_vehicle.jsonc` and controls the configured
+`AWheeledVehiclePawn` through `WheeledVehicle::SetThrottle`, `SetSteering`,
+and `SetBrakes`. Each method returns a `Status` and writes whether the control
+was accepted to its boolean output argument. `WheeledVehicle` does not expose
+`SetParameter`.
+
+The example reports failure if it cannot confirm at least 1 m of horizontal
+motion; successful RPC responses alone do not count as successful driving.
+
+`world->Initialize(client)` without a scene file attaches by discovering the
+scene topic root and robot names from the existing topics. It does not reload
+the scene or request its configuration. `GetConfiguration()` remains empty
+when attaching this way; it is populated only when World loads a configuration
+file. Reinitialize World to discover an externally loaded scene.
 
 ## Creating a C++ application
 

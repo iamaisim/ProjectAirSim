@@ -54,9 +54,11 @@
 <li class="toctree-l1"><a class="reference internal" href="use_plugin.html">Using Project AirSim Plugin in Custom Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="development/dev_setup_linux.html">Developer Initial Setup for Linux</a></li>
 <li class="toctree-l1"><a class="reference internal" href="development/dev_setup_win.html">Developer Initial Setup for Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/dev_setup_macos.html">Developer Setup for macOS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="development/vscode_user_settings.html">Optional VS Code User Settings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="development/headless_cloud.html">Running Headless (Docker)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="unreal_vehicle_blueprint_setup.html">Unreal Vehicle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wheeled_vehicle.html">Native Wheeled Vehicles</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Configuration</span></p>
 <ul>
@@ -153,34 +155,60 @@
 <p>All notable changes to this project will be documented in this file.
 The format is based on <a class="reference external" href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>.</p>
 <section id="unreleased">
-<h2><a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/compare/v1.0.2...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Link to this heading"></a></h2>
+<h2><a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/compare/v1.1.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Link to this heading"></a></h2>
 </section>
 <section id="id1">
-<h2><a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/compare/v1.0.1...v1.0.2">1.0.2</a> - 2026-09-11<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<h2><a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/compare/v1.0.1...v1.1.0">1.1.0</a> - 2026-09-24<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<section id="added">
+<h3>Added<a class="headerlink" href="#added" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Unreal Engine 5.8 support for Windows and Linux</p></li>
+<li><p>Native SimLibs and headless Project AirSim Runtime source builds for Apple Silicon, with macOS ARM64 SimLibs build and unit-test validation; macOS Runtime integration and Unreal packages remain unvalidated</p></li>
+<li><p>Native <code class="docutils literal notranslate"><span class="pre">AWheeledVehiclePawn</span></code> integration with indexed Python, C++, and ROS 2 control and zero-wiring SimpleDrive support</p></li>
+<li></li>
+</ul>
+</section>
 <section id="fixed">
 <h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p>Python camera display failure on <code class="docutils literal notranslate"><span class="pre">16FC1</span></code> depth images: convert only the visualization copy to finite, normalized float32 before OpenCV display, preserving the original metric float16 data (<a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/pull/211">#211</a>, fixes <a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/issues/210">#210</a>)</p></li>
+<li><p>TopicManager shutdown deadlock with connected clients and publication-worker lifetime during teardown</p></li>
 </ul>
 </section>
 <section id="changed">
 <h3>Changed<a class="headerlink" href="#changed" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Label-controlled CI orchestration with separate offline, Runtime, Unreal, and PX4 regression suites, shared Unreal scene reuse, and scoped documentation builds</p></li>
+<li><p>Updated Python and C++ client package versions to 1.1.0</p></li>
+</ul>
+<p>This release also includes the changes recorded under 1.0.2 below, which was prepared but not published as a GitHub release or tag.</p>
+</section>
+</section>
+<section id="id2">
+<h2><a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/compare/v1.0.1...4d878bff556fad2d07da763babb2faa10b03922b">1.0.2</a> - 2026-09-11<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<section id="id3">
+<h3>Fixed<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Python camera display failure on <code class="docutils literal notranslate"><span class="pre">16FC1</span></code> depth images: convert only the visualization copy to finite, normalized float32 before OpenCV display, preserving the original metric float16 data (<a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/pull/211">#211</a>, fixes <a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/issues/210">#210</a>)</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3>Changed<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>Updated the project README and vehicle illustration (<a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/pull/208">#208</a>)</p></li>
 <li><p>Updated Python and C++ client package versions to 1.0.2</p></li>
 </ul>
 </section>
 </section>
-<section id="id2">
-<h2><a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/compare/v1.0.0...v1.0.1">1.0.1</a> - 2026-09-06<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
-<section id="added">
-<h3>Added<a class="headerlink" href="#added" title="Link to this heading"></a></h3>
+<section id="id5">
+<h2><a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/compare/v1.0.0...v1.0.1">1.0.1</a> - 2026-09-06<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<section id="id6">
+<h3>Added<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>Configurable Unreal vehicle bridge actuators that map controller outputs to Blueprint parameter indices</p></li>
 </ul>
 </section>
-<section id="id3">
-<h3>Changed<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<section id="id7">
+<h3>Changed<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>Improved Unreal vehicle physics updates driven by Chaos substeps</p></li>
 <li><p>Fixed ROS 2 depth image conversion from float16 to float32</p></li>
@@ -188,24 +216,24 @@ The format is based on <a class="reference external" href="https://keepachangelo
 </ul>
 </section>
 </section>
-<section id="id4">
-<h2><a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/compare/v0.3.0...v1.0.0">1.0.0</a> - 2026-09-01<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
-<section id="id5">
-<h3>Added<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<section id="id8">
+<h2><a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/compare/v0.3.0...v1.0.0">1.0.0</a> - 2026-09-01<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
+<section id="id9">
+<h3>Added<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>Project AirSim Runtime sample application and modular scene configuration support</p></li>
 <li><p>Blueprint vehicle integration, including Unreal vehicle client APIs, SimpleDrive examples, and SUV asset installation tools</p></li>
 </ul>
 </section>
-<section id="id6">
-<h3>Changed<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<section id="id10">
+<h3>Changed<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>Expanded integration and setup documentation for the runtime, modular configurations, and Blueprint vehicles</p></li>
 <li><p>Updated the C++ and Python client packages to version 1.0.0</p></li>
 </ul>
 </section>
-<section id="id7">
-<h3>Fixed<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<section id="id11">
+<h3>Fixed<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>C++ client requests that could wedge because of an uninitialized flag</p></li>
 <li><p>Depth image packing to preserve raw FP16 meter values with the <code class="docutils literal notranslate"><span class="pre">16FC1</span></code> format</p></li>
@@ -213,10 +241,10 @@ The format is based on <a class="reference external" href="https://keepachangelo
 </ul>
 </section>
 </section>
-<section id="id8">
-<h2><a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/compare/v0.2.0...v0.3.0">0.3.0</a> - 2026-08-24<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
-<section id="id9">
-<h3>Added<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<section id="id12">
+<h2><a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/compare/v0.2.0...v0.3.0">0.3.0</a> - 2026-08-24<a class="headerlink" href="#id12" title="Link to this heading"></a></h2>
+<section id="id13">
+<h3>Added<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>JSBSim fixed-wing simulation support, including Cessna 310 and Skywalker X8 examples</p></li>
 <li><p>A standalone C++ client package and ROS 2 C++ bridge</p></li>
@@ -224,24 +252,24 @@ The format is based on <a class="reference external" href="https://keepachangelo
 <li><p>Python client <code class="docutils literal notranslate"><span class="pre">step()</span></code> API and CPU-usage tests</p></li>
 </ul>
 </section>
-<section id="id10">
-<h3>Changed<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<section id="id14">
+<h3>Changed<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>Improved simulator build, toolchain, and CI support for Unreal Engine 5.7</p></li>
 </ul>
 </section>
-<section id="id11">
-<h3>Fixed<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<section id="id15">
+<h3>Fixed<a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>Coordinate conversion precision in the Python ROS bridge</p></li>
 <li><p>GPU LiDAR behavior and standalone simulator builds on Unreal Engine 5.7</p></li>
 </ul>
 </section>
 </section>
-<section id="id12">
-<h2><a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/compare/v0.1.1...v0.2.0">0.2.0</a> - 2026-05-29<a class="headerlink" href="#id12" title="Link to this heading"></a></h2>
-<section id="id13">
-<h3>Added<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
+<section id="id16">
+<h2><a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/compare/v0.1.1...v0.2.0">0.2.0</a> - 2026-05-29<a class="headerlink" href="#id16" title="Link to this heading"></a></h2>
+<section id="id17">
+<h3>Added<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>Unreal Engine 5.7 support</p></li>
 <li><p>Build commit hash service and client helper API</p></li>
@@ -249,15 +277,15 @@ The format is based on <a class="reference external" href="https://keepachangelo
 <li><p>DepthLiDAR sensor support with UE 5.7 compatibility</p></li>
 </ul>
 </section>
-<section id="id14">
-<h3>Changed<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
+<section id="id18">
+<h3>Changed<a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>Relaxed Open3D version constraints</p></li>
 <li><p>Improved <code class="docutils literal notranslate"><span class="pre">UE_ROOT</span></code> configuration handling</p></li>
 </ul>
 </section>
-<section id="id15">
-<h3>Fixed<a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
+<section id="id19">
+<h3>Fixed<a class="headerlink" href="#id19" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>Missing dependency handling and Linux dev tool installation issues</p></li>
 <li><p>Depth copy behavior from Unreal</p></li>
@@ -266,16 +294,16 @@ The format is based on <a class="reference external" href="https://keepachangelo
 </ul>
 </section>
 </section>
-<section id="id16">
-<h2><a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/releases/tag/v0.1.1">0.1.1</a> - 2025-07-30<a class="headerlink" href="#id16" title="Link to this heading"></a></h2>
-<section id="id17">
-<h3>Added<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
+<section id="id20">
+<h2><a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/releases/tag/v0.1.1">0.1.1</a> - 2025-07-30<a class="headerlink" href="#id20" title="Link to this heading"></a></h2>
+<section id="id21">
+<h3>Added<a class="headerlink" href="#id21" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>Core Project AirSim platform baseline</p></li>
 </ul>
 </section>
-<section id="id18">
-<h3>Fixed<a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
+<section id="id22">
+<h3>Fixed<a class="headerlink" href="#id22" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">__has_feature</span></code> macro MSVC compatibility for Windows toolchains</p></li>
 </ul>

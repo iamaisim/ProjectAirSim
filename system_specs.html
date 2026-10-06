@@ -48,6 +48,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">System Specifications</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#basic-system-specifications">Basic system specifications</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installing-system-prerequisites">Installing system prerequisites</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#macos-scope">macOS scope</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#windows-prerequisites">Windows prerequisites</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#linux-prerequisites">Linux prerequisites</a></li>
 </ul>
@@ -65,9 +66,11 @@
 <li class="toctree-l1"><a class="reference internal" href="use_plugin.html">Using Project AirSim Plugin in Custom Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="development/dev_setup_linux.html">Developer Initial Setup for Linux</a></li>
 <li class="toctree-l1"><a class="reference internal" href="development/dev_setup_win.html">Developer Initial Setup for Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/dev_setup_macos.html">Developer Setup for macOS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="development/vscode_user_settings.html">Optional VS Code User Settings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="development/headless_cloud.html">Running Headless (Docker)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="unreal_vehicle_blueprint_setup.html">Unreal Vehicle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wheeled_vehicle.html">Native Wheeled Vehicles</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Configuration</span></p>
 <ul>
@@ -167,6 +170,14 @@
 </section>
 <section id="installing-system-prerequisites">
 <h2>Installing system prerequisites<a class="headerlink" href="#installing-system-prerequisites" title="Link to this heading"></a></h2>
+<section id="macos-scope">
+<h3>macOS scope<a class="headerlink" href="#macos-scope" title="Link to this heading"></a></h3>
+<p>Apple Silicon source builds of SimLibs and the headless Runtime are available,
+with SimLibs Release tests on macOS 15 ARM64. This build does not require Unreal
+or a rendering GPU. Runtime integration, Intel Macs, and Unreal/Blocks on Mac
+are not currently validated. See <a class="reference internal" href="development/dev_setup_macos.html"><span class="std std-doc">macOS setup</span></a>
+for prerequisites and the exact support scope.</p>
+</section>
 <section id="windows-prerequisites">
 <h3>Windows prerequisites<a class="headerlink" href="#windows-prerequisites" title="Link to this heading"></a></h3>
 <p>Unreal binaries/projects require some system prerequisites such as DirectX End-user Runtime and Visual C++ libraries.</p>

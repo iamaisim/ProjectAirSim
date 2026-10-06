@@ -19,7 +19,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Configuration JSONC Settings" href="config.html" />
+    <link rel="next" title="Native Wheeled Vehicles" href="wheeled_vehicle.html" />
     <link rel="prev" title="Running Headless (Docker)" href="development/headless_cloud.html" /> 
 </head>
 
@@ -56,6 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="use_plugin.html">Using Project AirSim Plugin in Custom Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="development/dev_setup_linux.html">Developer Initial Setup for Linux</a></li>
 <li class="toctree-l1"><a class="reference internal" href="development/dev_setup_win.html">Developer Initial Setup for Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/dev_setup_macos.html">Developer Setup for macOS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="development/vscode_user_settings.html">Optional VS Code User Settings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="development/headless_cloud.html">Running Headless (Docker)</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Unreal Vehicle</a><ul>
@@ -85,6 +86,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="wheeled_vehicle.html">Native Wheeled Vehicles</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Configuration</span></p>
 <ul>
@@ -475,19 +477,36 @@ valid Chaos configurations.</p></li>
 <p>When <code class="docutils literal notranslate"><span class="pre">UE_ROOT</span></code> is set, the <code class="docutils literal notranslate"><span class="pre">simlibs_*</span></code> build targets automatically download the
 SUV asset pack from the URL in <code class="docutils literal notranslate"><span class="pre">tools/assets/suv-assets.json</span></code> and install it at
 <code class="docutils literal notranslate"><span class="pre">unreal/Blocks/Plugins/ProjectAirSim/Content/VehicleAdv/SUV</span></code>. The installer
-records that URL and downloads the pack again if the configured URL changes,
-for example when switching from version 1.0.0 to 1.1.0.</p>
-<p>Developers can create a new pack from an installed SUV directory with:</p>
+records that URL and downloads the pack again if the configured URL changes.
+The v1.1.1 archive stores the UE 5.2 versions in one <code class="docutils literal notranslate"><span class="pre">SUV</span></code> directory. The
+installers also accept older archives that store overrides in <code class="docutils literal notranslate"><span class="pre">SUV_UE52</span></code>,
+merge those files into <code class="docutils literal notranslate"><span class="pre">SUV</span></code>, and install only <code class="docutils literal notranslate"><span class="pre">VehicleAdv/SUV</span></code> on Linux and
+Windows.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--ensure</span></code> (Windows: <code class="docutils literal notranslate"><span class="pre">-Ensure</span></code>) also reinstalls the pack if required UE5.2 files
+are missing or removes a legacy <code class="docutils literal notranslate"><span class="pre">SUV_UE52</span></code> directory. Archives missing the
+<code class="docutils literal notranslate"><span class="pre">SUV</span></code> directory or required UE 5.2 assets are rejected before existing assets
+are replaced. The installers do not modify the uploaded ZIP.</p>
+<p>The package helper scripts create a single-folder archive from the installed
+<code class="docutils literal notranslate"><span class="pre">SUV</span></code> directory (including the UE 5.2 control assets) with:</p>
 <div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="p">.\</span><span class="n">tools</span><span class="p">\</span><span class="n">assets</span><span class="p">\</span><span class="n">package_suv_assets</span><span class="p">.</span><span class="n">ps1</span> <span class="p">`</span>
-    <span class="n">-OutputPath</span> <span class="n">C</span><span class="p">:\</span><span class="n">tmp</span><span class="p">\</span><span class="n">ProjectAirSim-SUV-Assets-v1</span><span class="p">.</span><span class="n">0</span><span class="p">.</span><span class="n">0</span><span class="p">.</span><span class="n">zip</span>
+    <span class="n">-OutputPath</span> <span class="n">C</span><span class="p">:\</span><span class="n">tmp</span><span class="p">\</span><span class="n">ProjectAirSim-SUV-Assets-v1</span><span class="p">.</span><span class="n">1</span><span class="p">.</span><span class="n">1</span><span class="p">.</span><span class="n">zip</span>
 </pre></div>
 </div>
 <p>or on Linux:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./tools/assets/package_suv_assets.sh<span class="w"> </span>/tmp/ProjectAirSim-SUV-Assets-v1.0.0.zip
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./tools/assets/package_suv_assets.sh<span class="w"> </span>/tmp/ProjectAirSim-SUV-Assets-v1.1.1.zip
 </pre></div>
 </div>
 <p>After publishing a new pack, update <code class="docutils literal notranslate"><span class="pre">tools/assets/suv-assets.json</span></code> with its
 version, URL, filename, and SHA-256 checksum.</p>
+<p>To install a local combined pack, use the checksum printed by
+the packager:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./tools/assets/install_suv_assets.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--archive<span class="w"> </span>/tmp/ProjectAirSim-SUV-Assets-v1.1.1.zip<span class="w"> </span>--sha256<span class="w"> </span>&lt;SHA256&gt;<span class="w"> </span>--force
+</pre></div>
+</div>
+<p>On Windows, use <code class="docutils literal notranslate"><span class="pre">-ArchivePath</span></code>, <code class="docutils literal notranslate"><span class="pre">-ExpectedSha256</span></code>, and <code class="docutils literal notranslate"><span class="pre">-Force</span></code> with
+<code class="docutils literal notranslate"><span class="pre">install_suv_assets.ps1</span></code>. Restart Unreal after installation so it loads the
+updated Blueprints. Installation metadata is excluded from newly packaged ZIPs.</p>
 </section>
 </section>
 </section>
@@ -497,7 +516,7 @@ version, URL, filename, and SHA-256 checksum.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="development/headless_cloud.html" class="btn btn-neutral float-left" title="Running Headless (Docker)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="config.html" class="btn btn-neutral float-right" title="Configuration JSONC Settings" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="wheeled_vehicle.html" class="btn btn-neutral float-right" title="Native Wheeled Vehicles" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

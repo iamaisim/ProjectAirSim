@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Developer Initial Setup for Windows &mdash; Project Airsim 1.0.0 documentation</title>
+  <title>Developer Setup for macOS &mdash; Project Airsim 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
 
@@ -19,8 +19,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Developer Setup for macOS" href="dev_setup_macos.html" />
-    <link rel="prev" title="Developer Initial Setup for Linux" href="dev_setup_linux.html" /> 
+    <link rel="next" title="Optional VS Code User Settings" href="vscode_user_settings.html" />
+    <link rel="prev" title="Developer Initial Setup for Windows" href="dev_setup_win.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -55,11 +55,13 @@
 <li class="toctree-l1"><a class="reference internal" href="../client_setup.html">Project AirSim Client Setup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../use_plugin.html">Using Project AirSim Plugin in Custom Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dev_setup_linux.html">Developer Initial Setup for Linux</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Developer Initial Setup for Windows</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dev_setup_win.html">Developer Initial Setup for Windows</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Developer Setup for macOS</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#current-support">Current support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#build-and-test">Build and test</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="dev_setup_macos.html">Developer Setup for macOS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vscode_user_settings.html">Optional VS Code User Settings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="headless_cloud.html">Running Headless (Docker)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../unreal_vehicle_blueprint_setup.html">Unreal Vehicle</a></li>
@@ -145,9 +147,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Developer Initial Setup for Windows</li>
+      <li class="breadcrumb-item active">Developer Setup for macOS</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/development/dev_setup_win.md.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/development/dev_setup_macos.md.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -155,78 +157,81 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="developer-initial-setup-for-windows">
-<h1>Developer Initial Setup for Windows<a class="headerlink" href="#developer-initial-setup-for-windows" title="Link to this heading"></a></h1>
-<p>On Windows, Project AirSim can be developed with either Visual Studio 2022 or VS Code. VS Code is convenient because it provides a lighter-weight, cross-platform common experience between Windows and Linux.</p>
-<section id="setup">
-<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading"></a></h2>
-<ol class="arabic">
-<li><p>A) To develop with <strong>VS Code</strong>:</p>
-<p>First, install the <strong><a class="reference external" href="https://visualstudio.microsoft.com/visual-cpp-build-tools/">VS 2022 C++ build tools</a></strong> with:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">Desktop</span> <span class="pre">development</span> <span class="pre">with</span> <span class="pre">C++</span></code> workload</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">.NET</span> <span class="pre">Framework</span> <span class="pre">4.8</span> <span class="pre">SDK</span></code> individual component</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">.NET</span> <span class="pre">8.0</span> <span class="pre">Runtime</span></code> individual component</p></li>
-</ul>
-<p>Second, install <strong><a class="reference external" href="https://code.visualstudio.com/">VS Code</a></strong> with the following extensions:</p>
-<p><em>Note: If not manually installed, these extensions will be recommended for automatic install on opening the Project AirSim project workspace</em></p>
-<ul class="simple">
-<li><p><strong><a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools">CMake Tools</a></strong></p></li>
-<li><p><strong><a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools">C/C++</a></strong> (includes clang-format functionality, use <strong>Alt-Shift-F</strong> to auto-format the current code file using the repo’s .clang-format settings)</p></li>
-<li><p><strong><a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb">CodeLLDB</a></strong></p></li>
-<li><p><strong><a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp">C#</a></strong></p></li>
-<li><p><strong><a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=ms-vscode.mono-debug">Mono Debug</a></strong></p></li>
-<li><p><strong><a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=matepek.vscode-catch2-test-adapter">C++ TestMate</a></strong> (also automatically installs <strong><a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer">Test Explorer UI</a></strong>)</p></li>
-<li><p><strong><a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=ms-python.python">Python</a></strong></p></li>
-<li><p><strong><a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance">Pylance</a></strong></p></li>
-</ul>
-<p>Third, see <strong><a class="reference internal" href="vscode_user_settings.html"><span class="std std-doc">Optional VS Code User Settings</span></a></strong> for some example customized user settings that can help with Project AirSim development.</p>
-<p>B) To develop with <strong>Visual Studio 2022</strong>:</p>
-<p>Install <strong><a class="reference external" href="https://visualstudio.microsoft.com/vs/">Visual Studio 2022</a></strong> with:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">Desktop</span> <span class="pre">development</span> <span class="pre">with</span> <span class="pre">C++</span></code> workload</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">.NET</span> <span class="pre">Framework</span> <span class="pre">4.8</span> <span class="pre">SDK</span></code> individual component</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">.NET</span> <span class="pre">Core</span> <span class="pre">SDK</span></code> individual component</p></li>
-</ul>
-</li>
-<li><p>Install the <strong><a class="reference external" href="https://www.unrealengine.com/en-US/">Epic Games Launcher</a></strong> and install Unreal Engine, either 5.2 or 5.7 binary (requires Epic account log-in). While selecting the engine version to install, there is also an <code class="docutils literal notranslate"><span class="pre">Options</span></code> section where you can enable downloading <code class="docutils literal notranslate"><span class="pre">Editor</span> <span class="pre">symbols</span> <span class="pre">for</span> <span class="pre">debugging</span></code> (~30 GB) if desired. <strong>Note</strong>: Installing the engine can take a long time <strong>(~1 hour)</strong>.</p></li>
-<li><p>Set a Windows environment variable for <code class="docutils literal notranslate"><span class="pre">UE_ROOT</span></code> to the installed folder, either through the Control Panel section <code class="docutils literal notranslate"><span class="pre">Edit</span> <span class="pre">environment</span> <span class="pre">variables</span> <span class="pre">for</span> <span class="pre">your</span> <span class="pre">account</span></code>, or by using the command line:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">setx</span> <span class="n">UE_ROOT</span> <span class="s2">"C:\Program Files\Epic Games\UE_5.x"</span>
-
-<span class="o">&lt;</span><span class="n">restart</span> <span class="n">the</span> <span class="n">command</span> <span class="n">prompt</span> <span class="n">to</span> <span class="n">refresh</span> <span class="n">environment</span> <span class="n">variables</span><span class="o">&gt;</span>
+  <section id="developer-setup-for-macos">
+<h1>Developer Setup for macOS<a class="headerlink" href="#developer-setup-for-macos" title="Link to this heading"></a></h1>
+<section id="current-support">
+<h2>Current support<a class="headerlink" href="#current-support" title="Link to this heading"></a></h2>
+<p>macOS support currently covers <strong>native SimLibs and headless Project AirSim
+Runtime source builds on Apple Silicon (ARM64)</strong>. Release builds and the
+SimLibs unit suite were validated on an ARM64 image of the <code class="docutils literal notranslate"><span class="pre">macos-15</span></code> CI runner. Runtime is
+linked as part of that build; runtime flight, client integration, and shutdown
+are not yet exercised on macOS in CI.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Component</p></th>
+<th class="head"><p>macOS status</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>SimLibs</p></td>
+<td><p>Release build and unit tests validated on macOS 15 ARM64</p></td>
+</tr>
+<tr class="row-odd"><td><p>Project AirSim Runtime</p></td>
+<td><p>Native executable built; macOS integration validation pending</p></td>
+</tr>
+<tr class="row-even"><td><p>Unreal plugin and Blocks</p></td>
+<td><p>Not currently validated or supported on macOS</p></td>
+</tr>
+<tr class="row-odd"><td><p>Intel Macs / universal runtime binaries</p></td>
+<td><p>Not validated</p></td>
+</tr>
+<tr class="row-even"><td><p>Downloadable macOS runtime distribution</p></td>
+<td><p>Not produced by the macOS CI workflow</p></td>
+</tr>
+</tbody>
+</table>
+<p>This describes the source build capability, not availability in a published
+release. The runtime provides the shared simulation core without Unreal or
+rendered sensors; see <span class="xref myst">Runtime capabilities</span>.
+Individual controller and external simulator integrations require separate
+macOS validation.</p>
+</section>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
+<p>Use an Apple Silicon Mac with Apple’s C++ command-line toolchain and Homebrew
+available. The tested OS is macOS 15; other macOS versions are not covered by
+this validation. Unreal Engine is not required for this build.</p>
+<p>From the repository root, install the dependencies:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>chmod<span class="w"> </span>+x<span class="w"> </span>setup_macos_dev_tools.sh<span class="w"> </span>build.sh
+./setup_macos_dev_tools.sh
 </pre></div>
 </div>
-</li>
-</ol>
-<p><strong>Note</strong>: set the Unreal Engine vesion installed (5.2 or 5.7)</p>
-<ol class="arabic" start="4">
-<li><p>Unreal Engine on Windows defaults to using DirectX 11 for rendering, so you may need to install the latest GPU driver and DirectX updates. However, if you want to use Vulkan for rendering instead, you may need to install the <strong><a class="reference external" href="https://www.lunarg.com/vulkan-sdk/">Vulkan SDK</a></strong>.</p></li>
-<li><p>Install <strong><a class="reference external" href="https://gitforwindows.org/">Git for Windows</a></strong> (including Git Credential Manager).</p></li>
-<li><p>Clone the Project AirSim repo (HTTPS authentication is recommended for using Git Credential Manager):</p>
-<p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/iamaisim/ProjectAirSim.git</span></code></p>
-</li>
-<li><p>Do the <strong><a class="reference internal" href="../client_setup.html#setting-up-the-client-on-windows"><span class="std std-ref">Project AirSim Client Setup</span></a></strong>.</p></li>
-<li><p>(Optional) Unreal Engine 5.2.x requires a specific MSVC compiler version and
-will fail with newer versions. Create a configuration file to force Unreal’s
-Build Tool to use compiler version <code class="docutils literal notranslate"><span class="pre">14.37</span></code>. Unreal Engine 5.7.x requires
-compiler version <code class="docutils literal notranslate"><span class="pre">14.44</span></code>.</p>
-<p>File Path: <code class="docutils literal notranslate"><span class="pre">%APPDATA%\Unreal</span> <span class="pre">Engine\UnrealBuildTool\BuildConfiguration.xml</span></code></p>
-<p>Content:</p>
-<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
-<span class="nt">&lt;Configuration</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">"https://www.unrealengine.com/BuildConfiguration"</span><span class="nt">&gt;</span>
-<span class="w">    </span><span class="nt">&lt;WindowsPlatform&gt;</span>
-<span class="w">        </span><span class="nt">&lt;CompilerVersion&gt;</span>*Fill<span class="w"> </span>with<span class="w"> </span>correct<span class="w"> </span>compiler<span class="w"> </span>version*<span class="nt">&lt;/CompilerVersion&gt;</span>
-<span class="w">    </span><span class="nt">&lt;/WindowsPlatform&gt;</span>
-<span class="nt">&lt;/Configuration&gt;</span>
+<p>The script installs CMake, Ninja, OpenSSL 3, and zlib through Homebrew.</p>
+</section>
+<section id="build-and-test">
+<h2>Build and test<a class="headerlink" href="#build-and-test" title="Link to this heading"></a></h2>
+<p>From the repository root:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./build.sh<span class="w"> </span>simlibs_release
+./build.sh<span class="w"> </span>test_simlibs_release
 </pre></div>
 </div>
-</li>
-</ol>
-<p>Now you’re ready to start <strong><a class="reference internal" href="use_source.html#developing-projectairsim-libs"><span class="std std-ref">Developing Project AirSim Sim Libs</span></a></strong></p>
-<hr class="docutils" />
-<p>Copyright (C) Microsoft Corporation.<br />
-Copyright (C) 2025 IAMAI CONSULTING CORP</p>
-<p>MIT License. All rights reserved.</p>
+<p>The macOS build uses <code class="docutils literal notranslate"><span class="pre">build/macos/Release</span></code>. Debug targets are also available
+as <code class="docutils literal notranslate"><span class="pre">simlibs_debug</span></code> and <code class="docutils literal notranslate"><span class="pre">test_simlibs_debug</span></code>; the CI validation described above
+covers Release.</p>
+<p>The runtime executable is generated at:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>build/macos/Release/samples/projectairsim_runtime/projectairsim-runtime
+</pre></div>
+</div>
+<p>To start a local runtime evaluation from the repository root:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./build/macos/Release/samples/projectairsim_runtime/projectairsim-runtime
+</pre></div>
+</div>
+<p>This launch command is the next integration validation step; a successful
+build alone does not establish that a complete flight or shutdown works on
+macOS. Follow the <span class="xref myst">Runtime guide</span>
+for client usage and host limitations.</p>
+<p><code class="docutils literal notranslate"><span class="pre">package_simlibs</span></code> stages simulation libraries for custom projects. It does not
+create a distributable runtime app or an Unreal/Blocks package for Mac.</p>
 </section>
 </section>
 
@@ -234,8 +239,8 @@ Copyright (C) 2025 IAMAI CONSULTING CORP</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="dev_setup_linux.html" class="btn btn-neutral float-left" title="Developer Initial Setup for Linux" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="dev_setup_macos.html" class="btn btn-neutral float-right" title="Developer Setup for macOS" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="dev_setup_win.html" class="btn btn-neutral float-left" title="Developer Initial Setup for Windows" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="vscode_user_settings.html" class="btn btn-neutral float-right" title="Optional VS Code User Settings" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

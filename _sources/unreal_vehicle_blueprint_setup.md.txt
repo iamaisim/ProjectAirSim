@@ -283,21 +283,42 @@ simulation configuration directory resolves to its `sim_config` subdirectory.
 When `UE_ROOT` is set, the `simlibs_*` build targets automatically download the
 SUV asset pack from the URL in `tools/assets/suv-assets.json` and install it at
 `unreal/Blocks/Plugins/ProjectAirSim/Content/VehicleAdv/SUV`. The installer
-records that URL and downloads the pack again if the configured URL changes,
-for example when switching from version 1.0.0 to 1.1.0.
+records that URL and downloads the pack again if the configured URL changes.
+The v1.1.1 archive stores the UE 5.2 versions in one `SUV` directory. The
+installers also accept older archives that store overrides in `SUV_UE52`,
+merge those files into `SUV`, and install only `VehicleAdv/SUV` on Linux and
+Windows.
 
-Developers can create a new pack from an installed SUV directory with:
+`--ensure` (Windows: `-Ensure`) also reinstalls the pack if required UE5.2 files
+are missing or removes a legacy `SUV_UE52` directory. Archives missing the
+`SUV` directory or required UE 5.2 assets are rejected before existing assets
+are replaced. The installers do not modify the uploaded ZIP.
+
+The package helper scripts create a single-folder archive from the installed
+`SUV` directory (including the UE 5.2 control assets) with:
 
 ```powershell
 .\tools\assets\package_suv_assets.ps1 `
-    -OutputPath C:\tmp\ProjectAirSim-SUV-Assets-v1.0.0.zip
+    -OutputPath C:\tmp\ProjectAirSim-SUV-Assets-v1.1.1.zip
 ```
 
 or on Linux:
 
 ```bash
-./tools/assets/package_suv_assets.sh /tmp/ProjectAirSim-SUV-Assets-v1.0.0.zip
+./tools/assets/package_suv_assets.sh /tmp/ProjectAirSim-SUV-Assets-v1.1.1.zip
 ```
 
 After publishing a new pack, update `tools/assets/suv-assets.json` with its
 version, URL, filename, and SHA-256 checksum.
+
+To install a local combined pack, use the checksum printed by
+the packager:
+
+```bash
+./tools/assets/install_suv_assets.sh \
+  --archive /tmp/ProjectAirSim-SUV-Assets-v1.1.1.zip --sha256 <SHA256> --force
+```
+
+On Windows, use `-ArchivePath`, `-ExpectedSha256`, and `-Force` with
+`install_suv_assets.ps1`. Restart Unreal after installation so it loads the
+updated Blueprints. Installation metadata is excluded from newly packaged ZIPs.

@@ -55,9 +55,11 @@
 <li class="toctree-l1"><a class="reference internal" href="use_plugin.html">Using Project AirSim Plugin in Custom Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="development/dev_setup_linux.html">Developer Initial Setup for Linux</a></li>
 <li class="toctree-l1"><a class="reference internal" href="development/dev_setup_win.html">Developer Initial Setup for Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/dev_setup_macos.html">Developer Setup for macOS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="development/vscode_user_settings.html">Optional VS Code User Settings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="development/headless_cloud.html">Running Headless (Docker)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="unreal_vehicle_blueprint_setup.html">Unreal Vehicle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wheeled_vehicle.html">Native Wheeled Vehicles</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Configuration</span></p>
 <ul>
@@ -155,13 +157,9 @@
 <section id="id1">
 <h1>Project AirSim<a class="headerlink" href="#id1" title="Link to this heading"></a></h1>
 <div align="center">
-<p><a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/actions/workflows/sphinx-docs.yml"><img alt="Build and Deploy Sphinx Docs" src="https://github.com/iamaisim/ProjectAirSim/actions/workflows/sphinx-docs.yml/badge.svg?branch=main" /></a>
-<a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_linux_simlibs_release.yml"><img alt="Linux SimLibs Release Tests" src="https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_linux_simlibs_release.yml/badge.svg?branch=main" /></a>
-<a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_windows.yml"><img alt="Windows Build and Tests" src="https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_windows.yml/badge.svg?branch=main" /></a>
-<a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_cpp_client.yml"><img alt="C++ Client and ROS 2 CI" src="https://github.com/iamaisim/ProjectAirSim/actions/workflows/test_cpp_client.yml/badge.svg?branch=main" /></a></p>
 <p><a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/iamaisim/ProjectAirSim?label=release" /></a>
 <a class="reference internal" href="development/dev_setup_linux.html"><span class="std std-doc"><img alt="Ubuntu" src="https://img.shields.io/badge/Ubuntu-22.04-E95420?logo=ubuntu&amp;logoColor=white" /></span></a>
-<a class="reference internal" href="development/use_source.html"><span class="std std-doc"><img alt="Unreal Engine" src="https://img.shields.io/badge/Unreal%20Engine-5.2%20%7C%205.7-0E1128?logo=unrealengine&amp;logoColor=white" /></span></a>
+<a class="reference internal" href="development/use_source.html"><span class="std std-doc"><img alt="Unreal Engine" src="https://img.shields.io/badge/Unreal%20Engine-5.2%20%7C%205.7%20%7C%205.8-0E1128?logo=unrealengine&amp;logoColor=white" /></span></a>
 <a class="reference internal" href="ros/ros2.html"><span class="std std-doc"><img alt="ROS 2" src="https://img.shields.io/badge/ROS%202-Humble-22314E?logo=ros&amp;logoColor=white" /></span></a>
 <a class="reference internal" href="client_setup.html"><span class="std std-doc"><img alt="Python" src="https://img.shields.io/badge/Python-%3E3.10-3776AB?logo=python&amp;logoColor=white" /></span></a>
 <a class="reference internal" href="license.html"><span class="std std-doc"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-2EA043.svg" /></span></a>
@@ -368,22 +366,25 @@ assume compatibility with current Project AirSim or Unity releases.</p>
 <tr class="row-odd"><td><p>Windows</p></td>
 <td><p><strong>Windows 11</strong> with Visual Studio 2022 C++ build tools</p></td>
 </tr>
-<tr class="row-even"><td><p>Unreal Engine</p></td>
-<td><p><strong>5.2 or 5.7</strong></p></td>
+<tr class="row-even"><td><p>macOS</p></td>
+<td><p><strong>Apple Silicon (ARM64), macOS 15 CI</strong>: SimLibs Release build/tests and headless Runtime build; see <a class="reference internal" href="development/dev_setup_macos.html"><span class="std std-doc">Mac setup and scope</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p>CMake and C++</p></td>
+<tr class="row-odd"><td><p>Unreal Engine</p></td>
+<td><p><strong>5.2, 5.7, or 5.8</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>CMake and C++</p></td>
 <td><p>CMake <strong>3.15 or newer</strong> and C++17</p></td>
 </tr>
-<tr class="row-even"><td><p>Linux compiler</p></td>
+<tr class="row-odd"><td><p>Linux compiler</p></td>
 <td><p>Unreal’s packaged toolchain when <code class="docutils literal notranslate"><span class="pre">UE_ROOT</span></code> is set; otherwise Clang 13</p></td>
 </tr>
-<tr class="row-odd"><td><p>Windows compiler</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">build.cmd</span></code> selects MSVC 14.37 for UE 5.2 and MSVC 14.44 for UE 5.7</p></td>
+<tr class="row-even"><td><p>Windows compiler</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">build.cmd</span></code> selects MSVC 14.37 for UE 5.2 and MSVC 14.44 for UE 5.7 and 5.8</p></td>
 </tr>
-<tr class="row-even"><td><p>Python client</p></td>
+<tr class="row-odd"><td><p>Python client</p></td>
 <td><p>Python <strong>newer than 3.10</strong>, below Python 4</p></td>
 </tr>
-<tr class="row-odd"><td><p>ROS 2 C++ bridge</p></td>
+<tr class="row-even"><td><p>ROS 2 C++ bridge</p></td>
 <td><p><strong>ROS 2 Humble</strong> on Ubuntu 22.04</p></td>
 </tr>
 </tbody>
@@ -402,7 +403,7 @@ before installing or building the project.</p>
 is summarized below.</p>
 <section id="install-unreal-engine">
 <h3>1. Install Unreal Engine<a class="headerlink" href="#install-unreal-engine" title="Link to this heading"></a></h3>
-<p>Install Unreal Engine 5.2 or 5.7 and set <code class="docutils literal notranslate"><span class="pre">UE_ROOT</span></code> to its installation path.</p>
+<p>Install Unreal Engine 5.2, 5.7, or 5.8 and set <code class="docutils literal notranslate"><span class="pre">UE_ROOT</span></code> to its installation path.</p>
 <p>On Linux:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">UE_ROOT</span><span class="o">=</span>/path/to/UnrealEngine
 </pre></div>
@@ -564,6 +565,12 @@ Copyright (C) 2025-2026 IAMAI CONSULTING CORP</p>
 <li class="toctree-l2"><a class="reference internal" href="development/dev_setup_win.html#setup">Setup</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="development/dev_setup_macos.html">Developer Setup for macOS</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="development/dev_setup_macos.html#current-support">Current support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development/dev_setup_macos.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development/dev_setup_macos.html#build-and-test">Build and test</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="development/vscode_user_settings.html">Optional VS Code User Settings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="development/headless_cloud.html">Running Headless (Docker)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="development/headless_cloud.html#using-headless-mode-with-vs-code-debugging">Using headless mode with VS Code Debugging</a></li>
@@ -577,6 +584,13 @@ Copyright (C) 2025-2026 IAMAI CONSULTING CORP</p>
 <li class="toctree-l2"><a class="reference internal" href="unreal_vehicle_blueprint_setup.html#blueprint-setup-for-a-custom-vehicle">Blueprint setup for a custom vehicle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="unreal_vehicle_blueprint_setup.html#connect-a-controller-with-bridge-actuators">Connect a controller with bridge actuators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="unreal_vehicle_blueprint_setup.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wheeled_vehicle.html">Native Wheeled Vehicles</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="wheeled_vehicle.html#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wheeled_vehicle.html#vehicle-control">Vehicle control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wheeled_vehicle.html#zero-wiring-simpledrive">Zero-wiring SimpleDrive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wheeled_vehicle.html#runtime-diagnostics">Runtime diagnostics</a></li>
 </ul>
 </li>
 </ul>
@@ -824,6 +838,7 @@ Copyright (C) 2025-2026 IAMAI CONSULTING CORP</p>
 <li class="toctree-l2"><a class="reference internal" href="cpp_client.html#building-on-linux">Building on Linux</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cpp_client.html#building-on-windows">Building on Windows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cpp_client.html#running-hellodrone">Running HelloDrone</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp_client.html#running-hellowheeledvehicle">Running HelloWheeledVehicle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cpp_client.html#creating-a-c-application">Creating a C++ application</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cpp_client.html#minimal-client-code">Minimal client code</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cpp_client.html#async-operations">Async operations</a></li>

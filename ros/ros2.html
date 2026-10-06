@@ -55,9 +55,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../use_plugin.html">Using Project AirSim Plugin in Custom Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../development/dev_setup_linux.html">Developer Initial Setup for Linux</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../development/dev_setup_win.html">Developer Initial Setup for Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/dev_setup_macos.html">Developer Setup for macOS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../development/vscode_user_settings.html">Optional VS Code User Settings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../development/headless_cloud.html">Running Headless (Docker)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../unreal_vehicle_blueprint_setup.html">Unreal Vehicle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wheeled_vehicle.html">Native Wheeled Vehicles</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Configuration</span></p>
 <ul>
@@ -547,6 +549,9 @@ in TF without colliding with the vehicle frame.</p>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/Drone1/move_on_path</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/MoveOnPath</span></code></p></td>
 </tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">/projectairsim/Drone1/set_parameter</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projectairsim_ros2_cpp/srv/SetParameter</span></code></p></td>
+</tr>
 </tbody>
 </table>
 <p>Global, group, and scene services:</p>
@@ -645,6 +650,40 @@ in TF without colliding with the vehicle frame.</p>
 <span class="w">  </span><span class="s2">"{wait_on_last_task: true}"</span>
 </pre></div>
 </div>
+<p>For a native wheeled vehicle, start the bridge with
+<code class="docutils literal notranslate"><span class="pre">vehicle_name:=WheeledVehicle</span></code>. The typed service keeps the same indexed
+interface (<code class="docutils literal notranslate"><span class="pre">0</span></code> throttle, <code class="docutils literal notranslate"><span class="pre">1</span></code> steering, <code class="docutils literal notranslate"><span class="pre">2</span></code> brake). On the first indexed control
+request for each robot, the bridge queries
+<code class="docutils literal notranslate"><span class="pre">/Sim/&lt;scene&gt;/robots/&lt;robot&gt;/GetRobotType</span></code> with no arguments. Robot names are
+arbitrary: <code class="docutils literal notranslate"><span class="pre">wheeled-vehicle</span></code> maps to <code class="docutils literal notranslate"><span class="pre">SetThrottle</span></code>, <code class="docutils literal notranslate"><span class="pre">SetSteering</span></code>, and <code class="docutils literal notranslate"><span class="pre">SetBrakes</span></code>;
+<code class="docutils literal notranslate"><span class="pre">unreal-vehicle</span></code> forwards <code class="docutils literal notranslate"><span class="pre">SetParameter</span></code> unchanged, preserving Blueprint indices.
+<code class="docutils literal notranslate"><span class="pre">drone</span></code>, <code class="docutils literal notranslate"><span class="pre">jsbsim</span></code>, and <code class="docutils literal notranslate"><span class="pre">other</span></code> reject this indexed control service; existing
+flight services are unchanged. Invalid wheeled indices, failed/missing RPCs,
+malformed results, and unknown types return an explicit error without sending a
+control RPC. There is no name-based fallback. An empty requested name uses the
+configured <code class="docutils literal notranslate"><span class="pre">vehicle_name</span></code>. Python/C++ WheeledVehicle clients use named controls.</p>
+<p>The server classifies validated vehicle-class fields first, then JSBSim physics
+as <code class="docutils literal notranslate"><span class="pre">jsbsim</span></code>, FastPhysics as <code class="docutils literal notranslate"><span class="pre">drone</span></code>, and otherwise <code class="docutils literal notranslate"><span class="pre">other</span></code>, independently of the
+controller. This identifies the configured backend, not spawn/drive readiness.
+Valid results are cached by full scene/robot path until the bridge reconnects
+or successfully loads a scene; failed lookups are retried, not cached. Older
+simulators without <code class="docutils literal notranslate"><span class="pre">GetRobotType</span></code> cannot use this indexed routing service.</p>
+<p>To attach without reloading, leave <code class="docutils literal notranslate"><span class="pre">scene_config</span></code> empty (its default). World
+discovers the scene and robot names from topics without fetching configuration
+or resetting the scene. No backend launch parameter or extra JSONC mapping is
+needed. External scene changes are not adopted automatically: reconnect the
+bridge or load the scene through its own load service with
+<code class="docutils literal notranslate"><span class="pre">is_primary_client:</span> <span class="pre">true</span></code>.</p>
+<p>The native topic channel is single-consumer (PAIR0). When ROS owns it, connect
+Python diagnostics with <code class="docutils literal notranslate"><span class="pre">client.connect_services()</span></code> rather than <code class="docutils literal notranslate"><span class="pre">connect()</span></code>;
+otherwise the competing topic connection can prevent clock and TF delivery.</p>
+<p>Example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/projectairsim/WheeledVehicle/set_parameter<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>projectairsim_ros2_cpp/srv/SetParameter<span class="w"> </span><span class="s2">"{index: 0, value: 0.7}"</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="../wheeled_vehicle.html"><span class="std std-doc">Native Wheeled Vehicles</span></a> for the complete setup and
+SimpleDrive workflow.</p>
 <p>Reload a scene at runtime:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>service<span class="w"> </span>call<span class="w"> </span>/projectairsim/load_scene<span class="w"> </span>projectairsim_ros2_cpp/srv/LoadScene<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span><span class="s1">'{scene_file: "scene_drone_sensors.jsonc", is_primary_client: true}'</span>

@@ -171,15 +171,17 @@ platform for autonomous systems. Its simulation core and APIs can run in the
 lightweight <a class="reference internal" href="#samples/projectairsim_runtime/README.md"><span class="xref myst">Project AirSim Runtime</span></a>
 without Unreal Engine, or with <a class="reference external" href="https://www.unrealengine.com/">Unreal Engine 5</a>
 when a 3D world, rendered sensors, and environment geometry are required.</p>
-<p>Integrate an autonomy stack with the Project AirSim APIs, reuse compatible
-scene and robot configurations, and select the simulation host that fits each
-test. Use Runtime for fast controller, API, physics, automation, and CI
-workflows; move the same integration to Unreal when the scenario requires
-visual fidelity, cameras, LiDAR, radar, or mesh-based interaction. This lets a
-team vary simulation cost and fidelity without maintaining a separate client
-integration for every host.</p>
-<p>Project AirSim builds on the work of
-<a class="reference external" href="https://github.com/microsoft/AirSim">AirSim</a> and provides a modular framework
+<p><strong>Microsoft AirSim → Microsoft Project AirSim → IAMAI Project AirSim</strong></p>
+<p>Microsoft developed Project AirSim as the evolution of
+<a class="reference external" href="https://github.com/microsoft/AirSim">AirSim</a>. After Microsoft discontinued
+the Project AirSim initiative, engineers who had worked on Microsoft AirSim
+and Project AirSim took the initiative to carry the project forward at
+<a class="reference external" href="https://iamaisim.com/">IAMAI Consulting Corp.</a>. Today, IAMAI maintains and
+extends this open-source project, bringing that engineering experience to its
+continued development alongside the community.</p>
+<p>Read the <a class="reference external" href="https://github.com/microsoft/AirSim/blob/main/project_airsim.md">Project AirSim announcement in Microsoft’s AirSim repository</a>
+for the project’s origins and Microsoft’s acknowledgment of IAMAI’s contributions.</p>
+<p>Project AirSim provides a modular framework
 for drones, fixed-wing aircraft, unmanned ground vehicles (UGVs), and other
 autonomous systems.</p>
 <p><strong><a class="reference external" href="https://github.com/iamaisim/ProjectAirSim/releases/latest">Download the latest release</a></strong> ·
@@ -265,8 +267,7 @@ the simulation libraries, plugin, Blocks environment, and client packages.</p>
 <section id="run-without-unreal-engine">
 <h3>Run Without Unreal Engine<a class="headerlink" href="#run-without-unreal-engine" title="Link to this heading"></a></h3>
 <blockquote>
-<div><p>I need a fast, headless simulation host for controllers, APIs, physics,
-automation, or CI without changing my Project AirSim client integration.</p>
+<div><p>I want to run a simulation without Unreal Engine or rendered sensors.</p>
 </div></blockquote>
 <p>Use <a class="reference internal" href="#samples/projectairsim_runtime/README.md"><span class="xref myst">Project AirSim Runtime</span></a>, the
 lightweight, engine-independent host. It runs the same <code class="docutils literal notranslate"><span class="pre">SimServer</span></code>, Project
@@ -459,8 +460,8 @@ and reference workflows are available publicly under the MIT License. We want
 the open-source project to be useful for evaluation, research, development, and
 real autonomy workflows.</p>
 <p><a class="reference external" href="https://www.iamaisim.com">IAMAI Consulting Corp.</a> maintains and extends the
-Project AirSim ecosystem. The team includes former Microsoft AirSim engineers
-and provides professional services for organizations that need to turn a
+Project AirSim ecosystem. Drawing on the team’s work on Microsoft AirSim and
+Project AirSim, IAMAI provides professional services for organizations that need to turn a
 prototype into a repeatable simulation or validation workflow.</p>
 <p>IAMAI can help with:</p>
 <ul class="simple">

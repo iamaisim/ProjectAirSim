@@ -19,6 +19,19 @@ lightweight [Project AirSim Runtime](samples/projectairsim_runtime/README.md)
 without Unreal Engine, or with [Unreal Engine 5](https://www.unrealengine.com/)
 when a 3D world, rendered sensors, and environment geometry are required.
 
+**Microsoft AirSim → Microsoft Project AirSim → IAMAI Project AirSim**
+
+Microsoft developed Project AirSim as the evolution of
+[AirSim](https://github.com/microsoft/AirSim). After Microsoft discontinued
+the Project AirSim initiative, engineers who had worked on Microsoft AirSim
+and Project AirSim took the initiative to carry the project forward at
+[IAMAI Consulting Corp.](https://iamaisim.com/). Today, IAMAI maintains and
+extends this open-source project, bringing that engineering experience to its
+continued development alongside the community.
+
+Read the [Project AirSim announcement in Microsoft's AirSim repository](https://github.com/microsoft/AirSim/blob/main/project_airsim.md)
+for the project's origins and Microsoft's acknowledgment of IAMAI's contributions.
+
 Integrate an autonomy stack with the Project AirSim APIs, reuse compatible
 scene and robot configurations, and select the simulation host that fits each
 test. Use Runtime for fast controller, API, physics, automation, and CI
@@ -27,8 +40,7 @@ visual fidelity, cameras, LiDAR, radar, or mesh-based interaction. This lets a
 team vary simulation cost and fidelity without maintaining a separate client
 integration for every host.
 
-Project AirSim builds on the work of
-[AirSim](https://github.com/microsoft/AirSim) and provides a modular framework
+Project AirSim provides a modular framework
 for drones, fixed-wing aircraft, unmanned ground vehicles (UGVs), and other
 autonomous systems.
 
@@ -297,8 +309,8 @@ the open-source project to be useful for evaluation, research, development, and
 real autonomy workflows.
 
 [IAMAI Consulting Corp.](https://www.iamaisim.com) maintains and extends the
-Project AirSim ecosystem. The team includes former Microsoft AirSim engineers
-and provides professional services for organizations that need to turn a
+Project AirSim ecosystem. Drawing on the team's work on Microsoft AirSim and
+Project AirSim, IAMAI provides professional services for organizations that need to turn a
 prototype into a repeatable simulation or validation workflow.
 
 IAMAI can help with:

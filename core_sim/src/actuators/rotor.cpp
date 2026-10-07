@@ -78,7 +78,7 @@ class Rotor::Impl : public ActuatorImpl {
 
   const float GetPowerConsumption() const;
 
-  void UpdateActuatorOutput(std::vector<float> && control_signals,
+  void UpdateActuatorOutput(const ControlSignals& control_signals,
                             const TimeNano sim_dt_nanos);
 
   void SetAirDensityRatio(float air_density_ratio);
@@ -183,10 +183,10 @@ const ActuatedTransforms& Rotor::GetActuatedTransforms() const {
   return static_cast<Rotor::Impl*>(pimpl_.get())->GetActuatedTransforms();
 }
 
-void Rotor::UpdateActuatorOutput(std::vector<float> && control_signals,
-                            const TimeNano sim_dt_nanos){
+void Rotor::UpdateActuatorOutput(const ControlSignals& control_signals,
+                                 const TimeNano sim_dt_nanos) {
   static_cast<Rotor::Impl*>(pimpl_.get())
-      ->UpdateActuatorOutput(std::move(control_signals), sim_dt_nanos);
+      ->UpdateActuatorOutput(control_signals, sim_dt_nanos);
 }
 
 void Rotor::SetAirDensityRatio(float air_density_ratio) {
@@ -316,7 +316,7 @@ float Rotor::Impl::GetJSBSimState() const {
   return -1.0f;
 }
 
-void Rotor::Impl::UpdateActuatorOutput(std::vector<float> && control_signals,
+void Rotor::Impl::UpdateActuatorOutput(const ControlSignals& control_signals,
                             const TimeNano sim_dt_nanos){
   // This actuator uses one control signal
   auto control_signal = control_signals[0];

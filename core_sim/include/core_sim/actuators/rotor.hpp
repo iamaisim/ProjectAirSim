@@ -130,7 +130,7 @@ class Rotor : public Actuator {
 
   float GetJSBSimState() const;
 
- void UpdateActuatorOutput(std::vector<float> && control_signals,
+ void UpdateActuatorOutput(const ControlSignals& control_signals,
                             const TimeNano sim_dt_nanos)override;
 
   // These conversion operators allow this object to be passed directly to

@@ -64,7 +64,7 @@ class LiftDragControlSurface::Impl : public ActuatorImpl {
 
   float GetJSBSimState() const;
 
-  void UpdateActuatorOutput(std::vector<float> && control_signals, const TimeNano sim_dt_nanos);
+  void UpdateActuatorOutput(const ControlSignals& control_signals, const TimeNano sim_dt_nanos);
 
  private:
   friend class LiftDragControlSurface::Loader;
@@ -130,10 +130,10 @@ float LiftDragControlSurface::GetJSBSimState() const {
       ->GetJSBSimState();
 }
 
-void LiftDragControlSurface::UpdateActuatorOutput(std::vector<float> && control_signals,
+void LiftDragControlSurface::UpdateActuatorOutput(const ControlSignals& control_signals,
   const TimeNano sim_dt_nanos){
   static_cast<LiftDragControlSurface::Impl*>(pimpl_.get())
-      ->UpdateActuatorOutput(std::move(control_signals), sim_dt_nanos);
+      ->UpdateActuatorOutput(control_signals, sim_dt_nanos);
 }
 
 //------------------------------------------------------------------------------
@@ -189,7 +189,7 @@ float LiftDragControlSurface::Impl::GetJSBSimState() const {
   return std::numeric_limits<float>::quiet_NaN();
 }
 
-void LiftDragControlSurface::Impl::UpdateActuatorOutput(std::vector<float> && control_signals,
+void LiftDragControlSurface::Impl::UpdateActuatorOutput(const ControlSignals& control_signals,
   const TimeNano sim_dt_nanos){
   // Convert -1.0 ~ +1.0 control signal to control surface angle (like a servo
   // motor but without any dynamics)

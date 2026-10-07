@@ -52,6 +52,22 @@ class IController : public IRuntimeComponent {
   // TODO: Should this be in the base IRuntimeComponent?
   virtual void Update() = 0;
 
+  virtual int GetControlSignalIndex(const std::string& actuator_id) = 0;
+
+  virtual int GetControlSignalIndex(const std::string& actuator_id,
+                                    size_t signal_offset) {
+    return signal_offset == 0 ? GetControlSignalIndex(actuator_id) : -1;
+  }
+
+  // Fill the caller-owned reusable buffer with one consistent set of channels.
+  // Implementations synchronize controller state once and retain buffer capacity.
+  virtual void GetControlSignalSnapshot(
+      std::vector<float>& control_signals) = 0;
+
+  // Compatibility accessors; robot actuator dispatch uses cached indices instead.
+  // The integer overload returns exactly one scalar for a valid channel index.
+  virtual std::vector<float> GetControlSignals(int signal_index) = 0;
+
   virtual std::vector<float> GetControlSignals(const std::string& actuator_id) = 0;
 
   virtual const GimbalState& GetGimbalSignal(const std::string& gimbal_id) = 0;

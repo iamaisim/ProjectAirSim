@@ -30,6 +30,18 @@ void JSBSimApi::LoadSettings(const Robot& robot) {
     throw std::runtime_error(
         "JSBSimApi requires a robot with a valid JSBSim model");
   }
+
+  // The legacy actuator getter treats each actuator ID as a JSBSim property.
+  // Freeze that ordering at configuration time for indexed snapshot access.
+  for (const auto& actuator_ref : robot.GetActuators()) {
+    const auto& actuator = actuator_ref.get();
+    if (actuator.GetType() == ActuatorType::kGimbal) continue;
+    const auto& property = actuator.GetId();
+    const int index = static_cast<int>(output_properties_.size());
+    if (actuator_id_to_output_idx_map_.emplace(property, index).second) {
+      output_properties_.push_back(property);
+    }
+  }
 }
 
 void JSBSimApi::BeginUpdate() {
@@ -79,6 +91,28 @@ void JSBSimApi::RegisterServiceMethods() {
   method_handler =
       method.CreateMethodHandler(&JSBSimApi::SetJSBSimProperty, *this);
   sim_robot_.RegisterServiceMethod(method, method_handler);
+}
+
+int JSBSimApi::GetControlSignalIndex(const std::string& actuator_id) {
+  const auto it = actuator_id_to_output_idx_map_.find(actuator_id);
+  return it == actuator_id_to_output_idx_map_.end() ? -1 : it->second;
+}
+
+void JSBSimApi::GetControlSignalSnapshot(std::vector<float>& control_signals) {
+  std::lock_guard<std::mutex> lock(jsbsim_property_mutex_);
+  control_signals.resize(output_properties_.size());
+  for (size_t index = 0; index < output_properties_.size(); ++index) {
+    control_signals[index] = GetJSBSimPropertyUnlocked(output_properties_[index]);
+  }
+}
+
+std::vector<float> JSBSimApi::GetControlSignals(int signal_index) {
+  std::lock_guard<std::mutex> lock(jsbsim_property_mutex_);
+  if (signal_index < 0 ||
+      signal_index >= static_cast<int>(output_properties_.size())) {
+    return {0.f};
+  }
+  return {GetJSBSimPropertyUnlocked(output_properties_[signal_index])};
 }
 
 std::vector<float> JSBSimApi::GetControlSignals(

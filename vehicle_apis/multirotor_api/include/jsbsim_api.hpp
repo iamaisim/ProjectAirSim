@@ -41,6 +41,9 @@ class JSBSimApi : public IController {
   void Reset() override;
   void SetKinematics(const Kinematics* kinematics) override;
   void Update() override;
+  int GetControlSignalIndex(const std::string& actuator_id) override;
+  void GetControlSignalSnapshot(std::vector<float>& control_signals) override;
+  std::vector<float> GetControlSignals(int signal_index) override;
   std::vector<float> GetControlSignals(const std::string& actuator_id) override;
   const GimbalState& GetGimbalSignal(const std::string& gimbal_id) override;
 
@@ -58,6 +61,7 @@ class JSBSimApi : public IController {
  private:
   Robot sim_robot_;
   std::unordered_map<std::string, int> actuator_id_to_output_idx_map_;
+  std::vector<std::string> output_properties_;
   std::mutex jsbsim_property_mutex_;
   GimbalState gimbal_state_{};
 };

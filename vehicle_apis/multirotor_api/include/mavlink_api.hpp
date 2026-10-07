@@ -6,6 +6,7 @@
 #ifndef MULTIROTOR_API_INCLUDE_MAVLINK_API_HPP_
 #define MULTIROTOR_API_INCLUDE_MAVLINK_API_HPP_
 
+#include <array>
 #include <atomic>
 #include <condition_variable>
 #include <memory>
@@ -52,6 +53,9 @@ class MavLinkApi : public VTOLFWApiBase {
   void Reset() override;
   void SetKinematics(const Kinematics* kinematics) override;
   void Update() override;
+  int GetControlSignalIndex(const std::string& actuator_id) override;
+  void GetControlSignalSnapshot(std::vector<float>& control_signals) override;
+  std::vector<float> GetControlSignals(int signal_index) override;
   std::vector<float> GetControlSignals(const std::string& actuator_id) override;
   const IController::GimbalState& GetGimbalSignal(
       const std::string& gimbal_id) override;
@@ -315,11 +319,11 @@ class MavLinkApi : public VTOLFWApiBase {
 
  private:  // variables
   std::unordered_map<std::string, int> actuator_id_to_output_idx_map_;
-  std::unordered_map<std::string, float> actuator_id_to_output_scale_map_;
   std::unordered_map<std::string, int> gimbal_id_to_component_id_;
   std::unordered_map<int, GimbalState> gimbal_component_id_to_state_;
   // How many can we support with a single connection?
   static constexpr int kControlOutputsCount = 16;
+  std::array<float, kControlOutputsCount> control_output_scales_;
 
   // const SensorCollection* sensors_;
   AirspeedSensor* airspeed_sensor_ = nullptr;

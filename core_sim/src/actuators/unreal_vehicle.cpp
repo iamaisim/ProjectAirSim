@@ -54,22 +54,26 @@ class UnrealVehicleActuator::Impl : public ActuatorImpl {
   int GetControlSignalIndex() const { return control_signal_index_; }
   float GetControlSignal() const { return control_signal_.load(); }
 
-  void UpdateActuatorOutput(std::vector<float>&& control_signals,
-                            const TimeNano /*sim_dt_nanos*/) {
+  void SetControlSignal(float control_signal) {
+    if (enabled_) control_signal_.store(control_signal);
+  }
+
+  void UpdateLegacyControlSignals(const float* control_signals,
+                                  size_t signal_count) {
     if (!enabled_) return;
 
-    if (control_signal_index_ >= static_cast<int>(control_signals.size())) {
+    if (control_signal_index_ >= static_cast<int>(signal_count)) {
       logger_.LogError(
           name_,
           "[%s] Controller returned %d signals, but Unreal vehicle actuator "
           "requires control signal index %d.",
-          id_.c_str(), static_cast<int>(control_signals.size()),
+          id_.c_str(), static_cast<int>(signal_count),
           control_signal_index_);
       throw Error(
           "Unreal vehicle actuator control signal index is out of range.");
     }
 
-    control_signal_.store(control_signals[control_signal_index_]);
+    SetControlSignal(control_signals[control_signal_index_]);
   }
 
  private:
@@ -113,9 +117,22 @@ float UnrealVehicleActuator::GetControlSignal() const {
 }
 
 void UnrealVehicleActuator::UpdateActuatorOutput(
-    std::vector<float>&& control_signals, const TimeNano sim_dt_nanos) {
+    const ControlSignals& control_signals, const TimeNano /*sim_dt_nanos*/) {
   static_cast<UnrealVehicleActuator::Impl*>(pimpl_.get())
-      ->UpdateActuatorOutput(std::move(control_signals), sim_dt_nanos);
+      ->SetControlSignal(control_signals[0]);
+}
+
+void UnrealVehicleActuator::UpdateActuatorOutput(
+    std::vector<float>&& control_signals, const TimeNano /*sim_dt_nanos*/) {
+  static_cast<UnrealVehicleActuator::Impl*>(pimpl_.get())
+      ->UpdateLegacyControlSignals(control_signals.data(), control_signals.size());
+}
+
+void UnrealVehicleActuator::UpdateActuatorOutput(
+    std::initializer_list<float> control_signals,
+    const TimeNano /*sim_dt_nanos*/) {
+  static_cast<UnrealVehicleActuator::Impl*>(pimpl_.get())
+      ->UpdateLegacyControlSignals(control_signals.begin(), control_signals.size());
 }
 
 void UnrealVehicleActuator::Loader::Load(const json& json) {

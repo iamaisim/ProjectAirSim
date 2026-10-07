@@ -43,6 +43,7 @@ void MavLinkApi::LoadSettings(const Robot& robot) {
   const json& actuator_order_json =
       mavlink_api_settings_json.value("actuator-order", "[ ]"_json);
 
+  control_output_scales_.fill(1.0f);
   try {
     int output_idx = 0;
     // Might be prudent to verify if these are actually actuators even if we
@@ -52,8 +53,10 @@ void MavLinkApi::LoadSettings(const Robot& robot) {
     for (auto& actuator_json : actuator_order_json) {
       std::string id = actuator_json.value("id", "");
       float scale = actuator_json.value("scale", 1.0f);
-      actuator_id_to_output_idx_map_.insert({id, output_idx});
-      actuator_id_to_output_scale_map_.insert({id, scale});
+      const auto inserted = actuator_id_to_output_idx_map_.insert({id, output_idx});
+      if (inserted.second && output_idx < kControlOutputsCount) {
+        control_output_scales_[output_idx] = scale;
+      }
       output_idx++;
     }
   } catch (...) {
@@ -401,28 +404,47 @@ void MavLinkApi::InitializeGimbalStatus(const Robot& robot) {
   }
 }
 
-std::vector<float> MavLinkApi::GetControlSignals(const std::string& actuator_id) {
-  if (!is_simulation_mode_) {
-    throw std::logic_error(
-        "Attempt to read motor controls while not in simulation mode");
-  }
-
+int MavLinkApi::GetControlSignalIndex(const std::string& actuator_id) {
   auto actuator_map_itr = actuator_id_to_output_idx_map_.find(actuator_id);
   if (actuator_map_itr == actuator_id_to_output_idx_map_.end()) {
     GetLogger().LogWarning(
         GetControllerName(),
         "MavLinkApi::GetControlSignal() called for invalid actuator: %s",
         actuator_id.c_str());
+    return -1;
+  }
+
+  return actuator_map_itr->second;
+}
+
+void MavLinkApi::GetControlSignalSnapshot(std::vector<float>& control_signals) {
+  if (!is_simulation_mode_) {
+    throw std::logic_error(
+        "Attempt to read motor controls while not in simulation mode");
+  }
+  std::lock_guard<std::mutex> guard(hil_controls_mutex_);
+  control_signals.resize(kControlOutputsCount);
+  for (int index = 0; index < kControlOutputsCount; ++index) {
+    control_signals[index] = control_outputs_[index] * control_output_scales_[index];
+  }
+}
+
+std::vector<float> MavLinkApi::GetControlSignals(int signal_index) {
+  if (!is_simulation_mode_) {
+    throw std::logic_error(
+        "Attempt to read motor controls while not in simulation mode");
+  }
+  if (signal_index < 0 || signal_index >= kControlOutputsCount) {
     return std::vector<float>(1, 0.f);
   }
 
   std::lock_guard<std::mutex> guard(hil_controls_mutex_);
-  const auto scale_itr = actuator_id_to_output_scale_map_.find(actuator_id);
-  const float scale = scale_itr == actuator_id_to_output_scale_map_.end()
-                          ? 1.0f
-                          : scale_itr->second;
-  return std::vector<float>(
-      1, control_outputs_[actuator_map_itr->second] * scale);
+  return {control_outputs_[signal_index] * control_output_scales_[signal_index]};
+}
+
+std::vector<float> MavLinkApi::GetControlSignals(
+    const std::string& actuator_id) {
+  return GetControlSignals(GetControlSignalIndex(actuator_id));
 }
 
 const IController::GimbalState& MavLinkApi::GetGimbalSignal(

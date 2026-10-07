@@ -145,8 +145,10 @@ class Robot : public Actor {
 
   void UpdateCollisionInfo(const CollisionInfo& collision_info);
   void SetHasCollided(bool has_collided);
+  // Controller assignment, control updates, and actuator updates must be
+  // serialized on the simulation thread. Capture precedes actuator dispatch.
   void UpdateControlInput();
-  // Returns the latest controller output captured on the simulation thread.
+  // Returns a thread-safe copy of SimpleDrive output captured on that thread.
   // This lets engine adapters consume controller-native channels without
   // requiring placeholder actuators solely for signal transport.
   std::vector<float> GetControllerOutput() const;

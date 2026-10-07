@@ -50,6 +50,7 @@ target_include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${TARGET_SOURCE_DIR}/include/
         ${TARGET_SOURCE_DIR}/src/  # for private headers
+        ${PROJECT_SOURCE_DIR}/core_sim/src/  # Scene test helper managers
         ${EIGEN_INCLUDE_DIR}
         ${JSON_INCLUDE_DIR}
         ${NNG_INCLUDE_DIR}

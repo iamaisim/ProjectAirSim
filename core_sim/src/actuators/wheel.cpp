@@ -90,7 +90,7 @@ class Wheel::Impl : public ActuatorImpl {
 
   void SetJSBSimModel(std::shared_ptr<JSBSim::FGFDMExec> model);
 
-  void UpdateActuatorOutput(std::vector<float>&& control_signals,
+  void UpdateActuatorOutput(const ControlSignals& control_signals,
                             const TimeNano sim_dt_nanos);
 
   void SetTilt(Quaternion quat);
@@ -220,10 +220,10 @@ void Wheel::SetJSBSimModel(std::shared_ptr<JSBSim::FGFDMExec> model) {
   static_cast<Wheel::Impl*>(pimpl_.get())->SetJSBSimModel(model);
 }
 
-void Wheel ::UpdateActuatorOutput(std::vector<float>&& control_signals,
+void Wheel ::UpdateActuatorOutput(const ControlSignals& control_signals,
                                   const TimeNano sim_dt_nanos) {
   static_cast<Wheel::Impl*>(pimpl_.get())
-      ->UpdateActuatorOutput(std::move(control_signals), sim_dt_nanos);
+      ->UpdateActuatorOutput(control_signals, sim_dt_nanos);
 }
 
 Wheel::operator TransformTree::RefFrame&(void) {
@@ -335,7 +335,7 @@ void Wheel::Impl::SetJSBSimModel(std::shared_ptr<JSBSim::FGFDMExec> model) {
   jsbsim_model_ = model;
 }
 
-void Wheel::Impl::UpdateActuatorOutput(std::vector<float>&& control_signals,
+void Wheel::Impl::UpdateActuatorOutput(const ControlSignals& control_signals,
                                        const TimeNano sim_dt_nanos) {
   // Getting the control signals necessary for movement
   auto engine_signal = (engine_connected_) ? control_signals[0] : 0;

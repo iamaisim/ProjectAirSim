@@ -23,6 +23,16 @@ ActuatorType Actuator::GetType() const { return pimpl_->GetType(); }
 
 const std::string& Actuator::GetId() const { return pimpl_->GetID(); }
 
+size_t Actuator::GetSignalCount() const { return pimpl_->GetSignalCount(); }
+
+int Actuator::GetSignalIndex(size_t signal_offset) const {
+  return pimpl_->GetSignalIndex(signal_offset);
+}
+
+void Actuator::SetSignalIndex(int signal_index, size_t signal_offset) {
+  pimpl_->SetSignalIndex(signal_index, signal_offset);
+}
+
 bool Actuator::IsEnabled() const { return pimpl_->IsEnabled(); }
 
 const std::string& Actuator::GetParentLink() const {

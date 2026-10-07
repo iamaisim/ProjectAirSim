@@ -9,6 +9,8 @@ import pytest
 
 from projectairsim import WheeledVehicle
 
+pytestmark = pytest.mark.offline
+
 
 def make_vehicle():
     client = MagicMock()

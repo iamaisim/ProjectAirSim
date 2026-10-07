@@ -15,6 +15,7 @@
 #include "algorithms.hpp"
 #include "constant.hpp"
 #include "core_sim/actuators/actuator.hpp"
+#include "core_sim/actuators/unreal_vehicle.hpp"
 #include "core_sim/earth_utils.hpp"
 #include "core_sim/json_utils.hpp"
 #include "core_sim/logger.hpp"
@@ -240,8 +241,10 @@ class Robot::Impl : public ActorImpl {
   float total_power_ = 0.0f;
 
   std::unique_ptr<IController> controller_;
-  std::vector<float> controller_output_;
-  mutable std::mutex controller_output_lock_;
+  // Only the simulation thread writes this reusable buffer or reads it for
+  // actuator dispatch. External consumers take a copy under the mutex.
+  std::vector<float> control_signal_snapshot_;
+  mutable std::mutex control_signal_snapshot_lock_;
 
   std::vector<std::unique_ptr<Actuator>> actuators_;
   std::vector<std::reference_wrapper<Actuator>> actuators_ref_;
@@ -929,7 +932,29 @@ bool Robot::Impl::SetGroundTruthKinematics(
 }
 
 void Robot::Impl::SetController(std::unique_ptr<IController> controller) {
+  for (auto& actuator : actuators_) {
+    if (actuator->GetType() != ActuatorType::kGimbal) {
+      for (size_t signal_offset = 0; signal_offset < actuator->GetSignalCount();
+           ++signal_offset) {
+        // The Unreal bridge selects one channel from the controller's legacy
+        // actuator output; resolve that offset once, just like wheel channels.
+        const size_t controller_offset =
+            actuator->GetType() == ActuatorType::kUnrealVehicle
+                ? static_cast<UnrealVehicleActuator&>(*actuator)
+                      .GetControlSignalIndex()
+                : signal_offset;
+        const int signal_index = controller == nullptr
+                                     ? -1
+                                     : controller->GetControlSignalIndex(
+                                           actuator->GetId(), controller_offset);
+        actuator->SetSignalIndex(signal_index, signal_offset);
+      }
+    }
+  }
+  // Controller assignment is serialized with simulation updates.
   controller_ = std::move(controller);
+  std::lock_guard<std::mutex> lock(control_signal_snapshot_lock_);
+  control_signal_snapshot_.clear();
 }
 
 IController* Robot::Impl::GetController() const {
@@ -1323,36 +1348,56 @@ void Robot::Impl::UpdateControlInput() {
   if (controller_ != nullptr) {
     controller_->Update();
 
-    // SimpleDrive has a backend-neutral [throttle, steering, brake] output.
-    // Capture it here, on the controller's simulation thread, so an engine
-    // adapter can safely consume it without JSON bridge actuators.
-    if (controller_type_ == Constant::Config::simple_drive_api) {
-      auto output = controller_->GetControlSignals("");
-      std::lock_guard<std::mutex> lock(controller_output_lock_);
-      controller_output_ = std::move(output);
+    // Capture once per control tick, even without actuators when Unreal needs
+    // SimpleDrive's [throttle, steering, brake] channels. Reuse vector capacity.
+    if (!actuators_.empty() ||
+        controller_type_ == Constant::Config::simple_drive_api) {
+      std::lock_guard<std::mutex> lock(control_signal_snapshot_lock_);
+      controller_->GetControlSignalSnapshot(control_signal_snapshot_);
     }
   }
 }
 
 std::vector<float> Robot::Impl::GetControllerOutput() const {
-  std::lock_guard<std::mutex> lock(controller_output_lock_);
-  return controller_output_;
+  std::lock_guard<std::mutex> lock(control_signal_snapshot_lock_);
+  if (controller_type_ != Constant::Config::simple_drive_api) return {};
+  return control_signal_snapshot_;
 }
 
 void Robot::Impl::UpdateActuators(const TimeNano sim_time,
                                   const TimeNano sim_dt_nanos) {
   std::lock_guard<std::mutex> lock(update_lock_);
 
-  if (actuators_.empty()) return;
+  if (actuators_.empty() || controller_ == nullptr) return;
+
+  // Scene serializes UpdateControlInput and UpdateActuators on the simulation
+  // thread. External getters only read, so dispatch needs no snapshot lock and
+  // callbacks may safely call GetControllerOutput. Actuator-only updates reuse
+  // the last capture; an empty snapshot gives ordinary actuators zero signals.
+  const auto get_control_signals =
+      [this](const Actuator& actuator) -> Actuator::ControlSignals {
+    Actuator::ControlSignals control_signals = {};
+    for (size_t signal_offset = 0; signal_offset < actuator.GetSignalCount();
+         ++signal_offset) {
+      const int signal_index = actuator.GetSignalIndex(signal_offset);
+      if (signal_index >= 0 &&
+          signal_index < static_cast<int>(control_signal_snapshot_.size())) {
+        control_signals[signal_offset] = control_signal_snapshot_[signal_index];
+      } else if (actuator.GetType() == ActuatorType::kUnrealVehicle &&
+                 actuator.IsEnabled()) {
+        throw Error(
+            "Unreal vehicle actuator control signal index is out of range.");
+      }
+    }
+    return control_signals;
+  };
 
   // Update tilt actuator first since they affect other actuators
   for (auto& actuator : actuators_) {
     if (actuator->GetType() == ActuatorType::kTilt) {
       // Call actuator to update its output for its current control signal
-      std::vector<float> control_signals =
-          controller_->GetControlSignals(actuator->GetId());
-
-      actuator->UpdateActuatorOutput(std::move(control_signals), sim_dt_nanos);
+      actuator->UpdateActuatorOutput(get_control_signals(*actuator),
+                                     sim_dt_nanos);
     }
   }
 
@@ -1383,10 +1428,8 @@ void Robot::Impl::UpdateActuators(const TimeNano sim_time,
       }
 
       // Call actuator to update its output for its current control signal
-      std::vector<float> control_signals =
-          controller_->GetControlSignals(actuator->GetId());
-
-      actuator->UpdateActuatorOutput(std::move(control_signals), sim_dt_nanos);
+      actuator->UpdateActuatorOutput(get_control_signals(*actuator),
+                                     sim_dt_nanos);
     }
 
     // Do post-processing specific to actuator type

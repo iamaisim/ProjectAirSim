@@ -69,7 +69,7 @@ class Tilt : public Actuator {
 
   float GetJSBSimState() const;
 
- void UpdateActuatorOutput(std::vector<float> && control_signals,
+ void UpdateActuatorOutput(const ControlSignals& control_signals,
                             const TimeNano sim_dt_nanos) override;
 
  private:

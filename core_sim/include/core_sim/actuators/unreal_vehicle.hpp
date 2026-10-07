@@ -5,6 +5,7 @@
 #ifndef CORE_SIM_INCLUDE_CORE_SIM_ACTUATORS_UNREAL_VEHICLE_HPP_
 #define CORE_SIM_INCLUDE_CORE_SIM_ACTUATORS_UNREAL_VEHICLE_HPP_
 
+#include <initializer_list>
 #include <string>
 #include <vector>
 
@@ -30,8 +31,15 @@ class UnrealVehicleActuator : public Actuator {
   int GetControlSignalIndex() const;
   float GetControlSignal() const;
 
-  void UpdateActuatorOutput(std::vector<float>&& control_signals,
+  // Robot dispatch supplies the single channel already selected by its cache.
+  void UpdateActuatorOutput(const ControlSignals& control_signals,
                             const TimeNano sim_dt_nanos) override;
+
+  // Legacy callers supply the full controller output and select by configuration.
+  void UpdateActuatorOutput(std::vector<float>&& control_signals,
+                            const TimeNano sim_dt_nanos);
+  void UpdateActuatorOutput(std::initializer_list<float> control_signals,
+                            const TimeNano sim_dt_nanos);
 
  private:
   friend class ActuatorImpl;

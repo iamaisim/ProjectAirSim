@@ -34,6 +34,11 @@ public class ProjectAirSim : ModuleRules
                             Target.Configuration == UnrealTargetConfiguration.DebugGame)
                             ? "Debug"
                             : "Release";
+        bool isWin = Target.Platform == UnrealTargetPlatform.Win64;
+        bool isMac = Target.Platform == UnrealTargetPlatform.Mac;
+        bool isLinux = Target.Platform == UnrealTargetPlatform.Linux;
+        string lvmonIncludeDir = PluginDirectory + "/SimLibs/lvmon/include";
+        string onnxIncludeDir = PluginDirectory + "/SimLibs/shared_libs/onnxruntime/include";
 
         // JSBSim loads its XML model data directly from disk, so it must remain
         // outside the pak and keep the same layout relative to the plugin root.
@@ -75,12 +80,12 @@ public class ProjectAirSim : ModuleRules
                     PluginDirectory + "/SimLibs/assimp/include",
                     PluginDirectory + "/SimLibs/json/include",
                     PluginDirectory + "/SimLibs/nng/include",
-                    PluginDirectory + "/SimLibs/shared_libs/onnxruntime/include"
+                    onnxIncludeDir
                     // ... add other private include paths required here ...
                 };
 
-            if (buildType == "Debug") {
-                liststrIncludes.Add(PluginDirectory + "/SimLibs/lvmon/include");
+            if (buildType == "Debug" && Directory.Exists(lvmonIncludeDir)) {
+                liststrIncludes.Add(lvmonIncludeDir);
             }
 
             if (bUseCpp20) {
@@ -104,12 +109,12 @@ public class ProjectAirSim : ModuleRules
                     PluginDirectory + "/SimLibs/assimp/include",
                     PluginDirectory + "/SimLibs/json/include",
                     PluginDirectory + "/SimLibs/nng/include",
-                    PluginDirectory + "/SimLibs/shared_libs/onnxruntime/include"
+                    onnxIncludeDir
                     // ... add other private include paths required here ...
                 };
 
-            if (buildType == "Debug")
-                liststrIncludes.Add(PluginDirectory + "/SimLibs/lvmon/include");
+            if (buildType == "Debug" && Directory.Exists(lvmonIncludeDir))
+                liststrIncludes.Add(lvmonIncludeDir);
 
             if (bUseCpp20) {
                 // UE 5.7 moved FPostProcessingInputs out of Renderer/Private.
@@ -166,7 +171,7 @@ public class ProjectAirSim : ModuleRules
             }
         );
 
-        if (Target.Platform == UnrealTargetPlatform.Win64)
+        if (isWin)
         {
             List<string> liststrLibraries = new List<string> {
                     PluginDirectory + "/SimLibs/core_sim/" + buildType + "/core_sim.lib",
@@ -183,8 +188,9 @@ public class ProjectAirSim : ModuleRules
                     PluginDirectory + "/SimLibs/shared_libs/onnxruntime.lib",
                 };
 
-            if (buildType == "Debug")
-                liststrLibraries.Add(PluginDirectory + "/SimLibs/lvmon/" + buildType + "/lvmon.lib");
+            string lvmonLib = PluginDirectory + "/SimLibs/lvmon/" + buildType + "/lvmon.lib";
+            if (buildType == "Debug" && File.Exists(lvmonLib))
+                liststrLibraries.Add(lvmonLib);
 
             PublicAdditionalLibraries.AddRange(liststrLibraries);
             PublicSystemLibraries.AddRange(
@@ -208,7 +214,60 @@ public class ProjectAirSim : ModuleRules
             // JSBSim dll
             RuntimeDependencies.Add("$(BinaryOutputDir)/" + "JSBSim.dll", PluginDirectory + "/SimLibs/core_sim/jsbsim/lib/" + buildType + "/" + "JSBSim.dll");
         }
-        else
+        else if (isMac)
+        {
+            string cryptoLib = Path.Combine(PluginDirectory, "SimLibs", "openssl", buildType, "libcrypto.a");
+            if (!File.Exists(cryptoLib))
+            {
+                throw new BuildException("Missing macOS OpenSSL crypto archive: " + cryptoLib
+                    + ". Build " + buildType + " SimLibs on macOS with './build.sh simlibs_"
+                    + buildType.ToLowerInvariant() + "' before building this Unreal target.");
+            }
+
+            string[] onnxFiles = Directory.GetFiles(PluginDirectory + "/SimLibs/shared_libs", "libonnxruntime*.dylib");
+            if (onnxFiles.Length == 0)
+            {
+                throw new BuildException("Could not find a macOS ONNX Runtime dylib under SimLibs/shared_libs");
+            }
+
+            List<string> liststrLibraries = new List<string> {
+                    PluginDirectory + "/SimLibs/core_sim/" + buildType + "/libcore_sim.a",
+                    PluginDirectory + "/SimLibs/simserver/" + buildType + "/libsimserver.a",
+                    PluginDirectory + "/SimLibs/physics/" + buildType + "/libphysics.a",
+                    PluginDirectory + "/SimLibs/multirotor_api/" + buildType + "/libmultirotor_api.a",
+                    PluginDirectory + "/SimLibs/rover_api/" + buildType + "/librover_api.a",
+                    PluginDirectory + "/SimLibs/rendering_scene/" + buildType + "/librendering_scene.a",
+                    PluginDirectory + "/SimLibs/mavlinkcom/" + buildType + "/libmavlinkcom.a",
+                    PluginDirectory + "/SimLibs/nng/" + buildType + "/libnng.a",
+                    PluginDirectory + "/SimLibs/assimp/" + buildType + "/libassimp.a",
+                    PluginDirectory + "/SimLibs/core_sim/jsbsim/lib/" + buildType + "/libJSBSim.a",
+                    cryptoLib,
+                    onnxFiles[0],
+                };
+
+            string lvmonLib = PluginDirectory + "/SimLibs/lvmon/" + buildType + "/liblvmon.a";
+            if (buildType == "Debug" && File.Exists(lvmonLib))
+                liststrLibraries.Add(lvmonLib);
+
+            var onnx_files = Directory.GetFiles(PluginDirectory + "/SimLibs/shared_libs", "*.dylib*");
+            foreach (var file in onnx_files)
+            {
+                var fileName = Path.GetFileName(file);
+                var fileInfo = new FileInfo(file);
+                var sourceFile = fileInfo.ResolveLinkTarget(returnFinalTarget: true)?.FullName ?? file;
+                RuntimeDependencies.Add("$(BinaryOutputDir)/" + fileName, sourceFile);
+            }
+
+            PublicAdditionalLibraries.AddRange(liststrLibraries);
+            PublicSystemLibraries.AddRange(
+                new string[] {
+                    "c++",
+                    "z",
+                    "pthread"
+                }
+            );
+        }
+        else if (isLinux)
         {
             List<string> liststrLibraries = new List<string> {
                     PluginDirectory + "/SimLibs/core_sim/" + buildType + "/libcore_sim.a",
@@ -225,8 +284,9 @@ public class ProjectAirSim : ModuleRules
                     PluginDirectory + "/SimLibs/shared_libs/libonnxruntime.so",
                 };
 
-            if (buildType == "Debug")
-                liststrLibraries.Add(PluginDirectory + "/SimLibs/lvmon/" + buildType + "/liblvmon.a");
+            string lvmonLib = PluginDirectory + "/SimLibs/lvmon/" + buildType + "/liblvmon.a";
+            if (buildType == "Debug" && File.Exists(lvmonLib))
+                liststrLibraries.Add(lvmonLib);
 
             var onnx_files = Directory.GetFiles(PluginDirectory + "/SimLibs/shared_libs");
             foreach (var file in onnx_files)

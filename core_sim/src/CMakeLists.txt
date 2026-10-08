@@ -166,6 +166,7 @@ else()
             nng
             ${OPENSSL_CRYPTO_LIBRARY} # Client authorization
             jsbsim
+            $<$<BOOL:${PROJECTAIRSIM_ENABLE_LVMON}>:lvmon>
     )
 endif()
 

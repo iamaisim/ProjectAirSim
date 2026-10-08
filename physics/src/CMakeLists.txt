@@ -76,6 +76,7 @@ else()
         core_sim
         nng
         jsbsim
+        $<$<BOOL:${PROJECTAIRSIM_ENABLE_LVMON}>:lvmon>
     )
 endif()
 

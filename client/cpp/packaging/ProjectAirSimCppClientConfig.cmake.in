@@ -13,8 +13,11 @@ set(ProjectAirSimCppClient_INCLUDE_DIR "${PACKAGE_PREFIX_DIR}/include")
 set(ProjectAirSimCppClient_LIB_DIR "${PACKAGE_PREFIX_DIR}/lib")
 set(ProjectAirSimCppClient_BIN_DIR "${PACKAGE_PREFIX_DIR}/bin")
 
-set(_projectairsim_cpp_client_lib_name
+set(_projectairsim_cpp_client_lib_name_release
   "@PROJECTAIRSIM_CPP_CLIENT_LIB_PREFIX@ProjectAirSimCppClient@PROJECTAIRSIM_CPP_CLIENT_LIB_SUFFIX@"
+)
+set(_projectairsim_cpp_client_lib_name_debug
+  "@PROJECTAIRSIM_CPP_CLIENT_LIB_PREFIX@ProjectAirSimCppClient@CMAKE_DEBUG_POSTFIX@@PROJECTAIRSIM_CPP_CLIENT_LIB_SUFFIX@"
 )
 
 set(_projectairsim_cpp_client_link_libs)
@@ -28,10 +31,13 @@ endif()
 if(NOT TARGET ProjectAirSim::Client)
   add_library(ProjectAirSim::Client STATIC IMPORTED)
   set_target_properties(ProjectAirSim::Client PROPERTIES
-    IMPORTED_LOCATION "${ProjectAirSimCppClient_LIB_DIR}/${_projectairsim_cpp_client_lib_name}"
+    IMPORTED_LOCATION_RELEASE "${ProjectAirSimCppClient_LIB_DIR}/${_projectairsim_cpp_client_lib_name_release}"
+    IMPORTED_LOCATION_DEBUG "${ProjectAirSimCppClient_LIB_DIR}/${_projectairsim_cpp_client_lib_name_debug}"
     INTERFACE_INCLUDE_DIRECTORIES "${ProjectAirSimCppClient_INCLUDE_DIR}"
     INTERFACE_COMPILE_DEFINITIONS "PROJECTAIRSIMCLIENT_STATIC;NNGI_STATIC_LIB;NNG_STATIC_LIB;MSGPACK_NO_BOOST"
     INTERFACE_LINK_LIBRARIES "${_projectairsim_cpp_client_link_libs}"
+    MAP_IMPORTED_CONFIG_MINSIZEREL Release
+    MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release
   )
 endif()
 

@@ -43,6 +43,10 @@ if command(9) ~= 0 && command(10) ~= 0
         end
     end
 end
+% Demonstration simplification: the example always reports ready and infers
+% landed from the absolute NED altitude, assuming the ground is at z = 0. A
+% real controller reports ready only after its own initialization and health
+% checks pass, and reports landed from ground contact or its landing logic.
 landed = abs(kinematics(3)) < 0.05 && norm(kinematics(8:10)) < 0.05;
 desired = [target; 1; landed];
 end

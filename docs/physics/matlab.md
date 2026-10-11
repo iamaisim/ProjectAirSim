@@ -94,7 +94,7 @@ The block `matlab_vtol_control_model_sfcn` takes four parameters: host character
 | 11 | `request` | 0 none, 1 takeoff, 2 land, 3 hover; movement setpoints accompany the request |
 | 12 | Time | Simulation time in seconds |
 
-For mode 2, `z` is an absolute NED altitude. Standard Drone body-frame services rotate horizontal velocity into world NED once at command start and send world-frame setpoints throughout the task. Later yaw changes do not rotate that velocity. Yaw handling and nonpositive-duration results follow the shared Drone command implementation. The protocol also supports body-frame setpoints through the low-level controller commands. The bridge replies with the previous step's controller output and then exposes the new input, preserving the stock discrete exchange sequence. Readiness and optional flight-mode handling belong to the external controller.
+For mode 2, `z` is an absolute NED altitude. Standard Drone body-frame services rotate horizontal velocity into world NED once at command start and send world-frame setpoints throughout the task. Later yaw changes do not rotate that velocity. This follows the shared Drone command implementation and differs from Simple Flight multirotors, which keep the commanded velocity body-relative while yaw changes. Yaw handling and nonpositive-duration results follow the shared Drone command implementation. The protocol also supports body-frame setpoints through the low-level controller commands. The bridge replies with the previous step's controller output and then exposes the new input, preserving the stock discrete exchange sequence. Readiness and optional flight-mode handling belong to the external controller.
 
 ### Generic quadrotor example
 

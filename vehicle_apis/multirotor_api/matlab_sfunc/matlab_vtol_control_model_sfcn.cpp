@@ -6,6 +6,8 @@
 #define S_FUNCTION_NAME matlab_vtol_control_model_sfcn
 
 #include <algorithm>
+#include <cmath>
+#include <limits>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -21,6 +23,8 @@ using namespace microsoft::projectairsim;
 namespace {
 constexpr int kParameterCount =
     4;  // Host, port, sample period, N-by-3 effector cell array.
+constexpr int kTransportTimeoutParameter = 4;  // Optional, in seconds.
+constexpr int kMaxParameterCount = 5;
 constexpr int kOutputWidths[] = {19, 1, 3, 10, 3, 1, 6, 12};
 
 #ifdef MATLAB_MEX_FILE
@@ -54,6 +58,16 @@ std::vector<ExternalEffector> GetEffectors(const mxArray* value) {
     }
   }
   return result;
+}
+
+// Non-positive and infinite timeouts wait indefinitely.
+nng_duration TransportTimeoutMs(double timeout_sec) {
+  if (!(timeout_sec > 0.0) || std::isinf(timeout_sec)) {
+    return NNG_DURATION_INFINITE;
+  }
+  const double timeout_ms = std::ceil(timeout_sec * 1000.0);
+  const double max_ms = std::numeric_limits<nng_duration>::max();
+  return static_cast<nng_duration>(std::min(timeout_ms, max_ms));
 }
 
 struct Transport {
@@ -119,12 +133,35 @@ void CopyOutputs(SimStruct* s, const VTOLControlModelInputMessage& input) {
 }
 }  // namespace
 
+#define MDL_CHECK_PARAMETERS
+#if defined(MDL_CHECK_PARAMETERS) && defined(MATLAB_MEX_FILE)
+static void mdlCheckParameters(SimStruct* s) {
+  if (ssGetSFcnParamsCount(s) <= kTransportTimeoutParameter) return;
+  const mxArray* timeout = ssGetSFcnParam(s, kTransportTimeoutParameter);
+  if (!mxIsDouble(timeout) || mxIsComplex(timeout) ||
+      mxGetNumberOfElements(timeout) != 1 || mxIsNaN(*mxGetDoubles(timeout))) {
+    ssSetErrorStatus(s, "Transport timeout must be a real scalar in seconds.");
+  }
+}
+#endif
+
 static void mdlInitializeSizes(SimStruct* s) {
-  ssSetNumSFcnParams(s, kParameterCount);
-  if (ssGetNumSFcnParams(s) != ssGetSFcnParamsCount(s)) return;
+  // Accept the original parameters and the optional transport timeout.
+  const int_T num_params = ssGetSFcnParamsCount(s);
+  if (num_params != kParameterCount && num_params != kMaxParameterCount) {
+    ssSetErrorStatus(s,
+                     "Expected parameters: host, port, sample period, "
+                     "effectors, and optional transport timeout.");
+    return;
+  }
+  ssSetNumSFcnParams(s, num_params);
+#if defined(MATLAB_MEX_FILE)
+  mdlCheckParameters(s);
+  if (ssGetErrorStatus(s) != nullptr) return;
+#endif
   try {
     const auto effectors = GetEffectors(ssGetSFcnParam(s, 3));
-    for (int p = 0; p < kParameterCount; ++p) ssSetSFcnParamTunable(s, p, 0);
+    for (int p = 0; p < num_params; ++p) ssSetSFcnParamTunable(s, p, 0);
     if (!ssSetNumInputPorts(s, 2) || !ssSetNumOutputPorts(s, 8)) return;
     ssSetInputPortWidth(s, 0, static_cast<int>(effectors.size()));
     ssSetInputPortWidth(s, 1, 2);  // Ready and landed status, each 0 or 1.
@@ -166,8 +203,18 @@ static void mdlStart(SimStruct* s) {
     int rv = nng_rep0_open(&transport->socket);
     if (rv != 0) throw std::runtime_error(nng_strerror(rv));
     transport->open = true;
-    nng_setopt_ms(transport->socket, NNG_OPT_RECVTIMEO, 5000);
-    nng_setopt_ms(transport->socket, NNG_OPT_SENDTIMEO, 1000);
+    // Without the optional parameter, transport operations wait indefinitely.
+    double timeout_sec = 0.0;
+    if (ssGetSFcnParamsCount(s) > kTransportTimeoutParameter) {
+      timeout_sec =
+          *mxGetDoubles(ssGetSFcnParam(s, kTransportTimeoutParameter));
+    }
+    const nng_duration timeout_ms = TransportTimeoutMs(timeout_sec);
+    rv = nng_socket_set_ms(transport->socket, NNG_OPT_RECVTIMEO, timeout_ms);
+    if (rv == 0) {
+      rv = nng_socket_set_ms(transport->socket, NNG_OPT_SENDTIMEO, timeout_ms);
+    }
+    if (rv != 0) throw std::runtime_error(nng_strerror(rv));
     const auto url = "tcp://" + GetString(ssGetSFcnParam(s, 0)) + ":" +
                      GetString(ssGetSFcnParam(s, 1));
     rv = nng_listen(transport->socket, url.c_str(), nullptr, 0);

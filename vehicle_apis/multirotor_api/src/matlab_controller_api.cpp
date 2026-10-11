@@ -214,9 +214,11 @@ void MatlabControllerApi::Update() {
                 nng_strerror(rv));
   }
 
-  auto free_message = [msg_data_len](char* ptr) { nng_free(ptr, msg_data_len); };
+  auto free_message = [msg_data_len](char* ptr) {
+    nng_free(ptr, msg_data_len);
+  };
   std::unique_ptr<char, decltype(free_message)> response_buffer(msg_data_buf,
-                                                            free_message);
+                                                                free_message);
   if (!running_.load()) return;
 
   // Copy the data from the buffer to a string to deserialize (must set the

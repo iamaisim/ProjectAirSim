@@ -18,7 +18,9 @@
 #define HOST_NAME_P 0
 #define PORT_NUM_P 1
 #define TIME_STEP_P 2
+#define TRANSPORT_TIMEOUT_P 3  // Optional; omitted in existing models
 #define NUM_PRMS 3
+#define MAX_NUM_PRMS 4
 
 #define NUM_INPUTS 1
 
@@ -67,16 +69,48 @@ static void SetRuntimeError(SimStruct* S, const char* message) noexcept {
 
 // --------------------------------------------------------------------------
 
+#define MDL_CHECK_PARAMETERS
+#if defined(MDL_CHECK_PARAMETERS) && defined(MATLAB_MEX_FILE)
+// Method to validate the block's parameters.
+// https://www.mathworks.com/help/simulink/sfg/mdlcheckparameters.html
+static void mdlCheckParameters(SimStruct* S) {
+  if (ssGetSFcnParamsCount(S) <= TRANSPORT_TIMEOUT_P) return;
+
+  const mxArray* timeout = ssGetSFcnParam(S, TRANSPORT_TIMEOUT_P);
+  if (!mxIsDouble(timeout) || mxIsComplex(timeout) ||
+      mxGetNumberOfElements(timeout) != 1 || mxIsNaN(*mxGetDoubles(timeout))) {
+    ssSetErrorStatus(S, "Transport timeout must be a real scalar in seconds.");
+  }
+}
+#endif
+
+// --------------------------------------------------------------------------
+
 #define MDL_INITIAL_SIZES
 // Method to configure the S-Function block.
 // https://www.mathworks.com/help/simulink/sfg/mdlinitializesizes.html
 static void mdlInitializeSizes(SimStruct* S) {
   std::cout << "Initializing Matlab physics S-function block..." << std::endl;
-  ssSetNumSFcnParams(S, NUM_PRMS);
+  // Accept the original three parameters and the optional transport timeout.
+  const int_T num_params = ssGetSFcnParamsCount(S);
+  if (num_params != NUM_PRMS && num_params != MAX_NUM_PRMS) {
+    ssSetErrorStatus(S,
+                     "Expected parameters: host name, port, time step, "
+                     "and optional transport timeout.");
+    return;
+  }
+  ssSetNumSFcnParams(S, num_params);
+#if defined(MATLAB_MEX_FILE)
+  mdlCheckParameters(S);
+  if (ssGetErrorStatus(S) != nullptr) return;
+#endif
 
   ssSetSFcnParamTunable(S, HOST_NAME_P, false);
   ssSetSFcnParamTunable(S, PORT_NUM_P, false);
   ssSetSFcnParamTunable(S, TIME_STEP_P, false);
+  if (num_params > TRANSPORT_TIMEOUT_P) {
+    ssSetSFcnParamTunable(S, TRANSPORT_TIMEOUT_P, false);
+  }
 
   // Setup input ports
   if (!ssSetNumInputPorts(S, NUM_INPUTS)) return;
@@ -161,12 +195,13 @@ void mdlSetupRuntimeResources(SimStruct* S) {
     std::unique_ptr<std::string> error(new std::string);
     ssSetPWorkValue(S, 1, error.release());
     MxCharUniquePtr host_name(mxArrayToString(ssGetSFcnParam(S, HOST_NAME_P)),
-                             MxDeleter);
+                              MxDeleter);
     MxCharUniquePtr port_num(mxArrayToString(ssGetSFcnParam(S, PORT_NUM_P)),
-                            MxDeleter);
+                             MxDeleter);
 
     if (host_name == nullptr || port_num == nullptr) {
-      throw std::runtime_error("Failed to read the Matlab connection parameters.");
+      throw std::runtime_error(
+          "Failed to read the Matlab connection parameters.");
     }
 
     std::string connection_str = "tcp://";
@@ -174,8 +209,14 @@ void mdlSetupRuntimeResources(SimStruct* S) {
     connection_str += ":";
     connection_str += port_num.get();
 
+    // Without the optional parameter, transport operations wait indefinitely.
+    double timeout_sec = 0.0;
+    if (ssGetSFcnParamsCount(S) > TRANSPORT_TIMEOUT_P) {
+      timeout_sec = *mxGetDoubles(ssGetSFcnParam(S, TRANSPORT_TIMEOUT_P));
+    }
+
     // Allocate and store pointer to NNG using wrapper in PWork index 0
-    void* nng_mgr = SetupRuntimeResourcesWrapper(connection_str);
+    void* nng_mgr = SetupRuntimeResourcesWrapper(connection_str, timeout_sec);
     ssSetPWorkValue(S, 0, nng_mgr);
   } catch (const std::exception& e) {
     SetRuntimeError(S, e.what());
@@ -235,9 +276,9 @@ static void mdlUpdate(SimStruct* S, int_T tid) {
       static_cast<double*>(ssGetOutputPortRealSignal(S, 3));
 
   try {
-    UpdateWrapper(GET_NNG_PTR(S), in_port_0_kinematics, out_port_0_wrench_points,
-                  out_port_1_wing_control_angles, out_port_2_env_info,
-                  out_port_3_collision_info);
+    UpdateWrapper(GET_NNG_PTR(S), in_port_0_kinematics,
+                  out_port_0_wrench_points, out_port_1_wing_control_angles,
+                  out_port_2_env_info, out_port_3_collision_info);
   } catch (const std::exception& e) {
     SetRuntimeError(S, e.what());
   } catch (...) {
@@ -292,7 +333,7 @@ static void mdlCleanupRuntimeResources(SimStruct* S) {
 #ifdef MATLAB_MEX_FILE /* Is this file being compiled as a MEX-file? */
 #define PROCESS_MEX_SFUNCTION_EVERY_CALL
 static bool ProcessMexSfunctionEveryCall(int_T, mxArray**, int_T,
-                                        const mxArray**) {
+                                         const mxArray**) {
   static bool module_locked = false;
   if (!module_locked) {
     // MEX APIs require the entry-point context, before Simulink callbacks.

@@ -5,6 +5,8 @@
 
 #include <array>
 #include <chrono>
+#include <future>
+#include <limits>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -25,7 +27,7 @@ using Manager = std::unique_ptr<void, decltype(&CleanUpRuntimeResoucesWrapper)>;
 class MatlabPhysicsWrapper : public ::testing::Test {
  protected:
   void SetUp() override {
-    manager_.reset(SetupRuntimeResourcesWrapper(address_));
+    manager_.reset(SetupRuntimeResourcesWrapper(address_, kTimeoutSec));
     Start(manager_.get());
   }
 
@@ -47,7 +49,8 @@ class MatlabPhysicsWrapper : public ::testing::Test {
   }
 
   void Send(const std::string& request) {
-    Check(nng_send(peer_, const_cast<char*>(request.data()), request.size(), 0));
+    Check(
+        nng_send(peer_, const_cast<char*>(request.data()), request.size(), 0));
   }
 
   void Start(void* manager) {
@@ -57,8 +60,7 @@ class MatlabPhysicsWrapper : public ::testing::Test {
 
   void Update(void* manager) {
     UpdateWrapper(manager, inputs_.data(), outputs_[0].data(),
-                  outputs_[1].data(), outputs_[2].data(),
-                  outputs_[3].data());
+                  outputs_[1].data(), outputs_[2].data(), outputs_[3].data());
   }
 
   std::string RequestReply(void* manager, const std::string& request) {
@@ -82,6 +84,7 @@ class MatlabPhysicsWrapper : public ::testing::Test {
     if (status != 0) throw std::runtime_error(nng_strerror(status));
   }
 
+  static constexpr double kTimeoutSec = 1.0;
   const std::string address_ = "inproc://matlab-physics-wrapper";
   Manager manager_{nullptr, &CleanUpRuntimeResoucesWrapper};
   nng_socket peer_ = NNG_SOCKET_INITIALIZER;
@@ -98,8 +101,8 @@ TEST_F(MatlabPhysicsWrapper, ListenerAvailableBeforeUpdate) {
 TEST_F(MatlabPhysicsWrapper, ExchangesPortValuesWithStockMessages) {
   ASSERT_NO_THROW(OpenPeer(address_));
   auto request = Request();
-  request.external_wrench_points.emplace_back(12.0f, 2.0f, 3.0f, 4.0f,
-                                               5.0f, 6.0f, 7.0f, 8.0f, 9.0f);
+  request.external_wrench_points.emplace_back(12.0f, 2.0f, 3.0f, 4.0f, 5.0f,
+                                              6.0f, 7.0f, 8.0f, 9.0f);
   request.lift_drag_control_angles = {0.25f};
   request.environment_info.air_density = 1.125f;
   request.collision_info.has_collided = true;
@@ -107,8 +110,8 @@ TEST_F(MatlabPhysicsWrapper, ExchangesPortValuesWithStockMessages) {
   inputs_[6] = 1.0;
   inputs_[18] = 2.5;
   projectairsim::PhysicsModelOutputMessage response;
-  ASSERT_NO_THROW(response.Deserialize(
-      RequestReply(manager_.get(), request.Serialize())));
+  ASSERT_NO_THROW(
+      response.Deserialize(RequestReply(manager_.get(), request.Serialize())));
   EXPECT_DOUBLE_EQ(outputs_[0][0], 12.0);
   EXPECT_DOUBLE_EQ(outputs_[0][8], 9.0);
   EXPECT_DOUBLE_EQ(outputs_[0][9], 0.0);
@@ -122,18 +125,39 @@ TEST_F(MatlabPhysicsWrapper, ExchangesPortValuesWithStockMessages) {
 }
 
 TEST_F(MatlabPhysicsWrapper, MissingPeerErrorsWithoutChangingOutputs) {
+  manager_.reset(SetupRuntimeResourcesWrapper(address_, 0.05));
+  ASSERT_NO_THROW(Start(manager_.get()));
   for (auto& port : outputs_) port.fill(123.0);
   const auto start = std::chrono::steady_clock::now();
   EXPECT_THROW(Update(manager_.get()), std::runtime_error);
-  EXPECT_LT(std::chrono::steady_clock::now() - start, std::chrono::seconds(7));
+  const auto elapsed = std::chrono::steady_clock::now() - start;
+  EXPECT_GE(elapsed, std::chrono::milliseconds(50));
+  EXPECT_LT(elapsed, std::chrono::seconds(1));
   for (const auto& port : outputs_) {
     for (double value : port) EXPECT_DOUBLE_EQ(value, 123.0);
   }
 }
 
+TEST_F(MatlabPhysicsWrapper, DefaultTimeoutWaitsUntilTermination) {
+  for (double timeout_sec :
+       {0.0, -1.0, std::numeric_limits<double>::infinity()}) {
+    SCOPED_TRACE(timeout_sec);
+    manager_.reset(SetupRuntimeResourcesWrapper(address_, timeout_sec));
+    ASSERT_NO_THROW(Start(manager_.get()));
+    auto update =
+        std::async(std::launch::async, [this]() { Update(manager_.get()); });
+    EXPECT_EQ(update.wait_for(std::chrono::milliseconds(200)),
+              std::future_status::timeout);
+    TerminateWrapper(manager_.get());
+    ASSERT_EQ(update.wait_for(std::chrono::seconds(1)),
+              std::future_status::ready);
+    EXPECT_THROW(update.get(), std::runtime_error);
+  }
+}
+
 TEST_F(MatlabPhysicsWrapper, CleanupPreservesOtherListener) {
   const std::string other_address = address_ + "-other";
-  Manager other(SetupRuntimeResourcesWrapper(other_address),
+  Manager other(SetupRuntimeResourcesWrapper(other_address, kTimeoutSec),
                 &CleanUpRuntimeResoucesWrapper);
   ASSERT_NO_THROW(Start(other.get()));
   manager_.reset();
@@ -152,7 +176,7 @@ TEST_F(MatlabPhysicsWrapper, TerminationClosesSocketAndAllowsRestart) {
 TEST_F(MatlabPhysicsWrapper, CleanupPreservesLibraryAcrossNewRuntime) {
   ASSERT_NO_THROW(OpenPeer(address_));
   manager_.reset();
-  manager_.reset(SetupRuntimeResourcesWrapper(address_));
+  manager_.reset(SetupRuntimeResourcesWrapper(address_, kTimeoutSec));
   ASSERT_NO_THROW(Start(manager_.get()));
   EXPECT_NO_THROW(RequestReply(manager_.get(), Request().Serialize()));
   ASSERT_NO_THROW(OpenPeer(address_));
@@ -170,7 +194,7 @@ TEST_F(MatlabPhysicsWrapper, MalformedRequestErrorsWithoutChangingOutputs) {
 }
 
 TEST_F(MatlabPhysicsWrapper, DuplicateListenerErrorsPreserveOriginal) {
-  Manager duplicate(SetupRuntimeResourcesWrapper(address_),
+  Manager duplicate(SetupRuntimeResourcesWrapper(address_, kTimeoutSec),
                     &CleanUpRuntimeResoucesWrapper);
   EXPECT_THROW(Start(duplicate.get()), std::runtime_error);
   duplicate.reset();

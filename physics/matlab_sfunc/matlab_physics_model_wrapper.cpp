@@ -5,7 +5,10 @@
 
 #include "matlab_physics_model_wrapper.hpp"
 
+#include <algorithm>
+#include <cmath>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <stdexcept>
 
@@ -23,7 +26,7 @@ namespace {
 
 class NngMgr {
  public:
-  NngMgr(const std::string& addr);
+  NngMgr(const std::string& addr, double timeout_sec);
 
   ~NngMgr();
 
@@ -39,9 +42,20 @@ class NngMgr {
   bool connected_ = false;
   nng_socket socket_ = NNG_SOCKET_INITIALIZER;
   std::string addr_;
+  nng_duration timeout_ms_;
 };
 
-NngMgr::NngMgr(const std::string& addr) : addr_(addr) {}
+nng_duration TransportTimeoutMs(double timeout_sec) {
+  if (!(timeout_sec > 0.0) || std::isinf(timeout_sec)) {
+    return NNG_DURATION_INFINITE;
+  }
+  const double timeout_ms = std::ceil(timeout_sec * 1000.0);
+  const double max_ms = std::numeric_limits<nng_duration>::max();
+  return static_cast<nng_duration>(std::min(timeout_ms, max_ms));
+}
+
+NngMgr::NngMgr(const std::string& addr, double timeout_sec)
+    : addr_(addr), timeout_ms_(TransportTimeoutMs(timeout_sec)) {}
 
 NngMgr::~NngMgr() { StopListening(); }
 
@@ -59,13 +73,13 @@ void NngMgr::StartListening() {
 
   int rv = nng_rep0_open(&socket_);
   if (rv != 0) {
-    throw std::runtime_error("nng_rep0_open(): " + std::string(nng_strerror(rv)));
+    throw std::runtime_error("nng_rep0_open(): " +
+                             std::string(nng_strerror(rv)));
   }
 
-  // A missing peer must stop the model rather than block its callbacks forever.
-  rv = nng_socket_set_ms(socket_, NNG_OPT_RECVTIMEO, 5000);
+  rv = nng_socket_set_ms(socket_, NNG_OPT_RECVTIMEO, timeout_ms_);
   if (rv == 0) {
-    rv = nng_socket_set_ms(socket_, NNG_OPT_SENDTIMEO, 5000);
+    rv = nng_socket_set_ms(socket_, NNG_OPT_SENDTIMEO, timeout_ms_);
   }
   if (rv == 0) {
     rv = nng_listen(socket_, addr_.c_str(), nullptr, 0);
@@ -82,7 +96,8 @@ void NngMgr::SendResponse(std::string response_str) {
   int rv = nng_send(socket_, const_cast<char*>(response_str.data()),
                     response_str.length(), 0);
   if (rv != 0) {
-    throw std::runtime_error("nng_send() on " + addr_ + ": " + nng_strerror(rv));
+    throw std::runtime_error("nng_send() on " + addr_ + ": " +
+                             nng_strerror(rv));
   }
 }
 
@@ -91,11 +106,15 @@ std::string NngMgr::RetrieveRequest() {
   size_t msg_data_len = 0;
   int rv = nng_recv(socket_, &msg_data_buf, &msg_data_len, NNG_FLAG_ALLOC);
   if (rv != 0) {
-    throw std::runtime_error("nng_recv() on " + addr_ + ": " + nng_strerror(rv));
+    throw std::runtime_error("nng_recv() on " + addr_ + ": " +
+                             nng_strerror(rv));
   }
 
-  auto free_message = [msg_data_len](char* ptr) { nng_free(ptr, msg_data_len); };
-  std::unique_ptr<char, decltype(free_message)> message(msg_data_buf, free_message);
+  auto free_message = [msg_data_len](char* ptr) {
+    nng_free(ptr, msg_data_len);
+  };
+  std::unique_ptr<char, decltype(free_message)> message(msg_data_buf,
+                                                        free_message);
   return std::string(message.get(), msg_data_len);
 }
 
@@ -194,9 +213,10 @@ microsoft::projectairsim::PhysicsModelOutputMessage CopyDataFromInputPorts(
 // -----------------------------------------------------------------------
 // Wrapper functions to be called in S-function callbacks
 
-void* SetupRuntimeResourcesWrapper(const std::string& connection_str) {
+void* SetupRuntimeResourcesWrapper(const std::string& connection_str,
+                                   double timeout_sec) {
   // Initialize connection resource
-  return reinterpret_cast<void*>(new NngMgr(connection_str));
+  return reinterpret_cast<void*>(new NngMgr(connection_str, timeout_sec));
 }
 
 void StartWrapper(void* nng_mgr, double* out_port_0_wrench_points,

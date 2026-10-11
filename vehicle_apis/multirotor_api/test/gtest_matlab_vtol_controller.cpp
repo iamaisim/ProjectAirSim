@@ -25,10 +25,6 @@ using namespace projectairsim;
 
 namespace {
 
-// Longer than the 200 ms test request timeout, which is also the interval
-// between reconnect attempts after a failed exchange.
-constexpr auto kRetryWait = std::chrono::milliseconds(250);
-
 class HandoffClock : public SteppableClock {
  public:
   using SteppableClock::Step;
@@ -599,7 +595,6 @@ TEST_F(ExternalController, MalformedReplyFailsClosedAndShutdownIsBounded) {
               std::vector<float>{0.25f});
     static_cast<IController&>(*api_).GetControlSignalSnapshot(outputs);
     EXPECT_EQ(outputs, std::vector<float>(20, 0.25f));
-    std::this_thread::sleep_for(kRetryWait);
     Exchange();
     ASSERT_TRUE(api_->Arm(0));
   }
@@ -612,30 +607,23 @@ TEST_F(ExternalController, MalformedReplyFailsClosedAndShutdownIsBounded) {
   EXPECT_FALSE(api_->GetReadyState().ReadyVal);
 }
 
-TEST_F(ExternalController, UnavailableControllerRetriesWithoutBlockingUpdates) {
+TEST_F(ExternalController, UnavailableControllerRetriesEachUpdateAndWarnsOnce) {
   Arm();
   nng_close(socket_);  // The external controller stops listening.
-  api_->Update();      // Blocks for the request timeout, then fails closed.
+  api_->Update();      // Waits for the request timeout, then fails closed.
   EXPECT_FALSE(api_->CanArm());
   EXPECT_EQ(api_->GetControlSignals("effector-19"), std::vector<float>{0.25f});
   ASSERT_EQ(Logs(LogLevel::kWarning).size(), 1);
-  auto start = std::chrono::steady_clock::now();
-  for (int i = 0; i < 5; ++i) api_->Update();
-  EXPECT_LT(std::chrono::steady_clock::now() - start,
-            std::chrono::milliseconds(100));
-  std::this_thread::sleep_for(kRetryWait);
-  start = std::chrono::steady_clock::now();
-  api_->Update();  // One retry after the interval, without a new warning.
-  EXPECT_GE(std::chrono::steady_clock::now() - start,
-            std::chrono::milliseconds(100));
+  // Each later update waits for the controller again instead of letting
+  // simulation time advance without control, but does not log again.
+  for (int i = 0; i < 2; ++i) {
+    const auto start = std::chrono::steady_clock::now();
+    api_->Update();
+    EXPECT_GE(std::chrono::steady_clock::now() - start,
+              std::chrono::milliseconds(100));
+  }
   EXPECT_EQ(Logs(LogLevel::kWarning).size(), 1);
   Listen("tcp://127.0.0.1:" + std::to_string(port_));
-  for (int i = 0; i < 5; ++i) api_->Update();
-  char* data = nullptr;
-  size_t size = 0;
-  EXPECT_EQ(nng_recv(socket_, &data, &size, NNG_FLAG_ALLOC | NNG_FLAG_NONBLOCK),
-            NNG_EAGAIN);
-  std::this_thread::sleep_for(kRetryWait);
   EXPECT_FALSE(Exchange().setpoint.armed);
   EXPECT_TRUE(api_->GetReadyState().ReadyVal);
   EXPECT_EQ(Logs(LogLevel::kTrace),

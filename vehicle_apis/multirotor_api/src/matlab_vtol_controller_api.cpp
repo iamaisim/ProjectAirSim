@@ -4,7 +4,6 @@
 
 #include "matlab_vtol_controller_api.hpp"
 
-#include <chrono>
 #include <cmath>
 #include <stdexcept>
 
@@ -250,10 +249,6 @@ void MatlabVTOLControllerApi::Update() {
     request.effectors = effectors_;
     generation = lifecycle_generation_;
   }
-  // After a failed exchange, hold the fail-safe outputs without blocking the
-  // simulation until the wall-clock retry interval has elapsed.
-  if (transport_failed_ && std::chrono::steady_clock::now() < retry_time_)
-    return;
   request.state = GetState();
   try {
     if (!socket_open_) {
@@ -312,15 +307,16 @@ void MatlabVTOLControllerApi::Update() {
       RestoreInitialOutputs();
       ++lifecycle_generation_;
     }
-    retry_time_ = std::chrono::steady_clock::now() +
-                  std::chrono::milliseconds(request_timeout_ms_);
+    // Every update retries and waits up to request-timeout-ms, so simulation
+    // time does not advance without control while the controller is absent.
+    // Log once per outage rather than on every update.
     if (!transport_failed_) {
       transport_failed_ = true;
       sim_robot_.GetLogger().LogWarning(
           GetControllerName(),
-          "External controller unavailable, vehicle disarmed: %s. Retrying "
-          "every %d ms.",
-          error.what(), request_timeout_ms_);
+          "External controller unavailable, vehicle disarmed: %s. Retrying on "
+          "each update.",
+          error.what());
     }
   }
 }

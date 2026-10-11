@@ -3,17 +3,17 @@
 
 // MIT License. All rights reserved.
 
-#include <chrono>
 #include <atomic>
+#include <chrono>
 #include <future>
 #include <iostream>
 #include <memory>
 
 #include "core_sim/actor/robot.hpp"
 #include "core_sim/config_json.hpp"
-#include "core_sim/runtime_components.hpp"
 #include "core_sim/error.hpp"
 #include "core_sim/logger.hpp"
+#include "core_sim/runtime_components.hpp"
 #include "core_sim/scene.hpp"
 #include "core_sim/service_manager.hpp"
 #include "gtest/gtest.h"
@@ -304,7 +304,7 @@ class ShutdownDependencyController : public projectairsim::IController {
   void EndUpdate() override {
     if (release_.valid()) release_.wait();
   }
-  bool CancelLastTask() {
+  bool CancelLastTask() override {
     if (notify_ != nullptr) {
       notify_->set_value();
       notify_ = nullptr;
@@ -315,9 +315,13 @@ class ShutdownDependencyController : public projectairsim::IController {
   void Update() override {}
   void SetKinematics(const projectairsim::Kinematics*) override {}
   int GetControlSignalIndex(const std::string&) override { return -1; }
-  void GetControlSignalSnapshot(std::vector<float>& output) override { output.clear(); }
+  void GetControlSignalSnapshot(std::vector<float>& output) override {
+    output.clear();
+  }
   std::vector<float> GetControlSignals(int) override { return {}; }
-  std::vector<float> GetControlSignals(const std::string&) override { return {}; }
+  std::vector<float> GetControlSignals(const std::string&) override {
+    return {};
+  }
   const GimbalState& GetGimbalSignal(const std::string&) override {
     return gimbal_;
   }
@@ -333,9 +337,11 @@ TEST(Scene, CancelsAllControllersBeforeClosingPeerTransports) {
   auto scene = projectairsim::Simulator::MakeScene();
   json actors = json::array();
   for (const char* name : {"first", "second"}) {
-    actors.push_back({{"type", "robot"}, {"name", name},
-                     {"robot-config", {{"physics-type", "non-physics"},
-                                       {"links", {{{"name", "Frame"}}}}}}});
+    actors.push_back({{"type", "robot"},
+                      {"name", name},
+                      {"robot-config",
+                       {{"physics-type", "non-physics"},
+                        {"links", {{{"name", "Frame"}}}}}}});
   }
   json config = {{"id", "shutdown_peers"}, {"actors", actors}};
   projectairsim::Simulator::LoadScene(scene, config);
@@ -347,25 +353,27 @@ TEST(Scene, CancelsAllControllersBeforeClosingPeerTransports) {
       nullptr, peer_cancelled.get_future().share()));
   second.SetController(std::make_unique<ShutdownDependencyController>(
       &peer_cancelled, std::shared_future<void>()));
-  auto stop = std::async(std::launch::async, [&]() {
-    projectairsim::Simulator::StopScene(scene);
-  });
+  auto stop = std::async(std::launch::async,
+                         [&]() { projectairsim::Simulator::StopScene(scene); });
   const auto status = stop.wait_for(std::chrono::seconds(1));
   EXPECT_EQ(status, std::future_status::ready);
   // Release the dependency on failure so the test can finish and report it.
   if (status != std::future_status::ready) {
-    static_cast<ShutdownDependencyController*>(second.GetController())->CancelLastTask();
+    static_cast<ShutdownDependencyController*>(second.GetController())
+        ->CancelLastTask();
   }
   stop.get();
 }
 
 TEST(Scene, StopsPhysicsBeforeEndingRobotUpdates) {
   auto scene = projectairsim::Simulator::MakeScene();
-  json config = {
-      {"id", "shutdown_physics"},
-      {"actors", {{{"type", "robot"}, {"name", "first"},
-                   {"robot-config", {{"physics-type", "non-physics"},
-                                     {"links", {{{"name", "Frame"}}}}}}}}}};
+  json config = {{"id", "shutdown_physics"},
+                 {"actors",
+                  {{{"type", "robot"},
+                    {"name", "first"},
+                    {"robot-config",
+                     {{"physics-type", "non-physics"},
+                      {"links", {{{"name", "Frame"}}}}}}}}}};
   projectairsim::Simulator::LoadScene(scene, config);
   auto& robot = static_cast<projectairsim::Robot&>(scene.GetActors()[0].get());
   std::promise<void> physics_stopped;
@@ -376,9 +384,8 @@ TEST(Scene, StopsPhysicsBeforeEndingRobotUpdates) {
   scene.SetCallbackPhysicsStop(release);
   robot.SetController(std::make_unique<ShutdownDependencyController>(
       nullptr, physics_stopped.get_future().share()));
-  auto stop = std::async(std::launch::async, [&]() {
-    projectairsim::Simulator::StopScene(scene);
-  });
+  auto stop = std::async(std::launch::async,
+                         [&]() { projectairsim::Simulator::StopScene(scene); });
   const auto status = stop.wait_for(std::chrono::seconds(1));
   EXPECT_EQ(status, std::future_status::ready);
   if (status != std::future_status::ready) release();

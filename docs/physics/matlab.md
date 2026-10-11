@@ -10,46 +10,48 @@ The physics bridge supports up to eight rotors and eight control surfaces. The s
 - UAV Toolbox for the controller-only example's Waypoint Follower block.
 - A 64-bit Python interpreter compatible with the installed MATLAB release and the Project AirSim client, in an activated virtual environment.
 - A compatible C++ MEX compiler when building the bridges from source.
-- A running Project AirSim Unreal simulation server for the stock physics flight examples. The controller-only example also supports Runtime.
+- A running Project AirSim simulation server, such as the Blocks environment in the Unreal editor.
 
 Use MathWorks' [Python compatibility table](https://www.mathworks.com/support/requirements/python-compatibility.html) and [supported compilers](https://www.mathworks.com/support/requirements/supported-compilers.html) for the selected release. MATLAB release, Python version, and MEX compiler compatibility are separate requirements.
 
 ### Release compatibility
 
-The Engine API and both MEX bridges are verified on Linux x86-64 with MATLAB/Simulink R2026b, Python 3.14, and g++ 15. All four stock example configurations load and compile in this setup. Live flight also requires the corresponding simulator host and working TCP bridges, as described below.
+The MEX build scripts and stock examples have been tested with MATLAB R2026b on Linux. For other releases and for Windows, confirm Python and compiler support in the MathWorks tables above.
 
 ## One-time setup
 
 ### MATLAB Engine API for Python
 
-Activate the Python environment used by the Project AirSim client. In the MATLAB Command Window, run `matlabroot` to find the installed release. From a Linux shell:
+Activate the Python environment used by the Project AirSim client. In the MATLAB Command Window, run `matlabroot` to find the installation folder, then install the Engine package from that folder:
 
-```bash
-export MATLAB_ROOT="/path/to/MATLAB"
-python -m pip install "$MATLAB_ROOT/extern/engines/python"
+```
+python -m pip install "<matlabroot>/extern/engines/python"
 python -c "import matlab.engine; print(matlab.engine.__file__)"
 ```
 
-R2026a and later also provide a preinstalled Engine package. This can be used when the MATLAB installation is read-only:
+Installing from the MATLAB folder can require write access to that folder, for example an Administrator command prompt on Windows. Alternatively, install the `matlabengine` package from PyPI with the version that matches the MATLAB release. In R2026a and later, MATLAB also includes a preinstalled Engine package in `<matlabroot>/extern/engines/python/dist`, which can be added to `PYTHONPATH` instead of installing it.
 
-```bash
-export PYTHONPATH="$MATLAB_ROOT/extern/engines/python/dist${PYTHONPATH:+:$PYTHONPATH}"
-python -c "import matlab.engine; print(matlab.engine.__file__)"
-```
-
-Select the Engine package from the same MATLAB release as the desktop session. See MathWorks' [Engine installation instructions](https://www.mathworks.com/help/matlab/matlab_external/install-the-matlab-engine-for-python.html) for other platforms and release-matched PyPI packages.
+Use the Engine package from the same MATLAB release as the desktop session. See MathWorks' [Engine installation instructions](https://www.mathworks.com/help/matlab/matlab_external/install-the-matlab-engine-for-python.html) for details.
 
 ### Build the Simulink MEX bridges
 
-Use the [source-development setup](../development/use_source.md) to build the simulation libraries. From the Project AirSim repository root:
+Prebuilt MEX bridges for Windows (`.mexw64`) and Linux (`.mexa64`) are included in `client/python/example_user_scripts/simulink/`. Build them from source when they do not load in the installed MATLAB release or when the bridge sources change.
 
-```bash
+First, build the sim libs as described in **[Build From Source as a Developer](../development/use_source.md)**. From the Project AirSim repository root, run the following on Windows from the `x64 Native Tools Command Prompt for VS 2022`:
+
+```
+build.cmd simlibs_release
+```
+
+On Linux, run:
+
+```
 ./build.sh simlibs_release
 ```
 
-The source build stages NNG libraries and MessagePack headers under each S-function directory's `_deps/` folder. The MEX scripts use the same MessagePack configuration as the native build, without requiring Boost headers. Keep the bridge sources and simulation libraries from the same checkout.
+The sim libs build stages the NNG libraries and MessagePack headers used by the MEX build scripts under each S-function directory's `_deps/` folder. The MEX scripts use the same MessagePack configuration as the native build, without requiring Boost headers. Keep the bridge sources and sim libs from the same checkout.
 
-In the MATLAB Command Window, start at the repository root and select a C++ compiler with `mex -setup C++`. Then build and copy the bridges into the stock model directory:
+In the MATLAB Command Window, start at the repository root and select a C++ compiler with `mex -setup C++`. On Windows, select Microsoft Visual C++, which is also used to build the sim libs. Then build and copy the bridges into the stock model directory:
 
 ```matlab
 repo = pwd;
@@ -63,7 +65,7 @@ copyfile(['matlab_control_model_sfcn.' mexext], model_dir)
 cd(repo)
 ```
 
-These build commands can also run with `matlab -batch` after selecting the compiler. Rebuild the MEX files for the current platform and MATLAB release rather than relying on a binary built for another installation. Generated MEX files remain local build outputs.
+These build commands can also run with `matlab -batch` after selecting the compiler. Copying the rebuilt files replaces the bundled binaries for the current platform. Rebuilt binaries are specific to the platform and MATLAB release used to build them; do not commit them unless intentionally updating the bundled binaries.
 
 ## Desktop startup
 
@@ -83,24 +85,20 @@ The loader supplies the stock aircraft parameters, opens the model, and shares t
 | Simulink controller with FastPhysics | `load_quadrotor_simulink_control_model_navigation` | `simulink_controller_quadrotor.py` |
 | Simulink physics and controller | `load_quadrotor_simulink_combined_model` | `simulink_combined_quadrotor.py` |
 
-Leave MATLAB open. On Linux, the desktop session must have a valid display environment for this Simulink workflow; noninteractive MEX compilation does not imply that live model control works without a display.
+Leave the MATLAB desktop open while running the examples.
 
 ## Run an example
 
-Press Play in the Unreal editor. In the activated Python environment, run from the repository root:
+Start the simulation server, for example by pressing Play in the Unreal editor. In the activated Python environment, run from the repository root:
 
-```bash
+```
 cd client/python/example_user_scripts
 python simulink_physics_quadrotor.py
 ```
 
-The Python script connects to the shared Engine, loads its scene, and starts the Simulink model through the Engine API. Physics examples execute takeoff, flight, and landing commands. The controller-only example follows stock waypoints in MATLAB. The combined example sends a repeating actuator ramp to demonstrate both bridges; it does not provide waypoint guidance. Press Enter in the terminal to end either controller example.
-
-Runtime supplies ground contact only for FastPhysics. It can run the controller-only example, but the stock MATLAB physics takeoff and landing sequences require Unreal ground contact.
+The Python script connects to the shared Engine, loads its scene, and starts the Simulink model through the Engine API. Physics examples execute takeoff, flight, and landing commands. The controller-only example follows stock waypoints in MATLAB. The combined example sends a repeating actuator ramp to demonstrate both bridges; it does not provide waypoint guidance. Press Enter in the terminal to end either controller example. When an example ends, the script stops the Simulink model through the Engine API.
 
 Run live examples one at a time. Load the corresponding MATLAB parameters before switching examples. End the Python example before stopping the simulation server, and keep the desktop open for another run. The scene and robot configurations are in `client/python/example_user_scripts/sim_config/`; the loaders, models, and MEX files are in its sibling `simulink/` directory.
-
-The stock S-functions wait synchronously for TCP requests. If a peer stops responding, the model can remain blocked and prevent an Engine stop command from completing. Restarting the MATLAB session may be required to release that connection.
 
 ---
 

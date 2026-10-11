@@ -60,9 +60,10 @@ Configure the robot controller as follows:
 | `control-connection` | `127.0.0.1:8998` | External controller listener. Scene-level control connection settings take precedence. |
 | `request-timeout-ms` | `1000` | Wall-clock limit for each send or receive operation. |
 | `command-period` | `0.02` | Simulated seconds between movement-command updates. |
+| `command-handoff-grace-period` | `0.0` | Nonnegative finite simulated seconds to retain a completed velocity, velocity-with-altitude, or heading setpoint while awaiting replacement. |
 | `takeoff-z` | `-3.0` | Relative NED takeoff height in metres; must be negative. |
 
-These defaults describe the generic API and do not define an aircraft operating envelope. The model reports ready/landed status. API control must be enabled and the model ready before arming. Hover retains an explicit position/yaw objective until superseded or cancelled. Other task completion or cancellation sends idle; the model defines idle hold behavior. Disabling, disarming, reset, timeout, and invalid replies restore configured initial outputs. Attitude, PWM, angular-rate, and C++ gain commands are unsupported and raise an error. `SetVTOLMode` supplies a requested mode to the model, rather than confirming a completed physical transition.
+These defaults describe the generic API and do not define an aircraft operating envelope. The model reports ready/landed status. API control must be enabled and the model ready before arming. Hover retains an explicit position/yaw objective until superseded or cancelled. Other task completion sends idle by default; the model defines idle hold behavior. A positive `command-handoff-grace-period` retains setpoints from successful positive-duration velocity and heading requests until replacement or the first controller update at or after the simulated deadline. This allowance does not delay the service reply. Position and takeoff/land completion retain immediate idle behavior. Cancellation and failed requests clear the setpoint immediately, including during a handoff. Disabling, disarming, reset, timeout, and invalid replies restore configured initial outputs. Attitude, PWM, angular-rate, and C++ gain commands are unsupported and raise an error. `SetVTOLMode` supplies a requested mode to the model, rather than confirming a completed physical transition.
 
 ### Message and block contract
 
@@ -74,12 +75,16 @@ Build the new MEX block from `vehicle_apis/multirotor_api/matlab_sfunc`:
 buildMatlabVTOLControlModelSfcn
 ```
 
+The block closes its listener at model termination. The MEX module remains
+loaded until MATLAB exits so its NNG workers remain valid between runs.
+Restart MATLAB before rebuilding a module that has been used.
+
 The block `matlab_vtol_control_model_sfcn` takes four parameters: host character vector, port character vector, positive sample period, and an N-by-3 cell array of effector IDs, kinds, and units. Its metadata must match the robot configuration exactly. Use a fixed-step solver. Input 1 is the N-element control vector; input 2 is `[ready; landed]`, with each status equal to 0 or 1. Outputs 1–7 retain the stock kinematics, airspeed, barometer, IMU, magnetometer, distance, and GPS layouts. Output 8 is the command vector:
 
 | Index | Field | Meaning |
 |---|---|---|
 | 1 | `mode` | 0 idle, 1 velocity, 2 velocity with altitude, 3 position, 4 heading/speed |
-| 2 | `frame` | 0 world NED, 1 body frame |
+| 2 | `frame` | 0 world NED, 1 body FRD |
 | 3–5 | `x`, `y`, `z` | Velocity (m/s), position (m), or heading (rad), speed (m/s), vertical velocity (m/s), according to mode |
 | 6–7 | `yaw_is_rate`, `yaw` | Yaw rate in rad/s when true; absolute world yaw in radians otherwise |
 | 8 | `vtol_mode` | -1 unspecified, 0 multirotor, 1 fixed wing |
@@ -87,14 +92,13 @@ The block `matlab_vtol_control_model_sfcn` takes four parameters: host character
 | 11 | `request` | 0 none, 1 takeoff, 2 land, 3 hover; movement setpoints accompany the request |
 | 12 | Time | Simulation time in seconds |
 
-For mode 2, `z` is an absolute NED altitude even for body-frame horizontal velocity. The Drone body-frame API supplies an absolute world yaw after interpreting a requested relative yaw. The bridge replies with the previous step's controller output and then exposes the new input, preserving the stock discrete exchange sequence. Readiness and optional flight-mode handling belong to the external controller.
+For mode 2, `z` is an absolute NED altitude. Standard Drone body-frame services rotate horizontal velocity into world NED once at command start and send world-frame setpoints throughout the task. Later yaw changes do not rotate that velocity. Yaw handling and nonpositive-duration results follow the shared Drone command implementation. The protocol also supports body-frame setpoints through the low-level controller commands. The bridge replies with the previous step's controller output and then exposes the new input, preserving the stock discrete exchange sequence. Readiness and optional flight-mode handling belong to the external controller.
 
 ### Generic quadrotor example
 
 The example loader `load_external_quadrotor_simulink_control_model` builds an in-memory model from the supplied quadrotor navigation controller, preserving its gains and mixing. Its command guidance generates position/yaw references from the generic setpoints. It uses the stock Fast Physics quadrotor and four normalized motor outputs; it does not represent a VTOL transition or an external aircraft's dynamics.
 
-Add the newly built MEX directory to the MATLAB path, run the loader from `client/python/example_user_scripts/simulink`, and leave its shared MATLAB engine open. Run `simulink_external_quadrotor.py` from `client/python/example_user_scripts` against a running Project AirSim server. The script uses normal Drone services for arming, hover, world/body velocity, position, and landing. The model is built in memory and configuration copies use a temporary directory. Run live examples sequentially.
-
+Add the newly built MEX directory to the MATLAB path, run the loader from `client/python/example_user_scripts/simulink`, and leave its shared MATLAB engine open. Run `simulink_external_quadrotor.py` from `client/python/example_user_scripts` against a running Project AirSim server. The script connects to the only shared MATLAB session, regardless of its name. Close unused shared sessions before running it; ambiguous selection stops before connection or model changes. It uses normal Drone services for arming, hover, world/body velocity, position, and landing. The model is built in memory and configuration copies use a temporary directory. Run live examples sequentially.
 
 ---
 

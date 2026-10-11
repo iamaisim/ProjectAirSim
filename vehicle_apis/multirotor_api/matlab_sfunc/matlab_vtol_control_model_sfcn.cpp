@@ -23,6 +23,10 @@ constexpr int kParameterCount =
     4;  // Host, port, sample period, N-by-3 effector cell array.
 constexpr int kOutputWidths[] = {19, 1, 3, 10, 3, 1, 6, 12};
 
+#ifdef MATLAB_MEX_FILE
+void FinalizeTransport() { nng_fini(); }
+#endif
+
 std::string GetString(const mxArray* value) {
   if (!value || !mxIsChar(value))
     throw std::invalid_argument("Expected a character vector");
@@ -187,8 +191,9 @@ static void mdlUpdate(SimStruct* s, int_T) {
     size_t size = 0;
     int rv = nng_recv(transport->socket, &data, &size, NNG_FLAG_ALLOC);
     if (rv != 0) throw std::runtime_error(nng_strerror(rv));
-    std::string bytes(data, size);
-    nng_free(data, size);
+    auto free_message = [size](char* ptr) { nng_free(ptr, size); };
+    std::unique_ptr<char, decltype(free_message)> message(data, free_message);
+    std::string bytes(message.get(), size);
     VTOLControlModelInputMessage input;
     input.Deserialize(bytes);
     if (input.effectors.size() != transport->effectors.size()) {
@@ -236,6 +241,18 @@ static void mdlTerminate(SimStruct* s) {
 }
 
 #ifdef MATLAB_MEX_FILE
+#define PROCESS_MEX_SFUNCTION_EVERY_CALL
+static bool ProcessMexSfunctionEveryCall(int_T, mxArray**, int_T,
+                                        const mxArray**) {
+  static bool module_locked = false;
+  if (!module_locked) {
+    // Register in the MEX entry context, before direct Simulink callbacks.
+    mexAtExit(FinalizeTransport);
+    mexLock();
+    module_locked = true;
+  }
+  return false;
+}
 #include "simulink.c"
 #else
 #include "cg_sfun.h"

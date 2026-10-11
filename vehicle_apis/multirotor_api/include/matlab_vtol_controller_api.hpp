@@ -27,6 +27,9 @@ class MatlabVTOLControllerApi : public VTOLFWApiBase {
   void Reset() override;
   void SetKinematics(const Kinematics* kinematics) override;
   void Update() override;
+  int GetControlSignalIndex(const std::string& actuator_id) override;
+  void GetControlSignalSnapshot(std::vector<float>& control_signals) override;
+  std::vector<float> GetControlSignals(int signal_index) override;
   std::vector<float> GetControlSignals(const std::string& actuator_id) override;
 
   bool EnableApiControl() override;
@@ -43,6 +46,15 @@ class MatlabVTOLControllerApi : public VTOLFWApiBase {
   bool Takeoff(float timeout_sec, int64_t command_start_time_nanos) override;
   bool Land(float timeout_sec, int64_t command_start_time_nanos) override;
   bool Hover(int64_t command_start_time_nanos) override;
+  bool MoveByVelocity(float vx, float vy, float vz, float duration,
+                      DrivetrainType drivetrain, bool yaw_is_rate, float yaw,
+                      int64_t command_start_time_nanos) override;
+  bool MoveByVelocityZ(float vx, float vy, float z, float duration,
+                       DrivetrainType drivetrain, bool yaw_is_rate, float yaw,
+                       int64_t command_start_time_nanos) override;
+  bool MoveByHeading(float heading, float speed, float vz, float duration,
+                     float heading_margin, float yaw_rate, float timeout_sec,
+                     int64_t command_start_time_nanos) override;
   bool MoveByVelocityBodyFrame(float vx, float vy, float vz, float duration,
                                DrivetrainType drivetrain, bool yaw_is_rate,
                                float yaw,
@@ -92,6 +104,7 @@ class MatlabVTOLControllerApi : public VTOLFWApiBase {
                   bool yaw_is_rate, float yaw);
   void SetRequest(uint32_t request);
   void SetIdle();
+  void MarkHandoffCompletion(bool completed);
   void RestoreInitialOutputs();
   void CloseConnection();
 
@@ -113,6 +126,10 @@ class MatlabVTOLControllerApi : public VTOLFWApiBase {
   std::string connection_string_;
   int request_timeout_ms_ = 1000;
   float command_period_ = 0.02f;
+  double command_handoff_grace_period_ = 0;
+  TimeNano handoff_deadline_nanos_ = 0;
+  bool handoff_command_issued_ = false;
+  bool handoff_task_completed_ = false;
   float takeoff_z_ = -3;
 };
 

@@ -158,6 +158,7 @@
             },
             "request-timeout-ms": { "type": "integer", "minimum": 1, "default": 1000 },
             "command-period": { "type": "number", "minimum": 0, "exclusiveMinimum": true, "default": 0.02 },
+            "command-handoff-grace-period": { "type": "number", "minimum": 0, "default": 0.0 },
             "takeoff-z": { "type": "number", "maximum": 0, "exclusiveMaximum": true, "default": -3.0 }
           }
         },

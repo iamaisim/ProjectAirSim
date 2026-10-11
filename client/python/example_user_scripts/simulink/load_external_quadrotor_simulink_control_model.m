@@ -64,5 +64,14 @@ add_line(model, 'Armed/1', 'Original Controller Model/6');
 set_param(model, 'SolverType', 'Fixed-step', 'Solver', 'ode4', ...
     'FixedStep', '0.003', 'StopTime', 'inf');
 clear external_quadrotor_setpoint;
-matlab.engine.shareEngine('MATLABEngine');
+if ~matlab.engine.isEngineShared
+    try
+        matlab.engine.shareEngine('MATLABEngine');
+    catch sharingError
+        if ~strcmp(sharingError.identifier, 'MATLAB:engineAPI:SessionNameConflict')
+            rethrow(sharingError);
+        end
+        warning(sharingError.identifier, '%s', sharingError.message);
+    end
+end
 end

@@ -20,8 +20,16 @@ using namespace projectairsim;
 
 namespace {
 
+class HandoffClock : public SteppableClock {
+ public:
+  using SteppableClock::SteppableClock;
+  using SteppableClock::Step;
+};
+
 class ControllerCommands : public MatlabVTOLControllerApi {
  public:
+  using MatlabVTOLControllerApi::AfterTask;
+  using MatlabVTOLControllerApi::BeforeTask;
   using MatlabVTOLControllerApi::CommandHeading;
   using MatlabVTOLControllerApi::CommandPosition;
   using MatlabVTOLControllerApi::CommandVelocity;
@@ -129,6 +137,54 @@ class ExternalController : public ::testing::Test {
     return request;
   }
 
+  void ConfigureHandoff(double seconds) {
+    api_->EndUpdate();
+    api_.reset();
+    auto config = Config(20);
+    config["controller"]["matlab-vtol-controller-api-settings"]
+          ["command-handoff-grace-period"] = seconds;
+    Scene::LoadRobot(robot_, config);
+    api_.reset(new ControllerCommands(robot_, nullptr));
+    robot_.UpdateKinematics(kinematics_);
+    api_->SetKinematics(&kinematics_);
+    api_->BeginUpdate();
+  }
+
+  void CompleteTimedCommand(const std::shared_ptr<HandoffClock>& clock,
+                            uint32_t mode = ExternalControlSetpoint::Velocity,
+                            bool body = false) {
+    const auto start = clock->NowSimNanos();
+    auto task = std::async(std::launch::async, [&]() {
+      if (mode == ExternalControlSetpoint::Heading)
+        return api_->MoveByHeading(0, 2, 0, 0.02, 0.1, 0, 1, start);
+      if (mode == ExternalControlSetpoint::VelocityZ) {
+        if (body)
+          return api_->MoveByVelocityBodyFrameZ(
+              2, 0, -3, 0.02, DrivetrainType::MaxDegreeOfFreedom, false, 0, start);
+        return api_->MoveByVelocityZ(
+            2, 0, -3, 0.02, DrivetrainType::MaxDegreeOfFreedom, false, 0, start);
+      }
+      if (body)
+        return api_->MoveByVelocityBodyFrame(
+            2, 0, 0, 0.02, DrivetrainType::MaxDegreeOfFreedom, false, 0, start);
+      return api_->MoveByVelocity(
+          2, 0, 0, 0.02, DrivetrainType::MaxDegreeOfFreedom, false, 0, start);
+    });
+    VTOLControlModelInputMessage request;
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(1);
+    do {
+      request = Exchange();
+    } while (request.setpoint.mode != mode &&
+             std::chrono::steady_clock::now() < deadline);
+    EXPECT_EQ(request.setpoint.mode, mode);
+    clock->SetNextSimTime(start + 30'000'000);
+    clock->Step();
+    const auto status = task.wait_for(std::chrono::seconds(1));
+    if (status != std::future_status::ready) api_->CancelLastTask();
+    ASSERT_EQ(status, std::future_status::ready);
+    EXPECT_TRUE(task.get());
+  }
+
   void Arm() {
     ASSERT_TRUE(api_->EnableApiControl());
     Exchange();
@@ -174,6 +230,33 @@ TEST_F(ExternalController, PublishesKinematicsSnapshotsAtControllerUpdates) {
   auto request = Exchange();
   EXPECT_EQ(request.state.kinematics.pose_position_x, 99);
   EXPECT_EQ(api_->GetKinematicsEstimated().pose.position.x(), 99);
+}
+
+TEST_F(ExternalController, IndexedOutputsAndSnapshotsPreserveEffectorOrder) {
+  IController& controller = *api_;
+  EXPECT_EQ(controller.GetControlSignalIndex("effector-0"), 0);
+  EXPECT_EQ(controller.GetControlSignalIndex("effector-19"), 19);
+  EXPECT_EQ(controller.GetControlSignalIndex("unknown"), -1);
+  EXPECT_EQ(controller.GetControlSignalIndex("effector-0", 1), -1);
+  std::vector<float> outputs;
+  controller.GetControlSignalSnapshot(outputs);
+  EXPECT_EQ(outputs, std::vector<float>(20, 0.25f));
+  Arm();
+  Exchange();
+  controller.GetControlSignalSnapshot(outputs);
+  ASSERT_EQ(outputs.size(), 20);
+  EXPECT_EQ(outputs.front(), 1);
+  EXPECT_EQ(outputs.back(), 20);
+  EXPECT_EQ(controller.GetControlSignals(19), std::vector<float>{20});
+  EXPECT_EQ(controller.GetControlSignals(-1), std::vector<float>{0});
+  EXPECT_EQ(controller.GetControlSignals(20), std::vector<float>{0});
+  api_->Disarm();
+  controller.GetControlSignalSnapshot(outputs);
+  EXPECT_EQ(outputs, std::vector<float>(20, 0.25f));
+  EXPECT_EQ(controller.GetControlSignals(19), std::vector<float>{0.25f});
+  api_->Reset();
+  controller.GetControlSignalSnapshot(outputs);
+  EXPECT_EQ(outputs, std::vector<float>(20, 0.25f));
 }
 
 TEST_F(ExternalController, TransportsModesFramesYawAndVTOLRequest) {
@@ -227,7 +310,9 @@ TEST_F(ExternalController, HoverObjectiveSurvivesCompletionBeforeNextUpdate) {
 }
 
 TEST_F(ExternalController,
-       BodyFrameCommandKeepsBodyValuesAndCompletesAtDuration) {
+       BodyFrameCommandKeepsInitialWorldVelocityWhileYawChanges) {
+  auto clock = std::make_shared<HandoffClock>(0, 1'000'000'000);
+  SimClock::Get(clock);
   Arm();
   kinematics_.pose.orientation =
       Quaternion(Eigen::AngleAxisf(float(M_PI / 2), Vector3::UnitZ()));
@@ -235,7 +320,7 @@ TEST_F(ExternalController,
   api_->SetKinematics(&kinematics_);
   auto command = std::async(std::launch::async, [&]() {
     return api_->MoveByVelocityBodyFrame(
-        2, 0, 0, 0.08, DrivetrainType::MaxDegreeOfFreedom, false, 0.2,
+        2, 0, 0, 0.02, DrivetrainType::MaxDegreeOfFreedom, false, 0.2,
         SimClock::Get()->NowSimNanos());
   });
   VTOLControlModelInputMessage request;
@@ -244,12 +329,68 @@ TEST_F(ExternalController,
     request = Exchange();
   } while (request.setpoint.mode == ExternalControlSetpoint::Idle &&
            std::chrono::steady_clock::now() < deadline);
-  EXPECT_EQ(request.setpoint.frame, ExternalControlSetpoint::BodyFRD);
-  EXPECT_EQ(request.setpoint.x, 2);
-  EXPECT_EQ(request.setpoint.y, 0);
+  EXPECT_EQ(request.setpoint.frame, ExternalControlSetpoint::WorldNED);
+  EXPECT_NEAR(request.setpoint.x, 0, 1e-6);
+  EXPECT_NEAR(request.setpoint.y, 2, 1e-6);
   EXPECT_NEAR(request.setpoint.yaw, float(M_PI / 2) + 0.2f, 1e-6);
+  kinematics_.pose.orientation = Quaternion::Identity();
+  robot_.UpdateKinematics(kinematics_);
+  request = Exchange();
+  EXPECT_EQ(request.setpoint.frame, ExternalControlSetpoint::WorldNED);
+  EXPECT_NEAR(request.setpoint.x, 0, 1e-6);
+  EXPECT_NEAR(request.setpoint.y, 2, 1e-6);
+  clock->SetNextSimTime(1'030'000'000);
+  clock->Step();
+  if (command.wait_for(std::chrono::seconds(1)) != std::future_status::ready)
+    api_->CancelLastTask();
   EXPECT_TRUE(command.get());
   EXPECT_EQ(Exchange().setpoint.mode, ExternalControlSetpoint::Idle);
+}
+
+TEST_F(ExternalController, NonpositiveDurationMatchesStandardVelocityServices) {
+  Arm();
+  const auto start = SimClock::Get()->NowSimNanos();
+  for (float duration : {0.0f, -1.0f}) {
+    EXPECT_TRUE(api_->MoveByVelocityBodyFrame(
+        2, 0, 0, duration, DrivetrainType::MaxDegreeOfFreedom, true, 0, start));
+    EXPECT_FALSE(api_->MoveByVelocityBodyFrameZ(
+        2, 0, -3, duration, DrivetrainType::MaxDegreeOfFreedom, true, 0, start));
+    EXPECT_EQ(Exchange().setpoint.mode, ExternalControlSetpoint::Idle);
+  }
+}
+
+TEST_F(ExternalController, BodyVelocityZPreservesWorldAltitudeAndYawRate) {
+  auto clock = std::make_shared<HandoffClock>(0, 1'000'000'000);
+  SimClock::Get(clock);
+  Arm();
+  kinematics_.pose.orientation =
+      Quaternion(Eigen::AngleAxisf(float(M_PI / 2), Vector3::UnitZ()));
+  robot_.UpdateKinematics(kinematics_);
+  api_->SetKinematics(&kinematics_);
+  auto command = std::async(std::launch::async, [&]() {
+    return api_->MoveByVelocityBodyFrameZ(
+        2, 1, -6, 0.02, DrivetrainType::MaxDegreeOfFreedom, true, 0.3,
+        clock->NowSimNanos());
+  });
+  VTOLControlModelInputMessage request;
+  const auto deadline =
+      std::chrono::steady_clock::now() + std::chrono::seconds(1);
+  do {
+    request = Exchange();
+  } while (request.setpoint.mode == ExternalControlSetpoint::Idle &&
+           std::chrono::steady_clock::now() < deadline);
+  EXPECT_EQ(request.setpoint.mode, ExternalControlSetpoint::VelocityZ);
+  EXPECT_EQ(request.setpoint.frame, ExternalControlSetpoint::WorldNED);
+  EXPECT_NEAR(request.setpoint.x, -1, 1e-6);
+  EXPECT_NEAR(request.setpoint.y, 2, 1e-6);
+  EXPECT_EQ(request.setpoint.z, -6);
+  EXPECT_TRUE(request.setpoint.yaw_is_rate);
+  EXPECT_FLOAT_EQ(request.setpoint.yaw, 0.3f);
+  clock->SetNextSimTime(1'030'000'000);
+  clock->Step();
+  if (command.wait_for(std::chrono::seconds(1)) != std::future_status::ready)
+    api_->CancelLastTask();
+  EXPECT_TRUE(command.get());
 }
 
 TEST_F(ExternalController,
@@ -279,8 +420,101 @@ TEST_F(ExternalController,
   EXPECT_FALSE(Exchange().setpoint.armed);
 }
 
+TEST_F(ExternalController, HandoffRetainsVelocityUntilSimulatedDeadline) {
+  ConfigureHandoff(0.05);
+  auto clock = std::make_shared<HandoffClock>(0, 1'000'000'000);
+  SimClock::Get(clock);
+  Arm();
+  CompleteTimedCommand(clock);
+  EXPECT_EQ(Exchange().setpoint.mode, ExternalControlSetpoint::Velocity);
+  clock->SetNextSimTime(1'079'999'999);
+  clock->Step();
+  EXPECT_EQ(Exchange().setpoint.mode, ExternalControlSetpoint::Velocity);
+  clock->SetNextSimTime(1'080'000'000);
+  clock->Step();
+  EXPECT_EQ(Exchange().setpoint.mode, ExternalControlSetpoint::Idle);
+}
+
+TEST_F(ExternalController, HandoffReplacementAndCancellationClearDeadline) {
+  ConfigureHandoff(0.05);
+  auto clock = std::make_shared<HandoffClock>(0, 1'000'000'000);
+  SimClock::Get(clock);
+  Arm();
+  CompleteTimedCommand(clock);
+  api_->BeforeTask();
+  api_->CommandVelocity(3, 1, 0, false, 0);
+  clock->SetNextSimTime(1'100'000'000);
+  clock->Step();
+  EXPECT_EQ(Exchange().setpoint.x, 3);
+  api_->AfterTask();
+  EXPECT_EQ(Exchange().setpoint.mode, ExternalControlSetpoint::Idle);
+  CompleteTimedCommand(clock, ExternalControlSetpoint::Heading);
+  EXPECT_EQ(Exchange().setpoint.mode, ExternalControlSetpoint::Heading);
+  EXPECT_TRUE(api_->CancelLastTask());
+  EXPECT_EQ(Exchange().setpoint.mode, ExternalControlSetpoint::Idle);
+}
+
+TEST_F(ExternalController, HandoffDisarmAndInvalidSettingsFailClosed) {
+  ConfigureHandoff(0.05);
+  auto clock = std::make_shared<HandoffClock>(0, 1'000'000'000);
+  SimClock::Get(clock);
+  Arm();
+  CompleteTimedCommand(clock, ExternalControlSetpoint::VelocityZ);
+  EXPECT_EQ(Exchange().setpoint.mode, ExternalControlSetpoint::VelocityZ);
+  EXPECT_TRUE(api_->Disarm());
+  EXPECT_EQ(Exchange().setpoint.mode, ExternalControlSetpoint::Idle);
+  for (double value : {-0.1, std::numeric_limits<double>::infinity()}) {
+    auto config = Config(20);
+    config["controller"]["matlab-vtol-controller-api-settings"]
+          ["command-handoff-grace-period"] = value;
+    Robot robot = Scene::MakeRobot("invalid_handoff");
+    Scene::LoadRobot(robot, config);
+    EXPECT_THROW(ControllerCommands rejected(robot, nullptr),
+                 std::invalid_argument);
+  }
+}
+
+TEST_F(ExternalController, HandoffSupportsBodyFrameTimedRequests) {
+  ConfigureHandoff(0.05);
+  auto clock = std::make_shared<HandoffClock>(0, 1'000'000'000);
+  SimClock::Get(clock);
+  Arm();
+  CompleteTimedCommand(clock, ExternalControlSetpoint::Velocity, true);
+  EXPECT_EQ(Exchange().setpoint.frame, ExternalControlSetpoint::WorldNED);
+  EXPECT_TRUE(api_->CancelLastTask());
+  CompleteTimedCommand(clock, ExternalControlSetpoint::VelocityZ, true);
+  EXPECT_EQ(Exchange().setpoint.frame, ExternalControlSetpoint::WorldNED);
+}
+
+TEST_F(ExternalController, HandoffRejectsIncompleteAndPositionTasks) {
+  ConfigureHandoff(0.05);
+  auto clock = std::make_shared<HandoffClock>(0, 1'000'000'000);
+  SimClock::Get(clock);
+  Arm();
+  const auto start = SimClock::Get()->NowSimNanos();
+  EXPECT_FALSE(api_->MoveByHeading(1, 2, 0, 0.02, 0.01, 0, 0.02, start-30'000'000));
+  EXPECT_EQ(Exchange().setpoint.mode, ExternalControlSetpoint::Idle);
+  EXPECT_FALSE(api_->MoveToPosition(
+      10, 2, -3, 1, 0.02, DrivetrainType::MaxDegreeOfFreedom, false, 0,
+      -1, 0, SimClock::Get()->NowSimNanos()-30'000'000));
+  EXPECT_EQ(Exchange().setpoint.mode, ExternalControlSetpoint::Idle);
+  CompleteTimedCommand(clock);
+  EXPECT_TRUE(api_->MoveByVelocity(3, 0, 0, 0,
+                                 DrivetrainType::MaxDegreeOfFreedom, false, 0,
+                                 SimClock::Get()->NowSimNanos()));
+  EXPECT_EQ(Exchange().setpoint.mode, ExternalControlSetpoint::Idle);
+  CompleteTimedCommand(clock);
+  EXPECT_THROW(api_->MoveByVelocity(
+                   std::numeric_limits<float>::quiet_NaN(), 0, 0, 0.02,
+                   DrivetrainType::MaxDegreeOfFreedom, false, 0,
+                   SimClock::Get()->NowSimNanos()),
+               std::exception);
+  EXPECT_EQ(Exchange().setpoint.mode, ExternalControlSetpoint::Idle);
+}
+
 TEST_F(ExternalController, MalformedReplyFailsClosedAndShutdownIsBounded) {
   Arm();
+  std::vector<float> outputs;
   for (int kind = 0; kind < 3; ++kind) {
     auto update = std::async(std::launch::async, [&]() { api_->Update(); });
     auto request = Receive();
@@ -297,6 +531,8 @@ TEST_F(ExternalController, MalformedReplyFailsClosedAndShutdownIsBounded) {
     EXPECT_FALSE(api_->CanArm());
     EXPECT_EQ(api_->GetControlSignals("effector-19"),
               std::vector<float>{0.25f});
+    static_cast<IController&>(*api_).GetControlSignalSnapshot(outputs);
+    EXPECT_EQ(outputs, std::vector<float>(20, 0.25f));
     Exchange();
     ASSERT_TRUE(api_->Arm(0));
   }

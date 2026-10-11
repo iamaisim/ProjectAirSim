@@ -49,9 +49,18 @@ void MatlabVTOLControllerApi::LoadSettings() {
   }
   request_timeout_ms_ = settings.value("request-timeout-ms", 1000);
   command_period_ = settings.value("command-period", 0.02f);
+  const auto grace = settings.value("command-handoff-grace-period", json(0.0));
+  if (!grace.is_number()) {
+    throw std::invalid_argument("Invalid external-controller handoff period");
+  }
+  command_handoff_grace_period_ = grace.get<double>();
   takeoff_z_ = settings.value("takeoff-z", -3.0f);
   if (request_timeout_ms_ <= 0 || !std::isfinite(command_period_) ||
-      command_period_ <= 0 || !std::isfinite(takeoff_z_) || takeoff_z_ >= 0) {
+      command_period_ <= 0 || !std::isfinite(takeoff_z_) || takeoff_z_ >= 0 ||
+      !std::isfinite(command_handoff_grace_period_) ||
+      command_handoff_grace_period_ < 0 ||
+      command_handoff_grace_period_ >=
+          static_cast<double>(TimeNanoLimits::max()) / 1e9) {
     throw std::invalid_argument(
         "Invalid external-controller timing or takeoff settings");
   }
@@ -104,6 +113,7 @@ void MatlabVTOLControllerApi::RestoreInitialOutputs() {
 }
 
 void MatlabVTOLControllerApi::SetIdle() {
+  handoff_deadline_nanos_ = 0;
   setpoint_.mode = ExternalControlSetpoint::Idle;
   setpoint_.frame = ExternalControlSetpoint::WorldNED;
   setpoint_.x = setpoint_.y = setpoint_.z = setpoint_.yaw = 0;
@@ -115,6 +125,7 @@ void MatlabVTOLControllerApi::Reset() {
   CancelLastTask();
   std::lock_guard<std::mutex> lock(update_lock_);
   setpoint_ = ExternalControlSetpoint();
+  handoff_deadline_nanos_ = 0;
   ready_ = false;
   landed_ = true;
   RestoreInitialOutputs();
@@ -213,6 +224,11 @@ void MatlabVTOLControllerApi::Update() {
     std::lock_guard<std::mutex> lock(update_lock_);
     if (!running_ || !has_kinematics_) return;
     kinematics_estimated_ = snapshot;
+    if (handoff_deadline_nanos_ > 0 &&
+        SimClock::Get()->NowSimNanos() >= handoff_deadline_nanos_) {
+      SetIdle();
+      ++lifecycle_generation_;
+    }
     request.setpoint = setpoint_;
     request.effectors = effectors_;
     generation = lifecycle_generation_;
@@ -272,11 +288,27 @@ void MatlabVTOLControllerApi::Update() {
   }
 }
 
+int MatlabVTOLControllerApi::GetControlSignalIndex(const std::string& id) {
+  const auto found = actuator_indices_.find(id);
+  return found == actuator_indices_.end() ? -1 : static_cast<int>(found->second);
+}
+
+void MatlabVTOLControllerApi::GetControlSignalSnapshot(
+    std::vector<float>& control_signals) {
+  std::lock_guard<std::mutex> lock(update_lock_);
+  control_signals.assign(outputs_.begin(), outputs_.end());
+}
+
+std::vector<float> MatlabVTOLControllerApi::GetControlSignals(int signal_index) {
+  std::lock_guard<std::mutex> lock(update_lock_);
+  if (signal_index < 0 || static_cast<size_t>(signal_index) >= outputs_.size())
+    return {0.0f};
+  return {outputs_[signal_index]};
+}
+
 std::vector<float> MatlabVTOLControllerApi::GetControlSignals(
     const std::string& id) {
-  std::lock_guard<std::mutex> lock(update_lock_);
-  auto found = actuator_indices_.find(id);
-  return {found == actuator_indices_.end() ? 0.0f : outputs_.at(found->second)};
+  return GetControlSignals(GetControlSignalIndex(id));
 }
 
 bool MatlabVTOLControllerApi::EnableApiControl() {
@@ -357,13 +389,28 @@ void MatlabVTOLControllerApi::BeforeTask() {
         "External controller must be ready, enabled, and armed");
   }
   setpoint_.request = ExternalControlSetpoint::None;
+  handoff_command_issued_ = handoff_task_completed_ = false;
 }
 
 void MatlabVTOLControllerApi::AfterTask() {
   std::lock_guard<std::mutex> lock(update_lock_);
   ++lifecycle_generation_;
-  if (setpoint_.request != ExternalControlSetpoint::Hover ||
-      GetCancelToken().IsCancelled()) {
+  if (GetCancelToken().IsCancelled()) {
+    SetIdle();
+  } else if (handoff_task_completed_ &&
+             setpoint_.request == ExternalControlSetpoint::None &&
+             setpoint_.armed && setpoint_.api_enabled &&
+             command_handoff_grace_period_ > 0 &&
+             (setpoint_.mode == ExternalControlSetpoint::Velocity ||
+              setpoint_.mode == ExternalControlSetpoint::VelocityZ ||
+              setpoint_.mode == ExternalControlSetpoint::Heading)) {
+    // Allow a bounded handoff without changing the service completion time.
+    const auto clock = SimClock::Get();
+    const auto now = clock->NowSimNanos();
+    const auto grace = clock->SecToNanos(command_handoff_grace_period_);
+    handoff_deadline_nanos_ =
+        now > TimeNanoLimits::max() - grace ? TimeNanoLimits::max() : now + grace;
+  } else if (setpoint_.request != ExternalControlSetpoint::Hover) {
     SetIdle();
   }
 }
@@ -410,6 +457,8 @@ void MatlabVTOLControllerApi::SetCommand(uint32_t mode, uint32_t frame, float x,
   if (!setpoint_.api_enabled || !setpoint_.armed) {
     throw std::runtime_error("External controller is disabled or disarmed");
   }
+  handoff_deadline_nanos_ = 0;
+  handoff_command_issued_ = true;
   setpoint_.mode = mode;
   setpoint_.frame = frame;
   setpoint_.x = x;
@@ -451,44 +500,59 @@ void MatlabVTOLControllerApi::CommandHeading(float heading, float speed,
              heading);
 }
 
+void MatlabVTOLControllerApi::MarkHandoffCompletion(bool completed) {
+  std::lock_guard<std::mutex> lock(update_lock_);
+  handoff_task_completed_ = completed && handoff_command_issued_;
+}
+
+bool MatlabVTOLControllerApi::MoveByVelocity(
+    float vx, float vy, float vz, float duration, DrivetrainType drivetrain,
+    bool yaw_is_rate, float yaw, int64_t start) {
+  SingleTaskCall lock(this);
+  const bool completed = VTOLFWApiBase::MoveByVelocity(
+      vx, vy, vz, duration, drivetrain, yaw_is_rate, yaw, start);
+  if (duration > 0) MarkHandoffCompletion(completed);
+  return completed;
+}
+
+bool MatlabVTOLControllerApi::MoveByVelocityZ(
+    float vx, float vy, float z, float duration, DrivetrainType drivetrain,
+    bool yaw_is_rate, float yaw, int64_t start) {
+  SingleTaskCall lock(this);
+  const bool completed = VTOLFWApiBase::MoveByVelocityZ(
+      vx, vy, z, duration, drivetrain, yaw_is_rate, yaw, start);
+  if (duration > 0) MarkHandoffCompletion(completed);
+  return completed;
+}
+
+bool MatlabVTOLControllerApi::MoveByHeading(
+    float heading, float speed, float vz, float duration, float heading_margin,
+    float yaw_rate, float timeout_sec, int64_t start) {
+  SingleTaskCall lock(this);
+  const bool completed = VTOLFWApiBase::MoveByHeading(
+      heading, speed, vz, duration, heading_margin, yaw_rate, timeout_sec, start);
+  if (duration > 0) MarkHandoffCompletion(completed);
+  return completed;
+}
+
 bool MatlabVTOLControllerApi::MoveByVelocityBodyFrame(
     float vx, float vy, float vz, float duration, DrivetrainType drivetrain,
     bool yaw_is_rate, float yaw, int64_t start) {
   SingleTaskCall lock(this);
-  if (duration <= 0) return true;
-  const float vehicle_yaw =
-      PhysicsUtils::GetYaw<float>(GetKinematicsEstimated().pose.orientation);
-  float wx = vx * std::cos(vehicle_yaw) - vy * std::sin(vehicle_yaw);
-  float wy = vx * std::sin(vehicle_yaw) + vy * std::cos(vehicle_yaw);
-  if (!yaw_is_rate) yaw += vehicle_yaw;
-  AdjustYaw(wx, wy, drivetrain, yaw_is_rate, yaw);
-  return RunFlightCommand(
-             [&]() {
-               MoveByVelocityBodyInternal(vx, vy, vz, yaw_is_rate, yaw);
-               return false;
-             },
-             duration, start)
-      .IsTimeout();
+  const bool completed = VTOLFWApiBase::MoveByVelocityBodyFrame(
+      vx, vy, vz, duration, drivetrain, yaw_is_rate, yaw, start);
+  if (duration > 0) MarkHandoffCompletion(completed);
+  return completed;
 }
 
 bool MatlabVTOLControllerApi::MoveByVelocityBodyFrameZ(
     float vx, float vy, float z, float duration, DrivetrainType drivetrain,
     bool yaw_is_rate, float yaw, int64_t start) {
   SingleTaskCall lock(this);
-  if (duration <= 0) return true;
-  const float vehicle_yaw =
-      PhysicsUtils::GetYaw<float>(GetKinematicsEstimated().pose.orientation);
-  float wx = vx * std::cos(vehicle_yaw) - vy * std::sin(vehicle_yaw);
-  float wy = vx * std::sin(vehicle_yaw) + vy * std::cos(vehicle_yaw);
-  if (!yaw_is_rate) yaw += vehicle_yaw;
-  AdjustYaw(wx, wy, drivetrain, yaw_is_rate, yaw);
-  return RunFlightCommand(
-             [&]() {
-               MoveByVelocityZBodyInternal(vx, vy, z, yaw_is_rate, yaw);
-               return false;
-             },
-             duration, start)
-      .IsTimeout();
+  const bool completed = VTOLFWApiBase::MoveByVelocityBodyFrameZ(
+      vx, vy, z, duration, drivetrain, yaw_is_rate, yaw, start);
+  if (duration > 0) MarkHandoffCompletion(completed);
+  return completed;
 }
 
 void MatlabVTOLControllerApi::CommandMotorPWMs(float, float, float, float) {

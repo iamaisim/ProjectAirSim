@@ -10,6 +10,7 @@ Project AirSim and run this script. See docs/physics/matlab.md.
 import asyncio
 import json
 from pathlib import Path
+import sys
 import tempfile
 import time
 
@@ -34,11 +35,16 @@ async def main():
     }
     scene = commentjson.loads((root / "sim_config/scene_quadrotor_matlab_controller.jsonc").read_text())
     scene["actors"][0]["robot-config"] = "robot.jsonc"
-    engine = matlab.engine.connect_matlab("MATLABEngine")
+    sessions = matlab.engine.find_matlab()
+    if len(sessions) != 1:
+        raise RuntimeError("Run the loader in one shared MATLAB session")
+    engine = matlab.engine.connect_matlab(sessions[0])
     client = ProjectAirSimClient()
     drone = None
     world = None
     try:
+        engine.set_param(model, "SimulationCommand", "update", nargout=0,
+                         background=True).result(timeout=120)
         client.connect()
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory)
@@ -69,16 +75,27 @@ async def main():
                     raise RuntimeError("External-controller flight command did not complete")
             projectairsim_log().info("External-controller flight completed")
     finally:
-        try:
-            if drone is not None:
-                drone.cancel_last_task()
-                drone.disarm()
-                drone.disable_api_control()
-            engine.set_param(model, "SimulationCommand", "stop", nargout=0, background=True).result(timeout=10)
-            if world is not None:
-                world.pause()
-        finally:
-            client.disconnect()
+        primary_error = sys.exc_info()[1]
+        cleanup_error = None
+        actions = []
+        if drone is not None:
+            actions.extend((drone.cancel_last_task, drone.disarm,
+                            drone.disable_api_control))
+        actions.append(lambda: engine.set_param(
+            model, "SimulationCommand", "stop", nargout=0,
+            background=True).result(timeout=10))
+        if world is not None:
+            actions.append(world.pause)
+        actions.append(client.disconnect)
+        for action in actions:
+            try:
+                action()
+            except Exception as error:
+                if cleanup_error is None:
+                    cleanup_error = error
+                projectairsim_log().warning("Example cleanup failed: %s", error)
+        if primary_error is None and cleanup_error is not None:
+            raise cleanup_error
 
 
 if __name__ == "__main__":

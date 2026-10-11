@@ -11,9 +11,10 @@
 
 #include "arducopter_api.hpp"
 #include "core_sim/simulator.hpp"
+#include "jsbsim_api.hpp"
 #include "manual_controller_api.hpp"
 #include "matlab_controller_api.hpp"
-#include "jsbsim_api.hpp"
+#include "matlab_vtol_controller_api.hpp"
 #include "mavlink_api.hpp"
 #include "physics_world.hpp"
 #include "tile_manager.hpp"
@@ -312,6 +313,9 @@ void SimServer::LoadControllers(Scene& scene) {
         auto matlab_controller_api = new MatlabControllerApi(sim_robot);
         sim_robot.SetController(
             std::unique_ptr<IController>(matlab_controller_api));
+      } else if (controller_type == "matlab-vtol-controller-api") {
+        sim_robot.SetController(std::unique_ptr<IController>(
+            new MatlabVTOLControllerApi(sim_robot, ptransformtree)));
       } else if (controller_type == "simple-drive-api") {
         auto simple_drive_api = new simple_drive::SimpleDriveApi(sim_robot, ptransformtree);
         sim_robot.SetController(std::unique_ptr<IController>(simple_drive_api));

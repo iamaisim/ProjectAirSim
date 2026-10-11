@@ -329,11 +329,12 @@ A controller is used to decide how to command the robot's actuators in order to 
 | --------- | ----- | ----------- |
 | `id` | string | Name identifier for the controller. |
 | `airframe-setup` | string | Type of airframe. Simple Flight currently supports `quadrotor-x`, `hexarotor-x`, `vtol-quad-x-tailsitter`, and `vtol-quad-tiltrotor`, defaulting to `quadrotor-x` if omitted. PX4 and ArduPilot obtain the airframe type from their running firmware. |
-| `type` | string | Type of the controller. Currently, **[`simple-flight-api`](controllers/simple_flight.md)**, **[`px4-api`](controllers/px4/px4.md)**, **[`ardupilot-api`](controllers/ardupilot.md)**, and `manual-controller-api` are supported. |
+| `type` | string | Type of the controller. Currently, **[`simple-flight-api`](controllers/simple_flight.md)**, **[`px4-api`](controllers/px4/px4.md)**, **[`ardupilot-api`](controllers/ardupilot.md)**, **[`jsbsim-api`](physics/jsbsim.md)**, `manual-controller-api`, **[`matlab-controller-api`](physics/matlab.md)**, **[`matlab-vtol-controller-api`](physics/matlab.md#standard-command-external-controller)**, and **[`simple-drive-api`](wheeled_vehicle.md)** are supported. |
 | `simple-flight-api-settings` | See [Simple Flight settings](#simple-flight-settings) | Settings specific to the `simple-flight-api` controller type. |
 | `px4-settings` | See [PX4 settings](#px4-settings) | Settings specific to the `px4-api` controller type. |
 | `ardupilot-settings` | See [ArduPilot settings](#ardupilot-settings) | Settings specific to the `ardupilot-api` controller type. |
 | `manual-controller-api-settings` | See [Manual Controller settings](#manual-controller-settings) | Settings specific to the `manual-controller-api` controller type. |
+| `matlab-vtol-controller-api-settings` | See [Standard-command external controller](physics/matlab.md#standard-command-external-controller) | Connection, timing, and ordered effector metadata for the external VTOL controller. |
 
 ### Simple Flight settings
 

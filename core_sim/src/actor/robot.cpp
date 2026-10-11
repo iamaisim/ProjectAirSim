@@ -138,6 +138,7 @@ class Robot::Impl : public ActorImpl {
   void OnEndUpdate() override;
 
   const Kinematics& GetKinematics() const;
+  Kinematics GetKinematicsSnapshot();
   const Transform GetGroundTruthPose();
   const GeoPoint GetGroundTruthGeoLocation();
   const Environment& GetEnvironment() const;
@@ -438,6 +439,10 @@ void Robot::EndUpdate() {
 
 const Kinematics& Robot::GetKinematics() const {
   return static_cast<Robot::Impl*>(pimpl_.get())->GetKinematics();
+}
+
+Kinematics Robot::GetKinematicsSnapshot() const {
+  return static_cast<Robot::Impl*>(pimpl_.get())->GetKinematicsSnapshot();
 }
 
 const Environment& Robot::GetEnvironment() const {
@@ -1123,6 +1128,11 @@ bool Robot::Impl::SetPose(const Transform& new_pose, bool reset_kinematics) {
 }
 
 const Kinematics& Robot::Impl::GetKinematics() const { return kinematics_; }
+
+Kinematics Robot::Impl::GetKinematicsSnapshot() {
+  std::lock_guard<std::mutex> lock(update_lock_);
+  return kinematics_;
+}
 
 const Transform Robot::Impl::GetGroundTruthPose() {
   std::lock_guard<std::mutex> lock(update_lock_);

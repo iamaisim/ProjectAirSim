@@ -52,6 +52,9 @@ class IController : public IRuntimeComponent {
   // TODO: Should this be in the base IRuntimeComponent?
   virtual void Update() = 0;
 
+  // Release active command callbacks before controller transports close.
+  virtual bool CancelLastTask() { return true; }
+
   virtual int GetControlSignalIndex(const std::string& actuator_id) = 0;
 
   virtual int GetControlSignalIndex(const std::string& actuator_id,

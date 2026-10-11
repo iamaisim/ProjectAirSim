@@ -6,9 +6,11 @@
 #include "matlab_physics.hpp"
 
 #include <iostream>
+#include <memory>
 
 #include "core_sim/actuators/lift_drag_control_surface.hpp"
 #include "core_sim/actuators/rotor.hpp"
+#include "core_sim/error.hpp"
 #include "json.hpp"
 #include "message/physics_model_input_message.hpp"
 #include "message/physics_model_output_message.hpp"
@@ -72,7 +74,7 @@ void MatlabPhysicsBody::ReadRobotData() {
   }
 
   environment_info_ = sim_robot_.GetEnvironment().env_info;
-  collision_info_ = sim_robot_.GetCollisionInfo();
+  collision_info_ = sim_robot_.GetCollisionInfoSnapshot();
 }
 
 void MatlabPhysicsBody::WriteRobotData(const Kinematics& kinematics) {
@@ -122,15 +124,17 @@ void MatlabPhysicsModel::ConnectToMatlab(
   // Create a Request socket to dial Matlab server
   int rv = nng_req0_open(&matlab_body->nng_socket_);
 
-  // Connect to server
-  // TODO Give up after a timeout?
-  std::cout << "Trying to connect to Matlab physics model..." << std::endl;
-  do {
+  if (rv == 0) {
+    // Send waits for the peer; Stop closes the socket to interrupt that wait.
     rv = nng_dial(matlab_body->nng_socket_,
-                  matlab_body->connection_string_.c_str(), NULL, 0);
-    std::cout << "NNG dial return value: " << rv << std::endl;
-    if (rv != 0) std::this_thread::sleep_for(std::chrono::milliseconds(100));
-  } while (rv != 0);
+                  matlab_body->connection_string_.c_str(), nullptr,
+                  NNG_FLAG_NONBLOCK);
+  }
+  if (rv != 0) {
+    nng_close(matlab_body->nng_socket_);
+    throw Error(std::string("MATLAB physics connection failed: ") +
+                nng_strerror(rv));
+  }
 
   matlab_body->connected_ = true;
 }
@@ -145,8 +149,12 @@ void MatlabPhysicsModel::StepPhysicsBody(
 
   // ------------------------------------------------------------
 
-  if (!matlab_body->connected_ && running_.load() == true) {
-    ConnectToMatlab(matlab_body);
+  nng_socket socket = NNG_SOCKET_INITIALIZER;
+  {
+    std::lock_guard<std::mutex> lock(matlab_body->connection_lock_);
+    if (!running_.load()) return;
+    if (!matlab_body->connected_) ConnectToMatlab(matlab_body);
+    socket = matlab_body->nng_socket_;
   }
 
   // ------------------------------------------------------------
@@ -215,8 +223,7 @@ void MatlabPhysicsModel::StepPhysicsBody(
 
   std::string request_str = request_msg.Serialize();
 
-  int rv = nng_send(matlab_body->nng_socket_, request_str.data(),
-                    request_str.length(), 0);
+  int rv = nng_send(socket, request_str.data(), request_str.length(), 0);
 
   if (rv != 0) {
     std::cout << "nng_send() return value: " << rv
@@ -224,21 +231,17 @@ void MatlabPhysicsModel::StepPhysicsBody(
   }
 
   if (rv != 0 || running_.load() == false) {
-    matlab_body->connected_ = false;
-    return;
+    if (!running_.load()) return;
+    throw Error(std::string("MATLAB physics send failed: ") + nng_strerror(rv));
   }
 
   // ------------------------------------------------------------
 
-  // Wait for a response from Matlab with new kinamatics
+  // Keep this step pending until its reply arrives or scene shutdown closes it.
   char* msg_data_buf = nullptr;
-  size_t msg_data_len;
+  size_t msg_data_len = 0;
 
-  rv = NNG_EAGAIN;
-  while (rv == NNG_EAGAIN && running_.load() == true) {
-    rv = nng_recv(matlab_body->nng_socket_, &msg_data_buf, &msg_data_len,
-                  NNG_FLAG_ALLOC | NNG_FLAG_NONBLOCK);
-  }
+  rv = nng_recv(socket, &msg_data_buf, &msg_data_len, NNG_FLAG_ALLOC);
 
   if (rv != 0) {
     std::cout << "nng_recv() return value: " << rv
@@ -246,18 +249,18 @@ void MatlabPhysicsModel::StepPhysicsBody(
   }
 
   if (rv != 0 || running_.load() == false) {
-    matlab_body->connected_ = false;
-    return;
+    if (msg_data_buf != nullptr) nng_free(msg_data_buf, msg_data_len);
+    if (!running_.load()) return;
+    throw Error(std::string("MATLAB physics receive failed: ") +
+                nng_strerror(rv));
   }
 
   // Copy the data from the buffer to a string to deserialize (must set the
   // length manually to avoid stopping at '\0' chars that it may contain)
-  std::string response_str;
-  response_str.resize(msg_data_len);
-  response_str.assign(msg_data_buf, msg_data_len);
-
-  // Free the NNG-allocated reply buffer memory
-  nng_free(msg_data_buf, msg_data_len);
+  auto free_message = [msg_data_len](char* ptr) { nng_free(ptr, msg_data_len); };
+  std::unique_ptr<char, decltype(free_message)> response_buffer(msg_data_buf,
+                                                            free_message);
+  std::string response_str(response_buffer.get(), msg_data_len);
 
   PhysicsModelOutputMessage response_msg;
   response_msg.Deserialize(response_str);
@@ -292,6 +295,9 @@ void MatlabPhysicsModel::Stop(std::shared_ptr<BasePhysicsBody> body) {
   std::shared_ptr<MatlabPhysicsBody> matlab_body =
       std::dynamic_pointer_cast<MatlabPhysicsBody>(body);
   if (matlab_body == nullptr) return;
+
+  std::lock_guard<std::mutex> lock(matlab_body->connection_lock_);
+  if (!matlab_body->connected_) return;
 
   // Close the socket
   int rv = nng_close(matlab_body->nng_socket_);

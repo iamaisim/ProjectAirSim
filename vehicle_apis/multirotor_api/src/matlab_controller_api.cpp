@@ -5,6 +5,9 @@
 
 #include "matlab_controller_api.hpp"
 
+#include <memory>
+
+#include "core_sim/error.hpp"
 #include "json.hpp"
 #include "message/control_model_input_message.hpp"
 #include "message/control_model_output_message.hpp"
@@ -26,20 +29,24 @@ MatlabControllerApi::MatlabControllerApi(const Robot& robot)
 
 void MatlabControllerApi::BeginUpdate() {
   GetSensors(sim_robot_);
+  std::lock_guard<std::mutex> lock(connection_lock_);
   running_ = true;
 }
 
 void MatlabControllerApi::EndUpdate() {
   running_ = false;
+  std::lock_guard<std::mutex> lock(connection_lock_);
+  if (!connected_) return;
+
   // Close the socket
   int rv = nng_close(nng_socket_);
+  nng_socket_ = NNG_SOCKET_INITIALIZER;
+  connected_ = false;
 
   if (rv != 0) {
     GetLogger().LogTrace("MatlabControllerApi", "nng_close() return value: %d",
                          rv);
   }
-
-  connected_ = false;
 }
 
 void MatlabControllerApi::Reset() {
@@ -56,8 +63,12 @@ void MatlabControllerApi::Update() {
 
   // ------------------------------------------------------------
 
-  if (!connected_ && running_.load()) {
-    ConnectToMatlab();
+  nng_socket socket = NNG_SOCKET_INITIALIZER;
+  {
+    std::lock_guard<std::mutex> lock(connection_lock_);
+    if (!running_.load()) return;
+    if (!connected_) ConnectToMatlab();
+    socket = nng_socket_;
   }
 
   // ------------------------------------------------------------
@@ -151,55 +162,72 @@ void MatlabControllerApi::Update() {
 
   std::string request_str = request_msg.Serialize();
 
-  int rv = nng_send(nng_socket_, request_str.data(), request_str.length(), 0);
+  int rv = nng_send(socket, request_str.data(), request_str.length(), 0);
 
   if (rv != 0) {
     GetLogger().LogTrace("MatlabControllerApi",
-                         "nng_send() return value: %d length = %d", rv,
+                         "nng_send() return value: %d length = %zu", rv,
                          request_str.length());
   }
 
-  if (rv != 0 || running_.load() == false) {
-    connected_ = false;
-    return;
+  if (rv != 0) {
+    {
+      std::lock_guard<std::mutex> lock(connection_lock_);
+      if (nng_socket_id(socket) == nng_socket_id(nng_socket_)) {
+        nng_close(nng_socket_);
+        nng_socket_ = NNG_SOCKET_INITIALIZER;
+        connected_ = false;
+      }
+    }
+    if (!running_.load()) return;
+    throw Error(std::string("MATLAB controller send failed: ") +
+                nng_strerror(rv));
   }
+  if (!running_.load()) return;
 
   // ------------------------------------------------------------
 
   // Wait for a response from Matlab with new control signals
   char* msg_data_buf = nullptr;
-  size_t msg_data_len;
+  size_t msg_data_len = 0;
 
-  rv = NNG_EAGAIN;
-  while (rv == NNG_EAGAIN && running_.load() == true) {
-    rv = nng_recv(nng_socket_, &msg_data_buf, &msg_data_len,
-                  NNG_FLAG_ALLOC | NNG_FLAG_NONBLOCK);
-  }
+  // EndUpdate closes this socket to interrupt the pending reply.
+  rv = nng_recv(socket, &msg_data_buf, &msg_data_len, NNG_FLAG_ALLOC);
 
   if (rv != 0) {
     GetLogger().LogTrace("MatlabControllerApi",
-                         "nng_recv() return value: %d length = %d", rv,
+                         "nng_recv() return value: %d length = %zu", rv,
                          msg_data_len);
   }
 
-  if (rv != 0 || running_.load() == false) {
-    connected_ = false;
-    return;
+  if (rv != 0) {
+    {
+      std::lock_guard<std::mutex> lock(connection_lock_);
+      if (nng_socket_id(socket) == nng_socket_id(nng_socket_)) {
+        nng_close(nng_socket_);
+        nng_socket_ = NNG_SOCKET_INITIALIZER;
+        connected_ = false;
+      }
+    }
+    if (!running_.load()) return;
+    throw Error(std::string("MATLAB controller receive failed: ") +
+                nng_strerror(rv));
   }
+
+  auto free_message = [msg_data_len](char* ptr) { nng_free(ptr, msg_data_len); };
+  std::unique_ptr<char, decltype(free_message)> response_buffer(msg_data_buf,
+                                                            free_message);
+  if (!running_.load()) return;
 
   // Copy the data from the buffer to a string to deserialize (must set the
   // length manually to avoid stopping at '\0' chars that it may contain)
-  std::string response_str;
-  response_str.resize(msg_data_len);
-  response_str.assign(msg_data_buf, msg_data_len);
-
-  // Free the NNG-allocated reply buffer memory
-  nng_free(msg_data_buf, msg_data_len);
+  std::string response_str(response_buffer.get(), msg_data_len);
 
   ControlModelOutputMessage response_msg;
   response_msg.Deserialize(response_str);
 
   std::lock_guard<std::mutex> lock(update_lock_);
+  if (!running_.load()) return;
 
   for (auto i = 0;
        i < motor_output_.size() && i < response_msg.control_values.size();
@@ -355,16 +383,17 @@ void MatlabControllerApi::ConnectToMatlab() {
   // Create a Request socket to dial Matlab server
   int rv = nng_req0_open(&nng_socket_);
 
-  // Connect to server
-  // TODO Give up after a timeout?
-  GetLogger().LogTrace("MatlabControllerApi",
-                       "Trying to connect to Matlab physics model...");
-  do {
-    rv = nng_dial(nng_socket_, connection_string_.c_str(), NULL, 0);
-    GetLogger().LogTrace("MatlabControllerApi", "NNG dial return value: %d",
-                         rv);
-    if (rv != 0) std::this_thread::sleep_for(std::chrono::milliseconds(100));
-  } while (rv != 0);
+  if (rv == 0) {
+    // Send waits for the peer; EndUpdate closes the socket to interrupt it.
+    rv = nng_dial(nng_socket_, connection_string_.c_str(), nullptr,
+                  NNG_FLAG_NONBLOCK);
+  }
+  if (rv != 0) {
+    nng_close(nng_socket_);
+    nng_socket_ = NNG_SOCKET_INITIALIZER;
+    throw Error(std::string("MATLAB controller connection failed: ") +
+                nng_strerror(rv));
+  }
 
   connected_ = true;
 }

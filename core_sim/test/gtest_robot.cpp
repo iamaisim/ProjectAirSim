@@ -491,6 +491,56 @@ TEST(Robot, ConcurrentControllerOutputReadsReturnWholeSnapshots) {
   EXPECT_TRUE(coherent.load());
 }
 
+TEST(Robot, CollisionSnapshotRemainsCoherentDuringUpdates) {
+  auto robot = projectairsim::Scene::MakeRobot("collision_snapshot");
+  json config{{"physics-type", "non-physics"},
+              {"links", {{{"name", "Frame"}}}}};
+  projectairsim::Scene::LoadRobot(robot, config);
+  const projectairsim::CollisionInfo first(
+      false, {0, 0, -1}, {1, 2, 0}, {1, 2, -3}, 0.25f, 100,
+      std::string(256, 'a'), 1);
+  const projectairsim::CollisionInfo second(
+      false, {0, -1, 0}, {4, 0, 6}, {4, -5, 6}, 0.5f, 200,
+      std::string(256, 'b'), 2);
+  robot.UpdateCollisionInfo(first);
+  const auto retained = robot.GetCollisionInfoSnapshot();
+  std::atomic<bool> stop{false};
+  std::promise<void> started;
+  auto ready = started.get_future();
+  std::thread writer([&]() {
+    robot.UpdateCollisionInfo(second);
+    started.set_value();
+    while (!stop.load()) {
+      robot.UpdateCollisionInfo(first);
+      robot.UpdateCollisionInfo(second);
+    }
+  });
+  ready.wait();
+  for (int i = 0; i < 2000; ++i) {
+    const auto snapshot = robot.GetCollisionInfoSnapshot();
+    const bool is_first = snapshot.time_stamp == 100;
+    EXPECT_TRUE(is_first || snapshot.time_stamp == 200);
+    EXPECT_FALSE(snapshot.has_collided);
+    EXPECT_EQ(snapshot.normal,
+              is_first ? projectairsim::Vector3(0, 0, -1)
+                       : projectairsim::Vector3(0, -1, 0));
+    EXPECT_EQ(snapshot.impact_point,
+              is_first ? projectairsim::Vector3(1, 2, 0)
+                       : projectairsim::Vector3(4, 0, 6));
+    EXPECT_EQ(snapshot.position,
+              is_first ? projectairsim::Vector3(1, 2, -3)
+                       : projectairsim::Vector3(4, -5, 6));
+    EXPECT_FLOAT_EQ(snapshot.penetration_depth, is_first ? 0.25f : 0.5f);
+    EXPECT_EQ(snapshot.object_name, std::string(256, is_first ? 'a' : 'b'));
+    EXPECT_EQ(snapshot.segmentation_id, is_first ? 1 : 2);
+  }
+  stop = true;
+  writer.join();
+  EXPECT_EQ(retained.time_stamp, 100);
+  EXPECT_EQ(retained.object_name, std::string(256, 'a'));
+  EXPECT_EQ(retained.segmentation_id, 1);
+}
+
 TEST(Robot, JSBSimDtDefaultsWhenOmitted) {
   json json = R"({
       "physics-type": "jsbsim-physics",

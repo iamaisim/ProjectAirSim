@@ -109,3 +109,30 @@ add_custom_command(TARGET ${TARGET_NAME}
 # Include CMake's GoogleTest module to use gtest_discover_tests() helper
 include(GoogleTest)
 gtest_discover_tests(${TARGET_NAME})
+
+# Compile the stock wrapper independently of the MATLAB S-function interface.
+set(MATLAB_WRAPPER_TARGET matlab_physics_wrapper_gtests)
+add_executable(
+    ${MATLAB_WRAPPER_TARGET}
+    EXCLUDE_FROM_ALL
+    gtest_matlab_physics_wrapper.cpp
+    ../matlab_sfunc/matlab_physics_model_wrapper.cpp
+)
+set_target_properties(
+    ${MATLAB_WRAPPER_TARGET}
+    PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${SIMLIBS_TEST_DIR}"
+)
+add_dependencies(${MATLAB_WRAPPER_TARGET} core_sim nng-external gtest_main)
+target_compile_definitions(${MATLAB_WRAPPER_TARGET} PRIVATE NNG_STATIC_LIB=ON)
+target_include_directories(
+    ${MATLAB_WRAPPER_TARGET}
+    PRIVATE
+        ${TARGET_SOURCE_DIR}/include
+        ${TARGET_SOURCE_DIR}/matlab_sfunc
+        ${NNG_INCLUDE_DIR}
+        ${MSGPACK_INCLUDE_DIR}
+)
+target_link_directories(${MATLAB_WRAPPER_TARGET} PRIVATE ${NNG_LIB_DIR})
+target_link_libraries(${MATLAB_WRAPPER_TARGET} PRIVATE gtest_main core_sim nng)
+gtest_discover_tests(${MATLAB_WRAPPER_TARGET} PROPERTIES TIMEOUT 15)

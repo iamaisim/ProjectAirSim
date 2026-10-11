@@ -33,6 +33,14 @@ The example Python client scripts and configuration files can be found in `clien
 1. After the simulation scene has started, it will automatically start the Simulink model through the Matlab Python API.
 1. Once the script completes, it will automatically stop the Simulink model through the Matlab Python API. To restart the script, just run it again. To stop the simulation while the it is in progress, press Ctrl-C from the Python script console output to stop the in-progress flight command, stop Simulink, and disconnect the client. The simulation can be started again by simply running the script again.
 
+## Transport lifecycle
+
+The stock physics and controller blocks open their listeners before their first model update. The server waits for each reply without busy polling; stopping the scene closes its sockets and interrupts pending connection, send, or receive operations. A delayed physics reply keeps the current numerical step pending. It does not produce a replacement state or skip a plant update.
+
+The blocks report a model error if no request or reply arrives within five wall-clock seconds. This transport limit is independent of the model sample period and simulation clock. Start the client and model together, and stop or reload the scene after a model error before restarting the workflow. Each block closes its own listener, so other instances remain usable. The MEX modules remain loaded until MATLAB exits to keep NNG worker code available between runs; restart MATLAB before rebuilding a loaded module.
+
+Runtime supplies flat-ground contact information to MATLAB physics vehicles. The external plant owns the contact response; see the [Runtime capabilities](../../samples/projectairsim_runtime/README.md).
+
 ---
 
 Copyright (C) Microsoft Corporation.  

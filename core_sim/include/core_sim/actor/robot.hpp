@@ -128,6 +128,8 @@ class Robot : public Actor {
   const Kinematics& GetKinematics() const;
   const Environment& GetEnvironment() const;
   const CollisionInfo& GetCollisionInfo() const;
+  // Returns a copy synchronized with host collision updates.
+  CollisionInfo GetCollisionInfoSnapshot() const;
   const Vector3& GetExternalForce() const;
 
   // Pull API event accumulation: events are buffered during sim steps and

@@ -142,6 +142,7 @@ class Robot::Impl : public ActorImpl {
   const GeoPoint GetGroundTruthGeoLocation();
   const Environment& GetEnvironment() const;
   const CollisionInfo& GetCollisionInfo() const;
+  CollisionInfo GetCollisionInfoSnapshot();
   const Vector3& GetExternalForce() const;
 
   // Pull API event accumulation
@@ -521,6 +522,10 @@ const std::string& Robot::GetControllerSettings() const {
 
 const CollisionInfo& Robot::GetCollisionInfo() const {
   return static_cast<Robot::Impl*>(pimpl_.get())->GetCollisionInfo();
+}
+
+CollisionInfo Robot::GetCollisionInfoSnapshot() const {
+  return static_cast<Robot::Impl*>(pimpl_.get())->GetCollisionInfoSnapshot();
 }
 
 json Robot::DrainStepEvents() {
@@ -1143,6 +1148,11 @@ const Environment& Robot::Impl::GetEnvironment() const { return environment_; }
 const Vector3& Robot::Impl::GetExternalForce() const { return ext_force_; }
 
 const CollisionInfo& Robot::Impl::GetCollisionInfo() const {
+  return collision_info_;
+}
+
+CollisionInfo Robot::Impl::GetCollisionInfoSnapshot() {
+  std::lock_guard<std::mutex> lock(update_lock_);
   return collision_info_;
 }
 

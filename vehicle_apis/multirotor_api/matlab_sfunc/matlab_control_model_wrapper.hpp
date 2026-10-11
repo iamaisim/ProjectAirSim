@@ -29,4 +29,6 @@ void TerminateWrapper(void* nng_mgr);
 
 void CleanUpRuntimeResoucesWrapper(void* nng_mgr);
 
+void FinalizeRuntimeResourcesWrapper() noexcept;
+
 #endif  // MATLAB_CONTROL_MODEL_WRAPPER_HPP

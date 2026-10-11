@@ -6,6 +6,8 @@
 #ifndef PHYSICS_INCLUDE_MATLAB_PHYSICS_HPP_
 #define PHYSICS_INCLUDE_MATLAB_PHYSICS_HPP_
 
+#include <mutex>
+
 #include "base_physics.hpp"
 #include "core_sim/actor/robot.hpp"
 #include "nng/nng.h"
@@ -54,6 +56,7 @@ class MatlabPhysicsBody : public BasePhysicsBody {
  protected:
   Robot sim_robot_;
   bool connected_ = false;
+  std::mutex connection_lock_;
   nng_socket nng_socket_ = NNG_SOCKET_INITIALIZER;
   std::string connection_string_;
   std::vector<ExternalWrenchEntry> external_wrench_entries_;

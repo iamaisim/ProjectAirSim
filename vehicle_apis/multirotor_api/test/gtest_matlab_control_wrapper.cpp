@@ -77,8 +77,6 @@ class MatlabControlWrapper : public ::testing::Test {
   projectairsim::ControlModelInputMessage Request() {
     projectairsim::ControlModelInputMessage request;
     request.time_stamp = 123;
-    request.airspeed = 0.0f;
-    request.distance = 0.0f;
     return request;
   }
 

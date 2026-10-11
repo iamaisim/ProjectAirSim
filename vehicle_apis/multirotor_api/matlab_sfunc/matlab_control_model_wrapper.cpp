@@ -199,8 +199,6 @@ void StartWrapper(void* nng_mgr, double* out_port_0_kinematics,
   // single S-function block for passing data for all components (physics,
   // controllers, etc).
   microsoft::projectairsim::ControlModelInputMessage default_msg;
-  default_msg.airspeed = 0.0f;
-  default_msg.distance = 0.0f;
 
   CopyDataToOutputPorts(default_msg, out_port_0_kinematics, out_port_1_airspeed,
                         out_port_2_barometer, out_port_3_imu,

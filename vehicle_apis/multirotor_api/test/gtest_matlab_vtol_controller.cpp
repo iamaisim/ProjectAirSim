@@ -2,9 +2,14 @@
 //
 // MIT License. All rights reserved.
 
+#include <atomic>
 #include <chrono>
 #include <future>
 #include <limits>
+#include <mutex>
+#include <string>
+#include <thread>
+#include <vector>
 
 #include "gtest/gtest.h"
 #include "json.hpp"
@@ -19,6 +24,10 @@ using json = nlohmann::json;
 using namespace projectairsim;
 
 namespace {
+
+// Longer than the 200 ms test request timeout, which is also the interval
+// between reconnect attempts after a failed exchange.
+constexpr auto kRetryWait = std::chrono::milliseconds(250);
 
 class HandoffClock : public SteppableClock {
  public:
@@ -36,6 +45,27 @@ class ControllerCommands : public MatlabVTOLControllerApi {
   using MatlabVTOLControllerApi::CommandVelocityBody;
   using MatlabVTOLControllerApi::CommandVelocityZ;
   using MatlabVTOLControllerApi::MatlabVTOLControllerApi;
+};
+
+class HookCountingController : public ControllerCommands {
+ public:
+  using ControllerCommands::ControllerCommands;
+
+  int LockDepth() { return GetCancelToken().GetRecursionCount(); }
+
+  std::atomic<int> before_tasks{0};
+  std::atomic<int> after_tasks{0};
+
+ protected:
+  void BeforeTask() override {
+    ++before_tasks;
+    ControllerCommands::BeforeTask();
+  }
+
+  void AfterTask() override {
+    ++after_tasks;
+    ControllerCommands::AfterTask();
+  }
 };
 
 class ShutdownGateController : public ControllerCommands {
@@ -61,15 +91,17 @@ class ExternalController : public ::testing::Test {
  protected:
   void SetUp() override {
     SimClock::Get(std::make_shared<RealTimeClock>());
-    ASSERT_EQ(nng_rep0_open(&socket_), 0);
-    ASSERT_EQ(nng_setopt_ms(socket_, NNG_OPT_RECVTIMEO, 1000), 0);
-    ASSERT_EQ(nng_setopt_ms(socket_, NNG_OPT_SENDTIMEO, 1000), 0);
-    nng_listener listener;
-    ASSERT_EQ(nng_listener_create(&listener, socket_, "tcp://127.0.0.1:0"), 0);
-    ASSERT_EQ(nng_listener_start(listener, 0), 0);
-    ASSERT_EQ(nng_listener_getopt_int(listener, NNG_OPT_TCP_BOUND_PORT, &port_),
-              0);
-    robot_ = Scene::MakeRobot("external_controller_test");
+    Listen("tcp://127.0.0.1:0");
+    robot_ = Scene::MakeRobot(
+        "external_controller_test",
+        Logger(
+            [this](const std::string& component, LogLevel level,
+                   const std::string& message) {
+              if (component != "MatlabVTOLControllerApi") return;
+              std::lock_guard<std::mutex> lock(log_lock_);
+              logs_.push_back({level, message});
+            },
+            LogLevel::kTrace));
     auto config = Config(20);
     Scene::LoadRobot(robot_, config);
     api_.reset(new ControllerCommands(robot_, nullptr));
@@ -83,6 +115,25 @@ class ExternalController : public ::testing::Test {
     if (api_) api_->EndUpdate();
     nng_close(socket_);
     SimClock::Get(std::make_shared<RealTimeClock>());
+  }
+
+  void Listen(const std::string& url) {
+    ASSERT_EQ(nng_rep0_open(&socket_), 0);
+    ASSERT_EQ(nng_setopt_ms(socket_, NNG_OPT_RECVTIMEO, 1000), 0);
+    ASSERT_EQ(nng_setopt_ms(socket_, NNG_OPT_SENDTIMEO, 1000), 0);
+    nng_listener listener;
+    ASSERT_EQ(nng_listener_create(&listener, socket_, url.c_str()), 0);
+    ASSERT_EQ(nng_listener_start(listener, 0), 0);
+    ASSERT_EQ(nng_listener_getopt_int(listener, NNG_OPT_TCP_BOUND_PORT, &port_),
+              0);
+  }
+
+  std::vector<std::string> Logs(LogLevel level) {
+    std::lock_guard<std::mutex> lock(log_lock_);
+    std::vector<std::string> messages;
+    for (const auto& log : logs_)
+      if (log.first == level) messages.push_back(log.second);
+    return messages;
   }
 
   json Config(size_t count) {
@@ -137,17 +188,26 @@ class ExternalController : public ::testing::Test {
     return request;
   }
 
-  void ConfigureHandoff(double seconds) {
+  void Reload(const json& config) {
     api_->EndUpdate();
     api_.reset();
-    auto config = Config(20);
-    config["controller"]["matlab-vtol-controller-api-settings"]
-          ["command-handoff-grace-period"] = seconds;
     Scene::LoadRobot(robot_, config);
-    api_.reset(new ControllerCommands(robot_, nullptr));
+    Replace(new ControllerCommands(robot_, nullptr));
+  }
+
+  void Replace(ControllerCommands* api) {
+    if (api_) api_->EndUpdate();
+    api_.reset(api);
     robot_.UpdateKinematics(kinematics_);
     api_->SetKinematics(&kinematics_);
     api_->BeginUpdate();
+  }
+
+  void ConfigureHandoff(double seconds) {
+    auto config = Config(20);
+    config["controller"]["matlab-vtol-controller-api-settings"]
+          ["command-handoff-grace-period"] = seconds;
+    Reload(config);
   }
 
   void CompleteTimedCommand(const std::shared_ptr<HandoffClock>& clock,
@@ -195,6 +255,8 @@ class ExternalController : public ::testing::Test {
   }
 
   Robot robot_;
+  std::mutex log_lock_;
+  std::vector<std::pair<LogLevel, std::string>> logs_;
   Kinematics kinematics_;
   std::unique_ptr<ControllerCommands> api_;
   nng_socket socket_ = NNG_SOCKET_INITIALIZER;
@@ -537,6 +599,7 @@ TEST_F(ExternalController, MalformedReplyFailsClosedAndShutdownIsBounded) {
               std::vector<float>{0.25f});
     static_cast<IController&>(*api_).GetControlSignalSnapshot(outputs);
     EXPECT_EQ(outputs, std::vector<float>(20, 0.25f));
+    std::this_thread::sleep_for(kRetryWait);
     Exchange();
     ASSERT_TRUE(api_->Arm(0));
   }
@@ -547,6 +610,93 @@ TEST_F(ExternalController, MalformedReplyFailsClosedAndShutdownIsBounded) {
             std::future_status::ready);
   update.get();
   EXPECT_FALSE(api_->GetReadyState().ReadyVal);
+}
+
+TEST_F(ExternalController, UnavailableControllerRetriesWithoutBlockingUpdates) {
+  Arm();
+  nng_close(socket_);  // The external controller stops listening.
+  api_->Update();      // Blocks for the request timeout, then fails closed.
+  EXPECT_FALSE(api_->CanArm());
+  EXPECT_EQ(api_->GetControlSignals("effector-19"), std::vector<float>{0.25f});
+  ASSERT_EQ(Logs(LogLevel::kWarning).size(), 1);
+  auto start = std::chrono::steady_clock::now();
+  for (int i = 0; i < 5; ++i) api_->Update();
+  EXPECT_LT(std::chrono::steady_clock::now() - start,
+            std::chrono::milliseconds(100));
+  std::this_thread::sleep_for(kRetryWait);
+  start = std::chrono::steady_clock::now();
+  api_->Update();  // One retry after the interval, without a new warning.
+  EXPECT_GE(std::chrono::steady_clock::now() - start,
+            std::chrono::milliseconds(100));
+  EXPECT_EQ(Logs(LogLevel::kWarning).size(), 1);
+  Listen("tcp://127.0.0.1:" + std::to_string(port_));
+  for (int i = 0; i < 5; ++i) api_->Update();
+  char* data = nullptr;
+  size_t size = 0;
+  EXPECT_EQ(nng_recv(socket_, &data, &size, NNG_FLAG_ALLOC | NNG_FLAG_NONBLOCK),
+            NNG_EAGAIN);
+  std::this_thread::sleep_for(kRetryWait);
+  EXPECT_FALSE(Exchange().setpoint.armed);
+  EXPECT_TRUE(api_->GetReadyState().ReadyVal);
+  EXPECT_EQ(Logs(LogLevel::kTrace),
+            std::vector<std::string>{"External controller available"});
+  EXPECT_EQ(Logs(LogLevel::kWarning).size(), 1);
+  ASSERT_TRUE(api_->Arm(0));
+  EXPECT_EQ(api_->GetControlSignals("effector-19"), std::vector<float>{0.25f});
+  Exchange();
+  EXPECT_EQ(api_->GetControlSignals("effector-19"), std::vector<float>{20});
+}
+
+TEST_F(ExternalController, WarnsAboutActuatorsMissingFromActuatorOrder) {
+  auto config = Config(1);
+  config["actuators"] = json::array();
+  for (const auto* id : {"effector-0", "unlisted-a", "unlisted-b"}) {
+    config["actuators"].push_back({{"name", id},
+                                   {"type", "rotor"},
+                                   {"enabled", true},
+                                   {"parent-link", "Frame"},
+                                   {"child-link", "Frame"}});
+  }
+  Reload(config);
+  EXPECT_EQ(Logs(LogLevel::kWarning),
+            std::vector<std::string>{
+                "Actuators not listed in actuator-order receive 0: unlisted-a, "
+                "unlisted-b"});
+}
+
+TEST_F(ExternalController, TaskHooksRunOncePerRootTaskAndAfterPreemption) {
+  auto* hooks = new HookCountingController(robot_, nullptr);
+  Replace(hooks);
+  Arm();
+  // The controller task wraps the nested shared-implementation task.
+  api_->MoveByVelocity(1, 0, 0, 0, DrivetrainType::MaxDegreeOfFreedom, false, 0,
+                       SimClock::Get()->NowSimNanos());
+  EXPECT_EQ(hooks->before_tasks, 1);
+  EXPECT_EQ(hooks->after_tasks, 1);
+  EXPECT_EQ(hooks->LockDepth(), 0);
+  auto first = std::async(std::launch::async, [&]() {
+    return api_->MoveByVelocity(2, 0, 0, 10, DrivetrainType::MaxDegreeOfFreedom,
+                                false, 0, SimClock::Get()->NowSimNanos());
+  });
+  VTOLControlModelInputMessage request;
+  const auto deadline =
+      std::chrono::steady_clock::now() + std::chrono::seconds(1);
+  do {
+    request = Exchange();
+  } while (request.setpoint.mode == ExternalControlSetpoint::Idle &&
+           std::chrono::steady_clock::now() < deadline);
+  EXPECT_EQ(request.setpoint.mode, ExternalControlSetpoint::Velocity);
+  // A new task cancels the running task and waits for its lock.
+  api_->MoveByVelocity(1, 0, 0, 0, DrivetrainType::MaxDegreeOfFreedom, false, 0,
+                       SimClock::Get()->NowSimNanos());
+  EXPECT_FALSE(first.get());
+  EXPECT_EQ(hooks->before_tasks, 3);
+  EXPECT_EQ(hooks->after_tasks, 3);
+  EXPECT_EQ(hooks->LockDepth(), 0);
+  api_->MoveByVelocity(1, 0, 0, 0, DrivetrainType::MaxDegreeOfFreedom, false, 0,
+                       SimClock::Get()->NowSimNanos());
+  EXPECT_EQ(hooks->before_tasks, 4);
+  EXPECT_EQ(hooks->after_tasks, 4);
 }
 
 TEST_F(ExternalController, RobotShutdownDoesNotDeadlockWithPendingSnapshot) {

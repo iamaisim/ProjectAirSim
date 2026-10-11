@@ -18,13 +18,14 @@ namespace projectairsim {
 class Scene {
  public:
   static Robot MakeRobot(const std::string& id) {
-    Transform origin = {{0, 0, 0}, {1, 0, 0, 0}};
-
     // Keep test logging quiet.
     auto callback = [](const std::string& component, LogLevel level,
                        const std::string& message) {};
-    Logger logger(callback);
+    return MakeRobot(id, Logger(callback));
+  }
 
+  static Robot MakeRobot(const std::string& id, Logger logger) {
+    Transform origin = {{0, 0, 0}, {1, 0, 0, 0}};
     return Robot(id, origin, logger, TopicManager(logger), "",
                  ServiceManager(logger), StateManager(logger),
                  PROJECTAIRSIM_TEST_PLUGIN_DIR);

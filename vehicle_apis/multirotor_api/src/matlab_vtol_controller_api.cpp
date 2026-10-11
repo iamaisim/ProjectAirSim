@@ -4,9 +4,11 @@
 
 #include "matlab_vtol_controller_api.hpp"
 
+#include <chrono>
 #include <cmath>
 #include <stdexcept>
 
+#include "core_sim/actuators/actuator.hpp"
 #include "core_sim/sensors/airspeed.hpp"
 #include "core_sim/sensors/barometer.hpp"
 #include "core_sim/sensors/distance_sensor.hpp"
@@ -76,6 +78,20 @@ void MatlabVTOLControllerApi::LoadSettings() {
     throw std::invalid_argument("Invalid external-controller connection");
   }
   connection_string_ = "tcp://" + ip + ":" + std::to_string(port);
+  std::string unmapped;
+  for (const auto& actuator : sim_robot_.GetActuators()) {
+    const auto& id = actuator.get().GetId();
+    if (actuator.get().GetType() != ActuatorType::kGimbal &&
+        actuator_indices_.count(id) == 0) {
+      unmapped += (unmapped.empty() ? "" : ", ") + id;
+    }
+  }
+  if (!unmapped.empty()) {
+    sim_robot_.GetLogger().LogWarning(
+        GetControllerName(),
+        "Actuators not listed in actuator-order receive 0: %s",
+        unmapped.c_str());
+  }
   RestoreInitialOutputs();
 }
 
@@ -104,6 +120,7 @@ void MatlabVTOLControllerApi::CloseConnection() {
   std::lock_guard<std::mutex> lock(socket_lock_);
   if (socket_open_) nng_close(socket_);
   socket_open_ = false;
+  transport_failed_ = false;
 }
 
 void MatlabVTOLControllerApi::RestoreInitialOutputs() {
@@ -233,6 +250,10 @@ void MatlabVTOLControllerApi::Update() {
     request.effectors = effectors_;
     generation = lifecycle_generation_;
   }
+  // After a failed exchange, hold the fail-safe outputs without blocking the
+  // simulation until the wall-clock retry interval has elapsed.
+  if (transport_failed_ && std::chrono::steady_clock::now() < retry_time_)
+    return;
   request.state = GetState();
   try {
     if (!socket_open_) {
@@ -262,6 +283,11 @@ void MatlabVTOLControllerApi::Update() {
       throw std::runtime_error(
           "External-controller timestamp or effector count mismatch");
     }
+    if (transport_failed_) {
+      transport_failed_ = false;
+      sim_robot_.GetLogger().LogTrace(GetControllerName(),
+                                      "External controller available");
+    }
     std::lock_guard<std::mutex> lock(update_lock_);
     // An in-flight reply cannot undo cancellation, reset, disarm, or shutdown.
     if (!running_ || generation != lifecycle_generation_) return;
@@ -276,15 +302,26 @@ void MatlabVTOLControllerApi::Update() {
   } catch (const std::exception& error) {
     if (socket_open_) nng_close(socket_);
     socket_open_ = false;
-    std::lock_guard<std::mutex> lock(update_lock_);
-    ready_ = false;
-    setpoint_.armed = false;
-    SetIdle();
-    RestoreInitialOutputs();
-    ++lifecycle_generation_;
-    sim_robot_.GetLogger().LogWarning(GetControllerName(),
-                                      "External controller unavailable: %s",
-                                      error.what());
+    // The vehicle must not continue on stale outputs: disarm, idle, and
+    // restore initial outputs until the controller reports ready again.
+    {
+      std::lock_guard<std::mutex> lock(update_lock_);
+      ready_ = false;
+      setpoint_.armed = false;
+      SetIdle();
+      RestoreInitialOutputs();
+      ++lifecycle_generation_;
+    }
+    retry_time_ = std::chrono::steady_clock::now() +
+                  std::chrono::milliseconds(request_timeout_ms_);
+    if (!transport_failed_) {
+      transport_failed_ = true;
+      sim_robot_.GetLogger().LogWarning(
+          GetControllerName(),
+          "External controller unavailable, vehicle disarmed: %s. Retrying "
+          "every %d ms.",
+          error.what(), request_timeout_ms_);
+    }
   }
 }
 

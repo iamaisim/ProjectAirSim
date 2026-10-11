@@ -5,6 +5,7 @@
 #ifndef MULTIROTOR_API_INCLUDE_MATLAB_VTOL_CONTROLLER_API_HPP_
 #define MULTIROTOR_API_INCLUDE_MATLAB_VTOL_CONTROLLER_API_HPP_
 
+#include <chrono>
 #include <mutex>
 #include <string>
 #include <unordered_map>
@@ -119,6 +120,9 @@ class MatlabVTOLControllerApi : public VTOLFWApiBase {
   MultirotorApiParams params_;
   nng_socket socket_ = NNG_SOCKET_INITIALIZER;
   bool socket_open_ = false;
+  // Transport outage state, guarded by socket_lock_.
+  bool transport_failed_ = false;
+  std::chrono::steady_clock::time_point retry_time_;
   bool running_ = false;
   bool ready_ = false;
   bool landed_ = true;

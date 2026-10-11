@@ -55,15 +55,17 @@ Configure the robot controller as follows:
 
 | Setting | Default | Meaning |
 |---|---|---|
-| `actuator-order` | Required | Nonempty ordered effector list; each entry has a unique `id`, `kind`, and `units`. There is no fixed output-count limit. |
+| `actuator-order` | Required | Nonempty ordered effector list; each entry has a unique `id`, `kind`, and `units`. There is no fixed output-count limit. Robot actuators whose IDs are not listed receive 0; a warning listing them is logged when the controller loads. |
 | `initial-value` | `0.0` | Per-effector output while disabled, disarmed, reset, or unavailable. |
 | `control-connection` | `127.0.0.1:8998` | External controller listener. Scene-level control connection settings take precedence. |
-| `request-timeout-ms` | `1000` | Wall-clock limit for each send or receive operation. |
+| `request-timeout-ms` | `1000` | Wall-clock limit for each send or receive operation, and the wall-clock interval between reconnect attempts after a failed exchange. |
 | `command-period` | `0.02` | Simulated seconds between movement-command updates. |
 | `command-handoff-grace-period` | `0.0` | Nonnegative finite simulated seconds to retain a completed velocity, velocity-with-altitude, or heading setpoint while awaiting replacement. |
 | `takeoff-z` | `-3.0` | Relative NED takeoff height in metres; must be negative. |
 
 These defaults describe the generic API and do not define an aircraft operating envelope. The model reports ready/landed status. API control must be enabled and the model ready before arming. Hover retains an explicit position/yaw objective until superseded or cancelled. Other task completion sends idle by default; the model defines idle hold behavior. A positive `command-handoff-grace-period` retains setpoints from successful positive-duration velocity and heading requests until replacement or the first controller update at or after the simulated deadline. This allowance does not delay the service reply. Position and takeoff/land completion retain immediate idle behavior. Cancellation and failed requests clear the setpoint immediately, including during a handoff. Disabling, disarming, reset, timeout, and invalid replies restore configured initial outputs. Attitude, PWM, angular-rate, and C++ gain commands are unsupported and raise an error. `SetVTOLMode` supplies a requested mode to the model, rather than confirming a completed physical transition.
+
+A failed exchange (send or receive timeout, transport error, or invalid reply) disarms the vehicle, sends idle, and restores the configured initial outputs, so the vehicle does not continue on stale outputs. After a failure, controller updates skip the exchange and hold the initial outputs until `request-timeout-ms` of wall-clock time has elapsed, then make one new attempt. Each attempt against an absent controller blocks the simulation update for up to `request-timeout-ms`. One warning is logged per outage, and a trace message is logged when a valid reply is received again. The client must re-arm after the model reports ready.
 
 ### Message and block contract
 

@@ -22,7 +22,13 @@ import asyncio
 from projectairsim import ProjectAirSimClient, Drone, World
 from projectairsim.utils import projectairsim_log
 
-from simulink_utils import cleanup_simulink_model, wait_for_simulink_call
+from simulink_utils import (
+    MODEL_START_TIMEOUT_SEC,
+    cleanup_simulink_model,
+    compile_simulink_model,
+    connect_to_matlab,
+    wait_for_simulink_call,
+)
 
 try:
     import matlab.engine
@@ -43,17 +49,8 @@ async def main(scenefile, simulink_model_name):
 
     try:
         projectairsim_log().info("Connecting to Matlab and compiling Simulink model")
-        matlab_engine = matlab.engine.connect_matlab("MATLABEngine")
-        wait_for_simulink_call(
-            matlab_engine.set_param(
-                simulink_model_name,
-                "SimulationCommand",
-                "update",
-                nargout=0,
-                background=True,
-            ),
-            timeout=120,
-        )
+        matlab_engine = connect_to_matlab(matlab.engine)
+        compile_simulink_model(matlab_engine, simulink_model_name)
 
         # Start asynchronously so the model can wait for the scene's TCP bridges.
         model_start_requested = True
@@ -77,7 +74,7 @@ async def main(scenefile, simulink_model_name):
         # Create a Drone object to interact with a drone in the sim world
         drone = Drone(client, world, "Drone1")
 
-        wait_for_simulink_call(start_future, timeout=120)
+        wait_for_simulink_call(start_future, timeout=MODEL_START_TIMEOUT_SEC)
 
         # --------------------------------------------------------------------------
 
@@ -87,8 +84,8 @@ async def main(scenefile, simulink_model_name):
         # --------------------------------------------------------------------------
 
     except Exception as err:
-        projectairsim_log().error(f"Exception occurred: {err}", exc_info=True)
-        raise
+        projectairsim_log().error(f"Exception occurred: {err}")
+        raise  # The traceback is printed once when the script exits
     finally:
         cleanup_simulink_model(
             matlab_engine,

@@ -35,22 +35,33 @@ def example(request, monkeypatch):
             raise failures[name]
 
     class Future:
-        def __init__(self, command):
+        def __init__(self, command, value=None):
             self.command = command
+            self.value = value
             self.finished = False
             self.was_cancelled = False
+            self.retrieved = False
 
         def result(self, timeout=None):
             if timeout is None or timeout <= 0:
-                raise AssertionError("Model lifecycle waits must be bounded.")
+                raise AssertionError("MATLAB waits must be bounded.")
+            if self.retrieved:
+                return self.value
             if self.command + "_interrupted" in failures:
                 # MATLAB Engine consumes Ctrl+C and returns None after cancellation.
                 self.was_cancelled = True
                 self.finished = True
                 return None
-            if not isinstance(failures.get(self.command + "_completed"), TimeoutError):
+            if self.command + "_late_interrupt" in failures and not self.finished:
+                # Ctrl+C after completion: cancellation fails and None is returned.
+                self.finished = True
+                return None
+            completion = failures.get(self.command + "_completed")
+            if not isinstance(completion, TimeoutError):
                 self.finished = True
             operation(self.command + "_completed")
+            self.retrieved = True
+            return self.value
 
         def done(self):
             return self.finished
@@ -67,21 +78,28 @@ def example(request, monkeypatch):
     class Engine:
         def set_param(self, model, parameter, command, **kwargs):
             assert model == "model" and parameter == "SimulationCommand"
+            # Background calls let the example bound each wait and cancel on failure.
+            assert kwargs.get("background")
             operation(command)
-            assert kwargs == {"nargout": 0, "background": True}
             return Future(command)
 
         def quit(self):
             pytest.fail("The example must preserve the shared MATLAB desktop.")
 
-    engine = Engine()
+    def connect_matlab(name, background=False):
+        assert name == "MATLABEngine" and background
+        operation("engine_connect")
+        return Future("connect", Engine())
+
     matlab = ModuleType("matlab")
     matlab.engine = ModuleType("matlab.engine")
-    matlab.engine.connect_matlab = lambda name: operation("engine_connect") or engine
+    matlab.engine.connect_matlab = connect_matlab
     monkeypatch.setitem(sys.modules, "matlab", matlab)
     monkeypatch.setitem(sys.modules, "matlab.engine", matlab.engine)
     monkeypatch.syspath_prepend(str(_EXAMPLES))
-    spec = importlib.util.spec_from_file_location(request.param, _EXAMPLES / (request.param + ".py"))
+    spec = importlib.util.spec_from_file_location(
+        request.param, _EXAMPLES / (request.param + ".py")
+    )
     script = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(script)
 
@@ -135,13 +153,16 @@ def example(request, monkeypatch):
         pass
 
     monkeypatch.setattr(script, "ProjectAirSimClient", Client)
-    monkeypatch.setattr(script, "World", lambda *args, **kwargs: operation("scene_loaded"))
+    monkeypatch.setattr(
+        script, "World", lambda *args, **kwargs: operation("scene_loaded")
+    )
     monkeypatch.setattr(script, "Drone", Drone)
     monkeypatch.setattr(script.asyncio, "sleep", sleep)
     monkeypatch.setattr("builtins.input", lambda *args: operation("flight"))
     return SimpleNamespace(
         run=lambda: asyncio.run(script.main("scene.jsonc", "model")),
-        events=events, failures=failures,
+        events=events,
+        failures=failures,
         flies="physics" in request.param,
     )
 
@@ -153,11 +174,26 @@ def test_model_compiles_before_starting_the_scene(example):
     assert example.events.index("start_completed") < example.events.index("flight")
     assert example.events[-3:] == ["stop", "stop_completed", "client_disconnect"]
     if not example.flies:
-        assert not any(action in example.events for action in ("cancel", "disarm", "release"))
+        authority = ("cancel", "disarm", "release")
+        assert not any(action in example.events for action in authority)
+
+
+@pytest.mark.parametrize("stage", ["engine_connect", "connect_completed"])
+def test_connection_failure_explains_matlab_setup(example, stage):
+    failure = RuntimeError("MATLAB session not found")
+    example.failures[stage] = failure
+    with pytest.raises(RuntimeError, match="model loader script") as caught:
+        example.run()
+    assert caught.value.__cause__ is failure
+    assert "update" not in example.events and "client_created" not in example.events
 
 
 @pytest.mark.parametrize("stage", [
-    "engine_connect", "update_completed", "start", "client_created", "client_connect", "start_completed",
+    "update_completed",
+    "start",
+    "client_created",
+    "client_connect",
+    "start_completed",
 ])
 def test_startup_failure_releases_acquired_resources(example, stage):
     failure = RuntimeError("startup failed")
@@ -187,10 +223,14 @@ def test_cleanup_failure_does_not_skip_later_cleanup(example, stage):
     assert example.events[-1] == "client_disconnect"
     assert "stop_completed" in example.events
     if example.flies:
-        assert all(action in example.events for action in ("cancel", "disarm", "release"))
+        authority = ("cancel", "disarm", "release")
+        assert all(action in example.events for action in authority)
 
 
-@pytest.mark.parametrize("failure", [RuntimeError("flight failed"), KeyboardInterrupt(), asyncio.CancelledError()])
+@pytest.mark.parametrize(
+    "failure",
+    [RuntimeError("flight failed"), KeyboardInterrupt(), asyncio.CancelledError()],
+)
 def test_interruption_preserves_original_failure_during_cleanup(example, failure):
     example.failures.update(flight=failure, stop_completed=RuntimeError("stop failed"))
     with pytest.raises(type(failure)) as caught:
@@ -200,15 +240,38 @@ def test_interruption_preserves_original_failure_during_cleanup(example, failure
     assert "stop_completed" in example.events
 
 
-@pytest.mark.parametrize("command", ["update", "start"])
+def test_failure_is_logged_without_duplicate_traceback(example, caplog):
+    example.failures["flight"] = RuntimeError("flight failed")
+    with pytest.raises(RuntimeError):
+        example.run()
+    assert "Exception occurred: flight failed" in caplog.text
+    assert not any(record.exc_info for record in caplog.records)
+
+
+@pytest.mark.parametrize("command", ["connect", "update", "start"])
 def test_engine_cancellation_does_not_continue_to_flight(example, command):
     example.failures[command + "_interrupted"] = KeyboardInterrupt()
     with pytest.raises(KeyboardInterrupt):
         example.run()
     assert "flight" not in example.events
-    if command == "update":
-        assert "start" not in example.events
+    if command == "connect":
+        assert "update" not in example.events
+    if command == "start":
+        assert example.events[-1] == "client_disconnect"
     else:
+        assert "start" not in example.events
+
+
+@pytest.mark.parametrize("command", ["update", "start", "stop"])
+def test_interrupt_after_completion_reports_matlab_error(example, command):
+    failure = RuntimeError("MATLAB command failed")
+    example.failures[command + "_late_interrupt"] = KeyboardInterrupt()
+    example.failures[command + "_completed"] = failure
+    with pytest.raises(RuntimeError) as caught:
+        example.run()
+    assert caught.value is failure
+    assert "flight" not in example.events or command == "stop"
+    if command != "update":
         assert example.events[-1] == "client_disconnect"
 
 

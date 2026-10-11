@@ -132,6 +132,7 @@ void MatlabPhysicsModel::ConnectToMatlab(
   }
   if (rv != 0) {
     nng_close(matlab_body->nng_socket_);
+    matlab_body->nng_socket_ = NNG_SOCKET_INITIALIZER;
     throw Error(std::string("MATLAB physics connection failed: ") +
                 nng_strerror(rv));
   }
@@ -156,6 +157,16 @@ void MatlabPhysicsModel::StepPhysicsBody(
     if (!matlab_body->connected_) ConnectToMatlab(matlab_body);
     socket = matlab_body->nng_socket_;
   }
+
+  // Close a failed socket so the next step reconnects instead of reusing it.
+  auto close_failed_socket = [&matlab_body, socket]() {
+    std::lock_guard<std::mutex> lock(matlab_body->connection_lock_);
+    if (nng_socket_id(socket) == nng_socket_id(matlab_body->nng_socket_)) {
+      nng_close(matlab_body->nng_socket_);
+      matlab_body->nng_socket_ = NNG_SOCKET_INITIALIZER;
+      matlab_body->connected_ = false;
+    }
+  };
 
   // ------------------------------------------------------------
 
@@ -230,10 +241,12 @@ void MatlabPhysicsModel::StepPhysicsBody(
               << " length = " << request_str.length() << std::endl;
   }
 
-  if (rv != 0 || running_.load() == false) {
+  if (rv != 0) {
+    close_failed_socket();
     if (!running_.load()) return;
     throw Error(std::string("MATLAB physics send failed: ") + nng_strerror(rv));
   }
+  if (!running_.load()) return;
 
   // ------------------------------------------------------------
 
@@ -250,6 +263,7 @@ void MatlabPhysicsModel::StepPhysicsBody(
 
   if (rv != 0 || running_.load() == false) {
     if (msg_data_buf != nullptr) nng_free(msg_data_buf, msg_data_len);
+    if (rv != 0) close_failed_socket();
     if (!running_.load()) return;
     throw Error(std::string("MATLAB physics receive failed: ") +
                 nng_strerror(rv));
@@ -257,9 +271,11 @@ void MatlabPhysicsModel::StepPhysicsBody(
 
   // Copy the data from the buffer to a string to deserialize (must set the
   // length manually to avoid stopping at '\0' chars that it may contain)
-  auto free_message = [msg_data_len](char* ptr) { nng_free(ptr, msg_data_len); };
+  auto free_message = [msg_data_len](char* ptr) {
+    nng_free(ptr, msg_data_len);
+  };
   std::unique_ptr<char, decltype(free_message)> response_buffer(msg_data_buf,
-                                                            free_message);
+                                                                free_message);
   std::string response_str(response_buffer.get(), msg_data_len);
 
   PhysicsModelOutputMessage response_msg;
@@ -301,12 +317,12 @@ void MatlabPhysicsModel::Stop(std::shared_ptr<BasePhysicsBody> body) {
 
   // Close the socket
   int rv = nng_close(matlab_body->nng_socket_);
+  matlab_body->nng_socket_ = NNG_SOCKET_INITIALIZER;
+  matlab_body->connected_ = false;
 
   if (rv != 0) {
     std::cout << "nng_close() return value: " << rv << std::endl;
   }
-
-  matlab_body->connected_ = false;
 }
 
 }  // namespace projectairsim

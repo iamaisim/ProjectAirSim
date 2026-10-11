@@ -9,6 +9,7 @@
 #include <thread>
 
 #include "core_sim/actor/robot.hpp"
+#include "core_sim/error.hpp"
 #include "core_sim/message/pose_stamped_message.hpp"
 #include "core_sim/simulator.hpp"
 #include "ground_collision_host.hpp"
@@ -29,9 +30,11 @@ class TestMatlabPhysicsBody : public MatlabPhysicsBody {
  public:
   // Expose parent constructors for testing
   using MatlabPhysicsBody::collision_info_;
+  using MatlabPhysicsBody::connected_;
   using MatlabPhysicsBody::connection_string_;
   using MatlabPhysicsBody::kinematics_;
   using MatlabPhysicsBody::MatlabPhysicsBody;
+  using MatlabPhysicsBody::nng_socket_;
 };
 }  // namespace projectairsim
 }  // namespace microsoft
@@ -271,8 +274,7 @@ TEST(MatlabPhysicsBody, RuntimeGroundContactReachesPhysicsInput) {
     projectairsim::TestMatlabPhysicsBody body(robot);
     projectairsim::Kinematics kinematics;
     kinematics.pose.position = {0.0f, 0.0f, 0.0f};
-    auto wait_for_contact = [&](bool has_collided,
-                                TimeNano time_stamp) {
+    auto wait_for_contact = [&](bool has_collided, TimeNano time_stamp) {
       const auto deadline =
           std::chrono::steady_clock::now() + std::chrono::seconds(2);
       while (std::chrono::steady_clock::now() < deadline) {
@@ -397,9 +399,8 @@ TEST(MatlabPhysicsModel, StopInterruptsUnavailablePeerConnection) {
   body->connection_string_ = "inproc://matlab_physics_unavailable_peer";
   projectairsim::MatlabPhysicsModel model;
   model.Start(body);
-  auto step = std::async(std::launch::async, [&]() {
-    model.StepPhysicsBody(16666667, body);
-  });
+  auto step = std::async(std::launch::async,
+                         [&]() { model.StepPhysicsBody(16666667, body); });
   EXPECT_EQ(step.wait_for(std::chrono::milliseconds(100)),
             std::future_status::timeout);
   model.Stop(body);
@@ -420,9 +421,8 @@ TEST(MatlabPhysicsModel, StopInterruptsPendingPhysicsReply) {
   ASSERT_EQ(nng_listen(peer, body->connection_string_.c_str(), nullptr, 0), 0);
   projectairsim::MatlabPhysicsModel model;
   model.Start(body);
-  auto step = std::async(std::launch::async, [&]() {
-    model.StepPhysicsBody(16666667, body);
-  });
+  auto step = std::async(std::launch::async,
+                         [&]() { model.StepPhysicsBody(16666667, body); });
   char* request = nullptr;
   size_t size = 0;
   const int received = nng_recv(peer, &request, &size, NNG_FLAG_ALLOC);
@@ -449,9 +449,8 @@ TEST(MatlabPhysicsModel, RepeatedRepliesUpdateCompleteKinematics) {
   projectairsim::MatlabPhysicsModel model;
   model.Start(body);
   for (int index = 0; index < 4; ++index) {
-    auto step = std::async(std::launch::async, [&]() {
-      model.StepPhysicsBody(16666667, body);
-    });
+    auto step = std::async(std::launch::async,
+                           [&]() { model.StepPhysicsBody(16666667, body); });
     char* request = nullptr;
     size_t size = 0;
     const int received = nng_recv(peer, &request, &size, NNG_FLAG_ALLOC);
@@ -464,8 +463,8 @@ TEST(MatlabPhysicsModel, RepeatedRepliesUpdateCompleteKinematics) {
     }
     if (index % 2) std::this_thread::sleep_for(std::chrono::milliseconds(20));
     projectairsim::PhysicsModelOutputMessage reply(
-        0, 5.0f + index, 6.0f, -7.0f, 0, 0, 0, 1,
-        1, 2, 3, .1f, .2f, .3f, .4f, .5f, .6f, .7f, .8f, .9f);
+        0, 5.0f + index, 6.0f, -7.0f, 0, 0, 0, 1, 1, 2, 3, .1f, .2f, .3f, .4f,
+        .5f, .6f, .7f, .8f, .9f);
     auto bytes = reply.Serialize();
     EXPECT_EQ(nng_send(peer, bytes.data(), bytes.size(), 0), 0);
     const auto status = step.wait_for(std::chrono::seconds(1));
@@ -511,9 +510,8 @@ TEST(MatlabPhysicsModel, DelayedReplyDoesNotCompleteThePendingStep) {
   ASSERT_EQ(nng_listen(peer, body->connection_string_.c_str(), nullptr, 0), 0);
   projectairsim::MatlabPhysicsModel model;
   model.Start(body);
-  auto step = std::async(std::launch::async, [&]() {
-    model.StepPhysicsBody(16666667, body);
-  });
+  auto step = std::async(std::launch::async,
+                         [&]() { model.StepPhysicsBody(16666667, body); });
   char* request = nullptr;
   size_t size = 0;
   const int received = nng_recv(peer, &request, &size, NNG_FLAG_ALLOC);
@@ -529,6 +527,57 @@ TEST(MatlabPhysicsModel, DelayedReplyDoesNotCompleteThePendingStep) {
   EXPECT_EQ(status, std::future_status::ready);
   if (status != std::future_status::ready) model.Stop(body);
   step.get();
+  EXPECT_FLOAT_EQ(robot.GetKinematics().pose.position.x(), 25);
+  model.Stop(body);
+  nng_close(peer);
+}
+
+TEST(MatlabPhysicsModel, ReceiveFailureClosesSocketBeforeReporting) {
+  projectairsim::Simulator simulator;
+  simulator.LoadSceneWithJSON(physics_test_config);
+  auto& robot = static_cast<projectairsim::Robot&>(
+      simulator.GetScene().GetActors().front().get());
+  auto body = std::make_shared<projectairsim::TestMatlabPhysicsBody>(robot);
+  body->connection_string_ = "inproc://matlab_physics_receive_failure";
+  nng_socket peer = NNG_SOCKET_INITIALIZER;
+  ASSERT_EQ(nng_rep0_open(&peer), 0);
+  ASSERT_EQ(nng_setopt_ms(peer, NNG_OPT_RECVTIMEO, 1000), 0);
+  ASSERT_EQ(nng_listen(peer, body->connection_string_.c_str(), nullptr, 0), 0);
+  projectairsim::MatlabPhysicsModel model;
+  model.Start(body);
+  ASSERT_NO_THROW(model.ConnectToMatlab(body));
+  const int failed_socket_id = nng_socket_id(body->nng_socket_);
+  // Bound the reply wait so the transport fails while the model is running.
+  ASSERT_EQ(nng_setopt_ms(body->nng_socket_, NNG_OPT_RECVTIMEO, 50), 0);
+  auto step = std::async(std::launch::async,
+                         [&]() { model.StepPhysicsBody(16666667, body); });
+  char* request = nullptr;
+  size_t size = 0;
+  EXPECT_EQ(nng_recv(peer, &request, &size, NNG_FLAG_ALLOC), 0);
+  if (request != nullptr) nng_free(request, size);
+  auto status = step.wait_for(std::chrono::seconds(1));
+  EXPECT_EQ(status, std::future_status::ready);
+  if (status != std::future_status::ready) model.Stop(body);
+  EXPECT_THROW(step.get(), projectairsim::Error);
+  EXPECT_FALSE(body->connected_);
+
+  step = std::async(std::launch::async,
+                    [&]() { model.StepPhysicsBody(16666667, body); });
+  request = nullptr;
+  const int received = nng_recv(peer, &request, &size, NNG_FLAG_ALLOC);
+  if (request != nullptr) nng_free(request, size);
+  EXPECT_EQ(received, 0);
+  projectairsim::PhysicsModelOutputMessage reply(
+      0, 25, 0, -10, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+  auto bytes = reply.Serialize();
+  if (received == 0) {
+    EXPECT_EQ(nng_send(peer, bytes.data(), bytes.size(), 0), 0);
+  }
+  status = step.wait_for(std::chrono::seconds(1));
+  EXPECT_EQ(status, std::future_status::ready);
+  if (status != std::future_status::ready) model.Stop(body);
+  step.get();
+  EXPECT_NE(nng_socket_id(body->nng_socket_), failed_socket_id);
   EXPECT_FLOAT_EQ(robot.GetKinematics().pose.position.x(), 25);
   model.Stop(body);
   nng_close(peer);

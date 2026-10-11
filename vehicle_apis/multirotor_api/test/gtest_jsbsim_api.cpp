@@ -17,8 +17,8 @@
 #include "core_sim/service_manager.hpp"
 #include "gtest/gtest.h"
 #include "jsbsim_api.hpp"
-#include "robot_test_utils.hpp"
 #include "json.hpp"
+#include "robot_test_utils.hpp"
 #include "state_manager.hpp"
 #include "topic_manager.hpp"
 

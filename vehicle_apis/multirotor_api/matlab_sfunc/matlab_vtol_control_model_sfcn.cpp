@@ -243,7 +243,7 @@ static void mdlTerminate(SimStruct* s) {
 #ifdef MATLAB_MEX_FILE
 #define PROCESS_MEX_SFUNCTION_EVERY_CALL
 static bool ProcessMexSfunctionEveryCall(int_T, mxArray**, int_T,
-                                        const mxArray**) {
+                                         const mxArray**) {
   static bool module_locked = false;
   if (!module_locked) {
     // Register in the MEX entry context, before direct Simulink callbacks.

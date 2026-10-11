@@ -290,7 +290,8 @@ void MatlabVTOLControllerApi::Update() {
 
 int MatlabVTOLControllerApi::GetControlSignalIndex(const std::string& id) {
   const auto found = actuator_indices_.find(id);
-  return found == actuator_indices_.end() ? -1 : static_cast<int>(found->second);
+  return found == actuator_indices_.end() ? -1
+                                          : static_cast<int>(found->second);
 }
 
 void MatlabVTOLControllerApi::GetControlSignalSnapshot(
@@ -299,7 +300,8 @@ void MatlabVTOLControllerApi::GetControlSignalSnapshot(
   control_signals.assign(outputs_.begin(), outputs_.end());
 }
 
-std::vector<float> MatlabVTOLControllerApi::GetControlSignals(int signal_index) {
+std::vector<float> MatlabVTOLControllerApi::GetControlSignals(
+    int signal_index) {
   std::lock_guard<std::mutex> lock(update_lock_);
   if (signal_index < 0 || static_cast<size_t>(signal_index) >= outputs_.size())
     return {0.0f};
@@ -408,8 +410,9 @@ void MatlabVTOLControllerApi::AfterTask() {
     const auto clock = SimClock::Get();
     const auto now = clock->NowSimNanos();
     const auto grace = clock->SecToNanos(command_handoff_grace_period_);
-    handoff_deadline_nanos_ =
-        now > TimeNanoLimits::max() - grace ? TimeNanoLimits::max() : now + grace;
+    handoff_deadline_nanos_ = now > TimeNanoLimits::max() - grace
+                                  ? TimeNanoLimits::max()
+                                  : now + grace;
   } else if (setpoint_.request != ExternalControlSetpoint::Hover) {
     SetIdle();
   }
@@ -505,9 +508,11 @@ void MatlabVTOLControllerApi::MarkHandoffCompletion(bool completed) {
   handoff_task_completed_ = completed && handoff_command_issued_;
 }
 
-bool MatlabVTOLControllerApi::MoveByVelocity(
-    float vx, float vy, float vz, float duration, DrivetrainType drivetrain,
-    bool yaw_is_rate, float yaw, int64_t start) {
+bool MatlabVTOLControllerApi::MoveByVelocity(float vx, float vy, float vz,
+                                             float duration,
+                                             DrivetrainType drivetrain,
+                                             bool yaw_is_rate, float yaw,
+                                             int64_t start) {
   SingleTaskCall lock(this);
   const bool completed = VTOLFWApiBase::MoveByVelocity(
       vx, vy, vz, duration, drivetrain, yaw_is_rate, yaw, start);
@@ -515,9 +520,11 @@ bool MatlabVTOLControllerApi::MoveByVelocity(
   return completed;
 }
 
-bool MatlabVTOLControllerApi::MoveByVelocityZ(
-    float vx, float vy, float z, float duration, DrivetrainType drivetrain,
-    bool yaw_is_rate, float yaw, int64_t start) {
+bool MatlabVTOLControllerApi::MoveByVelocityZ(float vx, float vy, float z,
+                                              float duration,
+                                              DrivetrainType drivetrain,
+                                              bool yaw_is_rate, float yaw,
+                                              int64_t start) {
   SingleTaskCall lock(this);
   const bool completed = VTOLFWApiBase::MoveByVelocityZ(
       vx, vy, z, duration, drivetrain, yaw_is_rate, yaw, start);
@@ -525,12 +532,15 @@ bool MatlabVTOLControllerApi::MoveByVelocityZ(
   return completed;
 }
 
-bool MatlabVTOLControllerApi::MoveByHeading(
-    float heading, float speed, float vz, float duration, float heading_margin,
-    float yaw_rate, float timeout_sec, int64_t start) {
+bool MatlabVTOLControllerApi::MoveByHeading(float heading, float speed,
+                                            float vz, float duration,
+                                            float heading_margin,
+                                            float yaw_rate, float timeout_sec,
+                                            int64_t start) {
   SingleTaskCall lock(this);
-  const bool completed = VTOLFWApiBase::MoveByHeading(
-      heading, speed, vz, duration, heading_margin, yaw_rate, timeout_sec, start);
+  const bool completed =
+      VTOLFWApiBase::MoveByHeading(heading, speed, vz, duration, heading_margin,
+                                   yaw_rate, timeout_sec, start);
   if (duration > 0) MarkHandoffCompletion(completed);
   return completed;
 }

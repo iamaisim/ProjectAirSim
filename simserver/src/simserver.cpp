@@ -11,10 +11,10 @@
 
 #include "arducopter_api.hpp"
 #include "core_sim/simulator.hpp"
+#include "jsbsim_api.hpp"
 #include "manual_controller_api.hpp"
 #include "matlab_controller_api.hpp"
 #include "matlab_vtol_controller_api.hpp"
-#include "jsbsim_api.hpp"
 #include "mavlink_api.hpp"
 #include "physics_world.hpp"
 #include "tile_manager.hpp"

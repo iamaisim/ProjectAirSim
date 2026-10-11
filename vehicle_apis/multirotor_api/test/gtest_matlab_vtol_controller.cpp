@@ -22,8 +22,8 @@ namespace {
 
 class HandoffClock : public SteppableClock {
  public:
-  using SteppableClock::SteppableClock;
   using SteppableClock::Step;
+  using SteppableClock::SteppableClock;
 };
 
 class ControllerCommands : public MatlabVTOLControllerApi {
@@ -160,9 +160,11 @@ class ExternalController : public ::testing::Test {
       if (mode == ExternalControlSetpoint::VelocityZ) {
         if (body)
           return api_->MoveByVelocityBodyFrameZ(
-              2, 0, -3, 0.02, DrivetrainType::MaxDegreeOfFreedom, false, 0, start);
-        return api_->MoveByVelocityZ(
-            2, 0, -3, 0.02, DrivetrainType::MaxDegreeOfFreedom, false, 0, start);
+              2, 0, -3, 0.02, DrivetrainType::MaxDegreeOfFreedom, false, 0,
+              start);
+        return api_->MoveByVelocityZ(2, 0, -3, 0.02,
+                                     DrivetrainType::MaxDegreeOfFreedom, false,
+                                     0, start);
       }
       if (body)
         return api_->MoveByVelocityBodyFrame(
@@ -171,7 +173,8 @@ class ExternalController : public ::testing::Test {
           2, 0, 0, 0.02, DrivetrainType::MaxDegreeOfFreedom, false, 0, start);
     });
     VTOLControlModelInputMessage request;
-    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(1);
+    const auto deadline =
+        std::chrono::steady_clock::now() + std::chrono::seconds(1);
     do {
       request = Exchange();
     } while (request.setpoint.mode != mode &&
@@ -354,7 +357,8 @@ TEST_F(ExternalController, NonpositiveDurationMatchesStandardVelocityServices) {
     EXPECT_TRUE(api_->MoveByVelocityBodyFrame(
         2, 0, 0, duration, DrivetrainType::MaxDegreeOfFreedom, true, 0, start));
     EXPECT_FALSE(api_->MoveByVelocityBodyFrameZ(
-        2, 0, -3, duration, DrivetrainType::MaxDegreeOfFreedom, true, 0, start));
+        2, 0, -3, duration, DrivetrainType::MaxDegreeOfFreedom, true, 0,
+        start));
     EXPECT_EQ(Exchange().setpoint.mode, ExternalControlSetpoint::Idle);
   }
 }
@@ -368,9 +372,9 @@ TEST_F(ExternalController, BodyVelocityZPreservesWorldAltitudeAndYawRate) {
   robot_.UpdateKinematics(kinematics_);
   api_->SetKinematics(&kinematics_);
   auto command = std::async(std::launch::async, [&]() {
-    return api_->MoveByVelocityBodyFrameZ(
-        2, 1, -6, 0.02, DrivetrainType::MaxDegreeOfFreedom, true, 0.3,
-        clock->NowSimNanos());
+    return api_->MoveByVelocityBodyFrameZ(2, 1, -6, 0.02,
+                                          DrivetrainType::MaxDegreeOfFreedom,
+                                          true, 0.3, clock->NowSimNanos());
   });
   VTOLControlModelInputMessage request;
   const auto deadline =
@@ -492,22 +496,22 @@ TEST_F(ExternalController, HandoffRejectsIncompleteAndPositionTasks) {
   SimClock::Get(clock);
   Arm();
   const auto start = SimClock::Get()->NowSimNanos();
-  EXPECT_FALSE(api_->MoveByHeading(1, 2, 0, 0.02, 0.01, 0, 0.02, start-30'000'000));
+  EXPECT_FALSE(
+      api_->MoveByHeading(1, 2, 0, 0.02, 0.01, 0, 0.02, start - 30'000'000));
   EXPECT_EQ(Exchange().setpoint.mode, ExternalControlSetpoint::Idle);
   EXPECT_FALSE(api_->MoveToPosition(
-      10, 2, -3, 1, 0.02, DrivetrainType::MaxDegreeOfFreedom, false, 0,
-      -1, 0, SimClock::Get()->NowSimNanos()-30'000'000));
+      10, 2, -3, 1, 0.02, DrivetrainType::MaxDegreeOfFreedom, false, 0, -1, 0,
+      SimClock::Get()->NowSimNanos() - 30'000'000));
   EXPECT_EQ(Exchange().setpoint.mode, ExternalControlSetpoint::Idle);
   CompleteTimedCommand(clock);
   EXPECT_TRUE(api_->MoveByVelocity(3, 0, 0, 0,
-                                 DrivetrainType::MaxDegreeOfFreedom, false, 0,
-                                 SimClock::Get()->NowSimNanos()));
+                                   DrivetrainType::MaxDegreeOfFreedom, false, 0,
+                                   SimClock::Get()->NowSimNanos()));
   EXPECT_EQ(Exchange().setpoint.mode, ExternalControlSetpoint::Idle);
   CompleteTimedCommand(clock);
-  EXPECT_THROW(api_->MoveByVelocity(
-                   std::numeric_limits<float>::quiet_NaN(), 0, 0, 0.02,
-                   DrivetrainType::MaxDegreeOfFreedom, false, 0,
-                   SimClock::Get()->NowSimNanos()),
+  EXPECT_THROW(api_->MoveByVelocity(std::numeric_limits<float>::quiet_NaN(), 0,
+                                    0, 0.02, DrivetrainType::MaxDegreeOfFreedom,
+                                    false, 0, SimClock::Get()->NowSimNanos()),
                std::exception);
   EXPECT_EQ(Exchange().setpoint.mode, ExternalControlSetpoint::Idle);
 }

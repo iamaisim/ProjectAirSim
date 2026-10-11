@@ -21,6 +21,31 @@ from projectairsim import Drone, ProjectAirSimClient, World
 from projectairsim.utils import projectairsim_log
 
 
+# MATLAB call handling mirrors the lifecycle handling of the stock Simulink
+# examples.
+def _cancel_pending_call(future):
+    if future is not None and not future.done():
+        if not future.cancel() and not future.done():
+            raise RuntimeError("Pending MATLAB command could not be cancelled")
+
+
+def _wait_for_matlab(future, timeout):
+    try:
+        future.result(timeout=timeout)
+        # Engine.result() can consume Ctrl+C and return None after cancelling.
+        if future.cancelled() or not future.done():
+            raise KeyboardInterrupt("MATLAB command interrupted")
+        # A Ctrl+C just as the call finishes also returns None; reading the
+        # finished call again returns its value or raises its MATLAB error.
+        return future.result(timeout=timeout)
+    except BaseException:
+        try:
+            _cancel_pending_call(future)
+        except BaseException as error:
+            projectairsim_log().error("MATLAB command cancellation failed: %s", error)
+        raise
+
+
 async def main():
     model = "matlab_external_quadrotor_demo"
     root = Path(__file__).resolve().parent
@@ -38,13 +63,22 @@ async def main():
     sessions = matlab.engine.find_matlab()
     if len(sessions) != 1:
         raise RuntimeError("Run the loader in one shared MATLAB session")
-    engine = matlab.engine.connect_matlab(sessions[0])
+    try:
+        engine = _wait_for_matlab(matlab.engine.connect_matlab(
+            sessions[0], background=True), timeout=60)
+    except Exception as error:
+        raise RuntimeError(
+            f'Could not connect to the shared MATLAB session "{sessions[0]}". '
+            "Run load_external_quadrotor_simulink_control_model in MATLAB first."
+        ) from error
     client = ProjectAirSimClient()
     drone = None
     world = None
+    start = None
     try:
-        engine.set_param(model, "SimulationCommand", "update", nargout=0,
-                         background=True).result(timeout=120)
+        _wait_for_matlab(engine.set_param(
+            model, "SimulationCommand", "update", nargout=0, background=True),
+            timeout=120)
         client.connect()
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory)
@@ -53,7 +87,7 @@ async def main():
             start = engine.set_param(model, "SimulationCommand", "start", nargout=0, background=True)
             world = World(client, "scene.jsonc", sim_config_path=directory)
             drone = Drone(client, world, "Drone1")
-            start.result(timeout=30)
+            _wait_for_matlab(start, timeout=30)
             if not drone.enable_api_control():
                 raise RuntimeError("Cannot enable API control")
             deadline = time.monotonic() + 10
@@ -77,20 +111,20 @@ async def main():
     finally:
         primary_error = sys.exc_info()[1]
         cleanup_error = None
-        actions = []
+        actions = [lambda: _cancel_pending_call(start)]
         if drone is not None:
             actions.extend((drone.cancel_last_task, drone.disarm,
                             drone.disable_api_control))
-        actions.append(lambda: engine.set_param(
+        actions.append(lambda: _wait_for_matlab(engine.set_param(
             model, "SimulationCommand", "stop", nargout=0,
-            background=True).result(timeout=10))
+            background=True), timeout=10))
         if world is not None:
             actions.append(world.pause)
         actions.append(client.disconnect)
         for action in actions:
             try:
                 action()
-            except Exception as error:
+            except BaseException as error:
                 if cleanup_error is None:
                     cleanup_error = error
                 projectairsim_log().warning("Example cleanup failed: %s", error)

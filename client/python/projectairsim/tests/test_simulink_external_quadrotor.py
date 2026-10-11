@@ -15,23 +15,61 @@ pytestmark = pytest.mark.offline
 @pytest.fixture
 def example(monkeypatch):
     events = []
-    state = SimpleNamespace(failed_operation=None)
+    state = SimpleNamespace(failed_operation=None, interrupted=set(),
+                            late_interrupt=set())
     engine = Mock()
 
+    class Future:
+        def __init__(self, operation, value=None):
+            self.operation = operation
+            self.value = value
+            self.error = None
+            self.finished = False
+            self.was_cancelled = False
+            self.retrieved = False
+
+        def result(self, timeout=None):
+            assert timeout is not None and timeout > 0
+            if self.retrieved:
+                if self.error is not None:
+                    raise self.error
+                return self.value
+            events.append(self.operation + "_result")
+            self.finished = True
+            if self.operation in state.interrupted:
+                # MATLAB Engine consumes Ctrl+C and returns None after cancelling.
+                self.was_cancelled = True
+                return None
+            self.retrieved = True
+            if self.operation == state.failed_operation:
+                self.error = state.engine_error
+                if self.operation in state.late_interrupt:
+                    # Ctrl+C after completion: cancellation fails, None is returned.
+                    return None
+                raise self.error
+            return self.value
+
+        def done(self):
+            return self.finished
+
+        def cancelled(self):
+            return self.was_cancelled
+
+        def cancel(self):
+            events.append(self.operation + "_cancelled")
+            self.was_cancelled = True
+            self.finished = True
+            return True
+
     def set_param(model, parameter, operation, **kwargs):
+        assert kwargs.get("background")
         events.append(operation)
-
-        def result(**kwargs):
-            events.append(operation + "_result")
-            if operation == state.failed_operation:
-                raise state.engine_error
-
-        return Mock(result=Mock(side_effect=result))
+        return Future(operation)
 
     engine.set_param.side_effect = set_param
     matlab = ModuleType("matlab")
     matlab.engine = ModuleType("matlab.engine")
-    matlab.engine.connect_matlab = Mock(return_value=engine)
+    matlab.engine.connect_matlab = Mock(return_value=Future("matlab", engine))
     matlab.engine.find_matlab = Mock(return_value=("MATLABEngine",))
     monkeypatch.setitem(sys.modules, "matlab", matlab)
     monkeypatch.setitem(sys.modules, "matlab.engine", matlab.engine)
@@ -85,8 +123,8 @@ def example(monkeypatch):
 def test_compilation_precedes_connection_and_flight_sequence_is_preserved(example):
     asyncio.run(example.module.main())
     assert example.events == [
-        "update", "update_result", "connect", "start", "world", "drone",
-        "start_result", "stop", "stop_result", "pause", "disconnect",
+        "matlab_result", "update", "update_result", "connect", "start", "world",
+        "drone", "start_result", "stop", "stop_result", "pause", "disconnect",
     ]
     assert example.drone.mock_calls == [
         call.enable_api_control(), call.can_arm(), call.arm(),
@@ -132,8 +170,8 @@ def test_compilation_failure_prevents_scene_start_and_preserves_error(example):
     with pytest.raises(RuntimeError) as error:
         asyncio.run(example.module.main())
     assert error.value is example.engine_error
-    assert example.events == ["update", "update_result", "stop", "stop_result",
-                              "disconnect"]
+    assert example.events == ["matlab_result", "update", "update_result", "stop",
+                              "stop_result", "disconnect"]
     example.client.connect.assert_not_called()
     example.module.World.assert_not_called()
     example.client.disconnect.assert_called_once_with()
@@ -146,7 +184,8 @@ def test_compilation_failure_prevents_scene_start_and_preserves_error(example):
 def test_example_selects_unique_shared_session(example, sessions, selected):
     example.matlab.engine.find_matlab.return_value = sessions
     asyncio.run(example.module.main())
-    example.matlab.engine.connect_matlab.assert_called_once_with(selected)
+    example.matlab.engine.connect_matlab.assert_called_once_with(
+        selected, background=True)
 
 
 @pytest.mark.parametrize("sessions", [(), ("MATLAB_123", "MATLAB_456"),
@@ -157,3 +196,63 @@ def test_missing_or_ambiguous_session_prevents_connection(example, sessions):
         asyncio.run(example.module.main())
     example.matlab.engine.connect_matlab.assert_not_called()
     example.client.connect.assert_not_called()
+
+
+def test_connection_failure_explains_matlab_setup(example):
+    example.failed_operation = "matlab"
+    example.engine_error = RuntimeError("MATLAB session not found")
+    with pytest.raises(RuntimeError, match="load_external_quadrotor") as error:
+        asyncio.run(example.module.main())
+    assert error.value.__cause__ is example.engine_error
+    example.module.ProjectAirSimClient.assert_not_called()
+
+
+@pytest.mark.parametrize("operation", ["matlab", "update", "start"])
+def test_engine_cancellation_stops_before_flight(example, operation):
+    example.interrupted.add(operation)
+    with pytest.raises(KeyboardInterrupt):
+        asyncio.run(example.module.main())
+    example.drone.enable_api_control.assert_not_called()
+    example.drone.hover_async.assert_not_called()
+    if operation == "matlab":
+        example.engine.set_param.assert_not_called()
+        example.module.ProjectAirSimClient.assert_not_called()
+    else:
+        assert example.events[-1] == "disconnect"
+        assert "stop_result" in example.events
+    if operation == "update":
+        example.client.connect.assert_not_called()
+
+
+@pytest.mark.parametrize("operation", ["update", "start", "stop"])
+def test_interrupt_after_completion_reports_matlab_error(example, operation):
+    example.failed_operation = operation
+    example.late_interrupt.add(operation)
+    example.engine_error = RuntimeError("MATLAB command failed")
+    with pytest.raises(RuntimeError) as error:
+        asyncio.run(example.module.main())
+    assert error.value is example.engine_error
+    if operation != "stop":
+        example.drone.hover_async.assert_not_called()
+    assert example.events[-1] == "disconnect"
+
+
+def test_interrupted_cleanup_step_continues_and_preserves_error(example):
+    flight_error = RuntimeError("Flight command failed")
+    example.drone.move_to_position_async.side_effect = flight_error
+    example.drone.disarm.side_effect = KeyboardInterrupt()
+    with pytest.raises(RuntimeError) as error:
+        asyncio.run(example.module.main())
+    assert error.value is flight_error
+    example.drone.disable_api_control.assert_called_once_with()
+    assert example.events[-4:] == ["stop", "stop_result", "pause", "disconnect"]
+
+
+def test_scene_failure_cancels_pending_model_start(example):
+    scene_error = RuntimeError("Scene load failed")
+    example.module.World.side_effect = scene_error
+    with pytest.raises(RuntimeError) as error:
+        asyncio.run(example.module.main())
+    assert error.value is scene_error
+    assert example.events[-4:] == ["start_cancelled", "stop", "stop_result",
+                                   "disconnect"]

@@ -1,6 +1,13 @@
-# Project AirSim dev container: SimLibs + Unreal Engine 5.2 build/run environment.
+# Project AirSim dev container: SimLibs + Unreal Engine build/run environment.
+#
+# Host paths are configured via a .env file (not committed -- see .env.example for the
+# template with defaults). PROJECTAIRSIM_HOST_PATH defaults to "." since this file lives at
+# the repo root, so the common case needs no configuration at all. UE_ROOT_HOST_PATH has no
+# universal default (engine checkout location/version varies per machine) and must be set in
+# .env or the environment before running.
 #
 # Usage:
+#   cp .env.example .env   # edit UE_ROOT_HOST_PATH to point at your Unreal Engine checkout
 #   docker compose build
 #   docker compose run --rm projectairsim-dev
 #
@@ -9,7 +16,8 @@
 #   cd /workspace/ProjectAirSim
 #   ./build.sh simlibs_debug
 #   ./build.sh blocks_debuggame
-#   $UE_ROOT/Engine/Binaries/Linux/UnrealEditor /workspace/ProjectAirSim/unreal/Blocks/Blocks.uproject
+#   $UE_ROOT/Engine/Binaries/Linux/UnrealEditor-Linux-DebugGame \
+#     /workspace/ProjectAirSim/unreal/Blocks/Blocks.uproject
 #
 # Before launching the Editor with a window, on the HOST run once per session:
 #   xhost +local:docker
@@ -43,13 +51,14 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics,display,video
       - DISPLAY=${DISPLAY}
-      - UE_ROOT=/workspace/UnrealEngine-5.2.0-release
+      - UE_ROOT=/workspace/UnrealEngine
 
     volumes:
-      # Core bind mounts requested: repo + engine source, at the same paths as the host
-      # so UE_ROOT / build.sh paths resolve identically inside and outside the container.
-      - /home/behnam/git/ProjectAirSim:/workspace/ProjectAirSim
-      - /home/behnam/git/UnrealEngine-5.2.0-release:/workspace/UnrealEngine-5.2.0-release
+      # Host paths come from .env (see .env.example). The ProjectAirSim repo defaults to "."
+      # (this file's own directory); the Unreal Engine checkout has no safe default and must
+      # be set explicitly via UE_ROOT_HOST_PATH.
+      - ${PROJECTAIRSIM_HOST_PATH:-.}:/workspace/ProjectAirSim
+      - ${UE_ROOT_HOST_PATH:?Set UE_ROOT_HOST_PATH in .env to your Unreal Engine checkout path (see .env.example)}:/workspace/UnrealEngine
       # X11/XWayland socket for the Editor GUI window
       - /tmp/.X11-unix:/tmp/.X11-unix
       # Vulkan ICD/layer search paths some drivers expect on the host side too

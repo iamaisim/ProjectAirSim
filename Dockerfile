@@ -4,16 +4,18 @@
 #
 # This image installs the OS-level toolchain only. The Unreal Engine source checkout and the
 # ProjectAirSim repo are NOT copied into the image (they are large and you already have them on
-# the host) -- bind-mount them instead. See docker-compose.yml for the expected mount layout:
+# the host) -- bind-mount them instead via docker-compose.yml, which reads host paths from a
+# .env file (copy .env.example to .env and set UE_ROOT_HOST_PATH first):
 #
-#   Host                                          -> Container
-#   /home/behnam/git/ProjectAirSim                -> /workspace/ProjectAirSim
-#   /home/behnam/git/UnrealEngine-5.2.0-release    -> /workspace/UnrealEngine-5.2.0-release
+#   Host (from .env)        -> Container
+#   PROJECTAIRSIM_HOST_PATH -> /workspace/ProjectAirSim   (defaults to ".")
+#   UE_ROOT_HOST_PATH       -> /workspace/UnrealEngine     (required, no default)
 #
 # Why Ubuntu 22.04: it is Project AirSim's primary supported Linux platform and matches the
 # self-hosted CI runner (see docs/development/use_source.md, tools/ci/README.md).
 #
-# Build:
+# Build (prefer `docker compose build`, which also wires up .env/GPU/X11 -- see
+# docker-compose.yml and docs/docker.md):
 #   docker build -t projectairsim-dev --build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g) .
 #
 # ---------------------------------------------------------------------------------------------------------------------
@@ -91,7 +93,7 @@ RUN (getent group ${GROUP_ID} || groupadd -g ${GROUP_ID} ${USERNAME}) \
 RUN curl -fsSL https://pixi.sh/install.sh | PIXI_HOME=/usr/local/pixi bash \
     && ln -s /usr/local/pixi/bin/pixi /usr/local/bin/pixi
 
-ENV UE_ROOT=/workspace/UnrealEngine-5.2.0-release
+ENV UE_ROOT=/workspace/UnrealEngine
 WORKDIR /workspace/ProjectAirSim
 
 USER ${USERNAME}

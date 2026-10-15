@@ -35,14 +35,20 @@ and the NVIDIA Container Toolkit.
 | `Dockerfile` | Ubuntu 22.04 image: build toolchain, Vulkan rendering runtime libraries, pixi, non-root user matching the host UID/GID. |
 | `docker-compose.yml` | Bind-mounts the ProjectAirSim repo and the Unreal Engine checkout, wires up GPU passthrough, X11 forwarding, and host networking. |
 | `entrypoint.sh` | Runs Phase 2 (engine `Setup.sh`/`GenerateProjectFiles.sh`) idempotently against the bind-mounted engine on container start, then prints a usage banner and a GPU/Vulkan self-check. |
+| `.env.example` | Template for the two host-specific path variables (`PROJECTAIRSIM_HOST_PATH`, `UE_ROOT_HOST_PATH`). Copy to `.env` (gitignored) and edit before first use. |
 
 ## Quick start
 
 ```bash
+cd ProjectAirSim
+
+# One-time: tell Compose where your Unreal Engine checkout lives.
+cp .env.example .env
+# edit .env and set UE_ROOT_HOST_PATH to your Unreal Engine 5.2 checkout path
+
 # Once per host login session, so the container can draw to your X/XWayland display:
 xhost +local:docker
 
-cd ProjectAirSim
 docker compose build
 docker compose run --rm projectairsim-dev
 ```
@@ -85,12 +91,18 @@ pixi run hello-drone
 ### Bind mounts, not `COPY`
 
 Neither the ProjectAirSim repo nor the Unreal Engine checkout are copied into the image.
-Both are bind-mounted at the **same absolute paths** inside the container as on the host:
+Both are bind-mounted, with host-side paths coming from a `.env` file (`cp .env.example
+.env`, then set `UE_ROOT_HOST_PATH`) rather than being hardcoded in `docker-compose.yml`:
 
 ```yaml
-- /home/<user>/git/ProjectAirSim:/workspace/ProjectAirSim
-- /home/<user>/git/UnrealEngine-5.2.0-release:/workspace/UnrealEngine-5.2.0-release
+- ${PROJECTAIRSIM_HOST_PATH:-.}:/workspace/ProjectAirSim   # defaults to "." (this repo)
+- ${UE_ROOT_HOST_PATH:?...}:/workspace/UnrealEngine         # required, no safe default
 ```
+
+`PROJECTAIRSIM_HOST_PATH` defaults to `.` since `docker-compose.yml` lives at the repo root,
+so the common case needs no configuration. `UE_ROOT_HOST_PATH` has no universal default
+(checkout location and engine version vary per machine) and Compose fails immediately with a
+clear message if it isn't set, rather than silently mounting the wrong thing.
 
 This matters for more than convenience:
 

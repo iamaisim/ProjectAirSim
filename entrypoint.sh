@@ -60,7 +60,11 @@ if [ -t 1 ]; then
    ./build.sh blocks_debuggame
 
  Phase 4 - Launch the Editor (requires DISPLAY + Vulkan/X11 passthrough, see docker-compose.yml):
-   \$UE_ROOT/Engine/Binaries/Linux/UnrealEditor /workspace/ProjectAirSim/unreal/Blocks/Blocks.uproject
+   \$UE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh ShaderCompileWorker Linux Development  # once
+   \$UE_ROOT/Engine/Binaries/Linux/UnrealEditor-Linux-DebugGame \\
+     /workspace/ProjectAirSim/unreal/Blocks/Blocks.uproject
+   # NOTE: blocks_debuggame builds "UnrealEditor-Linux-DebugGame", not plain "UnrealEditor".
+   # See docs/docker.md for the full troubleshooting history of this environment.
 
  Run a client (from the host or another container with the ports reachable):
    pixi run hello-drone

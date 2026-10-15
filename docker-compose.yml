@@ -1,0 +1,58 @@
+# Project AirSim dev container: SimLibs + Unreal Engine 5.2 build/run environment.
+#
+# Usage:
+#   docker compose build
+#   docker compose run --rm projectairsim-dev
+#
+# Inside the container:
+#   cd $UE_ROOT && ./Setup.sh --force && ./GenerateProjectFiles.sh   # one-time, first run only
+#   cd /workspace/ProjectAirSim
+#   ./build.sh simlibs_debug
+#   ./build.sh blocks_debuggame
+#   $UE_ROOT/Engine/Binaries/Linux/UnrealEditor /workspace/ProjectAirSim/unreal/Blocks/Blocks.uproject
+#
+# Before launching the Editor with a window, on the HOST run once per session:
+#   xhost +local:docker
+
+services:
+  projectairsim-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        USER_ID: ${USER_ID:-1000}
+        GROUP_ID: ${GROUP_ID:-1000}
+    image: projectairsim-dev
+    container_name: projectairsim-dev
+    hostname: projectairsim-dev
+    stdin_open: true
+    tty: true
+    privileged: true
+    cap_add:
+      - SYS_PTRACE
+    network_mode: host
+    shm_size: "4gb"
+
+    # GPU passthrough (NVIDIA Container Toolkit). "graphics,display" are required for
+    # Vulkan/UnrealEditor rendering; "compute" is needed if you later use the
+    # torch/onnxruntime-gpu autonomy stack.
+    gpus: all
+    devices:
+      - /dev/dri
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics,display,video
+      - DISPLAY=${DISPLAY}
+      - UE_ROOT=/workspace/UnrealEngine-5.2.0-release
+
+    volumes:
+      # Core bind mounts requested: repo + engine source, at the same paths as the host
+      # so UE_ROOT / build.sh paths resolve identically inside and outside the container.
+      - /home/behnam/git/ProjectAirSim:/workspace/ProjectAirSim
+      - /home/behnam/git/UnrealEngine-5.2.0-release:/workspace/UnrealEngine-5.2.0-release
+      # X11/XWayland socket for the Editor GUI window
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      # Vulkan ICD/layer search paths some drivers expect on the host side too
+      - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d:ro
+
+    working_dir: /workspace/ProjectAirSim

@@ -11,7 +11,10 @@
 #define NUM_SUPPORTED_ROTORS 8
 #define NUM_SUPPORTED_CONTROL_SURFACES 8
 
-void* SetupRuntimeResourcesWrapper(const std::string& connection_str);
+// Bounds each transport send and receive by timeout_sec; non-positive and
+// infinite values wait indefinitely.
+void* SetupRuntimeResourcesWrapper(const std::string& connection_str,
+                                   double timeout_sec);
 
 void StartWrapper(void* nng_mgr, double* out_port_0_wrench_points,
                   double* out_port_1_wing_control_angles,
@@ -29,5 +32,7 @@ void OutputsWrapper(void* nng_mgr);
 void TerminateWrapper(void* nng_mgr);
 
 void CleanUpRuntimeResoucesWrapper(void* nng_mgr);
+
+void FinalizeRuntimeResourcesWrapper() noexcept;
 
 #endif  // MATLAB_PHYSICS_MODEL_WRAPPER_HPP

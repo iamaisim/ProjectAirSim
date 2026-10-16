@@ -5,7 +5,12 @@
 
 #include "matlab_physics_model_wrapper.hpp"
 
+#include <algorithm>
+#include <cmath>
 #include <iostream>
+#include <limits>
+#include <memory>
+#include <stdexcept>
 
 #include "message/common_message_utils.hpp"
 #include "message/physics_model_input_message.hpp"
@@ -17,102 +22,103 @@
 // -----------------------------------------------------------------------
 // NngMgr class for managing socket connection with the sim
 
+namespace {
+
 class NngMgr {
  public:
-  NngMgr(const std::string& addr);
+  NngMgr(const std::string& addr, double timeout_sec);
 
   ~NngMgr();
 
   void StartListening();
 
+  void StopListening();
+
   void SendResponse(std::string response_str);
 
   std::string RetrieveRequest();
 
-  bool connected_ = false;
-
  private:
+  bool connected_ = false;
   nng_socket socket_ = NNG_SOCKET_INITIALIZER;
   std::string addr_;
+  nng_duration timeout_ms_;
 };
 
-NngMgr::NngMgr(const std::string& addr) : addr_(addr) {}
-
-NngMgr::~NngMgr() {
-  std::cout << "Closing the connection..." << std::endl;
-
-  int rv = nng_close(socket_);
-
-  if (rv != 0) {
-    std::cout << "nng_close() return value: " << rv << std::endl;
+nng_duration TransportTimeoutMs(double timeout_sec) {
+  if (!(timeout_sec > 0.0) || std::isinf(timeout_sec)) {
+    return NNG_DURATION_INFINITE;
   }
+  const double timeout_ms = std::ceil(timeout_sec * 1000.0);
+  const double max_ms = std::numeric_limits<nng_duration>::max();
+  return static_cast<nng_duration>(std::min(timeout_ms, max_ms));
+}
 
-  nng_fini();  // terminate NNG library completely to release all resources
-               // (needed to fully unlock the built library file for
-               // re-building without having to close Matlab)
+NngMgr::NngMgr(const std::string& addr, double timeout_sec)
+    : addr_(addr), timeout_ms_(TransportTimeoutMs(timeout_sec)) {}
+
+NngMgr::~NngMgr() { StopListening(); }
+
+void NngMgr::StopListening() {
+  if (!connected_) return;
+  nng_close(socket_);
+  socket_ = NNG_SOCKET_INITIALIZER;
+  connected_ = false;
 }
 
 void NngMgr::StartListening() {
+  if (connected_) return;
+
   std::cout << "Opening connection with sim server..." << std::endl;
 
-  // Create a Response socket to listen for Matlab client requests
   int rv = nng_rep0_open(&socket_);
-
   if (rv != 0) {
-    std::cout << "nng_rep0_open() return value: " << rv << std::endl;
+    throw std::runtime_error("nng_rep0_open(): " +
+                             std::string(nng_strerror(rv)));
   }
 
-  // Set socket options
-  // rv = nng_setopt_ms(nng_socket_, NNG_OPT_RECVTIMEO, 5000);
-
-  // Start socket listening
-  rv = nng_listen(socket_, addr_.c_str(), NULL /*create a new listener*/,
-                  0 /*no special flags*/);
-
-  if (rv != 0) {
-    std::cout << "nng_listen() return value: " << rv << std::endl;
+  rv = nng_socket_set_ms(socket_, NNG_OPT_RECVTIMEO, timeout_ms_);
+  if (rv == 0) {
+    rv = nng_socket_set_ms(socket_, NNG_OPT_SENDTIMEO, timeout_ms_);
   }
+  if (rv == 0) {
+    rv = nng_listen(socket_, addr_.c_str(), nullptr, 0);
+  }
+  if (rv != 0) {
+    nng_close(socket_);
+    socket_ = NNG_SOCKET_INITIALIZER;
+    throw std::runtime_error("NNG listener " + addr_ + ": " + nng_strerror(rv));
+  }
+  connected_ = true;
 }
 
 void NngMgr::SendResponse(std::string response_str) {
-  // std::cout << "Sending response..." << std::endl;
-
-  // Send response data back
-  char* response_data_ptr = const_cast<char*>(response_str.data());
-  int rv = nng_send(socket_, response_data_ptr, response_str.length(), 0);
-
+  int rv = nng_send(socket_, const_cast<char*>(response_str.data()),
+                    response_str.length(), 0);
   if (rv != 0) {
-    std::cout << "nng_send() return value: " << rv << std::endl;
+    throw std::runtime_error("nng_send() on " + addr_ + ": " +
+                             nng_strerror(rv));
   }
 }
 
 std::string NngMgr::RetrieveRequest() {
-  // Block until receiving a new request or timeout
-  // std::cout << "Waiting to receive new request..." << std::endl;
-
   char* msg_data_buf = nullptr;
-  size_t msg_data_len;
-
-  int rv = nng_recv(
-      socket_, &msg_data_buf, &msg_data_len,
-      NNG_FLAG_ALLOC /* have NNG allocate the necessary buffer memory*/);
-
+  size_t msg_data_len = 0;
+  int rv = nng_recv(socket_, &msg_data_buf, &msg_data_len, NNG_FLAG_ALLOC);
   if (rv != 0) {
-    std::cout << "nng_recv() return value: " << rv
-              << " length = " << msg_data_len << std::endl;
+    throw std::runtime_error("nng_recv() on " + addr_ + ": " +
+                             nng_strerror(rv));
   }
 
-  // Copy the data from the buffer to a string to deserialize (must set the
-  // length manually to avoid stopping at '\0' chars that it may contain)
-  std::string request_str;
-  request_str.resize(msg_data_len);
-  request_str.assign(msg_data_buf, msg_data_len);
-
-  // Free the NNG-allocated reply buffer memory
-  nng_free(msg_data_buf, msg_data_len);
-
-  return request_str;
+  auto free_message = [msg_data_len](char* ptr) {
+    nng_free(ptr, msg_data_len);
+  };
+  std::unique_ptr<char, decltype(free_message)> message(msg_data_buf,
+                                                        free_message);
+  return std::string(message.get(), msg_data_len);
 }
+
+}  // namespace
 
 void CopyDataToOutputPorts(
     const microsoft::projectairsim::PhysicsModelInputMessage& request_msg,
@@ -207,19 +213,24 @@ microsoft::projectairsim::PhysicsModelOutputMessage CopyDataFromInputPorts(
 // -----------------------------------------------------------------------
 // Wrapper functions to be called in S-function callbacks
 
-void* SetupRuntimeResourcesWrapper(const std::string& connection_str) {
+void* SetupRuntimeResourcesWrapper(const std::string& connection_str,
+                                   double timeout_sec) {
   // Initialize connection resource
-  return reinterpret_cast<void*>(new NngMgr(connection_str));
+  return reinterpret_cast<void*>(new NngMgr(connection_str, timeout_sec));
 }
 
 void StartWrapper(void* nng_mgr, double* out_port_0_wrench_points,
                   double* out_port_1_wing_control_angles,
                   double* out_port_2_env_info,
                   double* out_port_3_collision_info) {
+  if (nng_mgr == nullptr) {
+    throw std::runtime_error("Matlab model runtime resources are unavailable.");
+  }
+  reinterpret_cast<NngMgr*>(nng_mgr)->StartListening();
+
   // Set initialization for output port values to base default values to prevent
-  // the Simulink model from using invalid data on the first time step. We
-  // connect to the sim and get the first real data from it the first block
-  // update step.
+  // the Simulink model from using invalid data on the first time step. The
+  // first update receives the initial data from the sim.
 
   // TODO Get real initial data values from the sim at initial connection
   // between Simulink and the sim after the interface is restructured to have a
@@ -239,15 +250,10 @@ void UpdateWrapper(void* nng_mgr, const double* in_port_0_kinematics,
                    double* out_port_3_collision_info) {
   // This gets called once per major time step to do the block's update.
 
-  auto nng_mgr_ptr = reinterpret_cast<NngMgr*>(nng_mgr);
-
-  // ------------------------------------------------------------
-
-  if (!nng_mgr_ptr->connected_) {
-    // Open NNG connection
-    reinterpret_cast<NngMgr*>(nng_mgr)->StartListening();
-    nng_mgr_ptr->connected_ = true;
+  if (nng_mgr == nullptr) {
+    throw std::runtime_error("Matlab model runtime resources are unavailable.");
   }
+  auto nng_mgr_ptr = reinterpret_cast<NngMgr*>(nng_mgr);
 
   // ------------------------------------------------------------
 
@@ -283,8 +289,10 @@ void OutputsWrapper(void* nng_mgr) {
 }
 
 void TerminateWrapper(void* nng_mgr) {
-  // Clean up any in-process requests when the model is terminated (called at
-  // the end of every Fast Restart).
+  // Close this block's socket at the end of every simulation and Fast Restart.
+  if (nng_mgr != nullptr) {
+    reinterpret_cast<NngMgr*>(nng_mgr)->StopListening();
+  }
 }
 
 void CleanUpRuntimeResoucesWrapper(void* nng_mgr) {
@@ -293,3 +301,5 @@ void CleanUpRuntimeResoucesWrapper(void* nng_mgr) {
 
   delete reinterpret_cast<NngMgr*>(nng_mgr);
 }
+
+void FinalizeRuntimeResourcesWrapper() noexcept { nng_fini(); }

@@ -33,6 +33,14 @@ The example Python client scripts and configuration files can be found in `clien
 1. After the simulation scene has started, it will automatically start the Simulink model through the Matlab Python API.
 1. Once the script completes, it will automatically stop the Simulink model through the Matlab Python API. To restart the script, just run it again. To stop the simulation while the it is in progress, press Ctrl-C from the Python script console output to stop the in-progress flight command, stop Simulink, and disconnect the client. The simulation can be started again by simply running the script again.
 
+## Transport lifecycle
+
+The stock physics and controller blocks open their listeners before their first model update. The server waits for each reply without busy polling; stopping the scene closes its sockets and interrupts pending connection, send, or receive operations. A delayed physics reply keeps the current numerical step pending. It does not produce a replacement state or skip a plant update.
+
+By default, each block waits indefinitely to receive the next request from the simulation and to send its reply. An optional fourth S-function parameter sets a transport timeout in wall-clock seconds, for example `hostname,portnumber,timestep,30`. A positive finite value bounds each wait, independent of the model sample period and simulation clock; zero, a negative value, or `Inf` keeps the indefinite wait. With a timeout set, pausing, debugging, or loading a scene longer than the timeout stops the model with an error. After a model error, stop or reload the scene before restarting the workflow. Each block closes its own listener, so other instances remain usable. The MEX modules remain loaded until MATLAB exits to keep NNG worker code available between runs; restart MATLAB before rebuilding a loaded module.
+
+Runtime supplies flat-ground contact information to MATLAB physics vehicles. The external plant owns the contact response; see the [Runtime capabilities](../../samples/projectairsim_runtime/README.md).
+
 ---
 
 Copyright (C) Microsoft Corporation.  

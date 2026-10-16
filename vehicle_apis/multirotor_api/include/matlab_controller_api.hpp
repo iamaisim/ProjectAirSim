@@ -6,6 +6,7 @@
 #ifndef MULTIROTOR_API_INCLUDE_MATLAB_CONTROLLER_API_HPP_
 #define MULTIROTOR_API_INCLUDE_MATLAB_CONTROLLER_API_HPP_
 
+#include <atomic>
 #include <mutex>
 #include <string>
 #include <unordered_map>
@@ -58,6 +59,7 @@ class MatlabControllerApi : public IController {
 
   Robot sim_robot_;  // The robot we control
   std::mutex update_lock_;
+  std::mutex connection_lock_;
   std::vector<float> motor_output_;
   std::unordered_map<std::string, int> actuator_id_to_output_idx_map_;
   bool connected_ = false;

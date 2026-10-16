@@ -10,7 +10,10 @@
 
 #define NUM_SUPPORTED_CONTROL_VALUES 16
 
-void* SetupRuntimeResourcesWrapper(const std::string& connection_str);
+// Bounds each transport send and receive by timeout_sec; non-positive and
+// infinite values wait indefinitely.
+void* SetupRuntimeResourcesWrapper(const std::string& connection_str,
+                                   double timeout_sec);
 
 void StartWrapper(void* nng_mgr, double* out_port_0_kinematics,
                   double* out_port_1_airspeed, double* out_port_2_barometer,
@@ -28,5 +31,7 @@ void OutputsWrapper(void* nng_mgr);
 void TerminateWrapper(void* nng_mgr);
 
 void CleanUpRuntimeResoucesWrapper(void* nng_mgr);
+
+void FinalizeRuntimeResourcesWrapper() noexcept;
 
 #endif  // MATLAB_CONTROL_MODEL_WRAPPER_HPP

@@ -1008,8 +1008,10 @@ if(BUILD_TESTING)
     set(SIMLIBS_UNIT_TEST_TARGETS
         core_sim_gtests
         physics_gtests
+        matlab_physics_wrapper_gtests
         rendering_scene_gtests
         multirotor_api_gtests
+        matlab_control_wrapper_gtests
         rover_api_gtests
     )
 

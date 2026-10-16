@@ -7,7 +7,7 @@
 
 % Usage
 % 1. In Matlab, run script by pasting the following in the Command Window: 
-% >> load_quadrotor_simulink_control_model
+% >> load_quadrotor_simulink_control_model_navigation
 %
 % 2. Open and start the simulation server.
 % 3. In an activated virtual environment, run the following in the
@@ -18,7 +18,7 @@
 
 clear variables; clc
 
-disp("Loading 'matlab_control_demo_model_basic.slx' " + ...
+disp("Loading 'matlab_control_demo_model_navigation.slx' " + ...
     "model and configuring Matlab for Python API control...")
 
 % Set Matlab working directory to the folder containing this M-file

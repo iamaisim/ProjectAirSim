@@ -89,6 +89,7 @@ else()
         rendering_scene
         nng
         jsbsim
+        $<$<BOOL:${PROJECTAIRSIM_ENABLE_LVMON}>:lvmon>
     )
 endif()
 

@@ -119,6 +119,10 @@ bCookAll=True
 
 You can also add more drones to the scene. See **[Multiple Robots in a Simulation](multiple_robots.md)** for more details.
 
+## How to use tile camera and tile HTTP server actors
+
+See **[Tile Camera and HTTP Tile Server Actors](tile_actors.md)** for setup and request examples.
+
 ## How to modify the drone
 
 See **[How to Modify a Drone's Physical Geometry](modify_drone_physical.md)** for more details about how a drone's physical geometry can be modified through the **[Robot Configuration Settings](config_robot.md)**.

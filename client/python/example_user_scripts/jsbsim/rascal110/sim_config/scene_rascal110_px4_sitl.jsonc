@@ -1,0 +1,36 @@
+// Copyright (C) 2026 IAMAI CONSULTING CORP
+//
+// MIT License. All rights reserved.
+
+{
+  "$schema": "../../../../projectairsim/src/projectairsim/schema/scene_config_schema.jsonc",
+  "id": "SceneRascal110PX4SITL",
+  "actors": [
+    {
+      "type": "robot",
+      "name": "rascal110_px4",
+      "origin": {
+        "xyz": "3 -20 -0.5",
+        "rpy": "0 0 3.14"
+      },
+      "robot-config": "robot_rascal110_px4_sitl.jsonc"
+    }
+  ],
+  "clock": {
+    "type": "steppable",
+    "step-ns": 4000000,
+    "real-time-update-rate": 4000000,
+    "pause-on-start": false
+  },
+  "home-geo-point": {
+    "latitude": 29.4296741,
+    "longitude": -95.16384722,
+    "altitude": 7.5
+  },
+  "segmentation": {
+    "initialize-ids": true,
+    "ignore-existing": false,
+    "use-owner-name": true
+  },
+  "scene-type": "UnrealNative"
+}

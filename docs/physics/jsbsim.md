@@ -1,6 +1,6 @@
 # JSBSim Physics
 
-Project AirSim includes JSBSim integration for aircraft dynamics.
+Project AirSim integrates JSBSim for fixed-wing and multirotor dynamics.
 
 ## Getting Started
 
@@ -10,6 +10,8 @@ JSBSim examples live under `client/python/example_user_scripts/jsbsim/` and are 
 | ---- | ------- |
 | `cessna_310/` | Cessna 310 example script and sim configs |
 | `x8_skywalker/` | Skywalker X8 scripts, tests, and sim configs |
+| `rascal110/` | Rascal 110 fixed-wing example with PX4 SITL |
+| `quadrotor-x/` | Auterion X-configuration quadrotor example with PX4 SITL |
 
 ### Prerequisites
 
@@ -60,6 +62,64 @@ python client/python/example_user_scripts/jsbsim/x8_skywalker/hello_x8_jsbsim.py
 ```
 
 The swarm example generates its scene at runtime and reuses the same X8 robot config.
+
+## Rascal 110 with PX4 SITL
+
+The [Rascal 110 example](../../client/python/example_user_scripts/jsbsim/rascal110/)
+uses the `Rascal110-JSBSim` flight model and `px4-api` controller.
+The normal source build packages the model and its engine/system files under
+`SimLibs/jsbsim/models/Rascal110-JSBSim`; keep that directory layout intact.
+
+| Path under `rascal110/` | Purpose |
+| ---- | ------- |
+| `hello_rascal110_px4.py` | Loads the scene and holds the simulator connection for PX4 |
+| `sim_config/scene_rascal110_px4_sitl.jsonc` | Rascal scene configuration |
+| `sim_config/robot_rascal110_px4_sitl.jsonc` | JSBSim model paths, actuator mapping, and PX4 settings |
+| `run_px4_rascal_takeoff.py` | Windows/WSL2 helper that starts PX4 and commands a takeoff |
+
+Start the simulation server and a matching PX4 SITL instance using the
+`rascal-electric` airframe, then load the scene from the repository root:
+
+```bash
+python client/python/example_user_scripts/jsbsim/rascal110/hello_rascal110_px4.py
+```
+
+The loader keeps the connection open; it does not command a takeoff. Use a
+GCS or the supplied takeoff helper. Review the helper's `--help` and set its
+`--distro`, `--px4-repo`, and `--windows-host` for your own WSL2 setup.
+See [PX4 SITL setup](../controllers/px4/px4_sitl.md) for networking and connection settings.
+
+## X-configuration quadrotor with PX4 SITL
+
+The [quadrotor example](../../client/python/example_user_scripts/jsbsim/quadrotor-x/)
+uses Auterion's `quadrotor_x` JSBSim model and a `px4-api` controller.
+Its `sim_config/robot_quadrotor_x_jsbsim_px4_sitl.jsonc` defines the model paths,
+PX4 connection, sensors, and actuator order; the matching scene is
+`sim_config/scene_quadrotor_x_jsbsim_px4_sitl.jsonc`.
+
+With the Unreal simulation server and a matching quadrotor PX4 SITL instance
+running, execute from the repository root:
+
+```bash
+python client/python/example_user_scripts/jsbsim/quadrotor-x/hello_quadrotor_x_jsbsim.py
+```
+
+The script displays camera streams, arms, takes off, climbs, and lands.
+Preserve the supplied actuator order when adapting the robot configuration.
+
+## Without Unreal Engine and with multiple vehicles
+
+[Project AirSim Runtime](../../samples/projectairsim_runtime/README.md) runs
+JSBSim without Unreal Engine and supports multiple robots in one scene.
+Give each robot a unique name and, for PX4 SITL, a separate autopilot instance
+and connection settings; see [multi-vehicle PX4 setup](../controllers/px4/px4_multi_vehicle.md).
+Runtime shares the simulation core and client APIs, but does not render camera,
+LiDAR, or radar data or provide Unreal terrain geometry. Use a client workflow
+without image displays instead of running the quadrotor camera demo unchanged.
+
+Project AirSim also provides [ArduPilot SITL integration](../controllers/ardupilot.md).
+The Rascal and quadrotor examples above use PX4; they do not demonstrate
+ArduPilot with these JSBSim models.
 
 ## Ground Height Mode
 

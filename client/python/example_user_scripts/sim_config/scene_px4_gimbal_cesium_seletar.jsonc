@@ -1,0 +1,43 @@
+{
+  "id": "SceneGimbalCesiumSeletar",
+  "actors": [
+    {
+      "type": "robot",
+      "name": "Drone1",
+      "origin": {
+        // Seletar Airport runway 03/21 centreline, a quarter of the way up from
+        // the 03 threshold, facing up the runway (033 deg). Altitude is MSL.
+        // Spawn above the runway and let the drone settle onto the Cesium
+        // ground, so small errors in the tile height don't put it underground.
+        "geo-point": "1.413425 103.865000 25.0",
+        "rpy-deg": "0 0 33"
+      },
+      "robot-config": "robot_quadrotor_px4_gimbal_payload.jsonc"
+    }
+  ],
+  "clock": {
+    "type": "steppable",
+    "step-ns": 3000000,
+    "real-time-update-rate": 3000000,
+    // Start paused so Cesium can stream the ground tiles before physics runs
+    "pause-on-start": true
+  },
+  "home-geo-point": {
+    "latitude": 1.413425,
+    "longitude": 103.865000,
+    "altitude": 12.0
+  },
+  "segmentation": {
+    "initialize-ids": true,
+    "ignore-existing": false,
+    "use-owner-name": true
+  },
+  "scene-type": "CesiumGIS",
+  // ion://<asset id> streams from Cesium ion using the CESIUM_ION_TOKEN env var
+  // on the simulator side. 2275207 = Google Photorealistic 3D Tiles.
+  // An http(s) tileset.json URL or a local tileset directory also works.
+  "tiles-dir": "ion://2275207",
+  // Google tiles use WGS84 ellipsoid heights. EGM2008 geoid height at the
+  // home point is +8.14 m (https://geographiclib.sourceforge.io/cgi-bin/GeoidEval).
+  "tiles-altitude-offset": 8.14
+}

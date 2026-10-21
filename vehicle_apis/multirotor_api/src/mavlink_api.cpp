@@ -1116,13 +1116,14 @@ void MavLinkApi::Disconnect() {
   }
 
   if (mav_vehicle_ != nullptr) {
-    mav_vehicle_->getConnection()->stopLoggingSendMessage();
+    // The connection is null if connecting failed part-way (e.g. port in use)
+    if (auto con = mav_vehicle_->getConnection()) con->stopLoggingSendMessage();
     mav_vehicle_->close();
     mav_vehicle_ = nullptr;
   }
 
   if (gimbal_node_ != nullptr) {
-    gimbal_node_->getConnection()->stopLoggingSendMessage();
+    if (auto con = gimbal_node_->getConnection()) con->stopLoggingSendMessage();
     gimbal_node_->close();
     gimbal_node_ = nullptr;
   }
@@ -1517,6 +1518,7 @@ void MavLinkApi::SetupGimbalConnection(const std::string& remoteIpAddr) {
 
 void MavLinkApi::HandleGimbalMessages(const mavlinkcom::MavLinkMessage& msg) {
   if (msg.msgid == CommandLongMessage.msgid) {
+    CommandLongMessage.decode(msg);
     if (CommandLongMessage.command ==
         static_cast<int>(mavlinkcom::MAV_CMD::MAV_CMD_REQUEST_MESSAGE)) {
       int msg_id = static_cast<int>(CommandLongMessage.param1 + 0.5);
@@ -1540,14 +1542,17 @@ void MavLinkApi::HandleGimbalMessages(const mavlinkcom::MavLinkMessage& msg) {
              mavlinkcom::MavLinkGimbalDeviceSetAttitude::kMessageId) {
     GimbalDeviceSetAttitude.decode(msg);
     auto comp_id = GimbalDeviceSetAttitude.target_component;
-    auto gimbal_state_itr = gimbal_component_id_to_state_.find(comp_id);
-    auto current_gimbal_state = &gimbal_state_itr->second;
     auto quat =
         Quaternion(GimbalDeviceSetAttitude.q[0], GimbalDeviceSetAttitude.q[1],
                    GimbalDeviceSetAttitude.q[2], GimbalDeviceSetAttitude.q[3]);
     auto rpy = TransformUtils::ToRPY(quat);
-    {
-      std::lock_guard<std::mutex> guard(gimbal_mutex_);
+
+    std::lock_guard<std::mutex> guard(gimbal_mutex_);
+    // PX4 targets component 0 (broadcast) until gimbal discovery completes
+    for (auto& [gimbal_comp_id, gimbal_state] :
+         gimbal_component_id_to_state_) {
+      if (comp_id != 0 && comp_id != gimbal_comp_id) continue;
+      auto current_gimbal_state = &gimbal_state;
       current_gimbal_state->roll = rpy[0];
       current_gimbal_state->pitch = rpy[1];
       current_gimbal_state->yaw = rpy[2];

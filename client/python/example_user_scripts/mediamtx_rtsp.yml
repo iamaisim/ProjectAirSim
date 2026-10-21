@@ -1,0 +1,17 @@
+# MediaMTX settings for the GimbalCam RTSP stream (started by run_cesium_sim.sh).
+# Only RTSP is enabled; px4_gimbal_cesium.py publishes to rtsp://127.0.0.1:8554/gimbal.
+logLevel: warn
+rtsp: true
+rtspAddress: :8554
+rtspTransports: [udp, tcp]
+rtmp: false
+hls: false
+webrtc: false
+srt: false
+api: false
+metrics: false
+pprof: false
+playback: false
+
+paths:
+  all_others:

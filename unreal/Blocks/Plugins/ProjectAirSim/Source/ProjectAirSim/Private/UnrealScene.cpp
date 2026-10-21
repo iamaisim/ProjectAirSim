@@ -834,7 +834,9 @@ bool AUnrealScene::GetWorldAlignedBoundingBox3D(
   if (!actor) {
     return false;
   }
-  auto AABBox = actor->GetComponentsBoundingBox();
+  // Include non-colliding components so objects spawned without physics (which
+  // have no collision) still report their visual bounds
+  auto AABBox = actor->GetComponentsBoundingBox(/*bNonColliding=*/true);
 
   OrientedBox.Center = AABBox.GetCenter();
   OrientedBox.ExtentX = AABBox.GetExtent().X;

@@ -233,29 +233,62 @@ FString AUnrealSimLoader::ResolveTilesDirectory(
 #ifdef ENABLE_CESIUM
 void AUnrealSimLoader::ConfigureCesiumTileset(
     ACesium3DTileset* CesiumTile, projectairsim::GeoPoint& HomeGeoPoint,
-    FString TilesetDir) {
-  CesiumTile->Url = FString("file:///" + TilesetDir);
+    float TilesAltitudeOffset, FString TilesetDir) {
+  // ResolveTilesDirectory() appends a trailing slash meant for tile folders
+  TilesetDir.RemoveFromEnd(TEXT("/"));
+
+  // Tileset source:
+  //   ion://<asset id>   streamed from Cesium ion; token from CESIUM_ION_TOKEN
+  //   http(s)://...      streamed from a tileset.json URL
+  //   anything else      a local tileset.json file or its directory
+  if (TilesetDir.StartsWith(TEXT("ion://"))) {
+    const int64 AssetId = FCString::Atoi64(*TilesetDir.RightChop(6));
+    CesiumTile->SetTilesetSource(ETilesetSource::FromCesiumIon);
+    CesiumTile->SetIonAssetID(AssetId);
+
+    const FString IonToken =
+        FPlatformMisc::GetEnvironmentVariable(TEXT("CESIUM_ION_TOKEN"));
+    if (!IonToken.IsEmpty()) {
+      CesiumTile->SetIonAccessToken(IonToken);
+    } else {
+      UnrealLogger::Log(projectairsim::LogLevel::kWarning,
+                        TEXT("[AUnrealSimLoader] CESIUM_ION_TOKEN is not set; "
+                             "falling back to the project's default Cesium "
+                             "ion token."));
+    }
+  } else if (TilesetDir.StartsWith(TEXT("http://")) ||
+             TilesetDir.StartsWith(TEXT("https://"))) {
+    CesiumTile->SetTilesetSource(ETilesetSource::FromUrl);
+    CesiumTile->SetUrl(TilesetDir);
+  } else {
+    if (!TilesetDir.EndsWith(TEXT(".json"))) {
+      TilesetDir += TEXT("/tileset.json");
+    }
+    CesiumTile->SetTilesetSource(ETilesetSource::FromUrl);
+    CesiumTile->SetUrl(FString("file:///") + TilesetDir);
+  }
 
   // Disable culling and lower LODs since sensors might be independent from
   // frustum.
   CesiumTile->EnableFrustumCulling = false;
   CesiumTile->EnforceCulledScreenSpaceError = true;
-  CesiumTile->CulledScreenSpaceError = CesiumTile->MaximumScreenSpaceError;
+  CesiumTile->CulledScreenSpaceError =
+      CesiumTile->GetMaximumScreenSpaceError();
+
+  // Put the home geo point at the Unreal origin. Tiles use WGS84 ellipsoid
+  // heights, so add the geoid height (tiles-altitude-offset) to the home
+  // altitude to keep the ground at the home point near Z = 0.
+  ACesiumGeoreference* Georeference =
+      ACesiumGeoreference::GetDefaultGeoreference(UnrealWorld);
+  Georeference->SetOriginLongitudeLatitudeHeight(
+      FVector(HomeGeoPoint.longitude, HomeGeoPoint.latitude,
+              HomeGeoPoint.altitude + TilesAltitudeOffset));
+  CesiumTile->SetGeoreference(Georeference);
 
   auto CesiumRot = FRotator(
       0, 90, 0);  // to match cesium's ENU RHS coords with our NEU LHS coords.
-  auto CesiumLoc =
-      FVector(0.f, 0.f, 8844.f);  // TODO: can we get rid of this magic num and
-                                  // smartly pick a height for the tileset?
   UGameplayStatics::FinishSpawningActor(CesiumTile,
-                                        FTransform(CesiumRot, CesiumLoc));
-
-  CesiumTile->Georeference->OriginLatitude = HomeGeoPoint.latitude;
-  CesiumTile->Georeference->OriginLongitude = HomeGeoPoint.longitude;
-  CesiumTile->Georeference->OriginHeight = HomeGeoPoint.altitude;
-  CesiumTile->Georeference->KeepWorldOriginNearCamera =
-      false;  // TODO: to maintain precision we should look into making this
-              // work.
+                                        FTransform(CesiumRot, FVector::ZeroVector));
 }
 #endif
 
@@ -378,17 +411,17 @@ void AUnrealSimLoader::LoadUnrealScene() {
                   UnrealWorld->SpawnActorDeferred<ACesium3DTileset>(
                       ACesium3DTileset::StaticClass(), FTransform(), nullptr,
                       nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-              ConfigureCesiumTileset(CesiumTile, HomeGeoPoint, TilesDir);
+              ConfigureCesiumTileset(CesiumTile, HomeGeoPoint,
+                                     Scene.GetTilesAltitudeOffset(), TilesDir);
               break;
 #else
               UnrealLogger::Log(
                   projectairsim::LogLevel::kTrace,
                   TEXT(
-                      "[AUnrealSimLoader] Integration with CesiumForUnreal is "
-                      "only enabled by default on Windows, defaulting to "
-                      "CustomGIS. For experimental support in other platforms, "
-                      "define ENABLE_CESIUM in ProjectAirSim.Build.cs before "
-                      "building."));
+                      "[AUnrealSimLoader] CesiumForUnreal was not found at "
+                      "build time, defaulting to CustomGIS. Install it in "
+                      "Plugins/CesiumForUnreal next to the ProjectAirSim "
+                      "plugin and rebuild to enable CesiumGIS scenes."));
 
           // will fall through to CustomGIS, since Cesium wasn't enabled.
 #endif

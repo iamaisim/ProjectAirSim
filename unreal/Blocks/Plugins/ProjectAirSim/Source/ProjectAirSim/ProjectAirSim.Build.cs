@@ -160,6 +160,16 @@ public class ProjectAirSim : ModuleRules
             }
         );
 
+        // CesiumGIS scenes need the Cesium for Unreal plugin. Enable the
+        // integration only when it is installed next to this plugin, so builds
+        // without Cesium are unaffected.
+        string CesiumPluginFile = Path.Combine(PluginDirectory, "..", "CesiumForUnreal", "CesiumForUnreal.uplugin");
+        if (File.Exists(CesiumPluginFile))
+        {
+            PublicDefinitions.Add("ENABLE_CESIUM");
+            PrivateDependencyModuleNames.Add("CesiumRuntime");
+        }
+
         DynamicallyLoadedModuleNames.AddRange(
             new string[] {
                 // ... add any modules that your module loads dynamically here ...

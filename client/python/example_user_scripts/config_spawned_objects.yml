@@ -1,0 +1,40 @@
+# Objects placed on the ground of the Cesium world once it has loaded.
+#
+# Each object needs a position and exactly one of `asset` or `file`:
+#   name:     unique name in the sim (optional; used by the `delete` command)
+#   asset:    an Unreal asset built into the sim (type `assets` in the run
+#             console to list them, e.g. SKM_SportsCar, SM_Offroad_Body)
+#   file:     your own .glb/.gltf model, relative to this file or absolute
+#   lat, lon: position in degrees (keep within a few hundred metres of the
+#             drone's spawn so the ground tiles there have loaded)
+#   heading:  degrees clockwise from north (default 0)
+#   length:   scale uniformly so the longest horizontal side is this many
+#             metres (default: the asset's own size)
+#   scale:    [x, y, z] scale instead of `length`
+#   height:   metres above the ground (default 0)
+#   physics:  let the object fall and collide (default false)
+#
+# Edit this file while the sim is running and type `reload` to apply it.
+
+objects:
+  # Two cars on Seletar's runway, ahead of the default spawn
+  - name: Car1
+    asset: SKM_SportsCar
+    lat: 1.413730
+    lon: 103.865200
+    heading: 33
+    length: 4.5
+
+  - name: Car2
+    asset: SKM_SportsCar
+    lat: 1.413900
+    lon: 103.865300
+    heading: 213
+    length: 4.5
+
+  # Your own model, for example a detection target:
+  # - name: Target1
+  #   file: models/my_target.glb
+  #   lat: 1.413600
+  #   lon: 103.865150
+  #   length: 2.0

@@ -285,6 +285,12 @@ void AUnrealSimLoader::ConfigureCesiumTileset(
               HomeGeoPoint.altitude + TilesAltitudeOffset));
   CesiumTile->SetGeoreference(Georeference);
 
+  // Scenes can start paused (which pauses the Unreal game); keep streaming
+  // tiles and building their collision meanwhile so the ground is there when
+  // the simulation resumes
+  CesiumTile->SetTickableWhenPaused(true);
+  Georeference->SetTickableWhenPaused(true);
+
   auto CesiumRot = FRotator(
       0, 90, 0);  // to match cesium's ENU RHS coords with our NEU LHS coords.
   UGameplayStatics::FinishSpawningActor(CesiumTile,

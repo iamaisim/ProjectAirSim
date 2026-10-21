@@ -1,0 +1,16 @@
+# Named points for the spotter (spotter_control.py). Keep them within a few
+# hundred metres of the drone's spawn so the ground there has loaded.
+# "Save position as point" in the spotter window appends to this file.
+points:
+  - name: Runway, beside the drone
+    lat: 1.413400
+    lon: 103.865080
+  - name: Runway, 50 m ahead
+    lat: 1.413800
+    lon: 103.865250
+  - name: Runway edge, east side
+    lat: 1.413500
+    lon: 103.865300
+  - name: Runway, 100 m behind
+    lat: 1.412670
+    lon: 103.864500

@@ -676,6 +676,36 @@ class World(object):
         status = self.client.request(spawn_obj_req)
         return status
 
+    def set_object_animation(
+        self,
+        object_name: str,
+        animation_name: str,
+        loop: bool = True,
+        play_rate: float = 1.0,
+    ) -> bool:
+        """Play an animation on a spawned skeletal-mesh object
+
+        Args:
+            object_name (str): the name of a spawned skeletal-mesh object
+            animation_name (str): the name of an animation asset packaged into the sim
+            loop (bool): whether to loop the animation
+            play_rate (float): playback speed multiplier
+
+        Returns:
+            bool: True if the animation started playing
+        """
+        set_animation_req: Dict = {
+            "method": f"{self.parent_topic}/SetObjectAnimation",
+            "params": {
+                "object_name": object_name,
+                "animation_name": animation_name,
+                "loop": loop,
+                "play_rate": play_rate,
+            },
+            "version": 1.0,
+        }
+        return self.client.request(set_animation_req)
+
     def destroy_object(self, object_name: str) -> str:
         """Destroy an object in the scene
 

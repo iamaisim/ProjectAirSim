@@ -103,6 +103,11 @@ class WorldSimApi {
 
   bool destroyObject(const std::string& object_name);
 
+  // Play an animation asset (looked up by name) on a spawned skeletal mesh
+  bool setObjectAnimation(const std::string& object_name,
+                          const std::string& animation_name, bool loop,
+                          float play_rate);
+
   bool destroyAllSpawnedObjects();
 
   Pose getObjectPose(const std::string& object_name);

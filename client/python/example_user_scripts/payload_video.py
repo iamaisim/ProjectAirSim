@@ -10,7 +10,6 @@ Video side of the simulated gimbal payload:
   and mouse-wheel control of the gimbal and zoom in the GimbalCam window
 """
 
-import math
 import shutil
 import subprocess
 import threading
@@ -113,7 +112,7 @@ class CameraWindows:
         self.on_zoom = on_zoom  # called with a zoom delta in percent
         self.pitch = initial_pitch
         self.yaw = 0.0
-        self.zoom_percent = 0.0
+        self.zoom_text = ""
         self._frames = {}
         self._lock = threading.Lock()
         cv2.namedWindow("ChaseCam", cv2.WINDOW_NORMAL)
@@ -145,8 +144,7 @@ class CameraWindows:
         if "GimbalCam" in frames:
             view = frames["GimbalCam"].copy()
             hud = (
-                f"pitch {self.pitch:+.0f}  yaw {self.yaw:+.0f}  "
-                f"zoom {1 + 9 * self.zoom_percent / 100:.1f}x   "
+                f"pitch {self.pitch:+.0f}  yaw {self.yaw:+.0f}  {self.zoom_text}   "
                 "WASD gimbal, wheel or +/- zoom, C centre, X down"
             )
             cv2.putText(view, hud, (12, 28), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 4)
@@ -177,10 +175,3 @@ class CameraWindows:
 
     def close(self):
         cv2.destroyAllWindows()
-
-
-def zoom_to_fov(base_hfov_deg, zoom_percent, max_zoom=10.0):
-    """Optical zoom: 0 % = base FOV, 100 % = max_zoom times narrower."""
-    zoom = 1.0 + (max_zoom - 1.0) * zoom_percent / 100.0
-    half = math.radians(base_hfov_deg) / 2.0
-    return math.degrees(2.0 * math.atan(math.tan(half) / zoom))

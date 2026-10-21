@@ -5,6 +5,9 @@
 
 #include "WorldSimApi.h"
 
+#include "Animation/AnimSequenceBase.h"
+#include "AssetRegistry/IAssetRegistry.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "ImageUtils.h"
 #include "Misc/FileHelper.h"
 #include "Misc/OutputDeviceNull.h"
@@ -98,6 +101,14 @@ void WorldSimApi::RegisterServiceMethods() {
           &WorldSimApi::destroyAllSpawnedObjects, *this);
   sim_scene_->RegisterServiceMethod(destroy_all_spawned_objects,
                                     destroy_all_spawned_objects_handler);
+
+  auto set_object_animation = projectairsim::ServiceMethod(
+      "SetObjectAnimation",
+      {"object_name", "animation_name", "loop", "play_rate"});
+  auto set_object_animation_handler = set_object_animation.CreateMethodHandler(
+      &WorldSimApi::setObjectAnimation, *this);
+  sim_scene_->RegisterServiceMethod(set_object_animation,
+                                    set_object_animation_handler);
 
   auto spawn_object_from_file_geo = projectairsim::ServiceMethod(
       "spawnObjectFromFileAtGeo",
@@ -665,6 +676,46 @@ std::string WorldSimApi::spawnObjectFromFileAtGeoServiceMethod(
   return spawnObjectFromFileAtGeo(object_name, file_format, byte_array,
                                   is_binary, lat, lon, alt, rotation, scale,
                                   enable_physics);
+}
+
+bool WorldSimApi::setObjectAnimation(const std::string& object_name,
+                                     const std::string& animation_name,
+                                     bool loop, float play_rate) {
+  bool played = false;
+  UnrealHelpers::RunCommandOnGameThread(
+      [this, &object_name, &animation_name, loop, play_rate, &played]() {
+        AActor* actor = UnrealHelpers::FindActor<AActor>(
+            unreal_world_, FString(object_name.c_str()), &scene_object_map_);
+        if (!actor) return;
+        USkeletalMeshComponent* mesh =
+            actor->FindComponentByClass<USkeletalMeshComponent>();
+        if (!mesh) return;
+
+        // Look the animation up by asset name, like spawned meshes are
+        TArray<FAssetData> anims;
+        IAssetRegistry::Get()->GetAssetsByClass(
+            UAnimSequenceBase::StaticClass()->GetClassPathName(), anims, true);
+        const FName wanted(animation_name.c_str());
+        for (const FAssetData& anim_data : anims) {
+          if (anim_data.AssetName != wanted) continue;
+          UAnimSequenceBase* anim = Cast<UAnimSequenceBase>(anim_data.GetAsset());
+          if (!anim) break;
+          mesh->PlayAnimation(anim, loop);
+          mesh->SetPlayRate(play_rate);
+          played = true;
+          break;
+        }
+      },
+      true);
+
+  if (!played) {
+    std::string status_msg = "SetObjectAnimation failed: no skeletal object " +
+                             object_name + " or no animation " + animation_name;
+    UnrealLogger::Log(projectairsim::LogLevel::kError, TEXT("%hs"),
+                      status_msg.c_str());
+    throw projectairsim::Error(status_msg.c_str());
+  }
+  return played;
 }
 
 bool WorldSimApi::destroyObject(const std::string& object_name) {

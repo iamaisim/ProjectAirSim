@@ -1,0 +1,40 @@
+{
+    "camera_id": "ZR10",
+    "image_type": 0,
+    "resolution": "1080p",
+    "platform": {
+        "vibration_enabled": false,
+        "vibration_amplitude_deg": 0.01,
+        "vibration_frequency_hz": 30.0
+    },
+    "sensor": {
+        "sensor_width_mm": 6.19,
+        "sensor_height_mm": 3.48,
+        "noise_enabled": false,
+        "noise_gain_db": 6.0,
+        "noise_temperature_c": 25.0
+    },
+    "lens": {
+        "focal_length_mm": 5.2,
+        "aperture_f": 1.8,
+        "focus_distance_m": 50.0,
+        "distortion_enabled": false,
+        "distortion_k1": 0.0,
+        "distortion_k2": 0.0,
+        "distortion_p1": 0.0,
+        "distortion_p2": 0.0,
+        "distortion_k3": 0.0
+    },
+    "zoom": {
+        "focal_length_max_mm": 52.0,
+        "zoom_speed_percent_per_s": 30.0
+    },
+    "ue_overrides": {
+        "chromatic_aberration": 0.0,
+        "ue_noise_enabled": false,
+        "ue_noise_rand_contrib": 0.0,
+        "ue_noise_rand_speed": 0.0,
+        "ue_noise_rand_size": 0.0,
+        "ue_noise_rand_density": 0.0
+    }
+}

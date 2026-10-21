@@ -53,10 +53,9 @@ class PayloadLink:
     sim client must not be used from this link's reader thread.
     """
 
-    def __init__(self, video_uri, resolution, hfov_deg):
+    def __init__(self, video_uri, camera):
         self.video_uri = video_uri
-        self.resolution = resolution
-        self.hfov_deg = hfov_deg
+        self.camera = camera  # CameraProperties
         self.zoom_percent = 0.0
         self.zoom_requests = queue.Queue()
         self.capture_requests = queue.Queue()
@@ -83,6 +82,8 @@ class PayloadLink:
         self._mav.close()
 
     def wait_for_px4(self, timeout=30):
+        """Wait for the next PX4 heartbeat (e.g. from a freshly started PX4)."""
+        self._px4_seen.clear()
         if not self._px4_seen.wait(timeout):
             raise RuntimeError("No heartbeat from PX4 on the payload link (UDP 14030)")
         projectairsim_log().info("Payload link up")
@@ -250,13 +251,13 @@ class PayloadLink:
             lambda mav: mav.camera_information_send(
                 self._ms(),
                 list(b"ProjectAirSim".ljust(32, b"\0")),
-                list(b"GimbalCam".ljust(32, b"\0")),
+                list(self.camera.name.encode()[:32].ljust(32, b"\0")),
                 0,
-                math.nan,
-                math.nan,
-                math.nan,
-                self.resolution[0],
-                self.resolution[1],
+                self.camera.focal_min_mm,
+                self.camera.sensor_width_mm,
+                self.camera.sensor_height_mm,
+                self.camera.resolution[0],
+                self.camera.resolution[1],
                 0,
                 flags,
                 0,
@@ -274,11 +275,11 @@ class PayloadLink:
                 M.VIDEO_STREAM_TYPE_RTSP,
                 M.VIDEO_STREAM_STATUS_FLAGS_RUNNING,
                 30.0,
-                self.resolution[0],
-                self.resolution[1],
+                self.camera.resolution[0],
+                self.camera.resolution[1],
                 4_000_000,
                 0,
-                int(self.hfov_deg),
+                int(self.camera.hfov_deg()),
                 b"GimbalCam",
                 self.video_uri.encode(),
                 M.VIDEO_STREAM_ENCODING_H264,

@@ -84,6 +84,9 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#cessna-310-example">Cessna 310 example</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#skywalker-x8-examples">Skywalker X8 examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rascal-110-with-px4-sitl">Rascal 110 with PX4 SITL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#x-configuration-quadrotor-with-px4-sitl">X-configuration quadrotor with PX4 SITL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#without-unreal-engine-and-with-multiple-vehicles">Without Unreal Engine and with multiple vehicles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ground-height-mode">Ground Height Mode</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#terrain-callback-usage">Terrain Callback Usage</a></li>
 </ul>
@@ -168,7 +171,7 @@
              
   <section id="jsbsim-physics">
 <h1>JSBSim Physics<a class="headerlink" href="#jsbsim-physics" title="Link to this heading"></a></h1>
-<p>Project AirSim includes JSBSim integration for aircraft dynamics.</p>
+<p>Project AirSim integrates JSBSim for fixed-wing and multirotor dynamics.</p>
 <section id="getting-started">
 <h2>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
 <p>JSBSim examples live under <code class="docutils literal notranslate"><span class="pre">client/python/example_user_scripts/jsbsim/</span></code> and are grouped by airframe:</p>
@@ -184,6 +187,12 @@
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">x8_skywalker/</span></code></p></td>
 <td><p>Skywalker X8 scripts, tests, and sim configs</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rascal110/</span></code></p></td>
+<td><p>Rascal 110 fixed-wing example with PX4 SITL</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">quadrotor-x/</span></code></p></td>
+<td><p>Auterion X-configuration quadrotor example with PX4 SITL</p></td>
 </tr>
 </tbody>
 </table>
@@ -261,6 +270,71 @@
 </pre></div>
 </div>
 <p>The swarm example generates its scene at runtime and reuses the same X8 robot config.</p>
+</section>
+<section id="rascal-110-with-px4-sitl">
+<h2>Rascal 110 with PX4 SITL<a class="headerlink" href="#rascal-110-with-px4-sitl" title="Link to this heading"></a></h2>
+<p>The <a class="reference internal" href="#../../client/python/example_user_scripts/jsbsim/rascal110/"><span class="xref myst">Rascal 110 example</span></a>
+uses the <code class="docutils literal notranslate"><span class="pre">Rascal110-JSBSim</span></code> flight model and <code class="docutils literal notranslate"><span class="pre">px4-api</span></code> controller.
+The normal source build packages the model and its engine/system files under
+<code class="docutils literal notranslate"><span class="pre">SimLibs/jsbsim/models/Rascal110-JSBSim</span></code>; keep that directory layout intact.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Path under <code class="docutils literal notranslate"><span class="pre">rascal110/</span></code></p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hello_rascal110_px4.py</span></code></p></td>
+<td><p>Loads the scene and holds the simulator connection for PX4</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sim_config/scene_rascal110_px4_sitl.jsonc</span></code></p></td>
+<td><p>Rascal scene configuration</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sim_config/robot_rascal110_px4_sitl.jsonc</span></code></p></td>
+<td><p>JSBSim model paths, actuator mapping, and PX4 settings</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">run_px4_rascal_takeoff.py</span></code></p></td>
+<td><p>Windows/WSL2 helper that starts PX4 and commands a takeoff</p></td>
+</tr>
+</tbody>
+</table>
+<p>Start the simulation server and a matching PX4 SITL instance using the
+<code class="docutils literal notranslate"><span class="pre">rascal-electric</span></code> airframe, then load the scene from the repository root:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>client/python/example_user_scripts/jsbsim/rascal110/hello_rascal110_px4.py
+</pre></div>
+</div>
+<p>The loader keeps the connection open; it does not command a takeoff. Use a
+GCS or the supplied takeoff helper. Review the helper’s <code class="docutils literal notranslate"><span class="pre">--help</span></code> and set its
+<code class="docutils literal notranslate"><span class="pre">--distro</span></code>, <code class="docutils literal notranslate"><span class="pre">--px4-repo</span></code>, and <code class="docutils literal notranslate"><span class="pre">--windows-host</span></code> for your own WSL2 setup.
+See <a class="reference internal" href="../controllers/px4/px4_sitl.html"><span class="std std-doc">PX4 SITL setup</span></a> for networking and connection settings.</p>
+</section>
+<section id="x-configuration-quadrotor-with-px4-sitl">
+<h2>X-configuration quadrotor with PX4 SITL<a class="headerlink" href="#x-configuration-quadrotor-with-px4-sitl" title="Link to this heading"></a></h2>
+<p>The <a class="reference internal" href="#../../client/python/example_user_scripts/jsbsim/quadrotor-x/"><span class="xref myst">quadrotor example</span></a>
+uses Auterion’s <code class="docutils literal notranslate"><span class="pre">quadrotor_x</span></code> JSBSim model and a <code class="docutils literal notranslate"><span class="pre">px4-api</span></code> controller.
+Its <code class="docutils literal notranslate"><span class="pre">sim_config/robot_quadrotor_x_jsbsim_px4_sitl.jsonc</span></code> defines the model paths,
+PX4 connection, sensors, and actuator order; the matching scene is
+<code class="docutils literal notranslate"><span class="pre">sim_config/scene_quadrotor_x_jsbsim_px4_sitl.jsonc</span></code>.</p>
+<p>With the Unreal simulation server and a matching quadrotor PX4 SITL instance
+running, execute from the repository root:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>client/python/example_user_scripts/jsbsim/quadrotor-x/hello_quadrotor_x_jsbsim.py
+</pre></div>
+</div>
+<p>The script displays camera streams, arms, takes off, climbs, and lands.
+Preserve the supplied actuator order when adapting the robot configuration.</p>
+</section>
+<section id="without-unreal-engine-and-with-multiple-vehicles">
+<h2>Without Unreal Engine and with multiple vehicles<a class="headerlink" href="#without-unreal-engine-and-with-multiple-vehicles" title="Link to this heading"></a></h2>
+<p><span class="xref myst">Project AirSim Runtime</span> runs
+JSBSim without Unreal Engine and supports multiple robots in one scene.
+Give each robot a unique name and, for PX4 SITL, a separate autopilot instance
+and connection settings; see <a class="reference internal" href="../controllers/px4/px4_multi_vehicle.html"><span class="std std-doc">multi-vehicle PX4 setup</span></a>.
+Runtime shares the simulation core and client APIs, but does not render camera,
+LiDAR, or radar data or provide Unreal terrain geometry. Use a client workflow
+without image displays instead of running the quadrotor camera demo unchanged.</p>
+<p>Project AirSim also provides <a class="reference internal" href="../controllers/ardupilot.html"><span class="std std-doc">ArduPilot SITL integration</span></a>.
+The Rascal and quadrotor examples above use PX4; they do not demonstrate
+ArduPilot with these JSBSim models.</p>
 </section>
 <section id="ground-height-mode">
 <h2>Ground Height Mode<a class="headerlink" href="#ground-height-mode" title="Link to this heading"></a></h2>

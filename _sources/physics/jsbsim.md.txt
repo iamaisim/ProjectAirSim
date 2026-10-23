@@ -185,6 +185,13 @@ If `jsbsim-dt` is omitted, Project AirSim uses `1/120` s
 2. **Ground penetration during sustained ground movement**
    - If a JSBSim vehicle continuously advances on the ground, it slowly sinks over time until it fully penetrates the terrain surface.
 
+## Reference
+
+Berndt, J. S., Coconnier, B., De Marco, A., & McLeod, S. (2026).
+*JSBSim, An Open Source Flight Dynamics Software Library*.
+Journal of Open Source Software, 11(126), 11129.
+[https://doi.org/10.21105/joss.11129](https://doi.org/10.21105/joss.11129).
+
 ---
 
 Copyright (C) IAMAI CONSULTING CORP

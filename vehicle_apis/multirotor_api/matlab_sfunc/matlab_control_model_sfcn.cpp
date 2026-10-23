@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation. 
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI CONSULTING CORP
 
 // MIT License. All rights reserved.
@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <memory>
+#include <stdexcept>
 #include <string>
 
 #include "matlab_control_model_wrapper.hpp"
@@ -17,7 +18,9 @@
 #define HOST_NAME_P 0
 #define PORT_NUM_P 1
 #define TIME_STEP_P 2
+#define TRANSPORT_TIMEOUT_P 3  // Optional; omitted in existing models
 #define NUM_PRMS 3
+#define MAX_NUM_PRMS 4
 
 #define NUM_INPUTS 1
 
@@ -50,11 +53,42 @@
 
 // Alias for getting the NNG pointer saved in PWork index 0
 #define GET_NNG_PTR(S) ssGetPWorkValue(S, 0)
+#define GET_ERROR_PTR(S) static_cast<std::string*>(ssGetPWorkValue(S, 1))
 
 // Helper type to wrap C-strings allocated by mxArrayToString() as unique ptr
 // with the mxFree() custom deleter
 auto MxDeleter = [](char* ptr) { mxFree(ptr); };
 using MxCharUniquePtr = std::unique_ptr<char, decltype(MxDeleter)>;
+
+static void SetRuntimeError(SimStruct* S, const char* message) noexcept {
+  try {
+    auto error = GET_ERROR_PTR(S);
+    if (error != nullptr) {
+      *error = message;
+      ssSetErrorStatus(S, error->c_str());
+      return;
+    }
+  } catch (...) {
+  }
+  ssSetErrorStatus(S, "Matlab model runtime resource failure.");
+}
+
+// --------------------------------------------------------------------------
+
+#define MDL_CHECK_PARAMETERS
+#if defined(MDL_CHECK_PARAMETERS) && defined(MATLAB_MEX_FILE)
+// Method to validate the block's parameters.
+// https://www.mathworks.com/help/simulink/sfg/mdlcheckparameters.html
+static void mdlCheckParameters(SimStruct* S) {
+  if (ssGetSFcnParamsCount(S) <= TRANSPORT_TIMEOUT_P) return;
+
+  const mxArray* timeout = ssGetSFcnParam(S, TRANSPORT_TIMEOUT_P);
+  if (!mxIsDouble(timeout) || mxIsComplex(timeout) ||
+      mxGetNumberOfElements(timeout) != 1 || mxIsNaN(*mxGetDoubles(timeout))) {
+    ssSetErrorStatus(S, "Transport timeout must be a real scalar in seconds.");
+  }
+}
+#endif
 
 // --------------------------------------------------------------------------
 
@@ -63,11 +97,26 @@ using MxCharUniquePtr = std::unique_ptr<char, decltype(MxDeleter)>;
 // https://www.mathworks.com/help/simulink/sfg/mdlinitializesizes.html
 static void mdlInitializeSizes(SimStruct* S) {
   std::cout << "Initializing Matlab control S-function block..." << std::endl;
-  ssSetNumSFcnParams(S, NUM_PRMS);
+  // Accept the original three parameters and the optional transport timeout.
+  const int_T num_params = ssGetSFcnParamsCount(S);
+  if (num_params != NUM_PRMS && num_params != MAX_NUM_PRMS) {
+    ssSetErrorStatus(S,
+                     "Expected parameters: host name, port, time step, "
+                     "and optional transport timeout.");
+    return;
+  }
+  ssSetNumSFcnParams(S, num_params);
+#if defined(MATLAB_MEX_FILE)
+  mdlCheckParameters(S);
+  if (ssGetErrorStatus(S) != nullptr) return;
+#endif
 
   ssSetSFcnParamTunable(S, HOST_NAME_P, false);
   ssSetSFcnParamTunable(S, PORT_NUM_P, false);
   ssSetSFcnParamTunable(S, TIME_STEP_P, false);
+  if (num_params > TRANSPORT_TIMEOUT_P) {
+    ssSetSFcnParamTunable(S, TRANSPORT_TIMEOUT_P, false);
+  }
 
   // Setup input ports
   if (!ssSetNumInputPorts(S, NUM_INPUTS)) return;
@@ -117,8 +166,8 @@ static void mdlInitializeSizes(SimStruct* S) {
   ssSetOutputPortDataType(S, 6, SS_DOUBLE);
   ssSetOutputPortComplexSignal(S, 6, COMPLEX_NO);
 
-  // Set up PWork vector to save pointers
-  ssSetNumPWork(S, 1);
+  // Save the socket manager and this block's persistent error message.
+  ssSetNumPWork(S, 2);
 
   // Setup sample times
   ssSetNumSampleTimes(S, 1);
@@ -163,19 +212,38 @@ static void mdlInitializeSampleTimes(SimStruct* S) {
 void mdlSetupRuntimeResources(SimStruct* S) {
   std::cout << "Setting up Matlab control runtime resources..." << std::endl;
 
-  MxCharUniquePtr host_name(mxArrayToString(ssGetSFcnParam(S, HOST_NAME_P)),
-                            MxDeleter);
-  MxCharUniquePtr port_num(mxArrayToString(ssGetSFcnParam(S, PORT_NUM_P)),
-                           MxDeleter);
+  try {
+    std::unique_ptr<std::string> error(new std::string);
+    ssSetPWorkValue(S, 1, error.release());
+    MxCharUniquePtr host_name(mxArrayToString(ssGetSFcnParam(S, HOST_NAME_P)),
+                              MxDeleter);
+    MxCharUniquePtr port_num(mxArrayToString(ssGetSFcnParam(S, PORT_NUM_P)),
+                             MxDeleter);
 
-  std::string connection_str = "tcp://";
-  connection_str += host_name.get();
-  connection_str += ":";
-  connection_str += port_num.get();
+    if (host_name == nullptr || port_num == nullptr) {
+      throw std::runtime_error(
+          "Failed to read the Matlab connection parameters.");
+    }
 
-  // Allocate and store pointer to NNG using wrapper in PWork index 0
-  void* nng_mgr = SetupRuntimeResourcesWrapper(connection_str);
-  ssSetPWorkValue(S, 0, nng_mgr);
+    std::string connection_str = "tcp://";
+    connection_str += host_name.get();
+    connection_str += ":";
+    connection_str += port_num.get();
+
+    // Without the optional parameter, transport operations wait indefinitely.
+    double timeout_sec = 0.0;
+    if (ssGetSFcnParamsCount(S) > TRANSPORT_TIMEOUT_P) {
+      timeout_sec = *mxGetDoubles(ssGetSFcnParam(S, TRANSPORT_TIMEOUT_P));
+    }
+
+    // Allocate and store pointer to NNG using wrapper in PWork index 0
+    void* nng_mgr = SetupRuntimeResourcesWrapper(connection_str, timeout_sec);
+    ssSetPWorkValue(S, 0, nng_mgr);
+  } catch (const std::exception& e) {
+    SetRuntimeError(S, e.what());
+  } catch (...) {
+    SetRuntimeError(S, "Unexpected Matlab model setup failure.");
+  }
 }
 
 // --------------------------------------------------------------------------
@@ -200,9 +268,15 @@ static void mdlStart(SimStruct* S) {
       static_cast<double*>(ssGetOutputPortRealSignal(S, 5));
   auto out_port_6_gps = static_cast<double*>(ssGetOutputPortRealSignal(S, 6));
 
-  StartWrapper(GET_NNG_PTR(S), out_port_0_kinematics, out_port_1_airspeed,
-               out_port_2_barometer, out_port_3_imu, out_port_4_magnetometer,
-               out_port_5_distance, out_port_6_gps);
+  try {
+    StartWrapper(GET_NNG_PTR(S), out_port_0_kinematics, out_port_1_airspeed,
+                 out_port_2_barometer, out_port_3_imu, out_port_4_magnetometer,
+                 out_port_5_distance, out_port_6_gps);
+  } catch (const std::exception& e) {
+    SetRuntimeError(S, e.what());
+  } catch (...) {
+    SetRuntimeError(S, "Unexpected Matlab model runtime failure.");
+  }
 }
 
 // --------------------------------------------------------------------------
@@ -230,9 +304,15 @@ static void mdlUpdate(SimStruct* S, int_T tid) {
       static_cast<double*>(ssGetOutputPortRealSignal(S, 5));
   auto out_port_6_gps = static_cast<double*>(ssGetOutputPortRealSignal(S, 6));
 
-  UpdateWrapper(GET_NNG_PTR(S), in_port_0_control, out_port_0_kinematics,
-                out_port_1_airspeed, out_port_2_barometer, out_port_3_imu,
-                out_port_4_magnetometer, out_port_5_distance, out_port_6_gps);
+  try {
+    UpdateWrapper(GET_NNG_PTR(S), in_port_0_control, out_port_0_kinematics,
+                  out_port_1_airspeed, out_port_2_barometer, out_port_3_imu,
+                  out_port_4_magnetometer, out_port_5_distance, out_port_6_gps);
+  } catch (const std::exception& e) {
+    SetRuntimeError(S, e.what());
+  } catch (...) {
+    SetRuntimeError(S, "Unexpected Matlab model runtime failure.");
+  }
 }
 
 // --------------------------------------------------------------------------
@@ -245,10 +325,10 @@ static void mdlOutputs(SimStruct* S, int_T tid) {
 
   try {
     OutputsWrapper(GET_NNG_PTR(S));
-  } catch (std::exception& e) {
-    static std::string errstr(e.what());
-    ssSetErrorStatus(S, errstr.c_str());
-    return;
+  } catch (const std::exception& e) {
+    SetRuntimeError(S, e.what());
+  } catch (...) {
+    SetRuntimeError(S, "Unexpected Matlab model output failure.");
   }
 }
 
@@ -269,12 +349,29 @@ static void mdlTerminate(SimStruct* S) {
 // https://www.mathworks.com/help/simulink/sfg/mdlcleanupruntimeresources.html
 static void mdlCleanupRuntimeResources(SimStruct* S) {
   std::cout << "Cleaning up Matlab control resources..." << std::endl;
-  CleanUpRuntimeResoucesWrapper(GET_NNG_PTR(S));
+  void* nng_mgr = GET_NNG_PTR(S);
+  ssSetPWorkValue(S, 0, nullptr);
+  CleanUpRuntimeResoucesWrapper(nng_mgr);
+  ssSetErrorStatus(S, nullptr);
+  delete GET_ERROR_PTR(S);
+  ssSetPWorkValue(S, 1, nullptr);
 }
 
 // --------------------------------------------------------------------------
 
 #ifdef MATLAB_MEX_FILE /* Is this file being compiled as a MEX-file? */
+#define PROCESS_MEX_SFUNCTION_EVERY_CALL
+static bool ProcessMexSfunctionEveryCall(int_T, mxArray**, int_T,
+                                         const mxArray**) {
+  static bool module_locked = false;
+  if (!module_locked) {
+    // MEX APIs require the entry-point context, before Simulink callbacks.
+    mexAtExit(FinalizeRuntimeResourcesWrapper);
+    mexLock();
+    module_locked = true;
+  }
+  return false;
+}
 #include "simulink.c"  /* MEX-file interface mechanism */
 #else
 #include "cg_sfun.h" /* Code generation registration function */

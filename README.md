@@ -343,6 +343,10 @@ Before redistributing or extending an integration, review
 [Project AirSim license information](docs/license.md), `NOTICE.txt`, and the
 licenses under `thirdparty/Licenses/`.
 
+Project AirSim supports JSBSim as one of its options for aircraft flight dynamics.
+See Berndt et al. (2026), [*JSBSim, An Open Source Flight Dynamics Software Library*](https://doi.org/10.21105/joss.11129),
+Journal of Open Source Software.
+
 ---
 
 Copyright (C) Microsoft Corporation.  

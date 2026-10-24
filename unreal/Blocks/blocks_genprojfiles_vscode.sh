@@ -3,18 +3,15 @@
 # Copyright (C) 2025 IAMAI CONSULTING CORP
 # MIT License.
 
-set -e
+set -euo pipefail
 
 if [ -z "${UE_ROOT:-}" ]; then
   echo
   echo "ERROR: UE_ROOT is not set. Set it to the target Unreal Engine root, for example /opt/UnrealEngine-5.8."
   exit 1
-elif [ ! -x "$UE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh" ]; then
-  echo "ERROR: Unreal Build.sh was not found under UE_ROOT=$UE_ROOT"
-  exit 1
 else
   # Find the .uproject file in the current directory
-  SCRIPTDIR=$(dirname "$(readlink -f "$0")")
+  SCRIPTDIR=$(cd "$(dirname "$0")" && pwd)
   cd "$SCRIPTDIR"
   UPROJECT_FILE=$(find . -maxdepth 1 -name "*.uproject" | head -n 1)
 
@@ -27,9 +24,19 @@ else
   # Extract the project name from the .uproject file
   PROJECT_NAME=$(basename "$UPROJECT_FILE" .uproject)
 
+  if [ "$(uname -s)" = "Darwin" ]; then
+    UE_GENPROJ="$UE_ROOT/Engine/Build/BatchFiles/Mac/GenerateProjectFiles.sh"
+  else
+    UE_GENPROJ="$UE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh"
+  fi
+  if [ ! -x "$UE_GENPROJ" ]; then
+    echo "ERROR: Unreal project generation script not found: $UE_GENPROJ"
+    exit 1
+  fi
+
   # Generate VS Code UE project files (overwrites .vscode/settings.json)
   echo "Generating VS Code project files with UE_ROOT=$UE_ROOT for project $PROJECT_NAME"
-  "$UE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh" -projectfiles -vscode -project="$SCRIPTDIR/$UPROJECT_FILE" -game
+  "$UE_GENPROJ" -projectfiles -vscode -project="$SCRIPTDIR/$UPROJECT_FILE" -game
 
   if [ ! -f "$PROJECT_NAME.code-workspace" ]; then
     echo "ERROR: UnrealBuildTool did not create $PROJECT_NAME.code-workspace."
@@ -48,8 +55,13 @@ else
 
   # Fix UE's generated game target binary names from UnrealGame to the project name in launch.json
   if [ -f .vscode/launch.json ]; then
-    sed -i "s/UnrealGame-/$PROJECT_NAME-/g" .vscode/launch.json
-    sed -i "s/UnrealGame\"/$PROJECT_NAME\"/g" .vscode/launch.json
+    if [ "$(uname -s)" = "Darwin" ]; then
+      sed -i '' "s/UnrealGame-/$PROJECT_NAME-/g" .vscode/launch.json
+      sed -i '' "s/UnrealGame\"/$PROJECT_NAME\"/g" .vscode/launch.json
+    else
+      sed -i "s/UnrealGame-/$PROJECT_NAME-/g" .vscode/launch.json
+      sed -i "s/UnrealGame\"/$PROJECT_NAME\"/g" .vscode/launch.json
+    fi
   else
     echo "NOTE: This Unreal version did not generate launch.json; adding Project AirSim entries."
   fi

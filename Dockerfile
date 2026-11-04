@@ -74,11 +74,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         sudo \
     && rm -rf /var/lib/apt/lists/*
 
-# Symlink the system Clang 13 package to the names Project AirSim's CMakeLists.txt expects
-# when UE_ROOT is not set (see root CMakeLists.txt + AGENTS.md for this exact workaround).
-RUN ln -sf /usr/bin/clang-13 /usr/bin/clang-13 \
-    && ln -sf /usr/bin/clang++-13 /usr/bin/clang++-13
-
 # ---------------------------------------------------------------------------------------------------------------------
 # Non-root user matching the host UID/GID so bind-mounted files stay writable from outside.
 # ---------------------------------------------------------------------------------------------------------------------

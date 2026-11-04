@@ -82,14 +82,68 @@ EOF
     else
         echo "   nvidia-smi : NOT AVAILABLE -- did you run with --gpus all?"
     fi
-    if command -v vulkaninfo >/dev/null 2>&1; then
-        gpu_line=$(vulkaninfo --summary 2>/dev/null | grep -m1 "deviceName" || true)
-        if [ -n "$gpu_line" ]; then
-            echo "   vulkaninfo : OK ($(echo "$gpu_line" | awk -F'= ' '{print $2}'))"
-        else
-            echo "   vulkaninfo : FAILED -- check --gpus all, --device /dev/dri, and"
-            echo "                NVIDIA_DRIVER_CAPABILITIES includes graphics,display,utility"
-        fi
+    if ! command -v vulkaninfo >/dev/null 2>&1; then
+        echo "   vulkaninfo : NOT AVAILABLE -- install vulkan-tools"
+    elif vulkan_output=$(vulkaninfo --summary 2>&1); then
+        # Inspect every device; CPU implementations such as llvmpipe
+        # do not demonstrate GPU passthrough.
+        device_status=$(printf '%s\n' "$vulkan_output" | awk '
+            function check_device() {
+                if (type ~ /PHYSICAL_DEVICE_TYPE_(INTEGRATED|DISCRETE)_GPU/) {
+                    hardware = 1
+                    if (tolower(vendor) == "0x10de")
+                        nvidia = 1
+                } else if (type ~ /PHYSICAL_DEVICE_TYPE_CPU/) {
+                    software = 1
+                }
+            }
+
+            /^[[:space:]]*GPU[0-9]+:/ {
+                check_device()
+                vendor = ""
+                type = ""
+            }
+
+            /^[[:space:]]*vendorID[[:space:]]*=/ {
+                vendor = $0
+                sub(/^[^=]*=[[:space:]]*/, "", vendor)
+                sub(/[[:space:]]*$/, "", vendor)
+            }
+
+            /^[[:space:]]*deviceType[[:space:]]*=/ {
+                type = $0
+            }
+
+            END {
+                check_device()
+                if (nvidia)
+                    print "nvidia"
+                else if (hardware)
+                    print "other_gpu"
+                else if (software)
+                    print "software"
+                else
+                    print "none"
+            }
+        ')
+
+        case "$device_status" in
+            nvidia)
+                echo "   vulkaninfo : OK -- NVIDIA Vulkan device detected"
+                ;;
+            other_gpu)
+                echo "   vulkaninfo : WARNING -- hardware GPU detected, but no NVIDIA Vulkan device"
+                ;;
+            software)
+                echo "   vulkaninfo : WARNING -- software rendering only; GPU passthrough not verified"
+                ;;
+            *)
+                echo "   vulkaninfo : FAILED -- no recognized Vulkan devices detected"
+                ;;
+        esac
+    else
+        echo "   vulkaninfo : FAILED -- Vulkan enumeration failed"
+        printf '%s\n' "$vulkan_output"
     fi
     echo "================================================================================"
     set -e

@@ -51,6 +51,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 #     vulkaninfo fails with "Could not get 'vkCreateInstance' via 'vk_icdGetInstanceProcAddr'"
 #     even though the ICD, device nodes, and driver libraries are all present and correct.
 #   - git                                           : UnrealBuildTool / GitDependencies invoke git
+#   - unzip                                         : required by tools/assets/install_suv_assets.sh
 #   - python3/python3-venv/python3-pip               : Project AirSim Python client
 #   - GUI/X11/XWayland runtime libs                 : required to run UnrealEditor with a window
 #     forwarded from the host (libx11-6, libxcursor1, libxinerama1, libxi6, libxrandr2, libxss1,
@@ -67,7 +68,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         clang-13 libc++-13-dev libc++abi-13-dev \
         libeigen3-dev \
         libvulkan1 vulkan-tools mesa-vulkan-drivers \
-        git git-lfs ca-certificates curl wget gnupg lsb-release \
+        git git-lfs ca-certificates curl wget gnupg lsb-release unzip \
         python3 python3-venv python3-pip \
         libx11-6 libxext6 libxcursor1 libxinerama1 libxi6 libxrandr2 libxss1 libxtst6 \
         libsm6 libasound2 libgtk-3-0 libegl1 libgl1 libnss3 \

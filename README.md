@@ -2,6 +2,7 @@
 
 <div align="center">
 
+[![Demos](https://img.shields.io/badge/Demos-YouTube-FF0000?logo=youtube&logoColor=white)](https://www.youtube.com/@IAMAISimulations)
 [![Latest release](https://img.shields.io/github/v/release/iamaisim/ProjectAirSim?label=release)](https://github.com/iamaisim/ProjectAirSim/releases/latest)
 [![Ubuntu](https://img.shields.io/badge/Ubuntu-22.04-E95420?logo=ubuntu&logoColor=white)](docs/development/dev_setup_linux.md)
 [![Unreal Engine](https://img.shields.io/badge/Unreal%20Engine-5.2%20%7C%205.7%20%7C%205.8-0E1128?logo=unrealengine&logoColor=white)](docs/development/use_source.md)
@@ -341,6 +342,10 @@ assets remain under their respective licenses.
 Before redistributing or extending an integration, review
 [Project AirSim license information](docs/license.md), `NOTICE.txt`, and the
 licenses under `thirdparty/Licenses/`.
+
+Project AirSim supports JSBSim as one of its options for aircraft flight dynamics.
+See Berndt et al. (2026), [*JSBSim, An Open Source Flight Dynamics Software Library*](https://doi.org/10.21105/joss.11129),
+Journal of Open Source Software.
 
 ---
 

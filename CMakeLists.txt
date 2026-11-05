@@ -175,6 +175,11 @@ set(JSBSIM_INCLUDE_DIR ${JSBSIM_STAGE_ROOT}/include)
 set(JSBSIM_MODEL_COPY_SCRIPT ${CMAKE_BINARY_DIR}/cmake/CopyJsbsimModels.cmake)
 set(JSBSIM_PATCH_SCRIPT ${CMAKE_BINARY_DIR}/cmake/PatchJsbsim.cmake)
 
+# Fixed Rascal model version - update deliberately so packaged builds remain
+# reproducible even if the upstream default branch changes.
+set(RASCAL_MODEL_FIXED_COMMIT "6c2b8393ac69b6ae6b8e5588a28bc2facc5bba08")
+set(RASCAL_MODEL_SRC_DIR ${CMAKE_BINARY_DIR}/_deps/rascal-model/src/rascal-model)
+
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/cmake)
 file(WRITE ${JSBSIM_PATCH_SCRIPT} [=[
 if(NOT DEFINED SOURCE_FILE)
@@ -192,10 +197,11 @@ file(WRITE "${SOURCE_FILE}" "${SOURCE_CONTENT}")
 ]=])
 file(WRITE ${JSBSIM_MODEL_COPY_SCRIPT} [=[
 if(NOT DEFINED UPSTREAM_SRC_DIR OR
+   NOT DEFINED RASCAL_SRC_DIR OR
    NOT DEFINED LOCAL_MODELS_DIR OR
    NOT DEFINED DST_MODELS_DIR OR
    NOT DEFINED DST_ROOT_DIR)
-    message(FATAL_ERROR "UPSTREAM_SRC_DIR, LOCAL_MODELS_DIR, DST_MODELS_DIR, and DST_ROOT_DIR must be provided")
+    message(FATAL_ERROR "UPSTREAM_SRC_DIR, RASCAL_SRC_DIR, LOCAL_MODELS_DIR, DST_MODELS_DIR, and DST_ROOT_DIR must be provided")
 endif()
 
 file(GLOB_RECURSE LOCAL_MODEL_FILES
@@ -215,6 +221,20 @@ foreach(UPSTREAM_MODEL_DIR IN ITEMS aircraft engine scripts systems)
              DESTINATION "${DST_MODELS_DIR}")
     endif()
 endforeach()
+
+# Keep the FlightGear model's native layout so its aircraft, engine, and
+# systems XML references continue to resolve relative to Rascal110-JSBSim.
+set(RASCAL_MODEL_DIR "${DST_MODELS_DIR}/Rascal110-JSBSim")
+if(NOT EXISTS "${RASCAL_SRC_DIR}/Rascal110-JSBSim.xml" OR
+   NOT EXISTS "${RASCAL_SRC_DIR}/Engines" OR
+   NOT EXISTS "${RASCAL_SRC_DIR}/Systems" OR
+   NOT EXISTS "${RASCAL_SRC_DIR}/LICENSE")
+    message(FATAL_ERROR "Incomplete Rascal model checkout under ${RASCAL_SRC_DIR}")
+endif()
+file(MAKE_DIRECTORY "${RASCAL_MODEL_DIR}")
+file(COPY "${RASCAL_SRC_DIR}/"
+     DESTINATION "${RASCAL_MODEL_DIR}"
+     PATTERN ".git" EXCLUDE)
 
 foreach(LOCAL_FILE IN LISTS LOCAL_MODEL_FILES)
     if(IS_DIRECTORY "${LOCAL_MODELS_DIR}/${LOCAL_FILE}")
@@ -360,6 +380,20 @@ ExternalProject_Add(jsbsim-repo
     BUILD_ALWAYS 1
 )
 
+message("Setting up [rascal-model] dependency as an external project...")
+ExternalProject_Add(rascal-model
+    GIT_REPOSITORY    https://github.com/Auterion/FlightGear-Rascal.git
+    GIT_TAG           ${RASCAL_MODEL_FIXED_COMMIT}
+    GIT_CONFIG        "advice.detachedHead=false"
+    PREFIX            ${CMAKE_BINARY_DIR}/_deps/rascal-model
+    SOURCE_DIR        ${RASCAL_MODEL_SRC_DIR}
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND     ""
+    INSTALL_COMMAND   ""
+    UPDATE_COMMAND    ""
+    TEST_COMMAND      ""
+)
+
 # Enforce fixed JSBSim version at configure time
 if(NOT JSBSIM_FIXED_TAG STREQUAL "v1.1.12")
     message(FATAL_ERROR "JSBSIM_FIXED_TAG has been modified to '${JSBSIM_FIXED_TAG}'. "
@@ -388,19 +422,21 @@ ExternalProject_Add_Step(jsbsim-repo post-install
 add_custom_target(copy_jsbsim_models ALL
     COMMAND ${CMAKE_COMMAND}
         -DUPSTREAM_SRC_DIR="${JSBSIM_SRC_DIR}"
+        -DRASCAL_SRC_DIR="${RASCAL_MODEL_SRC_DIR}"
         -DLOCAL_MODELS_DIR="${JSBSIM_CORESIM_DIR}/models"
         -DDST_MODELS_DIR="${UE_PLUGIN_SIMLIBS_DIR}/jsbsim/models"
         -DDST_ROOT_DIR="${UE_PLUGIN_SIMLIBS_DIR}/jsbsim"
         -P "${JSBSIM_MODEL_COPY_SCRIPT}"
     COMMAND ${CMAKE_COMMAND}
         -DUPSTREAM_SRC_DIR="${JSBSIM_SRC_DIR}"
+        -DRASCAL_SRC_DIR="${RASCAL_MODEL_SRC_DIR}"
         -DLOCAL_MODELS_DIR="${JSBSIM_CORESIM_DIR}/models"
         -DDST_MODELS_DIR="${UE_PLUGIN_SIMLIBS_DIR}/core_sim/jsbsim/models"
         -DDST_ROOT_DIR="${UE_PLUGIN_SIMLIBS_DIR}/core_sim/jsbsim"
         -P "${JSBSIM_MODEL_COPY_SCRIPT}"
     COMMENT "Copying merged JSBSim models to UE plugin SimLibs"
 )
-add_dependencies(copy_jsbsim_models jsbsim-repo)
+add_dependencies(copy_jsbsim_models jsbsim-repo rascal-model)
 
 # Add jsbsim as imported library
 add_library(jsbsim ${JSBSIM_LIBRARY_TYPE} IMPORTED)

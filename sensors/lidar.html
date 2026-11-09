@@ -100,6 +100,11 @@
 <li class="toctree-l2"><a class="reference internal" href="#fov-settings">FOV settings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#lidar-types">Lidar types</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#generic-cylindrical-lidar-type">Generic cylindrical lidar type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#gpu-cylindrical-lidar-type">GPU cylindrical lidar type</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#try-it-in-unreal">Try it in Unreal</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vertical-field-of-view">Vertical field of view</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#generic-rosette-lidar-type">Generic rosette lidar type</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#depth-lidar-type">Depth lidar type</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#livox-mid-70-lidar-type">Livox Mid-70 lidar type</a></li>
@@ -172,7 +177,7 @@
 <p>The lidar sensor is currently implemented as an ideal sensor that projects simulated laser beams over a cylindrical or circular field of view (FOV). The sensor’s settings specify the scan pattern and rate.</p>
 <section id="lidar-detections">
 <h2>Lidar detections<a class="headerlink" href="#lidar-detections" title="Link to this heading"></a></h2>
-<p>Each beam intersecting with an object’s mesh generates a lidar return with a 3D position relative to the sensor. The intensity of the return (which is affected many factors including atmospheric conditions, reflective properties of the object, and orientation of the object) is currently not simulated.</p>
+<p>Each beam intersecting with an object’s mesh generates a lidar return with a 3D position relative to the sensor. The mesh-trace lidar types do not simulate physical return intensity. The GPU cylindrical type can provide render-derived intensity values.</p>
 </section>
 </section>
 <section id="lidar-sensor-settings">
@@ -186,7 +191,7 @@
 <span class="w">    </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lidar"</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">"enabled"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">"parent-link"</span><span class="p">:</span><span class="w"> </span><span class="s2">"LidarMountPoint"</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">"lidar-type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"generic-cylindrical"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"lidar-type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"generic_cylindrical"</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">"number-of-channels"</span><span class="p">:</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">"range"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">"points-per-second"</span><span class="p">:</span><span class="w"> </span><span class="mi">100000</span><span class="p">,</span>
@@ -268,13 +273,13 @@
 <td><p>float</p></td>
 <td><p>Vertical scan rate (revolutions per second.)</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">vertical-fov-start-deg</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">vertical-fov-lower-deg</span></code></p></td>
 <td><p>float</p></td>
-<td><p>Vertical field of view starting angle. See below for details. (-90.0 to +90.0 degrees)</p></td>
+<td><p>Lower elevation of the vertical field of view. See below for details. (-90.0 to +90.0 degrees)</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">vertical-fov-end-deg</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">vertical-fov-upper-deg</span></code></p></td>
 <td><p>float</p></td>
-<td><p>Vertical field of view ending angle. See below for details. (-90.0 to +90.0 degrees)</p></td>
+<td><p>Upper elevation of the vertical field of view. See below for details. (-90.0 to +90.0 degrees)</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">radial-scaling</span></code></p></td>
 <td><p>float</p></td>
@@ -309,7 +314,7 @@
 <p>The field of view (FOV) settings define the area where data is returned.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">horizontal-fov-*-deg</span></code> settings specify the start and ending horizontal angles of the sweep area where 0° is straight ahead, increasing right (clockwise from overhead) relative to the sensor.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">vertical-fov-*-deg</span></code> settings specify the start and ending vertical angles of the sweep area where +90° is straight up and -90° is straight down relative to the sensor.</p>
-<p>A particular lidar type may ignore one or both the horizontal and vertical FOV settings.  See the <a class="reference internal" href="#lidar_type"><span class="xref myst">lidar type</span></a> section below for details.</p>
+<p>A particular lidar type may ignore one or both the horizontal and vertical FOV settings.  See the <a class="reference internal" href="#lidar-types"><span class="xref myst">lidar type</span></a> section below for details.</p>
 </section>
 <section id="lidar-types">
 <h2>Lidar types<a class="headerlink" href="#lidar-types" title="Link to this heading"></a></h2>
@@ -325,16 +330,19 @@
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">generic_cylindrical</span></code></p></td>
 <td><p>The sensor scans a cylindrical volume.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">depth_lidar</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">gpu_cylindrical</span></code></p></td>
+<td><p>The sensor uses rendered depth and a GPU compute shader in Unreal to generate a cylindrical scan.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">depth_lidar</span></code></p></td>
 <td><p>The sensor generates a cylindrical lidar-style scan by sampling explicit beams from a rendered depth image.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">generic_rosette</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">generic_rosette</span></code></p></td>
 <td><p>The sensor beams scan a conical volume with a hypotrochoid curve.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">livox_mid70</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">livox_mid70</span></code></p></td>
 <td><p>The sensor simulates a Livox Mid-70 lidar sensor.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">livox_avia</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">livox_avia</span></code></p></td>
 <td><p>The sensor simulates a Livox Avia lidar sensor.</p></td>
 </tr>
 </tbody>
@@ -343,6 +351,45 @@
 <h3>Generic cylindrical lidar type<a class="headerlink" href="#generic-cylindrical-lidar-type" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">generic_cylindrical</span></code> lidar type is similar to the Velodyne Puck lidar sensor (https://velodynelidar.com/products/puck).  It has multiple laser beams (specified by <code class="docutils literal notranslate"><span class="pre">number-of-channels</span></code>) which sweep out shallow horizontal cones.  The laser beams are equally spaced vertically to cover the vertical FOV.  The beams sweep horizontally 360°, but data is returned only when the beams are within the horizontal FOV range.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">vertical-rotation-frequency</span></code> and <code class="docutils literal notranslate"><span class="pre">radial-scaling</span></code> settings are ignored.</p>
+</section>
+<section id="gpu-cylindrical-lidar-type">
+<h3>GPU cylindrical lidar type<a class="headerlink" href="#gpu-cylindrical-lidar-type" title="Link to this heading"></a></h3>
+<p>Set <code class="docutils literal notranslate"><span class="pre">&quot;type&quot;:</span> <span class="pre">&quot;lidar&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;lidar-type&quot;:</span> <span class="pre">&quot;gpu_cylindrical&quot;</span></code> on the sensor.
+Unreal uses four depth captures and a GPU compute shader to generate the
+point cloud. The scan supports a full 360° horizontal sweep. Project AirSim
+Runtime does not provide this sensor.</p>
+<section id="try-it-in-unreal">
+<h4>Try it in Unreal<a class="headerlink" href="#try-it-in-unreal" title="Link to this heading"></a></h4>
+<ol class="arabic">
+<li><p>Start a matching <a class="reference internal" href="../development/use_prebuilt.html"><span class="std std-doc">pre-built Blocks environment</span></a>
+or run Blocks <a class="reference internal" href="../development/use_source.html"><span class="std std-doc">from source</span></a>. Keep rendering
+enabled.</p></li>
+<li><p>Follow the <a class="reference internal" href="../client_setup.html"><span class="std std-doc">Python client setup</span></a> and install the
+<code class="docutils literal notranslate"><span class="pre">lidar</span></code> extra for the point cloud viewer.</p></li>
+<li><p>From the repository root, run the
+<a class="reference download internal" download="" href="../_downloads/1de6e3710de60f86fcac46159829d636/lidar_basic_gpu.py"><span class="xref download myst">GPU LiDAR example</span></a>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>client/python/example_user_scripts/lidar_basic_gpu.py
+</pre></div>
+</div>
+</li>
+</ol>
+<p>The script loads <code class="docutils literal notranslate"><span class="pre">scene_lidar_drone_gpu.jsonc</span></code> and opens a point cloud window
+colored by intensity. Look for a visible cloud and positive <code class="docutils literal notranslate"><span class="pre">n=</span></code> point
+counts in the client log once the sensor sees geometry in range.</p>
+</section>
+<section id="vertical-field-of-view">
+<h4>Vertical field of view<a class="headerlink" href="#vertical-field-of-view" title="Link to this heading"></a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">vertical-fov-lower-deg</span></code> and <code class="docutils literal notranslate"><span class="pre">vertical-fov-upper-deg</span></code> set the elevations of
+the scan channels. Start with the example’s nominal range of −15° to +15°.
+The four capture cameras have fixed geometry and are centered at zero
+elevation. Changing the vertical bounds changes the beam directions, while
+the cameras keep the same orientation and coverage.</p>
+<p>The shader discards beams that project outside the capture image. Wider or
+offset ranges can therefore lose outer channels or show gaps at some
+azimuths. A narrow range far from zero can also fall outside the captures.
+If the scan needs a wider or strongly offset vertical range, use
+<code class="docutils literal notranslate"><span class="pre">generic_cylindrical</span></code>, which traces against collision geometry in Unreal.</p>
+</section>
 </section>
 <section id="generic-rosette-lidar-type">
 <h3>Generic rosette lidar type<a class="headerlink" href="#generic-rosette-lidar-type" title="Link to this heading"></a></h3>

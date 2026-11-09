@@ -5,12 +5,33 @@
 
 #include "WeatherLib.h"
 
+#include "Components/SceneCaptureComponent2D.h"
 #include "Materials/MaterialParameterCollection.h"
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "Runtime/UMG/Public/Blueprint/UserWidget.h"
 #include "Runtime/UMG/Public/Blueprint/WidgetBlueprintLibrary.h"
 
 AExponentialHeightFog* UWeatherLib::weather_fog_ = nullptr;
+
+// Each robot gets its own weather actor, which carries weather effects that follow the
+// robot, such as the particle fog. Without this, every robot's cameras would also see every
+// other robot's effects, so a scene with N robots would look N times as foggy. Each robot's
+// cameras see only its own weather actor: the weather looks the same as for a robot alone.
+static void HideOtherRobotsWeather(const TArray<AUnrealRobot*>& Robots,
+                                   const TArray<AActor*>& WeatherActors) {
+  for (int32 r = 0; r < Robots.Num(); r++) {
+    if (Robots[r] == nullptr) continue;
+    TArray<USceneCaptureComponent2D*> Captures;
+    Robots[r]->GetComponents<USceneCaptureComponent2D>(Captures, true);
+    for (USceneCaptureComponent2D* Capture : Captures) {
+      for (int32 w = 0; w < WeatherActors.Num(); w++) {
+        if (w != r && WeatherActors[w] != nullptr) {
+          Capture->HiddenActors.AddUnique(WeatherActors[w]);
+        }
+      }
+    }
+  }
+}
 
 UMaterialParameterCollectionInstance*
 UWeatherLib::getWeatherMaterialCollectionInstance(UWorld* World) {
@@ -52,6 +73,7 @@ void UWeatherLib::initWeather(UWorld* World,
     resetWeatherParams(World);
     UClass* WeatherActorClass = getWeatherActorPath().TryLoadClass<AActor>();
     if (WeatherActorClass) {
+      TArray<AActor*> WeatherActors;  // one per robot, in the same order
       for (int32 i = 0; i < ActorsToAttachTo.Num(); i++) {
         // Get root component of the parent robot
         USceneComponent* parent = ActorsToAttachTo[i]->GetRootComponent();
@@ -69,7 +91,9 @@ void UWeatherLib::initWeather(UWorld* World,
         // Attach weather actor to robot with a relative transform
         SpawnedWeatherActor->AttachToComponent(
             parent, FAttachmentTransformRules::KeepRelativeTransform);
+        WeatherActors.Add(SpawnedWeatherActor);
       }
+      HideOtherRobotsWeather(ActorsToAttachTo, WeatherActors);
     } else {
       UE_LOG(LogTemp, Warning,
              TEXT("Warning, WeatherAPI got invalid weather actor class!"));

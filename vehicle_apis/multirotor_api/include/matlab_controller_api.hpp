@@ -54,6 +54,8 @@ class MatlabControllerApi : public IController {
   void LoadSettings(const Robot& robot);
 
  private:
+  friend class MatlabControllerApiTestPeer;
+
    void ConnectToMatlab();
    void GetSensors(const Robot& robot);
 

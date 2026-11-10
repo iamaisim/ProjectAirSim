@@ -12,6 +12,7 @@
 
 #include "core_sim/actor/robot.hpp"
 #include "core_sim/config_json.hpp"
+#include "core_sim/error.hpp"
 #include "core_sim/logger.hpp"
 #include "core_sim/service_manager.hpp"
 #include "gtest/gtest.h"
@@ -25,6 +26,25 @@
 
 namespace microsoft {
 namespace projectairsim {
+
+class MatlabControllerApiTestPeer {
+ public:
+  static nng_socket ConnectWithReceiveTimeout(MatlabControllerApi& api) {
+    std::lock_guard<std::mutex> lock(api.connection_lock_);
+    api.ConnectToMatlab();
+    const int status = nng_socket_set_ms(api.nng_socket_, NNG_OPT_RECVTIMEO, 50);
+    if (status != 0) throw std::runtime_error(nng_strerror(status));
+    return api.nng_socket_;
+  }
+
+  static bool IsDisconnected(const MatlabControllerApi& api) {
+    return !api.connected_ && api.nng_socket_.id == 0;
+  }
+
+  static nng_socket Socket(const MatlabControllerApi& api) {
+    return api.nng_socket_;
+  }
+};
 
 class Scene {
  public:
@@ -155,6 +175,36 @@ TEST_F(MatlabController, ExchangesKinematicsAndPreservesUnspecifiedOutputs) {
   std::vector<float> outputs;
   api_->GetControlSignalSnapshot(outputs);
   EXPECT_EQ(outputs, std::vector<float>({0.6f, 0.75f}));
+}
+
+TEST_F(MatlabController, ReceiveFailureClosesSocketAndReconnects) {
+  using Peer = projectairsim::MatlabControllerApiTestPeer;
+  const nng_socket failed_socket = Peer::ConnectWithReceiveTimeout(*api_);
+  StartUpdate();
+  ASSERT_NO_THROW(Receive());  // Deliberately leave this request unanswered.
+  ASSERT_EQ(update_.wait_for(std::chrono::seconds(1)),
+            std::future_status::ready);
+  EXPECT_THROW(update_.get(), projectairsim::Error);
+  EXPECT_TRUE(Peer::IsDisconnected(*api_));
+  // A saved handle must be unusable, not merely forgotten by the controller.
+  EXPECT_EQ(nng_socket_set_ms(failed_socket, NNG_OPT_RECVTIMEO, 50), NNG_ECLOSED);
+  std::vector<float> outputs;
+  api_->GetControlSignalSnapshot(outputs);
+  EXPECT_EQ(outputs, std::vector<float>({0.25f, 0.75f}));
+
+  StartUpdate();
+  projectairsim::ControlModelInputMessage request;
+  ASSERT_NO_THROW(request = Receive());
+  projectairsim::ControlModelOutputMessage response(request.time_stamp,
+                                                   {0.4f, 0.8f});
+  auto bytes = response.Serialize();
+  ASSERT_EQ(nng_send(peer_, bytes.data(), bytes.size(), 0), 0);
+  ASSERT_EQ(update_.wait_for(std::chrono::seconds(1)),
+            std::future_status::ready);
+  EXPECT_NO_THROW(update_.get());
+  EXPECT_NE(nng_socket_id(Peer::Socket(*api_)), nng_socket_id(failed_socket));
+  api_->GetControlSignalSnapshot(outputs);
+  EXPECT_EQ(outputs, std::vector<float>({0.4f, 0.8f}));
 }
 
 }  // namespace

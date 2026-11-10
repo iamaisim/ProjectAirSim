@@ -11,8 +11,11 @@
 #define NUM_SUPPORTED_ROTORS 8
 #define NUM_SUPPORTED_CONTROL_SURFACES 8
 
-// Bounds each transport send and receive by timeout_sec; non-positive and
-// infinite values wait indefinitely.
+// Bound each transport operation in wall-clock seconds, including the legacy
+// three-parameter S-function form. Indefinite waits prevent Simulink Stop.
+constexpr double kDefaultTransportTimeoutSec = 5.0;
+
+// timeout_sec must be positive and finite.
 void* SetupRuntimeResourcesWrapper(const std::string& connection_str,
                                    double timeout_sec);
 

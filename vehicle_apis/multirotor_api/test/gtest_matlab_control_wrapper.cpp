@@ -143,21 +143,23 @@ TEST_F(MatlabControlWrapper, MissingPeerErrorsWithoutChangingOutputs) {
   }
 }
 
-TEST_F(MatlabControlWrapper, DefaultTimeoutWaitsUntilTermination) {
-  for (double timeout_sec :
-       {0.0, -1.0, std::numeric_limits<double>::infinity()}) {
-    SCOPED_TRACE(timeout_sec);
-    manager_.reset(SetupRuntimeResourcesWrapper(address_, timeout_sec));
-    ASSERT_NO_THROW(Start(manager_.get()));
-    auto update =
-        std::async(std::launch::async, [this]() { Update(manager_.get()); });
-    EXPECT_EQ(update.wait_for(std::chrono::milliseconds(200)),
-              std::future_status::timeout);
-    TerminateWrapper(manager_.get());
-    ASSERT_EQ(update.wait_for(std::chrono::seconds(1)),
-              std::future_status::ready);
-    EXPECT_THROW(update.get(), std::runtime_error);
+TEST_F(MatlabControlWrapper, RejectsUnboundedTimeouts) {
+  for (double timeout_sec : {0.0, -1.0,
+       std::numeric_limits<double>::infinity(),
+       std::numeric_limits<double>::quiet_NaN()}) {
+    EXPECT_THROW(SetupRuntimeResourcesWrapper(address_, timeout_sec),
+                 std::invalid_argument);
   }
+}
+
+TEST_F(MatlabControlWrapper, DefaultDeadlineCanBeInterruptedByTermination) {
+  manager_.reset(SetupRuntimeResourcesWrapper(address_, kDefaultTransportTimeoutSec));
+  Start(manager_.get());
+  auto update = std::async(std::launch::async, [this]() { Update(manager_.get()); });
+  EXPECT_EQ(update.wait_for(std::chrono::milliseconds(200)), std::future_status::timeout);
+  TerminateWrapper(manager_.get());
+  ASSERT_EQ(update.wait_for(std::chrono::seconds(1)), std::future_status::ready);
+  EXPECT_THROW(update.get(), std::runtime_error);
 }
 
 TEST_F(MatlabControlWrapper, CleanupPreservesOtherListener) {

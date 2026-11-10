@@ -46,8 +46,8 @@ class NngMgr {
 };
 
 nng_duration TransportTimeoutMs(double timeout_sec) {
-  if (!(timeout_sec > 0.0) || std::isinf(timeout_sec)) {
-    return NNG_DURATION_INFINITE;
+  if (!(timeout_sec > 0.0) || !std::isfinite(timeout_sec)) {
+    throw std::invalid_argument("Transport timeout must be positive and finite.");
   }
   const double timeout_ms = std::ceil(timeout_sec * 1000.0);
   const double max_ms = std::numeric_limits<nng_duration>::max();

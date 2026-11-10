@@ -26,11 +26,12 @@ for kind = {'physics', 'control'}
         add_line(model, ['Transport/' num2str(p)], [name '/1']);
     end
     % Port 0 asks NNG to choose a free port; there is deliberately no peer.
-    for suffix = {'', ',0.05', ',0', ',-1', ',Inf'}
+    for suffix = {'', ',0.05'}
         set_param(block, 'Parameters', [base suffix{1}]);
         set_param(model, 'SimulationCommand', 'update');
     end
-    for parameters = {'''127.0.0.1'',''0''', [base ',NaN'], [base ',[1 2]']}
+    for parameters = {'''127.0.0.1'',''0''', [base ',NaN'], [base ',[1 2]'], ...
+            [base ',0'], [base ',-1'], [base ',Inf']}
         failed = false;
         try
             set_param(block, 'Parameters', parameters{1});

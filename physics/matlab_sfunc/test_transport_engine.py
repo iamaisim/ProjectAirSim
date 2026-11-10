@@ -60,6 +60,39 @@ def fast_restart(engine, model, address):
     engine.set_param(model, 'FastRestart', 'off', nargout=0)
 
 
+def bounded_stop_without_peer_request(engine, model, address, port):
+    engine.set_param(model, 'StopTime', 'inf', nargout=0)
+    engine.set_param(model + '/Transport', 'Parameters',
+                     f"'127.0.0.1','{port}',0.01", nargout=0)
+    for run in range(2):
+        start = engine.set_param(model, 'SimulationCommand', 'start',
+                                 nargout=0, background=True)
+        with pynng.Req0(send_timeout=1000, recv_timeout=1000) as peer:
+            deadline = time.monotonic() + 60
+            while True:
+                try:
+                    peer.dial(address, block=True)
+                    break
+                except pynng.ConnectionRefused:
+                    assert time.monotonic() < deadline, 'Listener did not start'
+                    time.sleep(0.1)
+            # Connect but never send a request. This reaches the actual receive
+            # wait without allowing the numerical model to advance.
+            before = time.monotonic()
+            stop = engine.set_param(model, 'SimulationCommand', 'stop',
+                                    nargout=0, background=True)
+            stop.result(timeout=7)
+            try:
+                start.result(timeout=2)
+            except matlab.engine.MatlabExecutionError as error:
+                assert 'Timed out' in str(error), str(error)
+            assert engine.get_param(model, 'SimulationStatus') == 'stopped'
+            elapsed = time.monotonic() - before
+            assert elapsed < 7
+            print(f'PASS: {model} peerless Stop run {run + 1}, '
+                  f'{elapsed:.3f}s (five-second default deadline)', flush=True)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('mex_directory')
@@ -74,6 +107,8 @@ def main():
             model = make_model(engine, kind, port)
             try:
                 fast_restart(engine, model, f'tcp://127.0.0.1:{port}')
+                bounded_stop_without_peer_request(
+                    engine, model, f'tcp://127.0.0.1:{port}', port)
             finally:
                 engine.close_system(model, 0, nargout=0)
     finally:

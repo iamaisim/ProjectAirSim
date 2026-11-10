@@ -6,6 +6,7 @@
 #define S_FUNCTION_LEVEL 2
 #define S_FUNCTION_NAME matlab_control_model_sfcn
 
+#include <cmath>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
@@ -84,8 +85,10 @@ static void mdlCheckParameters(SimStruct* S) {
 
   const mxArray* timeout = ssGetSFcnParam(S, TRANSPORT_TIMEOUT_P);
   if (!mxIsDouble(timeout) || mxIsComplex(timeout) ||
-      mxGetNumberOfElements(timeout) != 1 || mxIsNaN(*mxGetDoubles(timeout))) {
-    ssSetErrorStatus(S, "Transport timeout must be a real scalar in seconds.");
+      mxGetNumberOfElements(timeout) != 1 ||
+      !std::isfinite(*mxGetDoubles(timeout)) || *mxGetDoubles(timeout) <= 0.0) {
+    ssSetErrorStatus(
+        S, "Transport timeout must be a positive finite real scalar in seconds.");
   }
 }
 #endif
@@ -234,8 +237,8 @@ void mdlSetupRuntimeResources(SimStruct* S) {
     connection_str += ":";
     connection_str += port_num.get();
 
-    // Without the optional parameter, transport operations wait indefinitely.
-    double timeout_sec = 0.0;
+    // Keep the original three-parameter form, with a bounded default wait.
+    double timeout_sec = kDefaultTransportTimeoutSec;
     if (ssGetSFcnParamsCount(S) > TRANSPORT_TIMEOUT_P) {
       timeout_sec = *mxGetDoubles(ssGetSFcnParam(S, TRANSPORT_TIMEOUT_P));
     }

@@ -86,6 +86,7 @@ else()
         multirotor_api
         rendering_scene
         nng
+        $<$<BOOL:${PROJECTAIRSIM_ENABLE_LVMON}>:lvmon>
     )
 endif()
 

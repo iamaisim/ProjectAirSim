@@ -212,7 +212,7 @@ class TopicManager::Impl {
   void Unsubscribe(const Topic& topic);
   bool Unsubscribe(const std::string& topic_path);
   void UnsubscribeAll();
-  void Send(const Topic& topic, const Message& message);
+  void Send(const std::shared_ptr<TopicBlock>& block, const Message& message);
   void Send(const std::shared_ptr<TopicBlock>& block);
   void Recv(const Topic& topic, const Message& message);
 
@@ -224,6 +224,9 @@ class TopicManager::Impl {
   std::string local_address_;
   Logger log_;
   mutable std::shared_timed_mutex manager_lock_;
+  // Table mutations hold manager_lock_ first, then this short-lived lock.
+  // Publish may be called by a callback already holding manager_lock_.
+  std::mutex registration_lock_;
   // Serialize complete Start/Stop transitions without blocking topic callbacks.
   std::mutex lifecycle_lock_;
   std::string name_;
@@ -530,7 +533,10 @@ void TopicManager::Impl::RegisterTopic(
 
   auto block = std::make_shared<TopicBlock>(topic, callback_subscribed);
 
-  topic_table_.insert(std::make_pair(topic_path, block));
+  {
+    std::lock_guard<std::mutex> lock(registration_lock_);
+    topic_table_.insert(std::make_pair(topic_path, block));
+  }
 
   log_.LogVerbose(name_, "Registered topic %s", topic.GetPath().c_str());
 }
@@ -558,9 +564,21 @@ void TopicManager::Impl::SubscribeTopic(
 
 void TopicManager::Impl::PublishTopic(const Topic& topic,
                                       const Message& message) {
-  if (client_authorization_.IsAuthorized())
-    send_dispatcher_.dispatch(
-        [this, topic, message]() { Send(topic, message); });
+  if (!client_authorization_.IsAuthorized()) return;
+  std::shared_ptr<TopicBlock> block;
+  {
+    std::lock_guard<std::mutex> lock(registration_lock_);
+    auto iter = topic_table_.find(topic.GetPath());
+    if (iter != topic_table_.end()) block = iter->second;
+  }
+  if (!block) {
+    log_.LogError(name_, "Cannot send message to unregistered topic '%s'",
+                  topic.GetPath().c_str());
+    return;
+  }
+  // Capture this registration, so queued messages cannot leak into a new scene
+  // that registers the same path after teardown.
+  send_dispatcher_.dispatch([this, block, message]() { Send(block, message); });
 }
 
 bool TopicManager::Impl::ContainsTopic(const std::string& topic_path) const {
@@ -585,7 +603,10 @@ void TopicManager::Impl::UnregisterTopic(const Topic& topic) {
   block->is_subscribed = false;
   block->callback = nullptr;
 
-  topic_table_.erase(iter->first);
+  {
+    std::lock_guard<std::mutex> lock(registration_lock_);
+    topic_table_.erase(iter->first);
+  }
 
   log_.LogVerbose(name_, "Unregistered topic %s", topic.GetPath().c_str());
 }
@@ -643,18 +664,15 @@ void TopicManager::Impl::RecvLoop() {
   }
 }
 
-void TopicManager::Impl::Send(const Topic& topic, const Message& message) {
+void TopicManager::Impl::Send(const std::shared_ptr<TopicBlock>& block,
+                              const Message& message) {
   std::shared_lock<std::shared_timed_mutex> shared_lock(manager_lock_);
-
+  const auto& topic = block->topic;
   auto topic_path = topic.GetPath();
   auto iter = topic_table_.find(topic_path);
-  if (iter == topic_table_.end()) {
-    log_.LogError(name_, "Cannot send message to unregistered topic '%s'",
-                  topic_path.c_str());
-    return;
-  }
-
-  auto block = iter->second;
+  // A valid publication may still be queued when its owner unregisters. Drop
+  // it instead of logging an error or delivering it to a later registration.
+  if (iter == topic_table_.end() || iter->second != block) return;
 
   // Cache the value to serve the latest value when client subscribes to the
   // topic.
@@ -810,6 +828,7 @@ void TopicManager::Impl::Recv(const Topic& topic, const Message& message) {
 }
 
 void TopicManager::Impl::CreateTopicList() {
+  std::unique_lock<std::shared_timed_mutex> exclusive_lock(manager_lock_);
   std::vector<TopicInfo> topic_infos;
 
   // In case the Topic List topic hasn't been created yet, add in a placeholder
@@ -819,7 +838,10 @@ void TopicManager::Impl::CreateTopicList() {
                          MessageType::kTopicList);
   auto block = std::make_shared<TopicBlock>(topic_list_topic);
 
-  topic_table_[topic_list_topic.GetPath()] = block;  // insert or overwrite
+  {
+    std::lock_guard<std::mutex> lock(registration_lock_);
+    topic_table_[topic_list_topic.GetPath()] = block;  // insert or overwrite
+  }
 
   // Create list of topic info data for the Topic List topic
   std::transform(

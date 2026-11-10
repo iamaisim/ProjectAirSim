@@ -13,6 +13,8 @@
 #include <string>
 
 #include "core_sim/actor/robot.hpp"
+#include "core_sim/sensors/distance_sensor.hpp"
+#include "core_sim/message/pose_stamped_message.hpp"
 #include "core_sim/config_json.hpp"
 #include "core_sim/error.hpp"
 #include "core_sim/logger.hpp"
@@ -36,6 +38,12 @@ class Scene {
  public:
   static ServiceMethod MakeRobotTypeMethod(const std::string& path) {
     return ServiceMethod(path + "/GetRobotType", {});
+  }
+
+  static Robot MakeRobot(const std::string& id, const Logger& logger) {
+    Transform origin = {{0, 0, 0}, {1, 0, 0, 0}};
+    return Robot(id, origin, logger, TopicManager(logger), "",
+                 ServiceManager(logger), StateManager(logger), "");
   }
 
   static Robot MakeRobot(const std::string& id) {
@@ -365,6 +373,7 @@ TEST(Robot, SnapshotCapturedOncePerControlTickAndSharedWithActuators) {
   auto controller = std::make_unique<TestSimpleDriveController>();
   auto* source = controller.get();
   robot.SetController(std::move(controller));
+  robot.BeginUpdate();
 
   robot.UpdateControlInput();
   EXPECT_EQ(source->snapshot_calls, 1);
@@ -387,6 +396,7 @@ TEST(Robot, SnapshotMapsWheelChannelsAndZerosInvalidIndices) {
   auto controller = std::make_unique<TestSimpleDriveController>();
   auto* source = controller.get();
   robot.SetController(std::move(controller));
+  robot.BeginUpdate();
 
   // Give the invalid-index wheel velocity so an unintended brake signal is
   // observable, rather than testing all three invalid channels only at rest.
@@ -427,6 +437,7 @@ TEST(Robot, ActuatorOnlyUpdatesReuseLastCapturedSnapshot) {
   auto* source = controller.get();
   source->output = {0.6f, 0.2f, 0.4f};
   robot.SetController(std::move(controller));
+  robot.BeginUpdate();
   robot.UpdateControlInput();
   robot.UpdateActuators(10'000'000, 10'000'000);
   const auto captured = robot.GetControllerOutput();
@@ -584,5 +595,51 @@ TEST(Robot, JSBSimDtRejectsInvalidValues) {
 
     EXPECT_THROW(projectairsim::Scene::LoadRobot(robot, json),
                  projectairsim::Error);
+  }
+}
+
+TEST(Robot, LateTickAndHostCallbacksDoNotPublishAfterEndUpdate) {
+  std::atomic<int> errors{0};
+  projectairsim::Logger logger(
+      [&](const std::string&, projectairsim::LogLevel level,
+          const std::string& message) {
+        if (level == projectairsim::LogLevel::kError) ++errors;
+      });
+  auto robot = projectairsim::Scene::MakeRobot("LifecycleRobot", logger);
+  auto config = R"({
+    "physics-type": "non-physics",
+    "links": [{"name": "body"}],
+    "actuators": [{"name": "rotor", "type": "rotor", "enabled": true,
+      "parent-link": "body", "child-link": "propeller", "rotor-settings": {
+        "turning-direction": "clock-wise", "normal-vector": "0 0 -1",
+        "coeff-of-thrust": 0.1, "coeff-of-torque": 0.04,
+        "max-rpm": 6000, "propeller-diameter": 0.2, "smoothing-tc": 0.005}}],
+    "sensors": [
+      {"id": "imu", "type": "imu", "enabled": true, "parent-link": "body"},
+      {"id": "distance", "type": "distance-sensor", "enabled": true,
+       "parent-link": "body"}]
+  })"_json;
+  projectairsim::Scene::LoadRobot(robot, config);
+  robot.SetController(std::make_unique<TestSimpleDriveController>());
+  auto& distance = static_cast<projectairsim::DistanceSensor&>(
+      robot.GetSensors()[1].get());
+  auto update = [&] {
+    robot.UpdateSensors(10'000'000, 10'000'000);
+    robot.UpdateActuators(10'000'000, 10'000'000);
+    robot.UpdateKinematics(robot.GetKinematics(), 10'000'000);
+    projectairsim::CollisionInfo collision;
+    collision.has_collided = true;
+    robot.UpdateCollisionInfo(collision);
+    robot.PublishRobotPose(projectairsim::PoseStampedMessage{});
+    distance.PublishDistanceSensorMsg(projectairsim::DistanceSensorMessage{});
+  };
+  for (int run = 0; run < 2; ++run) {
+    robot.BeginUpdate();
+    update();
+    robot.EndUpdate();
+    // Model a tick released by transport closure and a queued render callback.
+    update();
+    EXPECT_EQ(errors.load(), 0);
+    EXPECT_TRUE(robot.GetCollisionInfoSnapshot().has_collided);
   }
 }

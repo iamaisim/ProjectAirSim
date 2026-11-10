@@ -22,6 +22,7 @@ add_executable(
     ${TARGET_NAME}
     EXCLUDE_FROM_ALL
     gtest_simple_flight.cpp
+    gtest_path_completion.cpp
     gtest_jsbsim_api.cpp
     gtest_matlab_controller.cpp
 )

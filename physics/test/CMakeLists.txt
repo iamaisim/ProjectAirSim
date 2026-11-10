@@ -25,6 +25,7 @@ add_executable(
     gtest_fast_physics.cpp
     gtest_unreal_physics.cpp
     gtest_matlab_physics.cpp
+    gtest_matlab_shutdown.cpp
     gtest_jsbsim_physics.cpp
     gtest_jsbsim_ground_callback.cpp
     ${CMAKE_SOURCE_DIR}/samples/projectairsim_runtime/ground_collision_host.cpp
@@ -100,6 +101,8 @@ target_link_libraries(
 )
 endif()
 
+target_link_libraries(${TARGET_NAME} PRIVATE multirotor_api)
+
 add_custom_command(TARGET ${TARGET_NAME}
     POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E echo "Copying [${TARGET_NAME}] test data to ${SIMLIBS_TEST_DIR}/test_data"
@@ -108,7 +111,7 @@ add_custom_command(TARGET ${TARGET_NAME}
 
 # Include CMake's GoogleTest module to use gtest_discover_tests() helper
 include(GoogleTest)
-gtest_discover_tests(${TARGET_NAME})
+gtest_discover_tests(${TARGET_NAME} PROPERTIES TIMEOUT 60)
 
 # Compile the stock wrapper independently of the MATLAB S-function interface.
 set(MATLAB_WRAPPER_TARGET matlab_physics_wrapper_gtests)

@@ -169,6 +169,10 @@ static void mdlInitializeSizes(SimStruct* S) {
   // Save the socket manager and this block's persistent error message.
   ssSetNumPWork(S, 2);
 
+  // PWork owns transient sockets and error text, not simulation state.
+  // Simulink restores the block outputs; mdlStart reopens the listener.
+  ssSetOperatingPointCompliance(S, USE_EMPTY_OPERATING_POINT);
+
   // Setup sample times
   ssSetNumSampleTimes(S, 1);
 

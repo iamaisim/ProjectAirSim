@@ -51,10 +51,10 @@ while `mdlUpdate` is blocked. Use the optional finite transport timeout when a
 missing peer must produce a bounded model error. Stop the model while the
 simulator is still exchanging requests during normal shutdown.
 
-Use ordinary model restarts with the stock blocks. They use pointer work
-vectors for transport resources and do not implement operating-point
-save/restore, which Simulink requires for Fast Restart. Per-run listener
-cleanup alone does not establish Fast Restart support.
+The stock blocks support Fast Restart. Their operating point excludes transient
+socket handles and error text; each run opens a fresh listener and closes it at
+termination. Restart the simulator scene together with the model: restoring a
+Simulink operating point does not restore the external simulator state.
 
 ### Testing the stock blocks
 
@@ -70,6 +70,11 @@ testTransportLifecycle('/absolute/path/to/rebuilt/mex/files')
 This creates temporary models for both blocks and checks the three- and
 four-parameter forms, invalid parameters, timeout errors, and restart after an
 error. It does not require a simulator and does not modify the stock models.
+
+With MATLAB Engine for Python, `pynng`, and `msgpack` installed, run
+`python physics/matlab_sfunc/test_transport_engine.py /absolute/path/to/rebuilt/mex`
+to verify three Fast Restart runs per block with real request/reply traffic.
+The test asserts that Simulink retains the compiled model between runs.
 
 ---
 

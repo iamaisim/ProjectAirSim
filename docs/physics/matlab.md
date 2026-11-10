@@ -41,6 +41,36 @@ By default, each block waits indefinitely to receive the next request from the s
 
 Runtime supplies flat-ground contact information to MATLAB physics vehicles. The external plant owns the contact response; see the [Runtime capabilities](../../samples/projectairsim_runtime/README.md).
 
+### Stopping a model while its peer is unavailable
+
+Scene shutdown can interrupt the Runtime's socket waits. In Simulink, however,
+`mdlUpdate` receives requests synchronously. With the default indefinite wait,
+a Stop command can remain pending until a request arrives and `mdlUpdate`
+returns; closing the listener in `mdlTerminate` does not make that callback run
+while `mdlUpdate` is blocked. Use the optional finite transport timeout when a
+missing peer must produce a bounded model error. Stop the model while the
+simulator is still exchanging requests during normal shutdown.
+
+Use ordinary model restarts with the stock blocks. They use pointer work
+vectors for transport resources and do not implement operating-point
+save/restore, which Simulink requires for Fast Restart. Per-run listener
+cleanup alone does not establish Fast Restart support.
+
+### Testing the stock blocks
+
+Native wrapper tests exercise socket closure from another thread; they do not
+verify that Simulink can dispatch Stop during a blocked update. To exercise the
+real callbacks, rebuild both MEX modules, add `physics/matlab_sfunc` to the MATLAB
+path, and run:
+
+```matlab
+testTransportLifecycle('/absolute/path/to/rebuilt/mex/files')
+```
+
+This creates temporary models for both blocks and checks the three- and
+four-parameter forms, invalid parameters, timeout errors, and restart after an
+error. It does not require a simulator and does not modify the stock models.
+
 ---
 
 Copyright (C) Microsoft Corporation.  

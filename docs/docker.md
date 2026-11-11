@@ -32,7 +32,7 @@ and the NVIDIA Container Toolkit.
 
 | File | Purpose |
 |---|---|
-| `Dockerfile` | Ubuntu 22.04 image: build toolchain, Vulkan rendering runtime libraries, pixi, non-root user matching the host UID/GID. |
+| `Dockerfile` | Ubuntu 22.04 image: build toolchain, Vulkan rendering runtime libraries, Python 3 (`venv`/`pip`), non-root user matching the host UID/GID. |
 | `docker-compose.yml` | Bind-mounts the ProjectAirSim repo and the Unreal Engine checkout, wires up GPU passthrough, X11 forwarding, and host networking. |
 | `entrypoint.sh` | Runs Phase 2 (engine `Setup.sh`/`GenerateProjectFiles.sh`) idempotently against the bind-mounted engine on container start, then prints a usage banner and a GPU/Vulkan self-check. |
 | `.env.example` | Template for the two host-specific path variables (`PROJECTAIRSIM_HOST_PATH`, `UE_ROOT_HOST_PATH`). Copy to `.env` (gitignored) and edit before first use. |
@@ -61,7 +61,7 @@ self-check so you know immediately if GPU passthrough is working:
 ```text
  GPU / Vulkan check:
    nvidia-smi : OK (NVIDIA GeForce RTX 5070 Laptop GPU)
-   vulkaninfo : OK (NVIDIA GeForce RTX 5070 Laptop GPU)
+   vulkaninfo : OK -- NVIDIA Vulkan device detected
 ```
 
 From there, inside the container:
@@ -78,10 +78,16 @@ $UE_ROOT/Engine/Binaries/Linux/UnrealEditor-Linux-DebugGame \
   /workspace/ProjectAirSim/unreal/Blocks/Blocks.uproject
 ```
 
-From the host (or another container that can reach `localhost:8989`/`8990`):
+From another terminal on the host or inside the container (see
+**[Project AirSim Client Setup](client_setup.md#setting-up-the-client-on-linux)**):
 
 ```bash
-pixi run hello-drone
+python3 -m venv ~/airsim-venv
+source ~/airsim-venv/bin/activate
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install -e client/python/projectairsim
+cd client/python/example_user_scripts
+python hello_drone.py
 ```
 
 ---
@@ -132,21 +138,6 @@ bind-mounted in.
 `Setup.sh`'s `GitDependencies` tool fetches prebuilt binaries from Epic's own dependency CDN
 over plain HTTPS, not via `git`/GitHub auth. That is why those two steps *are* safe to
 automate inside the container (see Phase 2 below) with zero secrets involved.
-
-### Why not build `FROM` an existing AirSim-related image
-
-An image already on this host, `ghcr.io/soterinc/airsim-cameras`, has Vulkan + a build
-toolchain preinstalled and looked like a shortcut. It was deliberately **not** used as a
-base, because inspecting its build history (`docker history`) showed:
-
-- It is `FROM ubuntu:22.04` itself -- no head start over building from scratch.
-- It bakes in **Cosys-AirSim** (a different, unrelated AirSim fork) plus a GStreamer/RTSP
-  streaming stack -- none of it applicable to this repository's Unreal plugin.
-- Its `clang` resolves to clang-14 with no `libc++-13-dev`/`libc++abi-13-dev` at all --
-  this repo's root `CMakeLists.txt` hardcodes `clang-13`/`clang++-13` by name when `UE_ROOT`
-  is unset, so the same symlink workaround would be needed regardless.
-- It is a private registry image; a Dockerfile that only works because of a pre-cached
-  private image isn't reproducible for anyone else.
 
 ### No NVIDIA driver or CUDA packages in the image
 
@@ -292,7 +283,7 @@ Editor and `ShaderCompileWorker` are already built.
 | `nvidia-smi: NOT AVAILABLE` in the entrypoint banner | Container started without GPU flags | Re-run with `--gpus all --device /dev/dri -e NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics,display,video`. |
 | Editor window doesn't appear / X11 connection refused | `xhost` not granted for the container | Run `xhost +local:docker` on the host once per login session. |
 | `Setup.sh` runs again on every container start | `UE_ROOT`'s `Engine/Build/OneTimeSetupPerformed` marker missing, or the bind mount isn't pointing at the same host path each time | Confirm `docker-compose.yml`'s engine volume path matches your actual checkout; the marker is written inside that bind-mounted tree, so it should persist. |
-| `docker compose run --rm projectairsim-dev` prints the entrypoint banner and GPU check, then silently returns straight to the host prompt (no container shell, exit code 1) -- looks like a TTY/terminal problem but isn't | `entrypoint.sh` has `set -e`; `vulkaninfo --summary \| grep deviceName` returns exit 1 when no GPU device is enumerated (e.g. real Vulkan/X11 failure, see next row), which under `set -e` aborts the *entire entrypoint script* before it ever reaches `exec "$@"` -- so `bash` never launches | Fixed in `entrypoint.sh`: the GPU/Vulkan check block is wrapped in `set +e`/`set -e` and the `grep` pipeline has `\|\| true`, so this diagnostic can never again block the shell handoff. If you still see this, confirm you're on a version of `entrypoint.sh` with this fix. |
+| `vulkaninfo : WARNING -- software rendering only; GPU passthrough not verified` or `WARNING -- hardware GPU detected, but no NVIDIA Vulkan device` in the entrypoint banner | `entrypoint.sh` captures the full `vulkaninfo --summary` output and parses every `GPU<N>:` block's `vendorID` and `deviceType` with `awk` (wrapped in `set +e`/`set -e` so diagnostic failures never abort `entrypoint.sh` before `exec "$@"`). Because `mesa-vulkan-drivers` provides the CPU `llvmpipe` rasterizer, `vulkaninfo` still succeeds when NVIDIA Vulkan passthrough or `/dev/dri` access is missing, reporting only `PHYSICAL_DEVICE_TYPE_CPU` (or a non-NVIDIA iGPU) | Verify `--gpus all`, `--device /dev/dri`, `NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics,display,video`, X11 access (`xhost +local:docker`), and host `VIDEO_GID`/`RENDER_GID` group membership (see next row). |
 | `vulkaninfo : FAILED`, with `Unable to open device /dev/dri/renderD1xx: Permission denied` in the raw `vulkaninfo` output | The container's non-root user doesn't have the host's `video`/`render` group GIDs as supplementary groups, so standard Unix file permissions block `/dev/dri` access even with `privileged: true` (that only lifts the cgroup device whitelist, not file permissions) | Set `VIDEO_GID`/`RENDER_GID` in `.env` to match your host (`getent group video \| cut -d: -f3`, `getent group render \| cut -d: -f3`; `video` is almost always `44`). No image rebuild needed -- just restart the container. |
 
 ---

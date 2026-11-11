@@ -83,12 +83,6 @@ RUN (getent group ${GROUP_ID} || groupadd -g ${GROUP_ID} ${USERNAME}) \
     && echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} \
     && chmod 0440 /etc/sudoers.d/${USERNAME}
 
-# ---------------------------------------------------------------------------------------------------------------------
-# Pixi (used by the repo's pixi.toml tasks: `pixi run hello-drone`, etc.)
-# ---------------------------------------------------------------------------------------------------------------------
-RUN curl -fsSL https://pixi.sh/install.sh | PIXI_HOME=/usr/local/pixi bash \
-    && ln -s /usr/local/pixi/bin/pixi /usr/local/bin/pixi
-
 ENV UE_ROOT=/workspace/UnrealEngine
 WORKDIR /workspace/ProjectAirSim
 

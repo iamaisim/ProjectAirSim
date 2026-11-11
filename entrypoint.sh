@@ -66,15 +66,20 @@ if [ -t 1 ]; then
    # NOTE: blocks_debuggame builds "UnrealEditor-Linux-DebugGame", not plain "UnrealEditor".
    # See docs/docker.md for the full troubleshooting history of this environment.
 
- Run a client (from the host or another container with the ports reachable):
-   pixi run hello-drone
+ Run a client (from another terminal on the host or inside the container):
+   python3 -m venv ~/airsim-venv
+   source ~/airsim-venv/bin/activate
+   python -m pip install --upgrade pip setuptools wheel
+   python -m pip install -e client/python/projectairsim
+   cd client/python/example_user_scripts
+   python hello_drone.py
 ================================================================================
 EOF
 
     # This GPU/Vulkan check is purely informational (best-effort). It must never be able to
     # abort the container, since that would also skip `exec "$@"` below and leave the user
-    # with no shell. Disable `set -e` for this block as defense in depth, in addition to
-    # guarding the individual fragile pipeline with `|| true`.
+    # with no shell. Disable `set -e` for this block as defense in depth around the
+    # `nvidia-smi` and `vulkaninfo --summary` / `awk` device inspection below.
     set +e
     echo " GPU / Vulkan check:"
     if command -v nvidia-smi >/dev/null 2>&1 && nvidia-smi >/dev/null 2>&1; then

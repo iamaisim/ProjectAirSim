@@ -128,9 +128,20 @@ bool ATileHttpServerActor::HandleTileRequest(const FHttpServerRequest& Request,
     return true;
   }
 
-  const int32 Zoom = FCString::Atoi(**ZStr);
-  const int32 X = FCString::Atoi(**XStr);
-  const int32 Y = FCString::Atoi(*YValue);
+  int32 Zoom = 0;
+  int32 X = 0;
+  int32 Y = 0;
+  if (!TryParseTileIndex(*ZStr, Zoom) || !TryParseTileIndex(*XStr, X) ||
+      !TryParseTileIndex(YValue, Y)) {
+    if (bLogRequests) {
+      UE_LOG(LogTileHttpServer, Warning, TEXT("Invalid tile path %s"),
+             *Request.RelativePath.GetPath());
+    }
+    OnComplete(FHttpServerResponse::Error(EHttpServerResponseCodes::BadRequest,
+                                          TEXT("BadRequest"),
+                                          TEXT("Invalid tile index")));
+    return true;
+  }
 
   if (Zoom < MinZoom || Zoom > MaxZoom) {
     if (bLogRequests) {
@@ -144,9 +155,21 @@ bool ATileHttpServerActor::HandleTileRequest(const FHttpServerRequest& Request,
     return true;
   }
 
+  if (!UTileMercatorLibrary::IsValidTile(Zoom, X, Y)) {
+    if (bLogRequests) {
+      UE_LOG(LogTileHttpServer, Warning,
+             TEXT("Tile index out of range: z=%d x=%d y=%d"), Zoom, X, Y);
+    }
+    OnComplete(FHttpServerResponse::Error(EHttpServerResponseCodes::NotFound,
+                                          TEXT("NotFound"),
+                                          TEXT("Tile index out of range")));
+    return true;
+  }
+
   const FString TilePath = BuildTilePath(Zoom, X, Y);
+  const bool bCanRender = bRenderMissingTiles && TileCamera != nullptr;
   TArray<uint8> Data;
-  if (LoadFileToArray(TilePath, Data)) {
+  if ((bServeCachedTiles || !bCanRender) && LoadFileToArray(TilePath, Data)) {
     if (bLogRequests) {
       UE_LOG(LogTileHttpServer, Log, TEXT("Cache hit: z=%d x=%d y=%d"), Zoom, X,
              Y);
@@ -155,7 +178,7 @@ bool ATileHttpServerActor::HandleTileRequest(const FHttpServerRequest& Request,
     return true;
   }
 
-  if (!bRenderMissingTiles || !TileCamera) {
+  if (!bCanRender) {
     if (bLogRequests) {
       UE_LOG(LogTileHttpServer, Log,
              TEXT("Cache miss: z=%d x=%d y=%d (render disabled)"), Zoom, X, Y);
@@ -225,40 +248,34 @@ void ATileHttpServerActor::NormalizeZoomSettings() {
 
 bool ATileHttpServerActor::RenderTileToPng(int32 Zoom, int32 X, int32 Y,
                                            TArray<uint8>& OutPng) {
-  if (!TileCamera || !TileCamera->CaptureComponent) {
+  if (!TileCamera || !TileCamera->CaptureComponent ||
+      !UTileMercatorLibrary::IsValidTile(Zoom, X, Y)) {
     return false;
   }
 
-  const int32 YForCalc = bTileYIsTMS ? ((1 << Zoom) - 1 - Y) : Y;
-
-  FVector LocationCm = FVector::ZeroVector;
-  double OrthoWidthCm = 0.0;
-  UTileMercatorLibrary::ComputeTileCamera(
-      Zoom, X, YForCalc, TileCamera->OriginLat, TileCamera->OriginLon,
-      TileCamera->AltitudeMeters, TileCamera->bNorthIsX,
-      TileCamera->bUseMercatorScale, LocationCm, OrthoWidthCm);
-
-  TileCamera->SetActorLocation(LocationCm + TileCamera->LocalOffsetCm);
-  TileCamera->CaptureComponent->ProjectionType = ECameraProjectionMode::Orthographic;
-  TileCamera->CaptureComponent->OrthoWidth = OrthoWidthCm;
-  TileCamera->CaptureComponent->CaptureSource = ESceneCaptureSource::SCS_FinalColorLDR;
-
-  if (!TileCamera->CaptureComponent->TextureTarget) {
-    UTextureRenderTarget2D* RenderTarget = NewObject<UTextureRenderTarget2D>(TileCamera);
-    RenderTarget->InitCustomFormat(TileSize, TileSize, PF_B8G8R8A8, false);
-    RenderTarget->ClearColor = FLinearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    RenderTarget->UpdateResourceImmediate(true);
-    TileCamera->CaptureComponent->TextureTarget = RenderTarget;
-  } else {
-    TileCamera->CaptureComponent->TextureTarget->ClearColor =
-        FLinearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  const int32 YForCalc =
+      bTileYIsTMS ? static_cast<int32>((int64{1} << Zoom) - 1 - Y) : Y;
+  if (!TileCamera->ApplyTile(Zoom, X, YForCalc)) {
+    return false;
   }
 
-  TileCamera->CaptureComponent->CaptureScene();
+  const int32 Size = FMath::Clamp(TileSize, 16, 4096);
+  if (!TileRenderTarget || TileRenderTarget->SizeX != Size ||
+      TileRenderTarget->SizeY != Size) {
+    TileRenderTarget = NewObject<UTextureRenderTarget2D>(this);
+    // Linear (non-sRGB) target like UUnrealCamera: FinalColorLDR is already
+    // gamma encoded by the tonemapper, so the bytes must be stored as-is.
+    TileRenderTarget->InitCustomFormat(Size, Size, PF_B8G8R8A8, true);
+    TileRenderTarget->ClearColor = FLinearColor::Black;
+    TileRenderTarget->UpdateResourceImmediate(true);
+  }
 
-  UTextureRenderTarget2D* RenderTarget = TileCamera->CaptureComponent->TextureTarget;
+  USceneCaptureComponent2D* Capture = TileCamera->CaptureComponent;
+  Capture->TextureTarget = TileRenderTarget;
+  Capture->CaptureScene();
+
   FTextureRenderTargetResource* RenderResource =
-      RenderTarget->GameThread_GetRenderTargetResource();
+      TileRenderTarget->GameThread_GetRenderTargetResource();
   if (!RenderResource) {
     return false;
   }
@@ -272,8 +289,8 @@ bool ATileHttpServerActor::RenderTileToPng(int32 Zoom, int32 X, int32 Y,
     Pixel.A = 255;
   }
 
-  const int32 Width = RenderTarget->SizeX;
-  const int32 Height = RenderTarget->SizeY;
+  const int32 Width = TileRenderTarget->SizeX;
+  const int32 Height = TileRenderTarget->SizeY;
 
   IImageWrapperModule& ImageWrapperModule =
       FModuleManager::LoadModuleChecked<IImageWrapperModule>("ImageWrapper");
@@ -322,4 +339,22 @@ FString ATileHttpServerActor::BuildTilePath(int32 Zoom, int32 X, int32 Y) const 
   const FString Root = GetAbsoluteTileRoot();
   return FPaths::Combine(Root, FString::FromInt(Zoom), FString::FromInt(X),
                          FString::Printf(TEXT("%d.png"), Y));
+}
+
+bool ATileHttpServerActor::TryParseTileIndex(const FString& Text,
+                                             int32& OutValue) {
+  if (Text.IsEmpty() || Text.Len() > 10) {
+    return false;
+  }
+  for (const TCHAR Ch : Text) {
+    if (!FChar::IsDigit(Ch)) {
+      return false;
+    }
+  }
+  const int64 Value = FCString::Atoi64(*Text);
+  if (Value > MAX_int32) {
+    return false;
+  }
+  OutValue = static_cast<int32>(Value);
+  return true;
 }

@@ -11,6 +11,7 @@
 
 class ATileCameraActor;
 class IHttpRouter;
+class UTextureRenderTarget2D;
 
 UCLASS()
 class PROJECTAIRSIM_API ATileHttpServerActor : public AActor {
@@ -54,6 +55,13 @@ class PROJECTAIRSIM_API ATileHttpServerActor : public AActor {
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Render")
   bool bRenderMissingTiles = false;
 
+  /**
+   * Serve tiles already on disk. Turn off while tuning camera or exposure
+   * settings so every request re-renders and overwrites the cached PNG.
+   */
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Render")
+  bool bServeCachedTiles = true;
+
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Render")
   ATileCameraActor* TileCamera = nullptr;
 
@@ -72,6 +80,10 @@ class PROJECTAIRSIM_API ATileHttpServerActor : public AActor {
   bool SaveArrayToFile(const FString& FilePath, const TArray<uint8>& Data) const;
   FString GetAbsoluteTileRoot() const;
   FString BuildTilePath(int32 Zoom, int32 X, int32 Y) const;
+  static bool TryParseTileIndex(const FString& Text, int32& OutValue);
+
+  UPROPERTY(Transient)
+  UTextureRenderTarget2D* TileRenderTarget = nullptr;
 
   TSharedPtr<IHttpRouter> HttpRouter;
   FHttpRouteHandle RouteHandle;

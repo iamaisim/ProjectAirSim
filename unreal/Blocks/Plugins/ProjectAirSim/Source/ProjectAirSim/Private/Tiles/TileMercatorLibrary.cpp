@@ -1,15 +1,24 @@
 #include "Tiles/TileMercatorLibrary.h"
 
 namespace {
+// Same sphere radius as core_sim EarthUtils::kEarthRadius, which ProjectAirSim
+// uses to convert NED positions to GPS coordinates.
 constexpr double kEarthRadiusMeters = 6378137.0;
 constexpr double kPi = 3.14159265358979323846;
 constexpr double kDegToRad = kPi / 180.0;
-constexpr double kRadToDeg = 180.0 / kPi;
 constexpr double kMetersToCm = 100.0;
+constexpr int32 kMaxZoom = 30;
 
 double ClampLatitude(double LatDeg) {
   constexpr double MaxLat = 85.05112878;
   return FMath::Clamp(LatDeg, -MaxLat, MaxLat);
+}
+
+double TileXToLonDeg(double X, double N) { return X / N * 360.0 - 180.0; }
+
+double TileYToLatDeg(double Y, double N) {
+  const double MercN = kPi * (1.0 - 2.0 * Y / N);
+  return FMath::Atan(0.5 * (FMath::Exp(MercN) - FMath::Exp(-MercN))) / kDegToRad;
 }
 
 void LatLonToMercator(double LatDeg, double LonDeg, double& OutX,
@@ -20,38 +29,47 @@ void LatLonToMercator(double LatDeg, double LonDeg, double& OutX,
   OutY = kEarthRadiusMeters * FMath::Loge(FMath::Tan(kPi / 4.0 + Lat / 2.0));
 }
 
-void MercatorToLatLon(double X, double Y, double& OutLatDeg,
-                      double& OutLonDeg) {
-  const double Lon = X / kEarthRadiusMeters;
-  const double Lat = 2.0 * FMath::Atan(FMath::Exp(Y / kEarthRadiusMeters)) -
-                     kPi / 2.0;
-  OutLatDeg = Lat * kRadToDeg;
-  OutLonDeg = Lon * kRadToDeg;
-}
+// Inverse of EarthUtils::NedToGeodetic (spherical azimuthal equidistant
+// projection around the origin), so a tile corner lands exactly where the
+// simulator reports that lat/lon.
+void LatLonToLocalNorthEast(double LatDeg, double LonDeg, double OriginLatDeg,
+                            double OriginLonDeg, double& OutNorth,
+                            double& OutEast) {
+  const double Lat = LatDeg * kDegToRad;
+  const double Lat0 = OriginLatDeg * kDegToRad;
+  const double DLon = (LonDeg - OriginLonDeg) * kDegToRad;
 
-void LatLonToLocalEnuMeters(double LatDeg, double LonDeg, double OriginLat,
-                            double OriginLon, double& OutEast,
-                            double& OutNorth) {
-  const double LatRad = LatDeg * kDegToRad;
-  const double OriginLatRad = OriginLat * kDegToRad;
-  const double OriginLonRad = OriginLon * kDegToRad;
-  const double LonRad = LonDeg * kDegToRad;
+  const double SinHalfDLat = FMath::Sin(0.5 * (Lat - Lat0));
+  const double SinHalfDLon = FMath::Sin(0.5 * DLon);
+  const double Hav = FMath::Clamp(
+      SinHalfDLat * SinHalfDLat +
+          FMath::Cos(Lat0) * FMath::Cos(Lat) * SinHalfDLon * SinHalfDLon,
+      0.0, 1.0);
+  const double C = 2.0 * FMath::Asin(FMath::Sqrt(Hav));
+  const double K = C < 1e-12 ? 1.0 : C / FMath::Sin(C);
 
-  const double dLat = LatRad - OriginLatRad;
-  const double dLon = LonRad - OriginLonRad;
-
-  OutNorth = dLat * kEarthRadiusMeters;
-  OutEast = dLon * kEarthRadiusMeters * FMath::Cos(OriginLatRad);
-}
-
-double MetersPerPixel(double LatDeg, int32 Zoom) {
-  const double LatRad = LatDeg * kDegToRad;
-  const double N = FMath::Pow(2.0, static_cast<double>(Zoom));
-  return (2.0 * kPi * kEarthRadiusMeters * FMath::Cos(LatRad)) / (256.0 * N);
+  OutNorth = kEarthRadiusMeters * K *
+             (FMath::Cos(Lat0) * FMath::Sin(Lat) -
+              FMath::Sin(Lat0) * FMath::Cos(Lat) * FMath::Cos(DLon));
+  OutEast = kEarthRadiusMeters * K * FMath::Cos(Lat) * FMath::Sin(DLon);
 }
 }  // namespace
 
-void UTileMercatorLibrary::ComputeTileCamera(int32 Zoom,
+bool UTileMercatorLibrary::IsValidTile(int32 Zoom, int32 X, int32 Y) {
+  if (Zoom < 0 || Zoom > kMaxZoom) {
+    return false;
+  }
+  const int64 N = int64{1} << Zoom;
+  return X >= 0 && Y >= 0 && X < N && Y < N;
+}
+
+FRotator UTileMercatorLibrary::GetTileCameraRotation(bool bNorthIsX) {
+  // Pitch -90 looks straight down with the image top along the camera's
+  // pre-pitch forward axis, so yaw selects which world axis is "north".
+  return bNorthIsX ? FRotator(-90.0, 0.0, 0.0) : FRotator(-90.0, -90.0, 0.0);
+}
+
+bool UTileMercatorLibrary::ComputeTileCamera(int32 Zoom,
                                              int32 X,
                                              int32 Y,
                                              double OriginLat,
@@ -61,54 +79,54 @@ void UTileMercatorLibrary::ComputeTileCamera(int32 Zoom,
                                              bool bUseMercatorScale,
                                              FVector& OutLocationCm,
                                              double& OutOrthoWidthCm) {
-  if (Zoom < 0) {
-    OutLocationCm = FVector::ZeroVector;
-    OutOrthoWidthCm = 0.0;
-    return;
+  OutLocationCm = FVector::ZeroVector;
+  OutOrthoWidthCm = 0.0;
+  if (!IsValidTile(Zoom, X, Y)) {
+    return false;
   }
 
-  const double N = FMath::Pow(2.0, static_cast<double>(Zoom));
-  const double WorldMeters = 2.0 * kPi * kEarthRadiusMeters;
+  const double N = static_cast<double>(int64{1} << Zoom);
+  const double West = TileXToLonDeg(X, N);
+  const double East = TileXToLonDeg(X + 1.0, N);
+  const double North = TileYToLatDeg(Y, N);
+  const double South = TileYToLatDeg(Y + 1.0, N);
 
-  double OriginX = 0.0;
-  double OriginY = 0.0;
-  LatLonToMercator(OriginLat, OriginLon, OriginX, OriginY);
-
-  const double TileMetersMercator = WorldMeters / N;
-  const double MinX = -WorldMeters / 2.0 + static_cast<double>(X) * TileMetersMercator;
-  const double MaxY = WorldMeters / 2.0 - static_cast<double>(Y) * TileMetersMercator;
-  const double CenterX = MinX + TileMetersMercator / 2.0;
-  const double CenterY = MaxY - TileMetersMercator / 2.0;
-
-  double LocalX = 0.0;
-  double LocalY = 0.0;
-  double OrthoWidthMeters = 0.0;
+  double CenterNorth = 0.0;
+  double CenterEast = 0.0;
+  double WidthMeters = 0.0;
 
   if (bUseMercatorScale) {
-    LocalX = (CenterX - OriginX) * kMetersToCm;
-    LocalY = (CenterY - OriginY) * kMetersToCm;
-    OrthoWidthMeters = TileMetersMercator;
+    double OriginX = 0.0;
+    double OriginY = 0.0;
+    LatLonToMercator(OriginLat, OriginLon, OriginX, OriginY);
+
+    const double TileMeters = 2.0 * kPi * kEarthRadiusMeters / N;
+    const double MinX = -kPi * kEarthRadiusMeters + X * TileMeters;
+    const double MaxY = kPi * kEarthRadiusMeters - Y * TileMeters;
+    CenterEast = MinX + 0.5 * TileMeters - OriginX;
+    CenterNorth = MaxY - 0.5 * TileMeters - OriginY;
+    WidthMeters = TileMeters;
   } else {
-    double TileLat = 0.0;
-    double TileLon = 0.0;
-    MercatorToLatLon(CenterX, CenterY, TileLat, TileLon);
+    double NwN, NwE, NeN, NeE, SwN, SwE, SeN, SeE;
+    LatLonToLocalNorthEast(North, West, OriginLat, OriginLon, NwN, NwE);
+    LatLonToLocalNorthEast(North, East, OriginLat, OriginLon, NeN, NeE);
+    LatLonToLocalNorthEast(South, West, OriginLat, OriginLon, SwN, SwE);
+    LatLonToLocalNorthEast(South, East, OriginLat, OriginLon, SeN, SeE);
 
-    double EastMeters = 0.0;
-    double NorthMeters = 0.0;
-    LatLonToLocalEnuMeters(TileLat, TileLon, OriginLat, OriginLon, EastMeters,
-                           NorthMeters);
-
-    LocalX = EastMeters * kMetersToCm;
-    LocalY = NorthMeters * kMetersToCm;
-    OrthoWidthMeters = MetersPerPixel(TileLat, Zoom) * 256.0;
+    CenterNorth = 0.25 * (NwN + NeN + SwN + SeN);
+    CenterEast = 0.25 * (NwE + NeE + SwE + SeE);
+    WidthMeters = 0.5 * ((NeE - NwE) + (SeE - SwE));
   }
 
   const double LocalZ = AltitudeMeters * kMetersToCm;
   if (bNorthIsX) {
-    OutLocationCm = FVector(LocalY, LocalX, LocalZ);
+    OutLocationCm = FVector(CenterNorth * kMetersToCm,
+                            CenterEast * kMetersToCm, LocalZ);
   } else {
-    OutLocationCm = FVector(LocalX, LocalY, LocalZ);
+    OutLocationCm = FVector(CenterEast * kMetersToCm,
+                            -CenterNorth * kMetersToCm, LocalZ);
   }
 
-  OutOrthoWidthCm = OrthoWidthMeters * kMetersToCm;
+  OutOrthoWidthCm = WidthMeters * kMetersToCm;
+  return true;
 }

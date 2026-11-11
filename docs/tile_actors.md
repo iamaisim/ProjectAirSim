@@ -27,19 +27,37 @@ The source files are located in:
 1. Place a `TileCameraActor` in the level.
 2. Configure these key properties in Details panel:
    - `Zoom`, `TileX`, `TileY`
-   - `OriginLat`, `OriginLon` (reference lat/lon mapped to Unreal world origin Same as setted in Jsonc)
-   - `AltitudeMeters`
+   - `OriginLat`, `OriginLon` - latitude/longitude of the Unreal world origin. Use the same values as `home-geo-point` in your scene config (`.jsonc`), otherwise the map will be shifted relative to the simulated GPS position.
+   - `AltitudeMeters` - camera height above the world origin. It must be above all geometry you want on the map.
    - `bTileYIsTMS` if your Y index uses TMS format
-   - `bUseMercatorScale` to match standard WebMercator tile size behavior (I use it False, True case was not working very well)
 3. Enable `bUpdateOnBeginPlay` for one-time initialization or `bUpdateEveryTick` for continuous updates.
 4. If you need immediate capture output, enable `bCaptureAfterUpdate`.
 
 Notes:
 
-- The actor uses a `SceneCaptureComponent2D` and defaults to orthographic projection.
-- `bNorthIsX` controls axis convention:
-  - `false`: X=East, Y=North
-  - `true`: X=North, Y=East
+- The actor uses a `SceneCaptureComponent2D` with orthographic projection. The camera always looks straight down with north at the top of the image, regardless of how the actor is rotated in the level.
+- `bNorthIsX` controls the world axis convention:
+  - `true` (default): X=North, Y=East. This is the ProjectAirSim convention (NED mapped to Unreal).
+  - `false`: X=East, Y=South (Cesium for Unreal convention).
+- `bUseMercatorScale`:
+  - `false` (default): tiles are placed with the same projection ProjectAirSim uses to compute GPS (`EarthUtils::NedToGeodetic`), so map pixels match the simulated latitude/longitude at every zoom level.
+  - `true`: raw Web Mercator meters are used as Unreal meters. Only use this if the level itself was built in Web Mercator units; otherwise the map is scaled by `1/cos(latitude)` (about 1.48x at 47.6°N).
+
+### Exposure
+
+Scene captures do not run auto exposure the way the game viewport does, so tiles would otherwise come out dark, and the brightness would change from one tile to the next. By default the actor:
+
+1. Measures the scene once, before the first tile is rendered, over `ExposureCalibrationWidthMeters` (default 400 m) around the world origin.
+2. Locks that exposure (`CalibratedExposureBias`) for every tile, so neighbouring tiles always match.
+
+Related properties (category `Tiles|Exposure`):
+
+- `bUseManualExposure` (default `true`) - use one fixed exposure for all tiles.
+- `bAutoCalibrateExposure` (default `true`) - measure the exposure automatically as described above.
+- `ExposureBias` - extra compensation in EV on top of the calibration (`+1` doubles brightness, `-1` halves it).
+- `CalibrateExposure()` - Blueprint-callable; call it again after changing lighting or time of day.
+
+Vignette, motion blur and temporal anti-aliasing are disabled for tile captures.
 
 ## How to use `ATileHttpServerActor`
 
@@ -66,6 +84,14 @@ Notes:
    - `TileCamera = <your TileCameraActor instance>`
 3. Optionally set `TileSize` (default `256`) and `bTileYIsTMS`.
 4. When a tile is missing on disk, the server renders it, returns PNG bytes, and saves to cache.
+
+Rendered tiles are cached on disk and served from the cache on later requests. After changing camera, exposure or level settings, delete the cache folder (default `<ProjectSavedDir>/Tiles`) or set `bServeCachedTiles = false`, which re-renders every request and overwrites the cached PNG. Invalid requests (non-numeric or out-of-range `z/x/y`) return an error instead of a tile.
+
+## Using the tiles in QGroundControl
+
+1. Set `OriginLat`/`OriginLon` on the `TileCameraActor` to the scene's `home-geo-point`.
+2. Start play with the server in on-demand render mode.
+3. In QGroundControl, add a custom map provider with the URL `http://127.0.0.1:<Port>/tiles/{z}/{x}/{y}.png` and select it as the map.
 
 ## Request examples
 

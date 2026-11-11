@@ -24,6 +24,7 @@ development/use_prebuilt.md
 development/use_source.md
 client_setup.md
 use_plugin.md
+tile_actors.md
 development/dev_setup_linux.md
 development/dev_setup_win.md
 development/dev_setup_macos.md

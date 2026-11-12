@@ -1438,7 +1438,12 @@ void MultirotorApiBase::AdjustYaw(float x, float y, DrivetrainType drivetrain,
 bool MultirotorApiBase::IsYawWithinMargin(float yaw_target,
                                           float margin) const {
   const float yaw_current = GetAngles()[2];
-  return std::abs(yaw_current - yaw_target) <= margin;
+  // Compare the headings on the circle: +179 and -179 degrees are 2 degrees
+  // apart, not 358, so a target of +-180 (due south) is reachable from both
+  // sides.
+  const float yaw_error =
+      MathUtils::NormalizeAngle<float>(yaw_current - yaw_target);
+  return std::abs(yaw_error) <= margin;
 }
 
 float MultirotorApiBase::GetAutoLookahead(float velocity,

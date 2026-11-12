@@ -10,7 +10,7 @@ The example script `client/python/example_user_scripts/qgc_video_stream.py` brid
 2. It pipes the raw frames into FFmpeg, which encodes them as low-latency H.264.
 3. FFmpeg sends the video over UDP as RTP (default) or MPEG-TS to the machine running QGC.
 
-The script only keeps the newest camera image, so a slow encoder or network never builds up latency. It writes frames at a constant rate and repeats the last frame while the sim is paused, so the stream stays open in QGC.
+The script only keeps the newest camera image and sends it as soon as it arrives, so a slow encoder or network never builds up latency (see the Latency section below). While the sim is paused, it repeats the last frame so the stream stays open in QGC.
 
 This is independent of MAVLink. QGC can be connected to PX4/ArduPilot at the same time, or not at all.
 
@@ -30,7 +30,7 @@ In **Application Settings > General > Video**:
 | `rtp` (default) | UDP h.264 Video Stream | UDP URL `0.0.0.0:5600` |
 | `mpegts` | MPEG-TS Video Stream | UDP URL `0.0.0.0:5600` |
 
-Port `5600` is QGC's default; use `--port` if you change it. If QGC runs on another machine, allow inbound UDP on that port in its firewall.
+Port `5600` is QGC's default; use `--port` if you change it. If QGC runs on another machine, allow inbound UDP on that port in its firewall. For the lowest delay, also enable **Low Latency Mode** on the same page (see the Latency section below).
 
 ## Running the stream
 
@@ -75,11 +75,32 @@ The video should appear in QGC within about a second; a keyframe is sent every s
 | `--encoder` | `libx264` | `libx264`, `h264_nvenc`, `h264_qsv` or `h264_amf` |
 | `--ffmpeg` | `ffmpeg` | FFmpeg executable |
 
+## Latency
+
+The script itself adds very little delay: each new image is sent as soon as it arrives, frames are stamped with the wall clock, and all encoders are configured without B-frames, lookahead or frame buffering. Most of the delay you see is on the QGC side.
+
+Measured on Windows with the default `libx264` encoder at 20 fps, 640x360:
+
+| Stage | Delay |
+|---|---|
+| Sim: camera capture to image arriving in the client | 3â€“6 ms (sim time) |
+| Script: image arrival to FFmpeg (incl. resize), `--fps` â‰¥ camera rate | ~5 ms median |
+| FFmpeg encode + UDP send | ~3 ms |
+| QGC end to end, default settings | ~360 ms |
+| QGC end to end, **Low Latency Mode** on | ~170 ms |
+
+To minimize latency:
+
+- In QGC, enable **Application Settings > General > Video > Low Latency Mode**. By default QGC buffers incoming RTP video in a jitter buffer (200 ms by default in GStreamer) and syncs frames to their timestamps. Low Latency Mode removes both. This is the largest single improvement and is useful for any QGC video source, not only this one.
+- Keep `--fps` at or above the camera rate (`1 / capture-interval`). If `--fps` is lower, the script has to skip images and the image it sends can be up to one camera interval old.
+- On a local network, latency is dominated by QGC buffering and display, not by the network.
+
 ## Performance notes
 
 - Every captured frame is copied from the GPU and sent to the client, so the camera's capture `width`/`height` and the sensor's `capture-interval` set the cost on the sim side. Choose a capture resolution close to the stream resolution instead of downscaling a large image.
 - A hardware encoder (`h264_nvenc`, `h264_qsv`, `h264_amf`) reduces CPU load. It must be supported by your GPU and FFmpeg build.
-- The stream FPS is independent of the camera rate. If the camera delivers fewer frames than `--fps`, frames are repeated.
+- The stream FPS is independent of the camera rate. If the camera delivers fewer images than `--fps`, the last frame is repeated to fill the gaps; new images are still sent immediately.
+- On Windows, the script raises the system timer resolution to 1 ms while it runs, so frame pacing is accurate.
 
 ## Using RTSP instead
 

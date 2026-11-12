@@ -19,6 +19,7 @@ QGroundControl setup (default --transport rtp):
     Application Settings > General > Video
         Source:   UDP h.264 Video Stream
         UDP URL:  0.0.0.0:5600
+        Low Latency Mode: on (QGC otherwise buffers the video for ~200 ms)
 
 Examples:
     # Load scene_basic_drone.jsonc and stream DownCamera to QGC on this PC
@@ -33,6 +34,7 @@ Examples:
 import argparse
 import queue
 import subprocess
+import sys
 import time
 
 import cv2
@@ -148,27 +150,34 @@ def to_bgr_frame(image_msg, width, height):
 
 
 def build_ffmpeg_command(args, width, height):
-    gop = str(max(1, args.fps))  # one keyframe per second so QGC can join quickly
+    gop = str(max(1, args.fps))  # about one keyframe per second so QGC can join quickly
     cmd = [
         args.ffmpeg,
         "-hide_banner",
         "-loglevel",
         "warning",
+        # Frames are written as soon as they arrive, so stamp them with the
+        # wall clock (1 ms time base) instead of assuming a constant rate.
+        "-use_wallclock_as_timestamps",
+        "1",
         "-f",
         "rawvideo",
+        "-framerate",
+        "1000",
         "-pix_fmt",
         "bgr24",
         "-s",
         f"{width}x{height}",
-        "-r",
-        str(args.fps),
         "-i",
         "-",
         "-an",
+        "-fps_mode",
+        "passthrough",
         "-c:v",
         args.encoder,
     ]
 
+    # Low-latency settings: no B-frames, lookahead or frame buffering.
     if args.encoder == "libx264":
         cmd += [
             "-preset",
@@ -182,7 +191,11 @@ def build_ffmpeg_command(args, width, height):
             "repeat-headers=1:scenecut=0",
         ]
     elif args.encoder == "h264_nvenc":
-        cmd += ["-preset", "p1", "-tune", "ull", "-rc", "cbr"]
+        cmd += ["-preset", "p1", "-tune", "ull", "-rc", "cbr", "-delay", "0", "-zerolatency", "1"]
+    elif args.encoder == "h264_qsv":
+        cmd += ["-async_depth", "1"]
+    elif args.encoder == "h264_amf":
+        cmd += ["-usage", "ultralowlatency"]
 
     cmd += [
         "-pix_fmt",
@@ -228,6 +241,13 @@ def put_latest(frame_queue, image_msg):
 
 def main():
     args = parse_args()
+    if sys.platform == "win32":
+        # The default ~15.6 ms Windows timer makes sleeps and queue timeouts
+        # overshoot, which lowers the frame rate and adds latency.
+        import ctypes
+
+        ctypes.windll.winmm.timeBeginPeriod(1)
+
     client = ProjectAirSimClient()
     ffmpeg_proc = None
     topic = None
@@ -271,37 +291,46 @@ def main():
             f"to {args.qgc_ip}:{args.port} ({args.transport})"
         )
         projectairsim_log().info("FFmpeg command: " + " ".join(ffmpeg_cmd))
-        ffmpeg_proc = subprocess.Popen(ffmpeg_cmd, stdin=subprocess.PIPE)
+        ffmpeg_proc = subprocess.Popen(ffmpeg_cmd, stdin=subprocess.PIPE, bufsize=0)
 
-        # Write frames at a constant rate. If the sim is paused or slower than
-        # --fps, the last frame is repeated so the stream stays alive in QGC.
+        # Send each new image as soon as it arrives, at most --fps times per
+        # second. If no new image arrives within one frame period (sim paused or
+        # slower than --fps), repeat the last one so the stream stays alive.
+        # Repeats do not delay the next real image.
         period = 1.0 / max(1, args.fps)
-        next_time = time.monotonic()
+        last_write = last_image_write = 0.0
         frames_sent = 0
-        last_log = next_time
+        last_log = time.monotonic()
         while True:
             if ffmpeg_proc.poll() is not None:
                 raise RuntimeError(f"FFmpeg exited with code {ffmpeg_proc.returncode}")
 
             try:
-                frame = to_bgr_frame(latest.get_nowait(), width, height)
+                image_msg = latest.get(
+                    timeout=max(0.0, last_write + period - time.monotonic())
+                )
             except queue.Empty:
-                pass
+                image_msg = None
+
+            if image_msg is not None:
+                wait = last_image_write + period - time.monotonic()
+                if wait > 0:
+                    time.sleep(wait)
+                    try:
+                        image_msg = latest.get_nowait()  # use the newest image
+                    except queue.Empty:
+                        pass
+                frame = to_bgr_frame(image_msg, width, height)
 
             ffmpeg_proc.stdin.write(frame.tobytes())
+            last_write = time.monotonic()
+            if image_msg is not None:
+                last_image_write = last_write
             frames_sent += 1
 
-            now = time.monotonic()
-            if now - last_log >= 10.0:
+            if last_write - last_log >= 10.0:
                 projectairsim_log().info(f"Sent {frames_sent} frames")
-                last_log = now
-
-            next_time += period
-            sleep_time = next_time - time.monotonic()
-            if sleep_time > 0:
-                time.sleep(sleep_time)
-            else:
-                next_time = time.monotonic()
+                last_log = last_write
 
     except KeyboardInterrupt:
         projectairsim_log().info("Stopping video stream")

@@ -1,0 +1,407 @@
+// Copyright (C) 2026 IAMAI CONSULTING CORP
+//
+// MIT License. All rights reserved.
+
+{
+  "$schema": "../../../../projectairsim/src/projectairsim/schema/robot_config_schema.jsonc",
+  "physics-type": "jsbsim-physics",
+  "jsbsim-model": "Rascal110-JSBSim",
+  "jsbsim-root-path": "/SimLibs/jsbsim/models/",
+  "jsbsim-aircraft-path": ".",
+  "jsbsim-engine-path": "Rascal110-JSBSim/Engines",
+  "jsbsim-systems-path": "Rascal110-JSBSim/Systems",
+  "jsbsim-dt": 0.004,
+  "jsbsim-ground-mode": "constant",
+  "links": [
+    {
+      "name": "Frame",
+      "inertial": {
+        "mass": 1.0,
+        "inertia": {
+          "type": "geometry",
+          "geometry": {
+            "box": {
+              "size": "0.180 0.110 0.040"
+            }
+          }
+        },
+        "aerodynamics": {
+          "drag-coefficient": 0.325,
+          "type": "geometry",
+          "geometry": {
+            "box": {
+              "size": "0.180 0.110 0.040"
+            }
+          }
+        }
+      },
+      "collision": {
+        "enabled": false,
+        "restitution": 0.1,
+        "friction": 0.5
+      }
+    },
+    {
+      "name": "BodyVisual",
+      "inertial": {
+        "origin": {
+          "xyz": "0 0 0",
+          "rpy": "0 0 0"
+        },
+        "mass": 0.001,
+        "inertia": {
+          "type": "point-mass"
+        }
+      },
+      "visual": {
+        "origin": {
+          "xyz": "0 0 0",
+          // The imported Rascal mesh faces backward relative to the Project AirSim X-forward frame.
+          "rpy-deg": "0 0 180"
+        },
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Drone/Rascal/Rascal110_body"
+        }
+      }
+    },
+    {
+      "name": "Prop",
+      "inertial": {
+        "origin": {
+          "xyz": "0.253 0.0 -0.01",
+          "rpy": "0 0 0"
+        },
+        "mass": 0.055,
+        "inertia": {
+          "type": "point-mass"
+        },
+        "aerodynamics": {
+          "drag-coefficient": 0.325,
+          "type": "geometry",
+          "geometry": {
+            "cylinder": {
+              "radius": 1,
+              "length": 0.01
+            }
+          }
+        }
+      },
+      "visual": {
+        "origin": {
+          // Project AirSim uses meters in NED coordinates, so Unreal +Z becomes NED -Z.
+          "xyz": "0.95256649 0.0 -0.01904438",
+          // Rotate the propeller into the YZ plane, reversing its visual facing,
+          // and follow the body's 180-degree yaw.
+          "rpy-deg": "0 -90 180"
+        },
+        "geometry": {
+          "type": "unreal_mesh",
+          "name": "/Drone/Rascal/Rascal110_propeller"
+        }
+      }
+    },
+    {
+      "name": "Aileron_L",
+      "inertial": {
+        "origin": {
+          "xyz": "0.0 -1.6 0.0",
+          "rpy": "0 0 0"
+        },
+        "mass": 0.01,
+        "inertia": {
+          "type": "point-mass"
+        }
+      }
+    },
+    {
+      "name": "Aileron_R",
+      "inertial": {
+        "origin": {
+          "xyz": "0.0 1.6 0.0",
+          "rpy": "0 0 0"
+        },
+        "mass": 0.01,
+        "inertia": {
+          "type": "point-mass"
+        }
+      }
+    },
+    {
+      "name": "Elevator",
+      "inertial": {
+        "origin": {
+          "xyz": "-2.1 0.0 0.05",
+          "rpy": "0 0 0"
+        },
+        "mass": 0.01,
+        "inertia": {
+          "type": "point-mass"
+        }
+      }
+    },
+    {
+      "name": "Rudder",
+      "inertial": {
+        "origin": {
+          "xyz": "-2.2 0.0 0.35",
+          "rpy": "0 0 0"
+        },
+        "mass": 0.01,
+        "inertia": {
+          "type": "point-mass"
+        }
+      }
+    }
+  ],
+  "joints": [
+    {
+      "id": "Frame_BodyVisual",
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "BodyVisual",
+      "axis": "1 0 0"
+    },
+    {
+      "id": "Frame_Prop",
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Prop",
+      "axis": "1 0 0"
+    },
+    {
+      "id": "Frame_Aileron_L",
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Aileron_L",
+      "axis": "0 1 0"
+    },
+    {
+      "id": "Frame_Aileron_R",
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Aileron_R",
+      "axis": "0 1 0"
+    },
+    {
+      "id": "Frame_Elevator",
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Elevator",
+      "axis": "0 1 0"
+    },
+    {
+      "id": "Frame_Rudder",
+      "type": "fixed",
+      "parent-link": "Frame",
+      "child-link": "Rudder",
+      "axis": "0 0 1"
+    }
+  ],
+  "controller": {
+    "id": "Rascal_PX4_Controller",
+    "type": "px4-api",
+    "px4-settings": {
+      "lock-step": true,
+      "use-serial": false,
+      "use-tcp": true,
+      "tcp-port": 4560,
+      "local-host-ip": "172.18.144.1",
+      "control-ip-address": "remote",
+      "control-port": 14540,
+      "hil-gps-update-rate-hz": 10.0,
+      "parameters": {
+        "NAV_RCL_ACT": 0,
+        "NAV_DLL_ACT": 0,
+        "COM_OBL_ACT": 1,
+        "COM_OBL_RC_ACT": 1,
+        "COM_RC_IN_MODE": 1,
+        "LPE_LAT": 29.4296741,
+        "LPE_LON": -95.16384722
+      },
+      // Match Tools/jsbsim_bridge/configs/rascal.xml and plane_sitl.main.mix.
+      "actuator-order": [
+        {
+          "id": "Unused_output_0"
+        },
+        {
+          "id": "Unused_output_1"
+        },
+        {
+          "id": "Rudder_actuator",
+          "scale": -1.0
+        },
+        {
+          "id": "Flaps_actuator"
+        },
+        {
+          "id": "Throttle_actuator"
+        },
+        {
+          "id": "Aileron_actuator",
+          "scale": -1.0
+        },
+        {
+          "id": "Unused_output_6"
+        },
+        {
+          "id": "Elevator_actuator",
+          "scale": -1.0
+        }
+      ]
+    }
+  },
+  "actuators": [
+    {
+      "name": "Throttle_actuator",
+      "type": "rotor",
+      "enabled": true,
+      "parent-link": "Frame",
+      "child-link": "Prop",
+      "origin": {
+        "xyz": "0.253 0.0 -0.01",
+        "rpy": "0 0 0"
+      },
+      "rotor-settings": {
+        "turning-direction": "clock-wise",
+        "normal-vector": "1.0 0.0 0.0",
+        "coeff-of-thrust": 0.109919,
+        "coeff-of-torque": 0.040164,
+        "max-rpm": 6396.667,
+        "propeller-diameter": 0.2286,
+        "smoothing-tc": 0.005,
+        "jsbsim-cmd": "fcs/throttle-cmd-norm",
+        "jsbsim-state": "fcs/throttle-cmd-norm"
+      }
+    },
+    {
+      "name": "Aileron_actuator",
+      "type": "lift-drag-control-surface",
+      "enabled": true,
+      "parent-link": "Frame",
+      "child-link": "Aileron_L",
+      "lift-drag-control-surface-settings": {
+        "rotation-rate": 1.0,
+        "smoothing-tc": 0.02,
+        "jsbsim-cmd": "fcs/aileron-cmd-norm",
+        "jsbsim-state": "fcs/left-aileron-pos-rad"
+      }
+    },
+    {
+      "name": "Aileron_actuator",
+      "type": "lift-drag-control-surface",
+      "enabled": true,
+      "parent-link": "Frame",
+      "child-link": "Aileron_R",
+      "lift-drag-control-surface-settings": {
+        "rotation-rate": 1.0,
+        "smoothing-tc": 0.02,
+        "jsbsim-cmd": "fcs/aileron-cmd-norm",
+        "jsbsim-state": "fcs/right-aileron-pos-rad"
+      }
+    },
+    {
+      "name": "Elevator_actuator",
+      "type": "lift-drag-control-surface",
+      "enabled": true,
+      "parent-link": "Frame",
+      "child-link": "Elevator",
+      "lift-drag-control-surface-settings": {
+        "rotation-rate": 1.0,
+        "smoothing-tc": 0.02,
+        "jsbsim-cmd": "fcs/elevator-cmd-norm",
+        "jsbsim-state": "fcs/elevator-pos-rad"
+      }
+    },
+    {
+      "name": "Rudder_actuator",
+      "type": "lift-drag-control-surface",
+      "enabled": true,
+      "parent-link": "Frame",
+      "child-link": "Rudder",
+      "lift-drag-control-surface-settings": {
+        "rotation-rate": 1.0,
+        "smoothing-tc": 0.02,
+        "jsbsim-cmd": "fcs/rudder-cmd-norm",
+        "jsbsim-state": "fcs/rudder-pos-rad"
+      }
+    }
+  ],
+  "sensors": [
+    {
+      "id": "Airspeed",
+      "type": "airspeed",
+      "enabled": true,
+      "parent-link": "Frame",
+      "pressure-factor-sigma": 0.001825,
+      "pressure-factor-tau": 3600,
+      "uncorrelated-noise-sigma": 1.052,
+      "forward-xyz": "1.0 0.0 0.0"
+    },
+    {
+      "id": "Chase",
+      "type": "camera",
+      "enabled": true,
+      "parent-link": "Frame",
+      "capture-interval": 0.03,
+      "capture-settings": [
+        {
+          "image-type": 0,
+          "width": 1280,
+          "height": 720,
+          "fov-degrees": 90,
+          "capture-enabled": true,
+          "streaming-enabled": true,
+          "pixels-as-float": false,
+          "compress": false,
+          "target-gamma": 2.5
+        }
+      ],
+      "gimbal": {
+        "lock-roll": true,
+        "lock-pitch": true,
+        "lock-yaw": false
+      },
+      "origin": {
+        "xyz": "-10.0 0.0 0.0",
+        "rpy": "0 0 0"
+      }
+    },
+    {
+      "id": "IMU1",
+      "type": "imu",
+      "enabled": true,
+      "parent-link": "Frame",
+      "accelerometer": {
+        "velocity-random-walk": 2.353e-3,
+        "tau": 800,
+        "bias-stability": 3.53e-4,
+        "turn-on-bias": "0 0 0"
+      },
+      "gyroscope": {
+        "angle-random-walk": 8.72644e-5,
+        "tau": 500,
+        "bias-stability": 2.23014e-5,
+        "turn-on-bias": "0 0 0"
+      }
+    },
+    {
+      "id": "GPS",
+      "type": "gps",
+      "enabled": true,
+      "parent-link": "Frame"
+    },
+    {
+      "id": "Barometer",
+      "type": "barometer",
+      "enabled": true,
+      "parent-link": "Frame"
+    },
+    {
+      "id": "Magnetometer",
+      "type": "magnetometer",
+      "enabled": true,
+      "parent-link": "Frame"
+    }
+  ]
+}

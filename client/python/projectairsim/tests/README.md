@@ -27,6 +27,11 @@ starting a simulator. The default host is `unreal`; use `--sim-host offline`
 even when selecting an individual offline test file. PX4 remains opt-in via
 `--sim-host px4 -m px4 px4_test_sitl.py` and requires its existing SITL setup.
 
+`test_simulink_examples.py` checks stock example compilation, partial startup,
+interruption, and cleanup with simulated MATLAB and server connections. It runs
+in the offline partition without MATLAB or a simulator. Live Simulink examples
+require the separate [MATLAB setup](../../../../docs/physics/matlab.md).
+
 The offline [external Simulink controller tests](test_simulink_external_quadrotor.py)
 cover shared-session selection, compilation ordering, flight commands, and cleanup error handling
 without MATLAB or a simulator connection.

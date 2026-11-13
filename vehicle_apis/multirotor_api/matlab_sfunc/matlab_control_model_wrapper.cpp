@@ -7,9 +7,9 @@
 
 #include <iostream>
 
-#include "message/common_message_utils.hpp"
-#include "message/control_model_input_message.hpp"
-#include "message/control_model_output_message.hpp"
+#include <message/common_message_utils.hpp>
+#include <message/control_model_input_message.hpp>
+#include <message/control_model_output_message.hpp>
 #include "msgpack.hpp"
 #include "nng/nng.h"
 #include "nng/protocol/reqrep0/rep.h"

@@ -268,7 +268,7 @@ void JSBSimPhysicsBody::CalculateExternalWrench() {
 
 void JSBSimPhysicsBody::ReadRobotData() {
   kinematics_ = sim_robot_.GetKinematics();
-  collision_info_ = sim_robot_.GetCollisionInfo();
+  collision_info_ = sim_robot_.GetCollisionInfoSnapshot();
   const auto& cur_env = sim_robot_.GetEnvironment();
   const auto& cur_env_info = cur_env.env_info;
   env_gravity_ = cur_env_info.gravity;

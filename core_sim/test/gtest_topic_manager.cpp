@@ -3,6 +3,7 @@
 
 // MIT License. All rights reserved.
 
+#include <atomic>
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>
@@ -10,11 +11,22 @@
 #include <string>
 #include <thread>
 
+#include "core_sim/message/pose_stamped_message.hpp"
 #include "gtest/gtest.h"
 #include "msgpack.hpp"
 #include "nng/nng.h"
 #include "nng/protocol/pair0/pair.h"
 #include "topic_manager.hpp"
+
+namespace microsoft { namespace projectairsim {
+class Scene {
+ public:
+  static Topic MakeLifecycleTopic() {
+    return Topic("pose", "/lifecycle", TopicType::kPublished, 0,
+                 MessageType::kPosestamped);
+  }
+};
+}}  // namespace microsoft::projectairsim
 
 namespace projectairsim = microsoft::projectairsim;
 
@@ -235,4 +247,63 @@ TEST(TopicManagerDeathTest, ConnectedClientCanStopAndRestart) {
 TEST(TopicManagerDeathTest, PendingFramesAndConcurrentStopsCanRestart) {
   ::testing::GTEST_FLAG(death_test_style) = "threadsafe";
   ASSERT_EXIT(CheckConnectedShutdown(true), ::testing::ExitedWithCode(0), "");
+}
+
+TEST(TopicManager, QueuedPublicationsDoNotCrossTopicRegistrationLifetimes) {
+  std::atomic<int> errors{0};
+  std::atomic<int> stale_messages{0};
+  std::atomic<bool> armed{false};
+  projectairsim::Logger logger(
+      [&](const std::string&, projectairsim::LogLevel level, const std::string&) {
+        if (level == projectairsim::LogLevel::kError) ++errors;
+      });
+  std::promise<void> delivered;
+  auto complete = delivered.get_future();
+  projectairsim::TopicManager manager(logger);
+  auto topic = projectairsim::Scene::MakeLifecycleTopic();
+  projectairsim::PoseStampedMessage old_message(1, projectairsim::Vector3::Zero(),
+                                                projectairsim::Quaternion::Identity());
+  projectairsim::PoseStampedMessage new_message(2, projectairsim::Vector3::Zero(),
+                                                projectairsim::Quaternion::Identity());
+  manager.SetCallbackTopicPublished(
+      [&](const std::string&, const projectairsim::MessageType&, const std::string& body) {
+        if (armed && body == old_message.Serialize()) ++stale_messages;
+        if (body == new_message.Serialize()) delivered.set_value();
+      });
+  manager.SetTopicPublishedCallbackEnabled(true);
+  manager.RegisterTopic(topic);
+  for (int i = 0; i < 2000; ++i) manager.PublishTopic(topic, old_message);
+  manager.UnregisterTopic(topic);
+  manager.RegisterTopic(topic);
+  armed = true;
+  manager.PublishTopic(topic, new_message);
+  ASSERT_EQ(complete.wait_for(std::chrono::seconds(2)), std::future_status::ready);
+  EXPECT_EQ(stale_messages.load(), 0);
+  EXPECT_EQ(errors.load(), 0);
+  // Incorrect new publications must still be diagnosed at the call site.
+  manager.UnregisterTopic(topic);
+  manager.PublishTopic(topic, new_message);
+  EXPECT_EQ(errors.load(), 1);
+}
+
+TEST(TopicManager, PublicationCallbackCanPublishAnotherMessage) {
+  projectairsim::Logger logger([](const std::string&, projectairsim::LogLevel,
+                                  const std::string&) {});
+  std::promise<void> delivered;
+  auto complete = delivered.get_future();
+  projectairsim::TopicManager manager(logger);
+  auto topic = projectairsim::Scene::MakeLifecycleTopic();
+  projectairsim::PoseStampedMessage first(1, projectairsim::Vector3::Zero(),
+                                          projectairsim::Quaternion::Identity());
+  projectairsim::PoseStampedMessage second(2, projectairsim::Vector3::Zero(),
+                                           projectairsim::Quaternion::Identity());
+  manager.RegisterTopic(topic);
+  manager.SetCallbackTopicPublished(
+      [&](const std::string&, const projectairsim::MessageType&, const std::string& body) {
+        if (body == first.Serialize()) manager.PublishTopic(topic, second);
+        else if (body == second.Serialize()) delivered.set_value();
+      });
+  manager.SetTopicPublishedCallbackEnabled(true);
+  manager.PublishTopic(topic, first);
+  ASSERT_EQ(complete.wait_for(std::chrono::seconds(2)), std::future_status::ready);
 }

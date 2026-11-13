@@ -629,12 +629,6 @@ void Scene::Impl::StopSceneTick() {
   // Stop StateManager before scene tick to break NNG receive loops
   state_manager_.Stop();
 
-  std::function<void()> stop_physics_func = nullptr;
-  stop_physics_func = physics_stop_callback_;
-  if (stop_physics_func != nullptr) {
-    stop_physics_func();
-  }
-
   if (clock_settings_.type != ClockType::kEngineDriven &&
       clock_settings_.type != ClockType::kExternalClock) {
     executor_.Stop();
@@ -671,6 +665,16 @@ void Scene::Impl::OnBeginUpdate() {
 }
 
 void Scene::Impl::OnEndUpdate() {
+  for (auto& actor : actors_) {
+    if (actor->GetType() == ActorType::kRobot) {
+      auto* controller = static_cast<Robot&>(*actor).GetController();
+      if (controller != nullptr) controller->CancelLastTask();
+    }
+  }
+
+  // Unblock physics before robot shutdown takes locks needed by the tick.
+  if (physics_stop_callback_ != nullptr) physics_stop_callback_();
+
   for (auto& actor : actors_) {
     if (actor->GetType() == ActorType::kRobot) {
       auto& robot = static_cast<Robot&>(*actor);

@@ -142,6 +142,7 @@ class Robot::Impl : public ActorImpl {
   const GeoPoint GetGroundTruthGeoLocation();
   const Environment& GetEnvironment() const;
   const CollisionInfo& GetCollisionInfo() const;
+  CollisionInfo GetCollisionInfoSnapshot();
   const Vector3& GetExternalForce() const;
 
   // Pull API event accumulation
@@ -521,6 +522,10 @@ const std::string& Robot::GetControllerSettings() const {
 
 const CollisionInfo& Robot::GetCollisionInfo() const {
   return static_cast<Robot::Impl*>(pimpl_.get())->GetCollisionInfo();
+}
+
+CollisionInfo Robot::GetCollisionInfoSnapshot() const {
+  return static_cast<Robot::Impl*>(pimpl_.get())->GetCollisionInfoSnapshot();
 }
 
 json Robot::DrainStepEvents() {
@@ -1034,7 +1039,7 @@ void Robot::Impl::OnBeginUpdate() {
 void Robot::Impl::PublishRobotPose(const PoseStampedMessage& pose) {
   std::lock_guard<std::mutex> lock(update_lock_);
 
-  topic_manager_.PublishTopic(actual_robot_pose_topic_, pose);
+  if (IsUpdating()) topic_manager_.PublishTopic(actual_robot_pose_topic_, pose);
 }
 
 void Robot::Impl::SetCallbackKinematicsUpdated(
@@ -1143,6 +1148,11 @@ const Environment& Robot::Impl::GetEnvironment() const { return environment_; }
 const Vector3& Robot::Impl::GetExternalForce() const { return ext_force_; }
 
 const CollisionInfo& Robot::Impl::GetCollisionInfo() const {
+  return collision_info_;
+}
+
+CollisionInfo Robot::Impl::GetCollisionInfoSnapshot() {
+  std::lock_guard<std::mutex> lock(update_lock_);
   return collision_info_;
 }
 
@@ -1301,8 +1311,10 @@ void Robot::Impl::UpdateCollisionInfo(const CollisionInfo& collision_info) {
 
   // Publish a collision info topic every time a collision is detected
   if (collision_info_.has_collided) {
-    CollisionInfoMessage collision_info_msg(collision_info_);
-    topic_manager_.PublishTopic(collision_info_topic_, collision_info_msg);
+    if (IsUpdating()) {
+      CollisionInfoMessage collision_info_msg(collision_info_);
+      topic_manager_.PublishTopic(collision_info_topic_, collision_info_msg);
+    }
 
     // Accumulate collision event for pull API Step() response
     AccumulateStepEvent(json{
@@ -1367,6 +1379,8 @@ std::vector<float> Robot::Impl::GetControllerOutput() const {
 void Robot::Impl::UpdateActuators(const TimeNano sim_time,
                                   const TimeNano sim_dt_nanos) {
   std::lock_guard<std::mutex> lock(update_lock_);
+  // EndUpdate unregisters topics under this same lock.
+  if (!IsUpdating()) return;
 
   if (actuators_.empty() || controller_ == nullptr) return;
 
@@ -1505,7 +1519,7 @@ void Robot::Impl::UpdateKinematics(const Kinematics& kinematics,
   // Publish actual pose topic
   PoseStampedMessage pose_msg(time_stamp, kinematics_.pose.position,
                               kinematics_.pose.orientation);
-  topic_manager_.PublishTopic(actual_robot_pose_topic_, pose_msg);
+  if (IsUpdating()) topic_manager_.PublishTopic(actual_robot_pose_topic_, pose_msg);
 
   // logger_.LogTrace(name_, "[%s] Pose at simtime=%lld xyz=%f, %f, %f",
   //                  id_.c_str(), time_stamp,
@@ -1522,6 +1536,9 @@ void Robot::Impl::UpdateEnvironment() {
 void Robot::Impl::UpdateSensors(const TimeNano sim_time,
                                 const TimeNano sim_dt_nanos) {
   std::lock_guard<std::mutex> lock(update_lock_);
+  // EndUpdate unregisters topics under this same lock.
+  if (!IsUpdating()) return;
+
   //! Update every loaded and initialized sensor that is enabled on the
   //! robot Note: Not all sensors update in-sync with the scene/physics
   //! tick

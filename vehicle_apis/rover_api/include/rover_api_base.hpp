@@ -72,7 +72,7 @@ class RoverApiBase : public IController, public IRoverApi {
   virtual void RegisterServiceMethods(void);
 
  protected:
-  bool CancelLastTask(void);
+  bool CancelLastTask(void) override;
     Logger GetLogger(void) const { return sim_robot_.GetLogger(); }
   virtual Vector3 GetPosition() const {
     return GetKinematicsEstimated().pose.position;

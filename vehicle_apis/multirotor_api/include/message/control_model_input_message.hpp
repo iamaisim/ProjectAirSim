@@ -56,13 +56,13 @@ class ControlModelInputMessage : ControlMessage {
                      magnetometer, distance, gps);
 
   // TODO Encapsulate with get/set methods?
-  uint64_t time_stamp;
+  uint64_t time_stamp = 0;
   KinematicsFlatMsgpack kinematics;
-  float airspeed;
+  float airspeed = 0.0f;
   BarometerFlatMsgpack barometer;
   ImuFlatMsgpack imu;
   Vector3FlatMsgpack magnetometer;
-  float distance;
+  float distance = 0.0f;
   GpsFlatMsgpack gps;
 };
 

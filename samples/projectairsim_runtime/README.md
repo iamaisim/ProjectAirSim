@@ -22,7 +22,8 @@ Project AirSim Runtime supports:
 
 Runtime does not provide cameras, LiDAR, radar, Unreal world meshes, or general
 mesh and robot-to-robot collisions. Its host-side collision support is limited
-to the flat ground plane described below and applies to Fast Physics vehicles.
+to the flat ground plane described below and applies to Fast Physics and
+Simulink physics vehicles.
 
 Build the simulation libraries normally:
 
@@ -70,7 +71,11 @@ The collision lifecycle mirrors the Unreal plugin:
 1. Project AirSim physics calculates the next robot kinematics.
 2. Project AirSim Runtime evaluates the new pose against the ground plane.
 3. It writes `CollisionInfo` back to the robot.
-4. Fast Physics applies its existing landing or collision response.
+4. Fast Physics or the external Simulink plant applies its collision response.
+
+For Simulink physics, the MATLAB physics bridge includes host contact data in
+the physics-model input. The Simulink plant remains responsible for ground
+contact forces and motion; Runtime supplies contact detection.
 
 Project AirSim Runtime uses the root link's inertial body box and configured
 wheel links as contact geometry. For fixed landing gear that is not represented

@@ -33,6 +33,51 @@ The example Python client scripts and configuration files can be found in `clien
 1. After the simulation scene has started, it will automatically start the Simulink model through the Matlab Python API.
 1. Once the script completes, it will automatically stop the Simulink model through the Matlab Python API. To restart the script, just run it again. To stop the simulation while the it is in progress, press Ctrl-C from the Python script console output to stop the in-progress flight command, stop Simulink, and disconnect the client. The simulation can be started again by simply running the script again.
 
+## Transport lifecycle
+
+The stock physics and controller blocks open their listeners before their first model update. The server waits for each reply without busy polling; stopping the scene closes its sockets and interrupts pending connection, send, or receive operations. A delayed physics reply keeps the current numerical step pending. It does not produce a replacement state or skip a plant update.
+
+By default, each block waits up to five wall-clock seconds to receive the next request or send its reply. An optional fourth S-function parameter overrides this deadline, for example `hostname,portnumber,timestep,30`. It must be a positive finite value; zero, negative values, `NaN`, and `Inf` are rejected. The original three-parameter form remains supported with the five-second default. The timeout is independent of the model sample period and simulation clock. Pausing, debugging, or loading a scene longer than the deadline stops the model with an error; choose a longer finite deadline when needed. After a model error, stop or reload the scene before restarting the workflow. Each block closes its own listener, so other instances remain usable. The MEX modules remain loaded until MATLAB exits to keep NNG worker code available between runs; restart MATLAB before rebuilding a loaded module.
+
+Runtime supplies flat-ground contact information to MATLAB physics vehicles. The external plant owns the contact response; see the [Runtime capabilities](../../samples/projectairsim_runtime/README.md).
+
+### Stopping a model while its peer is unavailable
+
+Scene shutdown interrupts the Runtime's socket waits. Simulink dispatches Stop
+between callbacks, so Stop can remain pending during a synchronous `mdlUpdate`.
+All stock block waits now have finite deadlines: with the default settings a
+missing peer releases the callback with a timeout error after five seconds,
+plus MATLAB scheduling and cleanup time. A longer custom deadline also
+increases the possible delay before Stop can run. Stop the model
+while the simulator is still exchanging requests for normal, error-free shutdown.
+
+The stock blocks support Fast Restart. Their operating point excludes transient
+socket handles and error text; each run opens a fresh listener and closes it at
+termination. Restart the simulator scene together with the model: restoring a
+Simulink operating point does not restore the external simulator state.
+
+### Testing the stock blocks
+
+Native wrapper tests exercise socket closure from another thread; they do not
+verify that Simulink can dispatch Stop during a blocked update. To exercise the
+real callbacks, rebuild both MEX modules, add `physics/matlab_sfunc` to the MATLAB
+path, and run:
+
+```matlab
+testTransportLifecycle('/absolute/path/to/rebuilt/mex/files')
+```
+
+This creates temporary models for both blocks and checks the three- and
+four-parameter forms, invalid parameters, timeout errors, and restart after an
+error. It does not require a simulator and does not modify the stock models.
+
+With MATLAB Engine for Python, `pynng`, and `msgpack` installed, run
+`python physics/matlab_sfunc/test_transport_engine.py /absolute/path/to/rebuilt/mex`
+to verify three Fast Restart runs per block with real request/reply traffic.
+The test asserts that Simulink retains the compiled model between runs, then
+checks that Stop completes after the default timeout with a connected peer
+that never sends a request, including restart after that timeout.
+
 ---
 
 Copyright (C) Microsoft Corporation.  

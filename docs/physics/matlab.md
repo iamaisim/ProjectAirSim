@@ -1,37 +1,104 @@
-# Matlab Physics
+# MATLAB Physics
 
-Project AirSim allows users to import their existing Simulink physics models as an alternative to the built-in Fast Physics or other flight dynamics models. The AirSim server transmits information about the applied vehicular forces and the environmental state which the Simulink model processes to compute the vehicle's kinematic state, all through TCP.
+Project AirSim connects existing MATLAB/Simulink models to the simulation through TCP request/reply bridges. A physics model receives actuator loads, environment data, and collision information, then returns vehicle kinematics. A controller model receives vehicle state and sensor measurements, then returns actuator commands. The stock examples demonstrate each interface separately and together.
+
+The physics bridge supports up to eight rotors and eight control surfaces. The stock physics model uses the Aerospace Blockset 6DOF block; FastPhysics is used only in the controller-only example.
 
 ## Prerequisites
 
-Download and install Matlab + Simulink 2022a with the Aerospace Blockset add-on.
+- MATLAB and Simulink with Aerospace Blockset for the stock physics models.
+- UAV Toolbox for the controller-only example's Waypoint Follower block.
+- A 64-bit Python interpreter compatible with the installed MATLAB release and the Project AirSim client, in an activated virtual environment.
+- A compatible C++ MEX compiler when building the bridges from source.
+- A running Project AirSim simulation server, such as the Blocks environment in the Unreal editor.
 
-## Install Matlab Engine API for Python
+Use MathWorks' [Python compatibility table](https://www.mathworks.com/support/requirements/python-compatibility.html) and [supported compilers](https://www.mathworks.com/support/requirements/supported-compilers.html) for the selected release. MATLAB release, Python version, and MEX compiler compatibility are separate requirements.
 
-In order to connect to Matlab from the Python client, the Matlab Engine API for Python must be installed. More information can be found on the MathWorks [documentation](https://www.mathworks.com/help/matlab/matlab_external/install-the-matlab-engine-for-python.html) but the general installation steps are prescribed below:
-1. Run a command prompt as Administrator
-1. Activate a Python virtual environment and navigate to the directory where the Matlab API Python library is installed: `cd "C:\Program Files\MATLAB\R2022a\extern\engines\python"`
-1. Install the Matlab API Python library: `python setup.py install`
+### Release compatibility
 
-## Example Scripts with Simulink Physics
+The MEX build scripts and stock examples have been tested with MATLAB R2026b on Linux. For other releases and for Windows, confirm Python and compiler support in the MathWorks tables above.
 
-The example Python client scripts and configuration files can be found in `client/python/example_user_scripts/` and the corresponding Matlab model files can be found in `client/python/example_user_scripts/simulink/`. There are currently two user scripts - `simulink_quadrotor_standardized_model.py` and `simulink_quadtiltrotor_standardized_model.py` - both of which utilize the same Simulink model but with different parameter values for each airframe. The AirSim Simulink interface currently supports up to eight rotors and eight control surfaces.
+## One-time setup
 
-### Directory Information
-- Scripts beginning with `simulink_` in their name utilize Simulink physics. Each script references a scene configuration file.
-- The `sim_config/` folder contains both scene configuration files and robot configuration files. Note the former contains a `physics-connection` parameter to connect to Matlab and references the latter in the `robot-config` parameter. The robot configuration file has its `physics-type` parameter set to `matlab-physics`.
-- The `simulink/` folder contains the Matlab model loader m-file scripts, the Simulink models, and the S-function mex file. Each Matlab script loads the vehicle parameters, opens the Simulink model, and configures the Matlab Engine for the client script to use Python APIs to control. The Simulink model contains the drone and fixed-wing physics for the vehicle, and references the vehicle parameters loaded via the Matlab script.
+### MATLAB Engine API for Python
 
-### Running the Scripts
-1. Open Matlab 2022a.
-1. Navigate the Matlab file explorer to the `client/python/example_user_scripts/simulink/` folder.
-1. Run the model loader m-file from the **Matlab console**:
-   1. ex. `>> load_quadrotor_simulink_physics_model`
-1. Launch and run the simulation server.
-1. In an activated Python environment, navigate to `client/python/example_user_scripts/` and run the corresponding client script:
-    1. ex. `python simulink_quadrotor_standardized_model.py`
-1. After the simulation scene has started, it will automatically start the Simulink model through the Matlab Python API.
-1. Once the script completes, it will automatically stop the Simulink model through the Matlab Python API. To restart the script, just run it again. To stop the simulation while the it is in progress, press Ctrl-C from the Python script console output to stop the in-progress flight command, stop Simulink, and disconnect the client. The simulation can be started again by simply running the script again.
+Activate the Python environment used by the Project AirSim client. In the MATLAB Command Window, run `matlabroot` to find the installation folder, then install the Engine package from that folder:
+
+```
+python -m pip install "<matlabroot>/extern/engines/python"
+python -c "import matlab.engine; print(matlab.engine.__file__)"
+```
+
+Installing from the MATLAB folder can require write access to that folder, for example an Administrator command prompt on Windows. Alternatively, install the `matlabengine` package from PyPI with the version that matches the MATLAB release. In R2026a and later, MATLAB also includes a preinstalled Engine package in `<matlabroot>/extern/engines/python/dist`, which can be added to `PYTHONPATH` instead of installing it.
+
+Use the Engine package from the same MATLAB release as the desktop session. See MathWorks' [Engine installation instructions](https://www.mathworks.com/help/matlab/matlab_external/install-the-matlab-engine-for-python.html) for details.
+
+### Build the Simulink MEX bridges
+
+Prebuilt MEX bridges for Windows (`.mexw64`) and Linux (`.mexa64`) are included in `client/python/example_user_scripts/simulink/`. Build them from source when they do not load in the installed MATLAB release or when the bridge sources change.
+
+First, build the sim libs as described in **[Build From Source as a Developer](../development/use_source.md)**. From the Project AirSim repository root, run the following on Windows from the `x64 Native Tools Command Prompt for VS 2022`:
+
+```
+build.cmd simlibs_release
+```
+
+On Linux, run:
+
+```
+./build.sh simlibs_release
+```
+
+The sim libs build stages the NNG libraries and MessagePack headers used by the MEX build scripts under each S-function directory's `_deps/` folder. The MEX scripts use the same MessagePack configuration as the native build, without requiring Boost headers. Keep the bridge sources and sim libs from the same checkout.
+
+In the MATLAB Command Window, start at the repository root and select a C++ compiler with `mex -setup C++`. On Windows, select Microsoft Visual C++, which is also used to build the sim libs. Then build and copy the bridges into the stock model directory:
+
+```matlab
+repo = pwd;
+model_dir = fullfile(repo, 'client', 'python', 'example_user_scripts', 'simulink');
+cd(fullfile(repo, 'physics', 'matlab_sfunc'))
+buildMatlabPhysicsModelSfcn
+copyfile(['matlab_physics_model_sfcn.' mexext], model_dir)
+cd(fullfile(repo, 'vehicle_apis', 'multirotor_api', 'matlab_sfunc'))
+buildMatlabControlModelSfcn
+copyfile(['matlab_control_model_sfcn.' mexext], model_dir)
+cd(repo)
+```
+
+These build commands can also run with `matlab -batch` after selecting the compiler. Copying the rebuilt files replaces the bundled binaries for the current platform. Rebuilt binaries are specific to the platform and MATLAB release used to build them; do not commit them unless intentionally updating the bundled binaries.
+
+## Desktop startup
+
+Open a MATLAB desktop under the same user account as the Python client. From the repository root in MATLAB:
+
+```matlab
+cd(fullfile(pwd, 'client', 'python', 'example_user_scripts', 'simulink'))
+load_quadrotor_simulink_physics_model
+```
+
+The loader supplies the stock aircraft parameters, opens the model, and shares the desktop as `MATLABEngine`. Use the loader corresponding to the desired example:
+
+| Example | MATLAB loader | Python script |
+| --- | --- | --- |
+| Quadrotor physics with SimpleFlight | `load_quadrotor_simulink_physics_model` | `simulink_physics_quadrotor.py` |
+| Quadtiltrotor physics with SimpleFlight | `load_quadtiltrotor_simulink_physics_model` | `simulink_physics_quadtiltrotor.py` |
+| Simulink controller with FastPhysics | `load_quadrotor_simulink_control_model_navigation` | `simulink_controller_quadrotor.py` |
+| Simulink physics and controller | `load_quadrotor_simulink_combined_model` | `simulink_combined_quadrotor.py` |
+
+Leave the MATLAB desktop open while running the examples.
+
+## Run an example
+
+Start the simulation server, for example by pressing Play in the Unreal editor. In the activated Python environment, run from the repository root:
+
+```
+cd client/python/example_user_scripts
+python simulink_physics_quadrotor.py
+```
+
+The Python script connects to the shared Engine, loads its scene, and starts the Simulink model through the Engine API. Physics examples execute takeoff, flight, and landing commands. The controller-only example follows stock waypoints in MATLAB. The combined example sends a repeating actuator ramp to demonstrate both bridges; it does not provide waypoint guidance. Press Enter in the terminal to end either controller example. When an example ends, the script stops the Simulink model through the Engine API.
+
+Run live examples one at a time. Load the corresponding MATLAB parameters before switching examples. End the Python example before stopping the simulation server, and keep the desktop open for another run. The scene and robot configurations are in `client/python/example_user_scripts/sim_config/`; the loaders, models, and MEX files are in its sibling `simulink/` directory.
 
 ---
 

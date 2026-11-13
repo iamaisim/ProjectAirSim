@@ -23,6 +23,7 @@ add_library(
     mavlink_api.cpp
     manual_controller_api.cpp
     matlab_controller_api.cpp
+    matlab_vtol_controller_api.cpp
     multirotor_api_base.cpp
     simple_flight_api.cpp
     jsbsim_api.cpp

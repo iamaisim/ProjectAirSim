@@ -23,6 +23,7 @@ add_executable(
     EXCLUDE_FROM_ALL
     gtest_simple_flight.cpp
     gtest_jsbsim_api.cpp
+    gtest_matlab_vtol_controller.cpp
 )
 
 set_target_properties(
@@ -59,6 +60,8 @@ target_include_directories(
         ${CMAKE_SOURCE_DIR}/core_sim/src/  # for private test helpers
         ${EIGEN_INCLUDE_DIR}
         ${JSON_INCLUDE_DIR}
+        ${MSGPACK_INCLUDE_DIR}
+        ${NNG_INCLUDE_DIR}
 )
 
 if(WIN32)

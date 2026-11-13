@@ -32,6 +32,10 @@ interruption, and cleanup with simulated MATLAB and server connections. It runs
 in the offline partition without MATLAB or a simulator. Live Simulink examples
 require the separate [MATLAB setup](../../../../docs/physics/matlab.md).
 
+The offline [external Simulink controller tests](test_simulink_external_quadrotor.py)
+cover shared-session selection, compilation ordering, flight commands, and cleanup error handling
+without MATLAB or a simulator connection.
+
 ## Runtime coverage
 
 Control and flight commands, connection lifecycle, simulation clocks, stepping,

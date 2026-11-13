@@ -126,6 +126,7 @@ class Robot : public Actor {
   double GetCachedTerrainElevationASL() const;
 
   const Kinematics& GetKinematics() const;
+  Kinematics GetKinematicsSnapshot() const;
   const Environment& GetEnvironment() const;
   const CollisionInfo& GetCollisionInfo() const;
   const Vector3& GetExternalForce() const;

@@ -90,6 +90,11 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#desktop-startup">Desktop startup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#run-an-example">Run an example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#transport-lifecycle">Transport lifecycle</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#stopping-a-model-while-its-peer-is-unavailable">Stopping a model while its peer is unavailable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#testing-the-stock-blocks">Testing the stock blocks</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="no_physics.html">No Physics</a></li>
@@ -268,10 +273,49 @@
 </div>
 <p>The Python script connects to the shared Engine, loads its scene, and starts the Simulink model through the Engine API. Physics examples execute takeoff, flight, and landing commands. The controller-only example follows stock waypoints in MATLAB. The combined example sends a repeating actuator ramp to demonstrate both bridges; it does not provide waypoint guidance. Press Enter in the terminal to end either controller example. When an example ends, the script stops the Simulink model through the Engine API.</p>
 <p>Run live examples one at a time. Load the corresponding MATLAB parameters before switching examples. End the Python example before stopping the simulation server, and keep the desktop open for another run. The scene and robot configurations are in <code class="docutils literal notranslate"><span class="pre">client/python/example_user_scripts/sim_config/</span></code>; the loaders, models, and MEX files are in its sibling <code class="docutils literal notranslate"><span class="pre">simulink/</span></code> directory.</p>
+</section>
+<section id="transport-lifecycle">
+<h2>Transport lifecycle<a class="headerlink" href="#transport-lifecycle" title="Link to this heading"></a></h2>
+<p>The stock physics and controller blocks open their listeners before their first model update. The server waits for each reply without busy polling; stopping the scene closes its sockets and interrupts pending connection, send, or receive operations. A delayed physics reply keeps the current numerical step pending. It does not produce a replacement state or skip a plant update.</p>
+<p>By default, each block waits up to five wall-clock seconds to receive the next request or send its reply. An optional fourth S-function parameter overrides this deadline, for example <code class="docutils literal notranslate"><span class="pre">hostname,portnumber,timestep,30</span></code>. It must be a positive finite value; zero, negative values, <code class="docutils literal notranslate"><span class="pre">NaN</span></code>, and <code class="docutils literal notranslate"><span class="pre">Inf</span></code> are rejected. The original three-parameter form remains supported with the five-second default. The timeout is independent of the model sample period and simulation clock. Pausing, debugging, or loading a scene longer than the deadline stops the model with an error; choose a longer finite deadline when needed. After a model error, stop or reload the scene before restarting the workflow. Each block closes its own listener, so other instances remain usable. The MEX modules remain loaded until MATLAB exits to keep NNG worker code available between runs; restart MATLAB before rebuilding a loaded module.</p>
+<p>Runtime supplies flat-ground contact information to MATLAB physics vehicles. The external plant owns the contact response; see the <span class="xref myst">Runtime capabilities</span>.</p>
+<section id="stopping-a-model-while-its-peer-is-unavailable">
+<h3>Stopping a model while its peer is unavailable<a class="headerlink" href="#stopping-a-model-while-its-peer-is-unavailable" title="Link to this heading"></a></h3>
+<p>Scene shutdown interrupts the Runtime’s socket waits. Simulink dispatches Stop
+between callbacks, so Stop can remain pending during a synchronous <code class="docutils literal notranslate"><span class="pre">mdlUpdate</span></code>.
+All stock block waits now have finite deadlines: with the default settings a
+missing peer releases the callback with a timeout error after five seconds,
+plus MATLAB scheduling and cleanup time. A longer custom deadline also
+increases the possible delay before Stop can run. Stop the model
+while the simulator is still exchanging requests for normal, error-free shutdown.</p>
+<p>The stock blocks support Fast Restart. Their operating point excludes transient
+socket handles and error text; each run opens a fresh listener and closes it at
+termination. Restart the simulator scene together with the model: restoring a
+Simulink operating point does not restore the external simulator state.</p>
+</section>
+<section id="testing-the-stock-blocks">
+<h3>Testing the stock blocks<a class="headerlink" href="#testing-the-stock-blocks" title="Link to this heading"></a></h3>
+<p>Native wrapper tests exercise socket closure from another thread; they do not
+verify that Simulink can dispatch Stop during a blocked update. To exercise the
+real callbacks, rebuild both MEX modules, add <code class="docutils literal notranslate"><span class="pre">physics/matlab_sfunc</span></code> to the MATLAB
+path, and run:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">testTransportLifecycle</span><span class="p">(</span><span class="s">'/absolute/path/to/rebuilt/mex/files'</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This creates temporary models for both blocks and checks the three- and
+four-parameter forms, invalid parameters, timeout errors, and restart after an
+error. It does not require a simulator and does not modify the stock models.</p>
+<p>With MATLAB Engine for Python, <code class="docutils literal notranslate"><span class="pre">pynng</span></code>, and <code class="docutils literal notranslate"><span class="pre">msgpack</span></code> installed, run
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">physics/matlab_sfunc/test_transport_engine.py</span> <span class="pre">/absolute/path/to/rebuilt/mex</span></code>
+to verify three Fast Restart runs per block with real request/reply traffic.
+The test asserts that Simulink retains the compiled model between runs, then
+checks that Stop completes after the default timeout with a connected peer
+that never sends a request, including restart after that timeout.</p>
 <hr class="docutils" />
 <p>Copyright (C) Microsoft Corporation.<br />
 Copyright (C) 2025 IAMAI CONSULTING CORP</p>
 <p>MIT License. All rights reserved.</p>
+</section>
 </section>
 </section>
 

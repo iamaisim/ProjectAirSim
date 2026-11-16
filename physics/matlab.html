@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Matlab Physics &mdash; Project Airsim 1.0.0 documentation</title>
+  <title>MATLAB Physics &mdash; Project Airsim 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
 
@@ -78,14 +78,18 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="fast-physics.html">Fast Physics for Drones</a></li>
 <li class="toctree-l1"><a class="reference internal" href="jsbsim.html">JSBSim Physics</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Matlab Physics</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#install-matlab-engine-api-for-python">Install Matlab Engine API for Python</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#example-scripts-with-simulink-physics">Example Scripts with Simulink Physics</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#directory-information">Directory Information</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#running-the-scripts">Running the Scripts</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">MATLAB Physics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#release-compatibility">Release compatibility</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#one-time-setup">One-time setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#matlab-engine-api-for-python">MATLAB Engine API for Python</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#build-the-simulink-mex-bridges">Build the Simulink MEX bridges</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#desktop-startup">Desktop startup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-an-example">Run an example</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="no_physics.html">No Physics</a></li>
@@ -151,7 +155,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Matlab Physics</li>
+      <li class="breadcrumb-item active">MATLAB Physics</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/physics/matlab.md.txt" rel="nofollow"> View page source</a>
       </li>
@@ -162,56 +166,112 @@
            <div itemprop="articleBody">
              
   <section id="matlab-physics">
-<h1>Matlab Physics<a class="headerlink" href="#matlab-physics" title="Link to this heading"></a></h1>
-<p>Project AirSim allows users to import their existing Simulink physics models as an alternative to the built-in Fast Physics or other flight dynamics models. The AirSim server transmits information about the applied vehicular forces and the environmental state which the Simulink model processes to compute the vehicle’s kinematic state, all through TCP.</p>
+<h1>MATLAB Physics<a class="headerlink" href="#matlab-physics" title="Link to this heading"></a></h1>
+<p>Project AirSim connects existing MATLAB/Simulink models to the simulation through TCP request/reply bridges. A physics model receives actuator loads, environment data, and collision information, then returns vehicle kinematics. A controller model receives vehicle state and sensor measurements, then returns actuator commands. The stock examples demonstrate each interface separately and together.</p>
+<p>The physics bridge supports up to eight rotors and eight control surfaces. The stock physics model uses the Aerospace Blockset 6DOF block; FastPhysics is used only in the controller-only example.</p>
 <section id="prerequisites">
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
-<p>Download and install Matlab + Simulink 2022a with the Aerospace Blockset add-on.</p>
-</section>
-<section id="install-matlab-engine-api-for-python">
-<h2>Install Matlab Engine API for Python<a class="headerlink" href="#install-matlab-engine-api-for-python" title="Link to this heading"></a></h2>
-<p>In order to connect to Matlab from the Python client, the Matlab Engine API for Python must be installed. More information can be found on the MathWorks <a class="reference external" href="https://www.mathworks.com/help/matlab/matlab_external/install-the-matlab-engine-for-python.html">documentation</a> but the general installation steps are prescribed below:</p>
-<ol class="arabic simple">
-<li><p>Run a command prompt as Administrator</p></li>
-<li><p>Activate a Python virtual environment and navigate to the directory where the Matlab API Python library is installed: <code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">&quot;C:\Program</span> <span class="pre">Files\MATLAB\R2022a\extern\engines\python&quot;</span></code></p></li>
-<li><p>Install the Matlab API Python library: <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">install</span></code></p></li>
-</ol>
-</section>
-<section id="example-scripts-with-simulink-physics">
-<h2>Example Scripts with Simulink Physics<a class="headerlink" href="#example-scripts-with-simulink-physics" title="Link to this heading"></a></h2>
-<p>The example Python client scripts and configuration files can be found in <code class="docutils literal notranslate"><span class="pre">client/python/example_user_scripts/</span></code> and the corresponding Matlab model files can be found in <code class="docutils literal notranslate"><span class="pre">client/python/example_user_scripts/simulink/</span></code>. There are currently two user scripts - <code class="docutils literal notranslate"><span class="pre">simulink_quadrotor_standardized_model.py</span></code> and <code class="docutils literal notranslate"><span class="pre">simulink_quadtiltrotor_standardized_model.py</span></code> - both of which utilize the same Simulink model but with different parameter values for each airframe. The AirSim Simulink interface currently supports up to eight rotors and eight control surfaces.</p>
-<section id="directory-information">
-<h3>Directory Information<a class="headerlink" href="#directory-information" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p>Scripts beginning with <code class="docutils literal notranslate"><span class="pre">simulink_</span></code> in their name utilize Simulink physics. Each script references a scene configuration file.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">sim_config/</span></code> folder contains both scene configuration files and robot configuration files. Note the former contains a <code class="docutils literal notranslate"><span class="pre">physics-connection</span></code> parameter to connect to Matlab and references the latter in the <code class="docutils literal notranslate"><span class="pre">robot-config</span></code> parameter. The robot configuration file has its <code class="docutils literal notranslate"><span class="pre">physics-type</span></code> parameter set to <code class="docutils literal notranslate"><span class="pre">matlab-physics</span></code>.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">simulink/</span></code> folder contains the Matlab model loader m-file scripts, the Simulink models, and the S-function mex file. Each Matlab script loads the vehicle parameters, opens the Simulink model, and configures the Matlab Engine for the client script to use Python APIs to control. The Simulink model contains the drone and fixed-wing physics for the vehicle, and references the vehicle parameters loaded via the Matlab script.</p></li>
+<li><p>MATLAB and Simulink with Aerospace Blockset for the stock physics models.</p></li>
+<li><p>UAV Toolbox for the controller-only example’s Waypoint Follower block.</p></li>
+<li><p>A 64-bit Python interpreter compatible with the installed MATLAB release and the Project AirSim client, in an activated virtual environment.</p></li>
+<li><p>A compatible C++ MEX compiler when building the bridges from source.</p></li>
+<li><p>A running Project AirSim simulation server, such as the Blocks environment in the Unreal editor.</p></li>
 </ul>
+<p>Use MathWorks’ <a class="reference external" href="https://www.mathworks.com/support/requirements/python-compatibility.html">Python compatibility table</a> and <a class="reference external" href="https://www.mathworks.com/support/requirements/supported-compilers.html">supported compilers</a> for the selected release. MATLAB release, Python version, and MEX compiler compatibility are separate requirements.</p>
+<section id="release-compatibility">
+<h3>Release compatibility<a class="headerlink" href="#release-compatibility" title="Link to this heading"></a></h3>
+<p>The MEX build scripts and stock examples have been tested with MATLAB R2026b on Linux. For other releases and for Windows, confirm Python and compiler support in the MathWorks tables above.</p>
 </section>
-<section id="running-the-scripts">
-<h3>Running the Scripts<a class="headerlink" href="#running-the-scripts" title="Link to this heading"></a></h3>
-<ol class="arabic simple">
-<li><p>Open Matlab 2022a.</p></li>
-<li><p>Navigate the Matlab file explorer to the <code class="docutils literal notranslate"><span class="pre">client/python/example_user_scripts/simulink/</span></code> folder.</p></li>
-<li><p>Run the model loader m-file from the <strong>Matlab console</strong>:</p>
-<ol class="arabic simple">
-<li><p>ex. <code class="docutils literal notranslate"><span class="pre">&gt;&gt;</span> <span class="pre">load_quadrotor_simulink_physics_model</span></code></p></li>
-</ol>
-</li>
-<li><p>Launch and run the simulation server.</p></li>
-<li><p>In an activated Python environment, navigate to <code class="docutils literal notranslate"><span class="pre">client/python/example_user_scripts/</span></code> and run the corresponding client script:</p>
-<ol class="arabic simple">
-<li><p>ex. <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">simulink_quadrotor_standardized_model.py</span></code></p></li>
-</ol>
-</li>
-<li><p>After the simulation scene has started, it will automatically start the Simulink model through the Matlab Python API.</p></li>
-<li><p>Once the script completes, it will automatically stop the Simulink model through the Matlab Python API. To restart the script, just run it again. To stop the simulation while the it is in progress, press Ctrl-C from the Python script console output to stop the in-progress flight command, stop Simulink, and disconnect the client. The simulation can be started again by simply running the script again.</p></li>
-</ol>
+</section>
+<section id="one-time-setup">
+<h2>One-time setup<a class="headerlink" href="#one-time-setup" title="Link to this heading"></a></h2>
+<section id="matlab-engine-api-for-python">
+<h3>MATLAB Engine API for Python<a class="headerlink" href="#matlab-engine-api-for-python" title="Link to this heading"></a></h3>
+<p>Activate the Python environment used by the Project AirSim client. In the MATLAB Command Window, run <code class="docutils literal notranslate"><span class="pre">matlabroot</span></code> to find the installation folder, then install the Engine package from that folder:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="s2">"&lt;matlabroot&gt;/extern/engines/python"</span>
+<span class="n">python</span> <span class="o">-</span><span class="n">c</span> <span class="s2">"import matlab.engine; print(matlab.engine.__file__)"</span>
+</pre></div>
+</div>
+<p>Installing from the MATLAB folder can require write access to that folder, for example an Administrator command prompt on Windows. Alternatively, install the <code class="docutils literal notranslate"><span class="pre">matlabengine</span></code> package from PyPI with the version that matches the MATLAB release. In R2026a and later, MATLAB also includes a preinstalled Engine package in <code class="docutils literal notranslate"><span class="pre">&lt;matlabroot&gt;/extern/engines/python/dist</span></code>, which can be added to <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> instead of installing it.</p>
+<p>Use the Engine package from the same MATLAB release as the desktop session. See MathWorks’ <a class="reference external" href="https://www.mathworks.com/help/matlab/matlab_external/install-the-matlab-engine-for-python.html">Engine installation instructions</a> for details.</p>
+</section>
+<section id="build-the-simulink-mex-bridges">
+<h3>Build the Simulink MEX bridges<a class="headerlink" href="#build-the-simulink-mex-bridges" title="Link to this heading"></a></h3>
+<p>Prebuilt MEX bridges for Windows (<code class="docutils literal notranslate"><span class="pre">.mexw64</span></code>) and Linux (<code class="docutils literal notranslate"><span class="pre">.mexa64</span></code>) are included in <code class="docutils literal notranslate"><span class="pre">client/python/example_user_scripts/simulink/</span></code>. Build them from source when they do not load in the installed MATLAB release or when the bridge sources change.</p>
+<p>First, build the sim libs as described in <strong><a class="reference internal" href="../development/use_source.html"><span class="std std-doc">Build From Source as a Developer</span></a></strong>. From the Project AirSim repository root, run the following on Windows from the <code class="docutils literal notranslate"><span class="pre">x64</span> <span class="pre">Native</span> <span class="pre">Tools</span> <span class="pre">Command</span> <span class="pre">Prompt</span> <span class="pre">for</span> <span class="pre">VS</span> <span class="pre">2022</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">build</span><span class="o">.</span><span class="n">cmd</span> <span class="n">simlibs_release</span>
+</pre></div>
+</div>
+<p>On Linux, run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">build</span><span class="o">.</span><span class="n">sh</span> <span class="n">simlibs_release</span>
+</pre></div>
+</div>
+<p>The sim libs build stages the NNG libraries and MessagePack headers used by the MEX build scripts under each S-function directory’s <code class="docutils literal notranslate"><span class="pre">_deps/</span></code> folder. The MEX scripts use the same MessagePack configuration as the native build, without requiring Boost headers. Keep the bridge sources and sim libs from the same checkout.</p>
+<p>In the MATLAB Command Window, start at the repository root and select a C++ compiler with <code class="docutils literal notranslate"><span class="pre">mex</span> <span class="pre">-setup</span> <span class="pre">C++</span></code>. On Windows, select Microsoft Visual C++, which is also used to build the sim libs. Then build and copy the bridges into the stock model directory:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">repo</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">pwd</span><span class="p">;</span>
+<span class="n">model_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span><span class="w"> </span><span class="s">'client'</span><span class="p">,</span><span class="w"> </span><span class="s">'python'</span><span class="p">,</span><span class="w"> </span><span class="s">'example_user_scripts'</span><span class="p">,</span><span class="w"> </span><span class="s">'simulink'</span><span class="p">);</span>
+<span class="nb">cd</span><span class="p">(</span><span class="nb">fullfile</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span><span class="w"> </span><span class="s">'physics'</span><span class="p">,</span><span class="w"> </span><span class="s">'matlab_sfunc'</span><span class="p">))</span>
+<span class="n">buildMatlabPhysicsModelSfcn</span>
+<span class="s">copyfile(['matlab_physics_model_sfcn.'</span><span class="w"> </span><span class="s">mexext],</span><span class="w"> </span><span class="s">model_dir)</span>
+<span class="nb">cd</span><span class="p">(</span><span class="nb">fullfile</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span><span class="w"> </span><span class="s">'vehicle_apis'</span><span class="p">,</span><span class="w"> </span><span class="s">'multirotor_api'</span><span class="p">,</span><span class="w"> </span><span class="s">'matlab_sfunc'</span><span class="p">))</span>
+<span class="n">buildMatlabControlModelSfcn</span>
+<span class="s">copyfile(['matlab_control_model_sfcn.'</span><span class="w"> </span><span class="s">mexext],</span><span class="w"> </span><span class="s">model_dir)</span>
+<span class="nb">cd</span><span class="p">(</span><span class="n">repo</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>These build commands can also run with <code class="docutils literal notranslate"><span class="pre">matlab</span> <span class="pre">-batch</span></code> after selecting the compiler. Copying the rebuilt files replaces the bundled binaries for the current platform. Rebuilt binaries are specific to the platform and MATLAB release used to build them; do not commit them unless intentionally updating the bundled binaries.</p>
+</section>
+</section>
+<section id="desktop-startup">
+<h2>Desktop startup<a class="headerlink" href="#desktop-startup" title="Link to this heading"></a></h2>
+<p>Open a MATLAB desktop under the same user account as the Python client. From the repository root in MATLAB:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="p">(</span><span class="nb">fullfile</span><span class="p">(</span><span class="nb">pwd</span><span class="p">,</span><span class="w"> </span><span class="s">'client'</span><span class="p">,</span><span class="w"> </span><span class="s">'python'</span><span class="p">,</span><span class="w"> </span><span class="s">'example_user_scripts'</span><span class="p">,</span><span class="w"> </span><span class="s">'simulink'</span><span class="p">))</span>
+<span class="n">load_quadrotor_simulink_physics_model</span>
+</pre></div>
+</div>
+<p>The loader supplies the stock aircraft parameters, opens the model, and shares the desktop as <code class="docutils literal notranslate"><span class="pre">MATLABEngine</span></code>. Use the loader corresponding to the desired example:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Example</p></th>
+<th class="head"><p>MATLAB loader</p></th>
+<th class="head"><p>Python script</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Quadrotor physics with SimpleFlight</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">load_quadrotor_simulink_physics_model</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">simulink_physics_quadrotor.py</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Quadtiltrotor physics with SimpleFlight</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">load_quadtiltrotor_simulink_physics_model</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">simulink_physics_quadtiltrotor.py</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Simulink controller with FastPhysics</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">load_quadrotor_simulink_control_model_navigation</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">simulink_controller_quadrotor.py</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Simulink physics and controller</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">load_quadrotor_simulink_combined_model</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">simulink_combined_quadrotor.py</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>Leave the MATLAB desktop open while running the examples.</p>
+</section>
+<section id="run-an-example">
+<h2>Run an example<a class="headerlink" href="#run-an-example" title="Link to this heading"></a></h2>
+<p>Start the simulation server, for example by pressing Play in the Unreal editor. In the activated Python environment, run from the repository root:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">client</span><span class="o">/</span><span class="n">python</span><span class="o">/</span><span class="n">example_user_scripts</span>
+<span class="n">python</span> <span class="n">simulink_physics_quadrotor</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>The Python script connects to the shared Engine, loads its scene, and starts the Simulink model through the Engine API. Physics examples execute takeoff, flight, and landing commands. The controller-only example follows stock waypoints in MATLAB. The combined example sends a repeating actuator ramp to demonstrate both bridges; it does not provide waypoint guidance. Press Enter in the terminal to end either controller example. When an example ends, the script stops the Simulink model through the Engine API.</p>
+<p>Run live examples one at a time. Load the corresponding MATLAB parameters before switching examples. End the Python example before stopping the simulation server, and keep the desktop open for another run. The scene and robot configurations are in <code class="docutils literal notranslate"><span class="pre">client/python/example_user_scripts/sim_config/</span></code>; the loaders, models, and MEX files are in its sibling <code class="docutils literal notranslate"><span class="pre">simulink/</span></code> directory.</p>
 <hr class="docutils" />
 <p>Copyright (C) Microsoft Corporation.<br />
 Copyright (C) 2025 IAMAI CONSULTING CORP</p>
 <p>MIT License. All rights reserved.</p>
-</section>
 </section>
 </section>
 

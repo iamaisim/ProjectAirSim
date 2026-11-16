@@ -52,6 +52,12 @@ class IController : public IRuntimeComponent {
   // TODO: Should this be in the base IRuntimeComponent?
   virtual void Update() = 0;
 
+  // Cancels the active command task, if any. A task returns only when it is
+  // cancelled, times out, or simulation time advances, and time can stop
+  // advancing during shutdown. Scene shutdown therefore cancels every robot's
+  // task before stopping physics or ending any robot update.
+  virtual bool CancelLastTask() { return true; }
+
   virtual int GetControlSignalIndex(const std::string& actuator_id) = 0;
 
   virtual int GetControlSignalIndex(const std::string& actuator_id,

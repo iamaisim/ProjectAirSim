@@ -32,7 +32,8 @@ void GroundCollisionHost::LoadScene(Scene& scene) {
     if (actor.GetType() != ActorType::kRobot) continue;
 
     auto& robot = static_cast<Robot&>(actor);
-    if (robot.GetPhysicsType() != PhysicsType::kFastPhysics) {
+    if (robot.GetPhysicsType() != PhysicsType::kFastPhysics &&
+        robot.GetPhysicsType() != PhysicsType::kMatlabPhysics) {
       if (robot.GetPhysicsType() == PhysicsType::kUnrealPhysics) {
         std::cout << "[Project AirSim Runtime] Robot '" << robot.GetID()
                   << "' requests unreal-physics, which needs Unreal Engine; "

@@ -13,6 +13,8 @@
 #include <string>
 
 #include "core_sim/actor/robot.hpp"
+#include "core_sim/sensors/distance_sensor.hpp"
+#include "core_sim/message/pose_stamped_message.hpp"
 #include "core_sim/config_json.hpp"
 #include "core_sim/error.hpp"
 #include "core_sim/logger.hpp"
@@ -36,6 +38,12 @@ class Scene {
  public:
   static ServiceMethod MakeRobotTypeMethod(const std::string& path) {
     return ServiceMethod(path + "/GetRobotType", {});
+  }
+
+  static Robot MakeRobot(const std::string& id, const Logger& logger) {
+    Transform origin = {{0, 0, 0}, {1, 0, 0, 0}};
+    return Robot(id, origin, logger, TopicManager(logger), "",
+                 ServiceManager(logger), StateManager(logger), "");
   }
 
   static Robot MakeRobot(const std::string& id) {
@@ -365,6 +373,7 @@ TEST(Robot, SnapshotCapturedOncePerControlTickAndSharedWithActuators) {
   auto controller = std::make_unique<TestSimpleDriveController>();
   auto* source = controller.get();
   robot.SetController(std::move(controller));
+  robot.BeginUpdate();
 
   robot.UpdateControlInput();
   EXPECT_EQ(source->snapshot_calls, 1);
@@ -387,6 +396,7 @@ TEST(Robot, SnapshotMapsWheelChannelsAndZerosInvalidIndices) {
   auto controller = std::make_unique<TestSimpleDriveController>();
   auto* source = controller.get();
   robot.SetController(std::move(controller));
+  robot.BeginUpdate();
 
   // Give the invalid-index wheel velocity so an unintended brake signal is
   // observable, rather than testing all three invalid channels only at rest.
@@ -427,6 +437,7 @@ TEST(Robot, ActuatorOnlyUpdatesReuseLastCapturedSnapshot) {
   auto* source = controller.get();
   source->output = {0.6f, 0.2f, 0.4f};
   robot.SetController(std::move(controller));
+  robot.BeginUpdate();
   robot.UpdateControlInput();
   robot.UpdateActuators(10'000'000, 10'000'000);
   const auto captured = robot.GetControllerOutput();
@@ -491,6 +502,54 @@ TEST(Robot, ConcurrentControllerOutputReadsReturnWholeSnapshots) {
   EXPECT_TRUE(coherent.load());
 }
 
+TEST(Robot, CollisionSnapshotRemainsCoherentDuringUpdates) {
+  auto robot = projectairsim::Scene::MakeRobot("collision_snapshot");
+  json config{{"physics-type", "non-physics"},
+              {"links", {{{"name", "Frame"}}}}};
+  projectairsim::Scene::LoadRobot(robot, config);
+  const projectairsim::CollisionInfo first(false, {0, 0, -1}, {1, 2, 0},
+                                           {1, 2, -3}, 0.25f, 100,
+                                           std::string(256, 'a'), 1);
+  const projectairsim::CollisionInfo second(false, {0, -1, 0}, {4, 0, 6},
+                                            {4, -5, 6}, 0.5f, 200,
+                                            std::string(256, 'b'), 2);
+  robot.UpdateCollisionInfo(first);
+  const auto retained = robot.GetCollisionInfoSnapshot();
+  std::atomic<bool> stop{false};
+  std::promise<void> started;
+  auto ready = started.get_future();
+  std::thread writer([&]() {
+    robot.UpdateCollisionInfo(second);
+    started.set_value();
+    while (!stop.load()) {
+      robot.UpdateCollisionInfo(first);
+      robot.UpdateCollisionInfo(second);
+    }
+  });
+  ready.wait();
+  for (int i = 0; i < 2000; ++i) {
+    const auto snapshot = robot.GetCollisionInfoSnapshot();
+    const bool is_first = snapshot.time_stamp == 100;
+    EXPECT_TRUE(is_first || snapshot.time_stamp == 200);
+    EXPECT_FALSE(snapshot.has_collided);
+    EXPECT_EQ(snapshot.normal, is_first ? projectairsim::Vector3(0, 0, -1)
+                                        : projectairsim::Vector3(0, -1, 0));
+    EXPECT_EQ(snapshot.impact_point, is_first
+                                         ? projectairsim::Vector3(1, 2, 0)
+                                         : projectairsim::Vector3(4, 0, 6));
+    EXPECT_EQ(snapshot.position, is_first ? projectairsim::Vector3(1, 2, -3)
+                                          : projectairsim::Vector3(4, -5, 6));
+    EXPECT_FLOAT_EQ(snapshot.penetration_depth, is_first ? 0.25f : 0.5f);
+    EXPECT_EQ(snapshot.object_name, std::string(256, is_first ? 'a' : 'b'));
+    EXPECT_EQ(snapshot.segmentation_id, is_first ? 1 : 2);
+  }
+  stop = true;
+  writer.join();
+  EXPECT_EQ(retained.time_stamp, 100);
+  EXPECT_EQ(retained.object_name, std::string(256, 'a'));
+  EXPECT_EQ(retained.segmentation_id, 1);
+}
+
 TEST(Robot, JSBSimDtDefaultsWhenOmitted) {
   json json = R"({
       "physics-type": "jsbsim-physics",
@@ -536,5 +595,51 @@ TEST(Robot, JSBSimDtRejectsInvalidValues) {
 
     EXPECT_THROW(projectairsim::Scene::LoadRobot(robot, json),
                  projectairsim::Error);
+  }
+}
+
+TEST(Robot, LateTickAndHostCallbacksDoNotPublishAfterEndUpdate) {
+  std::atomic<int> errors{0};
+  projectairsim::Logger logger(
+      [&](const std::string&, projectairsim::LogLevel level,
+          const std::string& message) {
+        if (level == projectairsim::LogLevel::kError) ++errors;
+      });
+  auto robot = projectairsim::Scene::MakeRobot("LifecycleRobot", logger);
+  auto config = R"({
+    "physics-type": "non-physics",
+    "links": [{"name": "body"}],
+    "actuators": [{"name": "rotor", "type": "rotor", "enabled": true,
+      "parent-link": "body", "child-link": "propeller", "rotor-settings": {
+        "turning-direction": "clock-wise", "normal-vector": "0 0 -1",
+        "coeff-of-thrust": 0.1, "coeff-of-torque": 0.04,
+        "max-rpm": 6000, "propeller-diameter": 0.2, "smoothing-tc": 0.005}}],
+    "sensors": [
+      {"id": "imu", "type": "imu", "enabled": true, "parent-link": "body"},
+      {"id": "distance", "type": "distance-sensor", "enabled": true,
+       "parent-link": "body"}]
+  })"_json;
+  projectairsim::Scene::LoadRobot(robot, config);
+  robot.SetController(std::make_unique<TestSimpleDriveController>());
+  auto& distance = static_cast<projectairsim::DistanceSensor&>(
+      robot.GetSensors()[1].get());
+  auto update = [&] {
+    robot.UpdateSensors(10'000'000, 10'000'000);
+    robot.UpdateActuators(10'000'000, 10'000'000);
+    robot.UpdateKinematics(robot.GetKinematics(), 10'000'000);
+    projectairsim::CollisionInfo collision;
+    collision.has_collided = true;
+    robot.UpdateCollisionInfo(collision);
+    robot.PublishRobotPose(projectairsim::PoseStampedMessage{});
+    distance.PublishDistanceSensorMsg(projectairsim::DistanceSensorMessage{});
+  };
+  for (int run = 0; run < 2; ++run) {
+    robot.BeginUpdate();
+    update();
+    robot.EndUpdate();
+    // Model a tick released by transport closure and a queued render callback.
+    update();
+    EXPECT_EQ(errors.load(), 0);
+    EXPECT_TRUE(robot.GetCollisionInfoSnapshot().has_collided);
   }
 }

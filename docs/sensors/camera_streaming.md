@@ -8,6 +8,8 @@ To enable camera streaming for live viewing in real-time as a more efficient h.2
 
 To view the streams, a Node.js signalling web server is run to connect to the sim server's PixelStreaming plugin and display the stream in a web browser. A web browser is used to display the stream because modern web browsers already have many optimizations for decoding h.264 WebRTC streams as a video player including hardware acceleration. This web stream player also captures the user's keyboard and mouse inputs to proxy back to the sim server, so it can function as a remote interface to the sim's viewport.
 
+To show a camera in QGroundControl instead, which cannot play WebRTC streams, see [Camera Video Stream to QGroundControl](qgc_video_stream.md).
+
 ## Configuring streaming cameras
 
 Any camera sensor capture can enable streaming its view by setting `"streaming-enabled": true` in the `capture-settings` for its image type:

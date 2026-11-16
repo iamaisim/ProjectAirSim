@@ -64,6 +64,7 @@ physics/no_physics.md
 sensors/camera_capture_settings.md
 sensors/camera_post_processing_with_nn.md
 sensors/camera_streaming.md
+sensors/qgc_video_stream.md
 sensors/segmentation.md
 sensors/lidar.md
 sensors/radar.md

@@ -213,9 +213,11 @@ target_compile_definitions(ProjectAirsimClient
 )
 
 if(WIN32)
+
     set(PROJECTAIRSIM_CPP_CLIENT_FINAL_LIB
-        "${CMAKE_CURRENT_BINARY_DIR}/ProjectAirSimCppClient.lib"
+    "${CMAKE_CURRENT_BINARY_DIR}/ProjectAirSimCppClient$<$<CONFIG:Debug>:${CMAKE_DEBUG_POSTFIX}>.lib"
     )
+
     add_custom_command(
         OUTPUT ${PROJECTAIRSIM_CPP_CLIENT_FINAL_LIB}
         COMMAND ${CMAKE_COMMAND} -E remove -f ${PROJECTAIRSIM_CPP_CLIENT_FINAL_LIB}

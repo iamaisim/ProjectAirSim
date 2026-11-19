@@ -10,12 +10,13 @@ import math
 import time
 
 from projectairsim import ProjectAirSimClient, World
+from projectairsim.robot import Robot
 from projectairsim.utils import projectairsim_log, geo_to_ned_coordinates
 from typing import List, Dict
 from projectairsim.types import Pose
 
 
-class Rover(object):
+class Rover(Robot):
     def __init__(self, client: ProjectAirSimClient, world: World, name: str):
         """ProjectAirSim Rover Actor Interface
 
@@ -25,11 +26,7 @@ class Rover(object):
             name (str): Name of the Rover actor in the scene
         """
         projectairsim_log().info(f"Initalizing Rover '{name}'...")
-        self.client = client
-        self.world = World
-        self.name = name
-        self.world_parent_topic = world.parent_topic
-        self.set_topics(world)
+        super().__init__(client, world, name)
         self.vel_cmd = {"axes_0": 0.0, "axes_1": 0.0, "axes_2": 0.0, "axes_3": 0.0}
         self.home_geo_point = world.home_geo_point
         self.axis_mapping = {
@@ -192,6 +189,52 @@ class Rover(object):
         }
         req: Dict = {
             "method": f"{self.parent_topic}/MoveToPosition",
+            "params": params,
+            "version": 1.0,
+        }
+
+        async_task_cr = await self.client.request_async(req, callback)
+        return async_task_cr
+
+    async def move_on_path_async(
+        self,
+        path,
+        velocity: float,
+        timeout_sec: float = 3e38,
+        yaw_rate_max: float = -1,  # Unlimited
+        lookahead: float = -1.0,
+        adaptive_lookahead: float = 1.0,
+        callback: callable = None,
+    ) -> asyncio.Task:
+        """Move along a sequence of NED waypoints. Returns immediately.
+
+        Each waypoint uses x/y (north/east). A z coordinate may be present but
+        is ignored for ground vehicles. SimpleDrive visits waypoints in order
+        via MoveToPosition.
+
+        Args:
+            path (List[List[float]]): path points in NED coordinates
+            velocity (float): desired velocity (m/s)
+            timeout_sec (float): timeout per segment (seconds)
+            yaw_rate_max (float): max yaw rate, ignored if < 0 (rad/s)
+            lookahead (float): lookahead for each segment
+            adaptive_lookahead (float): adaptive lookahead for each segment
+            callback (callable): callback on command completion or error
+
+        Returns:
+            asyncio.Task: An awaitable task wrapping the async coroutine
+        """
+
+        params: Dict = {
+            "path": path,
+            "velocity": velocity,
+            "timeout_sec": timeout_sec,
+            "yaw_rate_max": yaw_rate_max,
+            "lookahead": lookahead,
+            "adaptive_lookahead": adaptive_lookahead,
+        }
+        req: Dict = {
+            "method": f"{self.parent_topic}/MoveOnPath",
             "params": params,
             "version": 1.0,
         }

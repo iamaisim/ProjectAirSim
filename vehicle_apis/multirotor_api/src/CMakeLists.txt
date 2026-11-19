@@ -25,6 +25,7 @@ add_library(
     matlab_controller_api.cpp
     multirotor_api_base.cpp
     simple_flight_api.cpp
+    jsbsim_api.cpp
     vtolfw_api_base.cpp
     arducopter_api.cpp
 )
@@ -64,7 +65,7 @@ if(WIN32)
         PRIVATE
             core_sim
             mavlinkcom
-            lvmon
+            $<$<BOOL:${PROJECTAIRSIM_ENABLE_LVMON}>:lvmon>
             nng
             ws2_32  # req by nng on Win
             mswsock  # req by nng on Win
@@ -76,7 +77,7 @@ else()
         PRIVATE
         core_sim
         mavlinkcom
-        lvmon
+        $<$<BOOL:${PROJECTAIRSIM_ENABLE_LVMON}>:lvmon>
         nng
     )
 endif()

@@ -12,7 +12,8 @@ import pytest
 
 import projectairsim.utils as utils
 from pynng import NNGException
-from projectairsim import Drone, ProjectAirSimClient, World
+from projectairsim import Drone, ProjectAirSimClient
+from regression_support import RegressionWorld as World
 from projectairsim.types import ImageType
 from projectairsim.utils import quaternion_to_rpy
 
@@ -49,28 +50,21 @@ def world(client):
     return world
 
 
-def test_sensor_timestamp_validity(drone):
-    """Assert monotonic timestamp updates"""
+@pytest.mark.runtime
+def test_sensor_timestamp_validity(drone, world):
+    """Advance simulated time explicitly instead of assuming wall-clock speed."""
+    world.pause()
     try:
-        imu_data_t1 = drone.get_imu_data("IMU1")
-        t1 = imu_data_t1["time_stamp"]
-        print(f"imu_data1[time_stamp]:{t1}")
-        time.sleep(1)
-
-        imu_data_t2 = drone.get_imu_data("IMU1")
-        t2 = imu_data_t2["time_stamp"]
-        print(f"imu_data2[time_stamp]:{t2}")
-        time.sleep(4e-3)  # Sim is expected to tick in 3e-3 seconds
-
-        imu_data_t3 = drone.get_imu_data("IMU1")
-        t3 = imu_data_t3["time_stamp"]
-        print(f"imu_data3[time_stamp]:{t3}")
-        assert t3 > t2 > t1
-
-    except NNGException as err:
-        raise Exception(str(err))
+        stamps = []
+        for _ in range(3):
+            world.step(3_000_000)
+            stamps.append(drone.get_imu_data("IMU1")["time_stamp"])
+        assert stamps[0] < stamps[1] < stamps[2], stamps
+    finally:
+        world.resume()
 
 
+@pytest.mark.runtime
 def test_get_imu_data(drone):
     try:
         imu_data = drone.get_imu_data("IMU1")
@@ -96,6 +90,7 @@ def test_get_imu_data(drone):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_get_gps_data(drone):
     try:
         gps_data = drone.get_gps_data("GPS")
@@ -122,6 +117,7 @@ def test_get_gps_data(drone):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_get_barometer_data(drone):
     try:
         barometer_data = drone.get_barometer_data("Barometer")
@@ -134,6 +130,7 @@ def test_get_barometer_data(drone):
         raise Exception(str(err))
 
 
+@pytest.mark.runtime
 def test_get_magnetometer_data(drone):
     try:
         magnetometer_data = drone.get_magnetometer_data("Magnetometer")
@@ -152,6 +149,7 @@ def test_get_magnetometer_data(drone):
     except NNGException as err:
         raise Exception(str(err))
 
+@pytest.mark.runtime
 def test_get_airspeed_data(drone):
     try:
         airspeed_data = drone.get_airspeed_data("Airspeed")
@@ -166,6 +164,7 @@ def test_get_airspeed_data(drone):
     except NNGException as err:
         raise Exception(str(err))
 
+@pytest.mark.unreal
 def test_camera_pose(drone, world):
     try:
         world.pause()
@@ -178,7 +177,7 @@ def test_camera_pose(drone, world):
         )
 
         images = drone.get_images(
-            camera_id="DownCamera", image_type_ids=[ImageType.SCENE]
+            camera_id="SensorCamera", image_type_ids=[ImageType.SCENE]
         )
         pos_x = images[ImageType.SCENE]["pos_x"]
         pos_y = images[ImageType.SCENE]["pos_y"]
@@ -224,12 +223,13 @@ def test_camera_pose(drone, world):
         raise Exception(str(err))
 
 
+@pytest.mark.unreal
 def test_camera_look_at_object(drone, world):
     try:
-        drone.camera_look_at_object(camera_id="DownCamera", object_name="OrangeBall")
+        drone.camera_look_at_object(camera_id="SensorCamera", object_name="OrangeBall")
 
         images = drone.get_images(
-            camera_id="DownCamera", image_type_ids=[ImageType.SCENE]
+            camera_id="SensorCamera", image_type_ids=[ImageType.SCENE]
         )
 
         img_width = images[ImageType.SCENE]["width"]

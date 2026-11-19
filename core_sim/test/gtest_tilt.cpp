@@ -102,8 +102,9 @@ TEST(Tilt, UpdateActuatorOutputUpdatesRotationAndTransform) {
   auto* tilt = dynamic_cast<projectairsim::Tilt*>(actuator.get());
   ASSERT_NE(tilt, nullptr);
 
-  // Act: run `tilt->UpdateActuatorOutput(std::vector<float>{0.25f}, 200'000'000LL);`.
-  tilt->UpdateActuatorOutput(std::vector<float>{0.25f}, 200'000'000LL);
+  // Act: update the tilt with a scalar control signal.
+  projectairsim::Actuator::ControlSignals control_signals = {0.25f};
+  tilt->UpdateActuatorOutput(control_signals, 200'000'000LL);
 
   // Assert: check result from `const auto& control_rotation = tilt->GetControlRotation();`.
   const auto& control_rotation = tilt->GetControlRotation();

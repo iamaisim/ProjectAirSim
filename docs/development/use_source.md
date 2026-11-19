@@ -1,6 +1,6 @@
 # Build From Source as a Developer
 
-For many usage scenarios, **[Using Pre-built Binary Environments](use_prebuilt)** or **[Using Project AirSim Plugin in Custom Environments](../use_plugin)** is enough to get a simulation up and running. The main development would then be done by setting up the **[Config JSON Settings](../config)** and using the **[Project AirSim Client](../client_setup)** and **[APIs](../api)** to drive the simulation for the particular usage application.
+For many usage scenarios, **[Using Pre-built Binary Environments](use_prebuilt.md)** or **[Using Project AirSim Plugin in Custom Environments](../use_plugin.md)** is enough to get a simulation up and running. The main development would then be done by setting up the **[Config JSON Settings](../config.md)** and using the **[Project AirSim Client](../client_setup.md)** and **[APIs](../api.md)** to drive the simulation for the particular usage application.
 
 If deeper customization or extending new features is needed, building the Project AirSim framework from source can be done through the process described below.
 
@@ -39,11 +39,20 @@ projectairsim
 
 ## Initial developer setup
 
-Project AirSim can be developed using Windows 10/Server 2019 or Ubuntu 20.04 Linux. See **[System Specifications](../system_specs)** for more details.
+Project AirSim's primary supported development platforms are Windows 11 and
+Ubuntu 22.04. The Linux setup script recognizes some additional Ubuntu releases,
+but that installation logic is not a supported-platform guarantee. See
+**[System Specifications](../system_specs.md)** for more details.
 
 For details on getting your dev environment set up, choose your platform:
-- **[Developer Initial Setup for Windows](dev_setup_win)**
-- **[Developer Initial Setup for Linux](dev_setup_linux)**
+- **[Developer Initial Setup for Windows](dev_setup_win.md)**
+- **[Developer Initial Setup for Linux](dev_setup_linux.md)**
+- **[Developer Initial Setup for macOS](dev_setup_macos.md)**: Apple Silicon
+  SimLibs and headless Runtime source builds, with Release unit tests on macOS
+  15. Runtime integration and Unreal/Blocks on Mac are not yet validated.
+
+The Unreal development instructions below apply to Windows and Linux. Use the
+macOS guide for the supported Mac build targets and their current limits.
 
 ---
 
@@ -51,11 +60,11 @@ For details on getting your dev environment set up, choose your platform:
 
 Choose your development tool:
 
-- **[Command Line (Windows/Linux)](#command-line-windows-linux)**
-- **[VS Code (Windows/Linux)](#vs-code-windows-linux)**
+- **[Command Line (Windows/Linux)](#command-line-windowslinux)**
+- **[VS Code (Windows/Linux)](#vs-code-windowslinux)**
 - **[Visual Studio 2019 (Windows only)](#visual-studio-2019-windows-only)**
 
-**Note:** Project AirSim sim libs uses CMake which saves build configuration information in a cache, so **if you switch tools** between using command line, VS Code, or Visual Studio 2019 to drive the CMake project in the same folder, you should **clear the cache** by running `build clean` so the next tool can reset the configuration and build again properly.
+**Note:** Project AirSim sim libs uses CMake which saves build configuration information in a cache, so **if you switch tools** between using command line, VS Code, or Visual Studio 2019 to drive the CMake project in the same folder, you should **clear the cache** by running `build clean` so the next tool can reset the configuration and build again properly. The standalone C++ client uses its own build directories under `client/cpp/`.
 
 ---
 
@@ -63,13 +72,17 @@ Choose your development tool:
 
 On Windows, run the `build.cmd` script using the `x64 Native Tools Command Prompt for VS 2022`. 
 
-Unreal Engine 5.x requires a specific MSVC compiler version and will fail with newer versions. Make sure the correct compiler version is installed:
+Unreal Engine 5.x requires a compatible MSVC toolset. The repository's
+`build.cmd` detects the Unreal version from `UE_ROOT` and selects these installed
+MSVC toolset prefixes:
 
-For `UE5.2`: 14.37.32822
+- UE 5.2: MSVC 14.37
+- UE 5.7: MSVC 14.44
 
-For `UE5.7`: 14.39.33519
-
-Note: This path assumes a default VS 2022 Community installation. Adjust the path if yours is different. There is no need to choose the version, both can be installed, `build.cmd` will choose the correct one according to the UE_ROOT set up previously in the Initial Setup.
+The script searches standard Visual Studio 2022 Community, Professional,
+Enterprise, and Build Tools locations and chooses the first matching installed
+toolset. There is no need to select the compiler manually when `UE_ROOT` points
+to UE 5.2 or 5.7.
 
 On Linux, run the `build.sh` shell script.
 
@@ -77,15 +90,12 @@ On Linux, run the `build.sh` shell script.
 
 ```
 all = Clean + Build + Test + Package everything
-clean = Clean sim libs, C++ client + Blocks build files
+clean = Clean sim libs + Blocks build files
 
-simlibs_debug = Build + Package sim libs for Debug
-simlibs_release = Build + Package sim libs for Release
+simlibs_debug = Build sim libs for Debug
+simlibs_release = Build sim libs for Release
 test_simlibs_debug = Test sim libs for Debug
 test_simlibs_release = Test sim libs for Release
-
-cpp_client_debug = Build C++ client artifacts for Debug
-cpp_client_release = Build C++ client artifacts for Release
 
 blocks_debuggame = Build Plugin + Blocks for DebugGame (uses Debug sim libs)
 blocks_development = Build Plugin + Blocks for Development (uses Release sim libs)
@@ -95,7 +105,10 @@ package_blocks_debuggame = Package stand-alone Blocks environment executable for
 package_blocks_development = Package stand-alone Blocks environment executable for Development
 ```
 
-On Windows, the C++ client build reuses the existing ProjectAirsimClientLib and HelloDrone solution artifacts under `client/cpp/`.
+Build the C++ client separately, without SimLibs, with `build_cpp_client.sh` on
+Linux or `build_cpp_client.cmd` on Windows. Both wrappers accept `debug` or
+`release`, and `--tests` runs the mocked unit tests that do not require a
+running simulator.
 
 The sim lib components and unit test executables are built in the `projectairsim/build/` folder using CMake, and are automatically copied to the Unreal Blocks environment folder to be ready for building the plugin.
 
@@ -326,7 +339,7 @@ However, it is possible to use Visual Studio to do both in a single project by f
 
 2. Launch the Blocks simulation and start play.
 
-3. Switch to `projectairsim/python` directory using a command line with an activated Python environment that was set up during the **[Project AirSim Client Setup](../client_setup)**.
+3. Switch to `projectairsim/python` directory using a command line with an activated Python environment that was set up during the **[Project AirSim Client Setup](../client_setup.md)**.
 
 4. Start executing a client script to load the simulation configured in step 1 and interact with the simulation.
 

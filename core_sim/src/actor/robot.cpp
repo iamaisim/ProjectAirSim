@@ -1,10 +1,13 @@
-// Copyright (C) Microsoft Corporation. 
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI CONSULTING CORP
 
 // MIT License. All rights reserved.
 
 #include "core_sim/actor/robot.hpp"
 
+#include <atomic>
+#include <cmath>
+#include <limits>
 #include <memory>
 
 #include "actor_impl.hpp"
@@ -12,6 +15,7 @@
 #include "algorithms.hpp"
 #include "constant.hpp"
 #include "core_sim/actuators/actuator.hpp"
+#include "core_sim/actuators/unreal_vehicle.hpp"
 #include "core_sim/earth_utils.hpp"
 #include "core_sim/json_utils.hpp"
 #include "core_sim/logger.hpp"
@@ -23,6 +27,9 @@
 #include "core_sim/sensors/sensor.hpp"
 #include "json.hpp"
 #include "sensors/sensor_impl.hpp"
+
+// JSBSim include (requires RTTI, must be in .cpp not .hpp)
+#include "FGFDMExec.h"
 
 namespace microsoft {
 namespace projectairsim {
@@ -62,8 +69,8 @@ class Robot::Impl : public ActorImpl {
  public:
   Impl(const std::string& id, const Transform& origin, const Logger& logger,
        const TopicManager& topic_manager, const std::string& parent_topic_path,
-       const ServiceManager& service_manager,
-       const StateManager& state_manager);
+       const ServiceManager& service_manager, const StateManager& state_manager,
+       const std::string& working_simulation_path);
 
   void Load(ConfigJson config_json);
 
@@ -97,11 +104,14 @@ class Robot::Impl : public ActorImpl {
 
   void RegisterServiceMethods();
 
+  std::string GetRobotType();
+
   KinematicsMessage GetGroundTruthKinematics();
 
   bool SetGroundTruthKinematics(const KinematicsMessage& kinematics);
 
   void SetController(std::unique_ptr<IController> controller);
+  IController* GetController() const;
 
   void OnBeginUpdate() override;
 
@@ -111,6 +121,14 @@ class Robot::Impl : public ActorImpl {
 
   void SetCallbackActuatorOutputUpdated(
       const ActuatedTransformsCallback& callback);
+
+  void SetCallbackTerrainElevationUpdated(
+      const TerrainElevationCallback& callback);
+
+  TerrainElevationCallback GetTerrainElevationCallback();
+
+  void SetCachedTerrainElevationASL(double elevation_asl_m);
+  double GetCachedTerrainElevationASL() const;
 
   void OnDesiredRobotPoseStampedMessage(const Topic& topic,
                                         const Message& message);
@@ -124,7 +142,12 @@ class Robot::Impl : public ActorImpl {
   const GeoPoint GetGroundTruthGeoLocation();
   const Environment& GetEnvironment() const;
   const CollisionInfo& GetCollisionInfo() const;
+  CollisionInfo GetCollisionInfoSnapshot();
   const Vector3& GetExternalForce() const;
+
+  // Pull API event accumulation
+  void AccumulateStepEvent(const json& event);
+  json DrainStepEvents();
 
   void SetActuatedRotations(const ActuatedRotations& actuated_rots,
                             TimeNano external_time_stamp = -1);
@@ -134,10 +157,16 @@ class Robot::Impl : public ActorImpl {
 
   const PhysicsType& GetPhysicsType() const;
   void SetPhysicsType(const PhysicsType& phys_type);
+  //used only by JSBSim physics and controller
+  std::shared_ptr<::JSBSim::FGFDMExec> GetJSBSimModel() const;
+  double GetJSBSimDtSec() const;
+  const JSBSimGroundSettings& GetJSBSimGroundSettings() const;
   const std::string& GetPhysicsConnectionSettings() const;
   void SetPhysicsConnectionSettings(const std::string& phys_conn_settings);
   const std::string& GetControlConnectionSettings() const;
   void SetControlConnectionSettings(const std::string& control_conn_settings);
+  const std::string& GetUnrealVehicleClass() const;
+  const std::string& GetWheeledVehicleClass() const;
   bool GetStartLanded() const;
   void SetStartLanded(bool start_landed);
 
@@ -147,6 +176,7 @@ class Robot::Impl : public ActorImpl {
   void UpdateCollisionInfo(const CollisionInfo& collision_info);
   void SetHasCollided(bool has_collided);
   void UpdateControlInput();
+  std::vector<float> GetControllerOutput() const;
   void UpdateActuators(const TimeNano sim_time, const TimeNano sim_dt_nanos);
   void UpdateKinematics(const Kinematics& kinematics,
                         TimeNano external_time_stamp = -1);
@@ -169,6 +199,9 @@ class Robot::Impl : public ActorImpl {
  private:
   friend class Robot::Loader;
 
+  const std::string& GetJSBSimScript() const;
+  void InitializeJSBSimModel();
+
   Robot::Loader loader_;
   std::vector<Link> links_;
   std::vector<Joint> joints_;
@@ -179,11 +212,22 @@ class Robot::Impl : public ActorImpl {
   Vector3 ext_force_ = Vector3::Zero();
   ActuatedTransforms actuated_transforms_;
   TimeNano last_actuated_rotation_simtime_;
-  TimeNano kinematics_updated_timestamp_;
+  TimeNano kinematics_updated_timestamp_{0};
 
-  PhysicsType physics_type_;
+  PhysicsType physics_type_ = PhysicsType::kNonPhysics;
+  std::string jsbsim_script_;
+  std::string jsbsim_model_;
+  std::string jsbsim_root_path_;
+  std::string jsbsim_aircraft_path_;
+  std::string jsbsim_engine_path_;
+  std::string jsbsim_systems_path_;
+  double jsbsim_dt_sec_ = kDefaultJSBSimDtSec;
+  std::shared_ptr<::JSBSim::FGFDMExec> model_;
+  JSBSimGroundSettings jsbsim_ground_settings_;
   std::string physics_connection_settings_;
   std::string control_connection_settings_;
+  std::string unreal_vehicle_class_;
+  std::string wheeled_vehicle_class_;
   bool start_landed_;
 
   std::string controller_type_;
@@ -198,6 +242,10 @@ class Robot::Impl : public ActorImpl {
   float total_power_ = 0.0f;
 
   std::unique_ptr<IController> controller_;
+  // Only the simulation thread writes this reusable buffer or reads it for
+  // actuator dispatch. External consumers take a copy under the mutex.
+  std::vector<float> control_signal_snapshot_;
+  mutable std::mutex control_signal_snapshot_lock_;
 
   std::vector<std::unique_ptr<Actuator>> actuators_;
   std::vector<std::reference_wrapper<Actuator>> actuators_ref_;
@@ -208,14 +256,25 @@ class Robot::Impl : public ActorImpl {
   Topic rotor_info_topic_;
   std::vector<std::reference_wrapper<Topic>> topics_;
 
+  // Pull API event accumulation buffer
+  std::vector<json> step_event_buffer_;
+  std::mutex step_event_mutex_;
+
   KinematicsCallback callback_kinematics_updated_;
 
   ActuatedTransformsCallback callback_actuated_transforms_updated_;
+
+  TerrainElevationCallback callback_terrain_elevation_updated_;
+
+  std::atomic<double> cached_terrain_elevation_asl_m_{
+      std::numeric_limits<double>::quiet_NaN()};
 
   TransformTree::IndirectRefFrame
       indirectrefframe_;  // Current pose reference frame
   TransformTree::StaticRefFrame
       staticrefframe_home_;  // Home pose reference frame
+
+  const std::string working_simulation_path_;
 };
 
 // -----------------------------------------------------------------------------
@@ -227,19 +286,21 @@ Robot::Robot(const std::string& id, const Transform& origin,
              const Logger& logger, const TopicManager& topic_manager,
              const std::string& parent_topic_path,
              const ServiceManager& service_manager,
-             const StateManager& state_manager)
-    : Actor(std::shared_ptr<ActorImpl>(
-          new Robot::Impl(id, origin, logger, topic_manager, parent_topic_path,
-                          service_manager, state_manager))) {}
+             const StateManager& state_manager,
+             const std::string& working_simulation_path)
+    : Actor(std::shared_ptr<ActorImpl>(new Robot::Impl(
+          id, origin, logger, topic_manager, parent_topic_path, service_manager,
+          state_manager, working_simulation_path))) {}
 
 Robot::Robot(const std::string& id, const Transform& origin,
              const Logger& logger, const TopicManager& topic_manager,
              const std::string& parent_topic_path,
              const ServiceManager& service_manager,
-             const StateManager& state_manager, HomeGeoPoint home_geo_point)
-    : Actor(std::shared_ptr<ActorImpl>(
-          new Robot::Impl(id, origin, logger, topic_manager, parent_topic_path,
-                          service_manager, state_manager))) {
+             const StateManager& state_manager, HomeGeoPoint home_geo_point,
+             const std::string& working_simulation_path)
+    : Actor(std::shared_ptr<ActorImpl>(new Robot::Impl(
+          id, origin, logger, topic_manager, parent_topic_path, service_manager,
+          state_manager, working_simulation_path))) {
   static_cast<Robot::Impl*>(pimpl_.get())->SetHomeGeoPoint(home_geo_point);
 }
 
@@ -333,6 +394,10 @@ void Robot::SetController(std::unique_ptr<IController> controller) {
   static_cast<Robot::Impl*>(pimpl_.get())->SetController(std::move(controller));
 }
 
+IController* Robot::GetController() const {
+  return static_cast<Robot::Impl*>(pimpl_.get())->GetController();
+}
+
 void Robot::PublishRobotPose(const PoseStampedMessage& pose) {
   static_cast<Robot::Impl*>(pimpl_.get())->PublishRobotPose(pose);
 }
@@ -346,6 +411,26 @@ void Robot::SetCallbackActuatorOutputUpdated(
     const ActuatedTransformsCallback& callback) {
   static_cast<Robot::Impl*>(pimpl_.get())
       ->SetCallbackActuatorOutputUpdated(callback);
+}
+
+void Robot::SetCallbackTerrainElevationUpdated(
+    const TerrainElevationCallback& callback) {
+  static_cast<Robot::Impl*>(pimpl_.get())
+      ->SetCallbackTerrainElevationUpdated(callback);
+}
+
+Robot::TerrainElevationCallback Robot::GetTerrainElevationCallback() {
+  return static_cast<Robot::Impl*>(pimpl_.get())->GetTerrainElevationCallback();
+}
+
+void Robot::SetCachedTerrainElevationASL(double elevation_asl_m) {
+  static_cast<Robot::Impl*>(pimpl_.get())
+      ->SetCachedTerrainElevationASL(elevation_asl_m);
+}
+
+double Robot::GetCachedTerrainElevationASL() const {
+  return static_cast<Robot::Impl*>(pimpl_.get())
+      ->GetCachedTerrainElevationASL();
 }
 
 void Robot::EndUpdate() {
@@ -372,6 +457,18 @@ void Robot::SetPhysicsType(const PhysicsType& phys_type) {
   static_cast<Robot::Impl*>(pimpl_.get())->SetPhysicsType(phys_type);
 }
 
+std::shared_ptr<::JSBSim::FGFDMExec> Robot::GetJSBSimModel() const {
+  return static_cast<Robot::Impl*>(pimpl_.get())->GetJSBSimModel();
+}
+
+double Robot::GetJSBSimDtSec() const {
+  return static_cast<Robot::Impl*>(pimpl_.get())->GetJSBSimDtSec();
+}
+
+const JSBSimGroundSettings& Robot::GetJSBSimGroundSettings() const {
+  return static_cast<Robot::Impl*>(pimpl_.get())->GetJSBSimGroundSettings();
+}
+
 const std::string& Robot::GetPhysicsConnectionSettings() const {
   return static_cast<Robot::Impl*>(pimpl_.get())
       ->GetPhysicsConnectionSettings();
@@ -394,6 +491,19 @@ void Robot::SetControlConnectionSettings(
       ->SetControlConnectionSettings(control_conn_settings);
 }
 
+const std::string& Robot::GetUnrealVehicleClass() const {
+  return static_cast<Robot::Impl*>(pimpl_.get())
+      ->GetUnrealVehicleClass();
+}
+
+const std::string& Robot::GetWheeledVehicleClass() const {
+  return static_cast<Robot::Impl*>(pimpl_.get())->GetWheeledVehicleClass();
+}
+
+std::string Robot::GetRobotType() const {
+  return static_cast<Robot::Impl*>(pimpl_.get())->GetRobotType();
+}
+
 bool Robot::GetStartLanded() const {
   return static_cast<Robot::Impl*>(pimpl_.get())->GetStartLanded();
 }
@@ -412,6 +522,14 @@ const std::string& Robot::GetControllerSettings() const {
 
 const CollisionInfo& Robot::GetCollisionInfo() const {
   return static_cast<Robot::Impl*>(pimpl_.get())->GetCollisionInfo();
+}
+
+CollisionInfo Robot::GetCollisionInfoSnapshot() const {
+  return static_cast<Robot::Impl*>(pimpl_.get())->GetCollisionInfoSnapshot();
+}
+
+json Robot::DrainStepEvents() {
+  return static_cast<Robot::Impl*>(pimpl_.get())->DrainStepEvents();
 }
 
 void Robot::SetActuatedTransforms(const ActuatedTransforms& actuated_transforms,
@@ -442,6 +560,10 @@ void Robot::SetHasCollided(bool has_collided) {
 
 void Robot::UpdateControlInput() {
   static_cast<Robot::Impl*>(pimpl_.get())->UpdateControlInput();
+}
+
+std::vector<float> Robot::GetControllerOutput() const {
+  return static_cast<Robot::Impl*>(pimpl_.get())->GetControllerOutput();
 }
 
 void Robot::UpdateActuators(const TimeNano sim_time,
@@ -481,7 +603,8 @@ Robot::Impl::Impl(const std::string& id, const Transform& origin,
                   const Logger& logger, const TopicManager& topic_manager,
                   const std::string& parent_topic_path,
                   const ServiceManager& service_manager,
-                  const StateManager& state_manager)
+                  const StateManager& state_manager,
+                  const std::string& working_simulation_path)
     : ActorImpl(ActorType::kRobot, id, origin, Constant::Component::robot,
                 logger, topic_manager, parent_topic_path, service_manager,
                 state_manager),
@@ -491,7 +614,8 @@ Robot::Impl::Impl(const std::string& id, const Transform& origin,
       indirectrefframe_(std::string("R ") + id, &kinematics_.pose),
       staticrefframe_home_(std::string("R ") + id + "_home", kinematics_.pose),
       last_actuated_rotation_simtime_(0),
-      start_landed_(false) {
+      start_landed_(false),
+      working_simulation_path_(working_simulation_path) {
   SetTopicPath();
   CreateTopics();
   RegisterServiceMethods();
@@ -513,8 +637,47 @@ void Robot::Impl::Load(ConfigJson config_json) {
   // should have been set during robot construction in the scene).
   UpdateEnvironment();
 
-  //! Initialize Sensors
+  // Initialize Sensors
   InitializeSensors(GetKinematics(), GetEnvironment());
+
+  // check if using jsbsim physics to initialize jsbsim
+  if (physics_type_ == PhysicsType::kJSBSimPhysics) {
+    InitializeJSBSimModel();
+
+    // Wire JSBSim model to actuators that have JSBSim bridging configured.
+    for (auto& actuator : actuators_) {
+      if (actuator->GetType() == ActuatorType::kRotor) {
+        auto& rotor = static_cast<Rotor&>(*actuator);
+        const auto& rotor_settings = rotor.GetRotorSettings();
+        if (!rotor_settings.jsbsim_cmd.empty() ||
+            !rotor_settings.jsbsim_state.empty()) {
+          rotor.SetJSBSimModel(model_);
+        }
+      } else if (actuator->GetType() == ActuatorType::kTilt) {
+        auto& tilt = static_cast<Tilt&>(*actuator);
+        const auto& tilt_settings = tilt.GetSettings();
+        if (!tilt_settings.jsbsim_cmd.empty() ||
+            !tilt_settings.jsbsim_state.empty()) {
+          tilt.SetJSBSimModel(model_);
+        }
+      } else if (actuator->GetType() == ActuatorType::kLiftDragControlSurface) {
+        auto& surface = static_cast<LiftDragControlSurface&>(*actuator);
+        const auto& surface_settings = surface.GetSettings();
+        if (!surface_settings.jsbsim_cmd.empty() ||
+            !surface_settings.jsbsim_state.empty()) {
+          surface.SetJSBSimModel(model_);
+        }
+      } else if (actuator->GetType() == ActuatorType::kWheel) {
+        auto& wheel = static_cast<Wheel&>(*actuator);
+        const auto& settings = wheel.GetWheelSettings();
+        if (!settings.jsbsim_cmd_engine.empty() ||
+            !settings.jsbsim_cmd_steering.empty() ||
+            !settings.jsbsim_cmd_brake.empty()) {
+          wheel.SetJSBSimModel(model_);
+        }
+      }
+    }
+  }
 
   // Create tilt actuator target list
   {
@@ -677,6 +840,11 @@ void Robot::Impl::RegisterServiceMethod(const ServiceMethod& method,
 
 void Robot::Impl::RegisterServiceMethods() {
   // Register internal Service Methods offered by the Robot Class
+  auto get_robot_type = ServiceMethod(topic_path_ + "/GetRobotType", {});
+  service_manager_.RegisterMethod(
+      get_robot_type,
+      get_robot_type.CreateMethodHandler(&Robot::Impl::GetRobotType, *this));
+
   auto get_gt_kinematics =
       ServiceMethod(topic_path_ + "/GetGroundTruthKinematics", {""});
   auto get_gt_kinematics_handler = get_gt_kinematics.CreateMethodHandler(
@@ -722,13 +890,40 @@ void Robot::Impl::RegisterServiceMethods() {
   service_manager_.RegisterMethod(get_camera_ray, get_camera_ray_handler);
 }
 
+void Robot::Impl::InitializeJSBSimModel(){
+  model_ = std::make_shared<::JSBSim::FGFDMExec>();
+  std::string jsbsim_root_path =
+      working_simulation_path_ + jsbsim_root_path_;
+  logger_.LogVerbose(
+      name_,
+      "[%s] Initializing JSBSim model='%s', root='%s', aircraft='%s', "
+      "engine='%s', systems='%s'.",
+      id_.c_str(), jsbsim_model_.c_str(), jsbsim_root_path.c_str(),
+      jsbsim_aircraft_path_.c_str(), jsbsim_engine_path_.c_str(),
+      jsbsim_systems_path_.c_str());
+  model_->SetRootDir(SGPath(jsbsim_root_path));
+  model_->SetAircraftPath(SGPath(jsbsim_aircraft_path_));
+  model_->SetEnginePath(SGPath(jsbsim_engine_path_));
+  model_->SetSystemsPath(SGPath(jsbsim_systems_path_));
+  if (jsbsim_script_ != "") {
+    if (!model_->LoadScript(SGPath(jsbsim_script_))) {
+      throw std::runtime_error("Failed to load JSBSim script");
+    }
+  } else if (!model_->LoadModel(jsbsim_model_)) {
+    throw std::runtime_error("Failed to load JSBSim model '" +
+                             jsbsim_model_ + "' from root '" +
+                             jsbsim_root_path + "'");
+  }
+}
+
 bool Robot::Impl::SetExternalForce(const std::vector<float>& ext_force) {
   ext_force_ = Vector3(ext_force[0], ext_force[1], ext_force[2]);
   return true;
 }
 
 KinematicsMessage Robot::Impl::GetGroundTruthKinematics() {
-  KinematicsMessage kin_msg(SimClock::Get()->NowSimNanos(), kinematics_);
+  std::lock_guard<std::mutex> lock(update_lock_);
+  KinematicsMessage kin_msg(kinematics_updated_timestamp_, kinematics_);
   return kin_msg;
 }
 
@@ -742,7 +937,33 @@ bool Robot::Impl::SetGroundTruthKinematics(
 }
 
 void Robot::Impl::SetController(std::unique_ptr<IController> controller) {
+  for (auto& actuator : actuators_) {
+    if (actuator->GetType() != ActuatorType::kGimbal) {
+      for (size_t signal_offset = 0; signal_offset < actuator->GetSignalCount();
+           ++signal_offset) {
+        // The Unreal bridge selects one channel from the controller's legacy
+        // actuator output; resolve that offset once, just like wheel channels.
+        const size_t controller_offset =
+            actuator->GetType() == ActuatorType::kUnrealVehicle
+                ? static_cast<UnrealVehicleActuator&>(*actuator)
+                      .GetControlSignalIndex()
+                : signal_offset;
+        const int signal_index = controller == nullptr
+                                     ? -1
+                                     : controller->GetControlSignalIndex(
+                                           actuator->GetId(), controller_offset);
+        actuator->SetSignalIndex(signal_index, signal_offset);
+      }
+    }
+  }
+  // Controller assignment is serialized with simulation updates.
   controller_ = std::move(controller);
+  std::lock_guard<std::mutex> lock(control_signal_snapshot_lock_);
+  control_signal_snapshot_.clear();
+}
+
+IController* Robot::Impl::GetController() const {
+  return controller_.get();
 }
 
 Link* Robot::Impl::GetLink(const std::string& id) {
@@ -818,7 +1039,7 @@ void Robot::Impl::OnBeginUpdate() {
 void Robot::Impl::PublishRobotPose(const PoseStampedMessage& pose) {
   std::lock_guard<std::mutex> lock(update_lock_);
 
-  topic_manager_.PublishTopic(actual_robot_pose_topic_, pose);
+  if (IsUpdating()) topic_manager_.PublishTopic(actual_robot_pose_topic_, pose);
 }
 
 void Robot::Impl::SetCallbackKinematicsUpdated(
@@ -831,6 +1052,28 @@ void Robot::Impl::SetCallbackActuatorOutputUpdated(
     const ActuatedTransformsCallback& callback) {
   std::lock_guard<std::mutex> lock(update_lock_);
   callback_actuated_transforms_updated_ = callback;
+}
+
+void Robot::Impl::SetCallbackTerrainElevationUpdated(
+    const TerrainElevationCallback& callback) {
+  std::lock_guard<std::mutex> lock(update_lock_);
+  callback_terrain_elevation_updated_ = callback;
+}
+
+Robot::TerrainElevationCallback Robot::Impl::GetTerrainElevationCallback() {
+  std::lock_guard<std::mutex> lock(update_lock_);
+  return callback_terrain_elevation_updated_;
+}
+
+void Robot::Impl::SetCachedTerrainElevationASL(double elevation_asl_m) {
+  if (std::isfinite(elevation_asl_m)) {
+    cached_terrain_elevation_asl_m_.store(elevation_asl_m,
+                                           std::memory_order_relaxed);
+  }
+}
+
+double Robot::Impl::GetCachedTerrainElevationASL() const {
+  return cached_terrain_elevation_asl_m_.load(std::memory_order_relaxed);
 }
 
 void Robot::Impl::OnEndUpdate() {
@@ -887,6 +1130,7 @@ bool Robot::Impl::SetPose(const Transform& new_pose, bool reset_kinematics) {
 const Kinematics& Robot::Impl::GetKinematics() const { return kinematics_; }
 
 const Transform Robot::Impl::GetGroundTruthPose() {
+  std::lock_guard<std::mutex> lock(update_lock_);
   Transform current_pose;  // Start with an empty Transform
   current_pose.translation_ =
       kinematics_.pose.position;  // Add in the position and orientation
@@ -904,6 +1148,11 @@ const Environment& Robot::Impl::GetEnvironment() const { return environment_; }
 const Vector3& Robot::Impl::GetExternalForce() const { return ext_force_; }
 
 const CollisionInfo& Robot::Impl::GetCollisionInfo() const {
+  return collision_info_;
+}
+
+CollisionInfo Robot::Impl::GetCollisionInfoSnapshot() {
+  std::lock_guard<std::mutex> lock(update_lock_);
   return collision_info_;
 }
 
@@ -958,10 +1207,32 @@ void Robot::Impl::SetActuatedTransforms(
   last_actuated_rotation_simtime_ = time_stamp;
 }
 
+std::string Robot::Impl::GetRobotType() {
+  if (!wheeled_vehicle_class_.empty()) return "wheeled-vehicle";
+  if (!unreal_vehicle_class_.empty()) return "unreal-vehicle";
+  if (physics_type_ == PhysicsType::kJSBSimPhysics) return "jsbsim";
+  if (physics_type_ == PhysicsType::kFastPhysics) return "drone";
+  return "other";
+}
+
 const PhysicsType& Robot::Impl::GetPhysicsType() const { return physics_type_; }
 
 void Robot::Impl::SetPhysicsType(const PhysicsType& phys_type) {
   physics_type_ = phys_type;
+}
+
+const std::string& Robot::Impl::GetJSBSimScript() const {
+  return jsbsim_script_;
+}
+
+std::shared_ptr<::JSBSim::FGFDMExec> Robot::Impl::GetJSBSimModel() const {
+  return model_;
+}
+
+double Robot::Impl::GetJSBSimDtSec() const { return jsbsim_dt_sec_; }
+
+const JSBSimGroundSettings& Robot::Impl::GetJSBSimGroundSettings() const {
+  return jsbsim_ground_settings_;
 }
 
 const std::string& Robot::Impl::GetPhysicsConnectionSettings() const {
@@ -980,6 +1251,14 @@ const std::string& Robot::Impl::GetControlConnectionSettings() const {
 void Robot::Impl::SetControlConnectionSettings(
     const std::string& control_conn_settings) {
   control_connection_settings_ = control_conn_settings;
+}
+
+const std::string& Robot::Impl::GetUnrealVehicleClass() const {
+  return unreal_vehicle_class_;
+}
+
+const std::string& Robot::Impl::GetWheeledVehicleClass() const {
+  return wheeled_vehicle_class_;
 }
 
 bool Robot::Impl::GetStartLanded() const { return start_landed_; }
@@ -1032,9 +1311,40 @@ void Robot::Impl::UpdateCollisionInfo(const CollisionInfo& collision_info) {
 
   // Publish a collision info topic every time a collision is detected
   if (collision_info_.has_collided) {
-    CollisionInfoMessage collision_info_msg(collision_info_);
-    topic_manager_.PublishTopic(collision_info_topic_, collision_info_msg);
+    if (IsUpdating()) {
+      CollisionInfoMessage collision_info_msg(collision_info_);
+      topic_manager_.PublishTopic(collision_info_topic_, collision_info_msg);
+    }
+
+    // Accumulate collision event for pull API Step() response
+    AccumulateStepEvent(json{
+        {"type", "collision"},
+        {"sim_time_ns", collision_info_.time_stamp},
+        {"object_name", collision_info_.object_name},
+        {"impact_point",
+         {{"x", collision_info_.impact_point.x()},
+          {"y", collision_info_.impact_point.y()},
+          {"z", collision_info_.impact_point.z()}}},
+        {"normal",
+         {{"x", collision_info_.normal.x()},
+          {"y", collision_info_.normal.y()},
+          {"z", collision_info_.normal.z()}}}});
   }
+}
+
+void Robot::Impl::AccumulateStepEvent(const json& event) {
+  std::lock_guard<std::mutex> lock(step_event_mutex_);
+  step_event_buffer_.push_back(event);
+}
+
+json Robot::Impl::DrainStepEvents() {
+  std::lock_guard<std::mutex> lock(step_event_mutex_);
+  json events = json::array();
+  for (auto& event : step_event_buffer_) {
+    events.push_back(std::move(event));
+  }
+  step_event_buffer_.clear();
+  return events;
 }
 
 void Robot::Impl::SetHasCollided(bool has_collided) {
@@ -1049,23 +1359,59 @@ void Robot::Impl::UpdateControlInput() {
   // like Simulink that has a blocking wait loop for passing messages.
   if (controller_ != nullptr) {
     controller_->Update();
+
+    // Capture once per control tick, even without actuators when Unreal needs
+    // SimpleDrive's [throttle, steering, brake] channels. Reuse vector capacity.
+    if (!actuators_.empty() ||
+        controller_type_ == Constant::Config::simple_drive_api) {
+      std::lock_guard<std::mutex> lock(control_signal_snapshot_lock_);
+      controller_->GetControlSignalSnapshot(control_signal_snapshot_);
+    }
   }
+}
+
+std::vector<float> Robot::Impl::GetControllerOutput() const {
+  std::lock_guard<std::mutex> lock(control_signal_snapshot_lock_);
+  if (controller_type_ != Constant::Config::simple_drive_api) return {};
+  return control_signal_snapshot_;
 }
 
 void Robot::Impl::UpdateActuators(const TimeNano sim_time,
                                   const TimeNano sim_dt_nanos) {
   std::lock_guard<std::mutex> lock(update_lock_);
+  // EndUpdate unregisters topics under this same lock.
+  if (!IsUpdating()) return;
 
-  if (actuators_.empty()) return;
+  if (actuators_.empty() || controller_ == nullptr) return;
+
+  // Scene serializes UpdateControlInput and UpdateActuators on the simulation
+  // thread. External getters only read, so dispatch needs no snapshot lock and
+  // callbacks may safely call GetControllerOutput. Actuator-only updates reuse
+  // the last capture; an empty snapshot gives ordinary actuators zero signals.
+  const auto get_control_signals =
+      [this](const Actuator& actuator) -> Actuator::ControlSignals {
+    Actuator::ControlSignals control_signals = {};
+    for (size_t signal_offset = 0; signal_offset < actuator.GetSignalCount();
+         ++signal_offset) {
+      const int signal_index = actuator.GetSignalIndex(signal_offset);
+      if (signal_index >= 0 &&
+          signal_index < static_cast<int>(control_signal_snapshot_.size())) {
+        control_signals[signal_offset] = control_signal_snapshot_[signal_index];
+      } else if (actuator.GetType() == ActuatorType::kUnrealVehicle &&
+                 actuator.IsEnabled()) {
+        throw Error(
+            "Unreal vehicle actuator control signal index is out of range.");
+      }
+    }
+    return control_signals;
+  };
 
   // Update tilt actuator first since they affect other actuators
   for (auto& actuator : actuators_) {
     if (actuator->GetType() == ActuatorType::kTilt) {
       // Call actuator to update its output for its current control signal
-      std::vector<float> control_signals =
-          controller_->GetControlSignals(actuator->GetId());
-
-      actuator->UpdateActuatorOutput(std::move(control_signals), sim_dt_nanos);
+      actuator->UpdateActuatorOutput(get_control_signals(*actuator),
+                                     sim_dt_nanos);
     }
   }
 
@@ -1096,10 +1442,8 @@ void Robot::Impl::UpdateActuators(const TimeNano sim_time,
       }
 
       // Call actuator to update its output for its current control signal
-      std::vector<float> control_signals =
-          controller_->GetControlSignals(actuator->GetId());
-
-      actuator->UpdateActuatorOutput(std::move(control_signals), sim_dt_nanos);
+      actuator->UpdateActuatorOutput(get_control_signals(*actuator),
+                                     sim_dt_nanos);
     }
 
     // Do post-processing specific to actuator type
@@ -1175,7 +1519,7 @@ void Robot::Impl::UpdateKinematics(const Kinematics& kinematics,
   // Publish actual pose topic
   PoseStampedMessage pose_msg(time_stamp, kinematics_.pose.position,
                               kinematics_.pose.orientation);
-  topic_manager_.PublishTopic(actual_robot_pose_topic_, pose_msg);
+  if (IsUpdating()) topic_manager_.PublishTopic(actual_robot_pose_topic_, pose_msg);
 
   // logger_.LogTrace(name_, "[%s] Pose at simtime=%lld xyz=%f, %f, %f",
   //                  id_.c_str(), time_stamp,
@@ -1192,6 +1536,9 @@ void Robot::Impl::UpdateEnvironment() {
 void Robot::Impl::UpdateSensors(const TimeNano sim_time,
                                 const TimeNano sim_dt_nanos) {
   std::lock_guard<std::mutex> lock(update_lock_);
+  // EndUpdate unregisters topics under this same lock.
+  if (!IsUpdating()) return;
+
   //! Update every loaded and initialized sensor that is enabled on the
   //! robot Note: Not all sensors update in-sync with the scene/physics
   //! tick
@@ -1284,6 +1631,15 @@ void Robot::Loader::LoadLinks(const json& json) {
 
   auto links_json = JsonUtils::GetArray(json, Constant::Config::links);
   if (JsonUtils::IsEmptyArray(links_json)) {
+    if (impl_.physics_type_ == PhysicsType::kUnrealPhysics &&
+        (!impl_.unreal_vehicle_class_.empty() ||
+         !impl_.wheeled_vehicle_class_.empty())) {
+      impl_.logger_.LogWarning(
+          impl_.name_,
+          "[%s] 'links' missing or empty. Continuing for unreal vehicle physics.",
+          impl_.id_.c_str());
+      return;
+    }
     impl_.logger_.LogError(impl_.name_, "[%s] 'links' missing or empty.",
                            impl_.id_.c_str());
     throw Error("Robot must have at least one link.");
@@ -1405,6 +1761,53 @@ void Robot::Loader::LoadPhysicsType(const json& json) {
     impl_.physics_type_ = PhysicsType::kMatlabPhysics;
   } else if (physics_type == Constant::Config::unreal_physics) {
     impl_.physics_type_ = PhysicsType::kUnrealPhysics;
+    impl_.unreal_vehicle_class_ = JsonUtils::GetString(
+        json, Constant::Config::unreal_vehicle_class, "");
+    impl_.wheeled_vehicle_class_ = JsonUtils::GetString(
+        json, Constant::Config::wheeled_vehicle_class, "");
+    if (!impl_.unreal_vehicle_class_.empty() &&
+        !impl_.wheeled_vehicle_class_.empty()) {
+      throw Error(
+          "Robot cannot specify both 'unreal-vehicle-class' and "
+          "'wheeled-vehicle-class'.");
+    }
+  } else if (physics_type == Constant::Config::jsbsim_physics) {
+    impl_.physics_type_ = PhysicsType::kJSBSimPhysics;
+    impl_.jsbsim_script_ =
+        JsonUtils::GetString(json, Constant::Config::jsbsim_script);
+    if (impl_.jsbsim_script_ == "") {
+      impl_.jsbsim_model_ =
+          JsonUtils::GetString(json, Constant::Config::jsbsim_model);
+    }
+    impl_.jsbsim_root_path_ = JsonUtils::GetString(
+        json, Constant::Config::jsbsim_root_path,
+        "/SimLibs/core_sim/jsbsim/models/");
+    impl_.jsbsim_aircraft_path_ = JsonUtils::GetString(
+        json, Constant::Config::jsbsim_aircraft_path, "aircraft");
+    impl_.jsbsim_engine_path_ = JsonUtils::GetString(
+        json, Constant::Config::jsbsim_engine_path, "engine");
+    impl_.jsbsim_systems_path_ = JsonUtils::GetString(
+        json, Constant::Config::jsbsim_systems_path, "systems");
+    impl_.jsbsim_dt_sec_ = JsonUtils::GetNumber<double>(
+        json, Constant::Config::jsbsim_dt, kDefaultJSBSimDtSec);
+    if (!std::isfinite(impl_.jsbsim_dt_sec_) || impl_.jsbsim_dt_sec_ <= 0.0) {
+      throw Error("Invalid value:" + std::to_string(impl_.jsbsim_dt_sec_) +
+                  " for " + Constant::Config::jsbsim_dt);
+    }
+
+    const auto jsbsim_ground_mode = JsonUtils::GetIdentifier(
+        json, Constant::Config::jsbsim_ground_mode,
+        Constant::Config::jsbsim_ground_mode_constant);
+    if (jsbsim_ground_mode ==
+        Constant::Config::jsbsim_ground_mode_constant) {
+      impl_.jsbsim_ground_settings_.mode = JSBSimGroundMode::kConstant;
+    } else if (jsbsim_ground_mode ==
+               Constant::Config::jsbsim_ground_mode_terrain) {
+      impl_.jsbsim_ground_settings_.mode = JSBSimGroundMode::kTerrain;
+    } else {
+      throw Error("Invalid value:" + jsbsim_ground_mode + " for " +
+                  Constant::Config::jsbsim_ground_mode);
+    }
   } else {
     impl_.physics_type_ = PhysicsType::kNonPhysics;
     impl_.logger_.LogWarning(

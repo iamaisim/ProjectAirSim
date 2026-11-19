@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI CONSULTING CORP
 //
 // MIT License. All rights reserved.
@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "Camera/CameraComponent.h"
+#include "ChaosVehicleWheel.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -29,7 +30,28 @@
 #include "UnrealRobot.generated.h"
 
 class AUnrealScene;
+class FProjectAirSimVehicleSubstepSampler;
 class UUnrealCamera;
+class UChaosWheeledVehicleMovementComponent;
+
+// A usable default for permissive AWheeledVehiclePawn configurations that
+// leave their wheel slots on the inert ChaosVehicleWheel base class. Custom
+// wheel classes are never replaced.
+UCLASS(NotBlueprintable)
+class UProjectAirSimDefaultFrontVehicleWheel : public UChaosVehicleWheel {
+  GENERATED_BODY()
+
+ public:
+  UProjectAirSimDefaultFrontVehicleWheel();
+};
+
+UCLASS(NotBlueprintable)
+class UProjectAirSimDefaultRearVehicleWheel : public UChaosVehicleWheel {
+  GENERATED_BODY()
+
+ public:
+  UProjectAirSimDefaultRearVehicleWheel();
+};
 
 UCLASS()
 class AUnrealRobot : public AActor {
@@ -37,10 +59,12 @@ class AUnrealRobot : public AActor {
 
  public:
   explicit AUnrealRobot(const FObjectInitializer& ObjectInitialize);
+  ~AUnrealRobot() override;
 
   void Initialize(const microsoft::projectairsim::Robot& InSimRobot,
                   microsoft::projectairsim::UnrealPhysicsBody* InPhysBody,
-                  AUnrealScene* UnrealScene);
+                  AUnrealScene* UnrealScene,
+                  bool bCaptureUnrealPhysicsSubsteps);
 
   void Tick(float DeltaTime) override;
 
@@ -60,6 +84,14 @@ class AUnrealRobot : public AActor {
   USceneCaptureComponent2D* GetActiveStreamingCapture();
 
   void SetViewportResolution();
+
+  // Applies the next queued Chaos substep state at the requested simulation
+  // time. Called immediately before the corresponding core_sim sensor update
+  // so high-rate sensors observe sub-frame vehicle motion.
+  bool ApplyProjectAirSimVehicleSubstepKinematics(TimeNano TargetTimestamp);
+
+  // Returns the exact duration of the next queued Chaos physics substep.
+  bool PeekProjectAirSimVehicleSubstepDelta(TimeNano& OutDeltaNanos);
 
  protected:
   void BeginPlay() override;
@@ -103,6 +135,32 @@ class AUnrealRobot : public AActor {
 
   void SetExternalWrench(microsoft::projectairsim::Wrench InWrench);
 
+  void UpdateCachedTerrainElevation();
+
+  void InitializeProjectAirSimVehicle();
+
+  bool SetParameter(int32 Index, float Value);
+
+  bool SetThrottle(float Value);
+
+  bool SetSteering(float Value);
+
+  bool SetBrakes(float Value);
+
+  bool QueueWheeledVehicleControl(int32 Index, float Value);
+
+  void ApplyThrottle(float Value);
+
+  void ApplySteering(float Value);
+
+  void ApplyBrake(float Value);
+
+  void TickProjectAirSimVehicle(float DeltaTime);
+
+  void EnsureProjectAirSimVehicleSubstepSampler();
+
+  void DrainProjectAirSimVehicleSubstepSamples();
+
   std::set<std::string> GetRootLinks(
       const std::vector<microsoft::projectairsim::Link>& InLinks,
       const std::vector<microsoft::projectairsim::Joint>& InJoints);
@@ -130,4 +188,44 @@ class AUnrealRobot : public AActor {
   TimeNano UnrealPoseUpdatedTimeStamp = 0;
 
   TMap<FString, ActuatedFTransform> RobotActuatedTransforms;
+
+  // For unreal-physics robots with unreal-vehicle-class: reference to the
+  // ProjectAirSim vehicle AActor that provides its own physics simulation.
+  UPROPERTY()
+  AActor* ProjectAirSimVehicleActor = nullptr;
+
+  // Cached pointer to the first physics-simulating UPrimitiveComponent on the
+  // ProjectAirSim vehicle.  In many Blueprints the root is a plain
+  // USceneComponent (DefaultSceneRoot) while the actual mesh that simulates
+  // physics is a child.
+  UPROPERTY()
+  UPrimitiveComponent* ProjectAirSimVehicleComponent = nullptr;
+
+  // Cached Chaos movement component for standard throttle/brake/steering
+  // inputs, including visual and physical wheel steering.
+  UPROPERTY()
+  UChaosWheeledVehicleMovementComponent* ProjectAirSimVehicleMovement = nullptr;
+
+  // Whether the actor accepts indexed parameter signals. Kinematics are always
+  // read independently from Chaos or standard Unreal component state.
+  bool bProjectAirSimVehicleHasInterface = false;
+  bool bIsWheeledVehicle = false;
+  bool bProjectAirSimVehicleParameterServiceRegistered = false;
+  bool bWheeledVehicleControlServicesRegistered = false;
+  bool bUnrealVehicleActuationModeLogged = false;
+  bool bLastUnrealVehicleMechanicalSimEnabled = false;
+  bool bWheeledVehicleActuationModeLogged = false;
+  bool bLastWheeledVehicleMechanicalSimEnabled = false;
+  bool bWheeledVehicleSimpleDriveLogged = false;
+  TMap<int32, float> ProjectAirSimVehicleParameters;
+  FProjectAirSimVehicleSubstepSampler* ProjectAirSimVehicleSubstepSampler =
+      nullptr;
+  bool bCaptureProjectAirSimVehicleSubsteps = false;
+  bool bProjectAirSimVehicleSubstepSamplerStartFailureLogged = false;
+
+  // Previous-tick state for finite-difference velocity/acceleration estimation
+  // when the ProjectAirSim vehicle does not use Chaos physics.
+  FVector PrevExtPosition = FVector::ZeroVector;
+  FQuat PrevExtQuat = FQuat::Identity;
+  bool bHasPrevExtState = false;
 };

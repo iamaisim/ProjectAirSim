@@ -3,6 +3,7 @@
         "loop": true,
         "auto_start": true,
         "trajectory": {
+            "name": "airtaxi_london_loop",
             "time_sec": [
                 0.1,
                 3,

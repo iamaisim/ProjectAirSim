@@ -1,20 +1,25 @@
 [build-system]
-requires = ["setuptools>=68", "wheel", "build"]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "projectairsim"
-version = "0.2.0"
+version = "1.1.0"
 description = "Project AirSim client package"
 readme = { file = "README.md", content-type = "text/markdown" }
-requires-python = ">=3.7,<4"
-license = { text = "MIT" }
+requires-python = ">=3.9,<4"
+license = "MIT"
 authors = [{ name = "IAMAI Simulations" }]
 keywords = ["simulation", "uav", "drone", "airsim", "robotics"]
 classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
-  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Operating System :: OS Independent",
   "Topic :: Scientific/Engineering :: Artificial Intelligence",
   "Topic :: Scientific/Engineering :: Visualization"
@@ -63,6 +68,11 @@ bonsai = [
 datacollection = [
   "albumentations==1.3.0",
 ]
+tests = [
+  "pytest",
+  "pytest-timeout",
+  "psutil>=5.9.0",
+]
 
 [tool.setuptools]
 # Source layout: packages live under src/
@@ -76,4 +86,5 @@ include = ["projectairsim*"]
 [tool.setuptools.package-data]
 # Adjust these globs if your schemas/assets live elsewhere under the package.
 "projectairsim" = ["schema/*.jsonc", "**/schema/*.jsonc"]
+"projectairsim.gym_envs" = ["sim_config/*.jsonc", "*.ink"]
 "projectairsim.autonomy.gym_envs" = ["sim_config/*.jsonc", "*.ink"]

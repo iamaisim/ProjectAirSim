@@ -185,7 +185,7 @@ microsoft::projectairsim::ClientAuthorization::ClientAuthorization(
   SetLogger(logger);
 }
 
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__APPLE__)
 
 #include "client_authorization_linux.cpp"
 

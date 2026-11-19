@@ -17,7 +17,13 @@
 
 set(CMAKE_SYSTEM_NAME Linux)
 set(CMAKE_SYSTEM_PROCESSOR x86_64)
-set(UE_ROOT_PATH "$ENV{UE_ROOT}")
+
+# ExternalProject configure steps can run long after the parent configuration,
+# when the caller's UE_ROOT may point at a different checkout. Prefer the root
+# captured in this build tree and use the environment only for first configure.
+if(NOT DEFINED UE_ROOT_PATH OR UE_ROOT_PATH STREQUAL "")
+    set(UE_ROOT_PATH "$ENV{UE_ROOT}" CACHE PATH "Unreal Engine root")
+endif()
 
 set(UE_SDK_BASE
     "${UE_ROOT_PATH}/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64"
@@ -52,7 +58,17 @@ set(CMAKE_SYSROOT
 
 set(CMAKE_C_COMPILER   "${CMAKE_SYSROOT}/bin/clang")
 set(CMAKE_CXX_COMPILER "${CMAKE_SYSROOT}/bin/clang++")
-set(CMAKE_CXX_FLAGS "-I$ENV{UE_ROOT}/Engine/Source/ThirdParty/Unix/LibCxx/include -I$ENV{UE_ROOT}/Engine/Source/ThirdParty/Unix/LibCxx/include/c++/v1")
+
+set(UE_LEGACY_LIBCXX_ROOT "${UE_ROOT_PATH}/Engine/Source/ThirdParty/Unix/LibCxx")
+if(EXISTS "${UE_LEGACY_LIBCXX_ROOT}/include/c++/v1")
+    set(UE_LIBCXX_LIB_DIR "${UE_LEGACY_LIBCXX_ROOT}/lib/Unix/x86_64-unknown-linux-gnu")
+    set(CMAKE_CXX_FLAGS "-I${UE_LEGACY_LIBCXX_ROOT}/include -I${UE_LEGACY_LIBCXX_ROOT}/include/c++/v1 -stdlib=libc++ -L${UE_LIBCXX_LIB_DIR}")
+elseif(EXISTS "${CMAKE_SYSROOT}/include/c++/v1")
+    set(UE_LIBCXX_LIB_DIR "${CMAKE_SYSROOT}/lib64")
+    set(CMAKE_CXX_FLAGS "-I${CMAKE_SYSROOT}/include -I${CMAKE_SYSROOT}/include/c++/v1 -stdlib=libc++ -L${UE_LIBCXX_LIB_DIR}")
+else()
+    message(FATAL_ERROR "Unreal libc++ headers not found under legacy LibCxx or ${CMAKE_SYSROOT}")
+endif()
 
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)

@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation. 
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI CONSULTING CORP
 
 // MIT License. All rights reserved.
@@ -13,12 +13,12 @@
 
 #include "core_sim/actor.hpp"
 #include "core_sim/actuators/actuator.hpp"
+#include "core_sim/actuators/wheel.hpp"
 #include "core_sim/clock.hpp"
 #include "core_sim/earth_utils.hpp"
 #include "core_sim/environment.hpp"
 #include "core_sim/joint.hpp"
 #include "core_sim/link.hpp"
-#include "core_sim/actuators/wheel.hpp"
 #include "core_sim/logger.hpp"
 #include "core_sim/message/pose_stamped_message.hpp"
 #include "core_sim/runtime_components.hpp"
@@ -26,6 +26,13 @@
 #include "core_sim/service_method.hpp"
 #include "core_sim/transforms/transform.hpp"
 #include "core_sim/transforms/transform_tree.hpp"
+
+
+// Forward declaration to avoid including JSBSim headers with RTTI requirements
+// in Unreal Engine plugin code (UE is compiled without RTTI)
+namespace JSBSim {
+class FGFDMExec;
+}
 
 namespace microsoft {
 namespace projectairsim {
@@ -42,6 +49,8 @@ class Robot : public Actor {
 
   typedef std::function<void(const ActuatedTransforms&, TimeNano)>
       ActuatedTransformsCallback;
+
+  typedef std::function<double(double, double)> TerrainElevationCallback;
 
  public:
   Robot();
@@ -62,10 +71,18 @@ class Robot : public Actor {
 
   const PhysicsType& GetPhysicsType() const;
   void SetPhysicsType(const PhysicsType& phys_type);
+  // used only by JSBSim physics and controller
+  std::shared_ptr<JSBSim::FGFDMExec> GetJSBSimModel() const;
+  double GetJSBSimDtSec() const;
+  const JSBSimGroundSettings& GetJSBSimGroundSettings() const;
   const std::string& GetPhysicsConnectionSettings() const;
   void SetPhysicsConnectionSettings(const std::string& phys_conn_settings);
   const std::string& GetControlConnectionSettings() const;
   void SetControlConnectionSettings(const std::string& control_conn_settings);
+  const std::string& GetUnrealVehicleClass() const;
+  const std::string& GetWheeledVehicleClass() const;
+  // Configured backend identity, not spawn/physics readiness.
+  std::string GetRobotType() const;
   bool GetStartLanded() const;
   void SetStartLanded(bool start_landed);
 
@@ -90,6 +107,7 @@ class Robot : public Actor {
                              MethodHandler method_handler);
 
   void SetController(std::unique_ptr<IController> controller);
+  IController* GetController() const;
 
   void PublishRobotPose(const PoseStampedMessage& pose);
 
@@ -98,10 +116,25 @@ class Robot : public Actor {
   void SetCallbackActuatorOutputUpdated(
       const ActuatedTransformsCallback& callback);
 
+  void SetCallbackTerrainElevationUpdated(
+      const TerrainElevationCallback& callback);
+
+  TerrainElevationCallback GetTerrainElevationCallback();
+
+  // Game-thread terrain sample cached for JSBSim ground queries (ASL meters).
+  void SetCachedTerrainElevationASL(double elevation_asl_m);
+  double GetCachedTerrainElevationASL() const;
+
   const Kinematics& GetKinematics() const;
   const Environment& GetEnvironment() const;
   const CollisionInfo& GetCollisionInfo() const;
+  // Returns a copy synchronized with host collision updates.
+  CollisionInfo GetCollisionInfoSnapshot() const;
   const Vector3& GetExternalForce() const;
+
+  // Pull API event accumulation: events are buffered during sim steps and
+  // drained into the Step() response.
+  json DrainStepEvents();
 
   // Manually sets actuated rotations on the robot links (such as spinning
   // propeller link meshes) that are not moved through the physics model
@@ -114,7 +147,13 @@ class Robot : public Actor {
 
   void UpdateCollisionInfo(const CollisionInfo& collision_info);
   void SetHasCollided(bool has_collided);
+  // Controller assignment, control updates, and actuator updates must be
+  // serialized on the simulation thread. Capture precedes actuator dispatch.
   void UpdateControlInput();
+  // Returns a thread-safe copy of SimpleDrive output captured on that thread.
+  // This lets engine adapters consume controller-native channels without
+  // requiring placeholder actuators solely for signal transport.
+  std::vector<float> GetControllerOutput() const;
   void UpdateActuators(const TimeNano sim_time, const TimeNano sim_dt_nanos);
   // TODO Rename to UpdateKinematics() to SetKinematics() since this is set by
   // external components like the physics model or API calls?
@@ -146,12 +185,14 @@ class Robot : public Actor {
   Robot(const std::string& id, const Transform& origin, const Logger& logger,
         const TopicManager& topic_manager, const std::string& parent_topic_path,
         const ServiceManager& service_manager,
-        const StateManager& state_manager);
+        const StateManager& state_manager,
+        const std::string& working_simulation_path);
 
   Robot(const std::string& id, const Transform& origin, const Logger& logger,
         const TopicManager& topic_manager, const std::string& parent_topic_path,
         const ServiceManager& service_manager,
-        const StateManager& state_manager, HomeGeoPoint home_geo_point);
+        const StateManager& state_manager, HomeGeoPoint home_geo_point,
+        const std::string& working_simulation_path);
 
   void Load(ConfigJson config_json) override;
 

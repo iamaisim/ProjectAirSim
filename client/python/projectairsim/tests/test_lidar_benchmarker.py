@@ -8,7 +8,8 @@ Pytest end-end test script for lidar sensor.
 import asyncio
 import time
 import numpy as np
-from projectairsim import ProjectAirSimClient, Drone, World
+from projectairsim import ProjectAirSimClient, Drone
+from regression_support import RegressionWorld as World
 import threading
 import pytest
 import warnings
@@ -44,7 +45,7 @@ class LidarTester:
 
         if self.mode == "standard":
             self.projectairsim_client.subscribe(
-                self.projectairsim_drone.sensors["lidar1"]["lidar"],
+                self.projectairsim_drone.sensors["LidarCPU"]["lidar"],
                 lambda _, lidar_msg: self.lidar_callback(lidar_msg),
             )
 
@@ -148,3 +149,5 @@ def lidar_test():
 class TestClientBase:
     def test_lidar_benchmarker(self, lidar_test):
         assert lidar_test.avg_fps > 10000
+
+pytestmark = pytest.mark.unreal

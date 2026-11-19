@@ -132,6 +132,9 @@ if __name__ == "__main__":
         # Run the sensors demonstration routine
         asyncio.run(demo_sensors(drone))
 
+    except KeyboardInterrupt:
+        projectairsim_log().info("Stopping sensor logging...\n")
+
     except Exception as err:
         projectairsim_log().error(f"Exception occurred: {err}", exc_info=True)
 

@@ -6,6 +6,7 @@
 #ifndef MULTIROTOR_API_INCLUDE_MATLAB_CONTROLLER_API_HPP_
 #define MULTIROTOR_API_INCLUDE_MATLAB_CONTROLLER_API_HPP_
 
+#include <atomic>
 #include <mutex>
 #include <string>
 #include <unordered_map>
@@ -40,6 +41,9 @@ class MatlabControllerApi : public IController {
   void Reset() override;
   void SetKinematics(const Kinematics* kinematics) override;
   void Update() override;
+  int GetControlSignalIndex(const std::string& actuator_id) override;
+  void GetControlSignalSnapshot(std::vector<float>& control_signals) override;
+  std::vector<float> GetControlSignals(int signal_index) override;
   std::vector<float> GetControlSignals(const std::string& actuator_id) override;
   const IController::GimbalState& GetGimbalSignal(
       const std::string& gimbal_id) override;
@@ -50,11 +54,14 @@ class MatlabControllerApi : public IController {
   void LoadSettings(const Robot& robot);
 
  private:
+  friend class MatlabControllerApiTestPeer;
+
    void ConnectToMatlab();
    void GetSensors(const Robot& robot);
 
   Robot sim_robot_;  // The robot we control
   std::mutex update_lock_;
+  std::mutex connection_lock_;
   std::vector<float> motor_output_;
   std::unordered_map<std::string, int> actuator_id_to_output_idx_map_;
   bool connected_ = false;

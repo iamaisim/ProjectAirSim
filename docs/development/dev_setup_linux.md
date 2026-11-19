@@ -23,7 +23,7 @@ On Linux, Project AirSim can be developed with VS Code which provides a light-we
     - **Vulkan utilities** – tools like `vulkaninfo` to verify graphics support  
 
     **Note:**  
-    Unreal Engine 5.2 and 5.7 provide their own complete Linux toolchain, including **Clang 20.1.x**, **libc++**, **lld**, and related LLVM tools.  
+    Unreal Engine 5.2 and 5.7 provide their own complete, version-specific Linux toolchains, including **Clang**, **libc++**, **lld**, and related LLVM tools.
     Project AirSim builds **must use the Unreal-provided toolchain**, and therefore **do not require installing Clang or libc++ from the system package manager**.
 
 3. Install **[VS Code](https://code.visualstudio.com/)** and the following extensions:

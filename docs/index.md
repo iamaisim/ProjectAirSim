@@ -26,8 +26,11 @@ client_setup.md
 use_plugin.md
 development/dev_setup_linux.md
 development/dev_setup_win.md
+development/dev_setup_macos.md
 development/vscode_user_settings.md
 development/headless_cloud.md
+unreal_vehicle_blueprint_setup.md
+wheeled_vehicle.md
 ```
 
 ```{toctree}
@@ -42,6 +45,16 @@ command_line_switches.md
 gis_scenes.md
 modify_drone_physical.md
 modify_drone_visual.md
+```
+
+```{toctree}
+:maxdepth: 2
+:caption: Physics
+
+physics/fast-physics.md
+physics/jsbsim.md
+physics/matlab.md
+physics/no_physics.md
 ```
 
 ```{toctree}
@@ -81,8 +94,6 @@ controllers/px4/px4_sitl_wsl2.md
 scene/sim_clock.md
 scene/weather_visual_effects.md
 development/scene/sim_clock_internal.md
-physics/fast_physics.md
-physics/matlab_physics.md
 ```
 
 ```{toctree}

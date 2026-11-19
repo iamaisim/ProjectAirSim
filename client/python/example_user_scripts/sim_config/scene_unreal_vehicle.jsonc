@@ -1,0 +1,32 @@
+{
+    "id": "SceneUnrealVehicleCar",
+    "actors": [
+      {
+        "type": "robot",
+        "name": "UnrealVehicle",
+        "origin": {
+          "xyz": "-500.0 0.0 -4.0",
+          "rpy-deg": "0 0 0"
+        },
+        "robot-config": "robot_unreal_vehicle.jsonc"
+      }
+    ],
+    "clock": {
+      "type": "engine-driven",
+      "step-ns": 3000000,
+      "real-time-update-rate": 3000000,
+      "pause-on-start": false,
+      "engine-substepping": true
+    },
+    "home-geo-point": {
+      "latitude": 47.641468,
+      "longitude": -122.140165,
+      "altitude": 122.0
+    },
+    "segmentation": {
+      "initialize-ids": true,
+      "ignore-existing": false,
+      "use-owner-name": true
+    },
+    "scene-type": "UnrealNative"
+  }

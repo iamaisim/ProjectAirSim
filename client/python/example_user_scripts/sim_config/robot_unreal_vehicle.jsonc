@@ -1,0 +1,155 @@
+{
+  // Example configuration for an unreal vehicle physics robot.
+  // The dynamic model is fully handled by a UE5 AActor (Blueprint or C++)
+  // that implements IProjectAirSimVehicle to receive indexed parameter values.
+  // Project AirSim reads kinematics independently from Chaos or standard UE
+  // component state.
+  //
+  // No links, joints, or Project AirSim actuator components need to be defined —
+  // those are modeled within the Unreal vehicle AActor itself.
+
+  "$schema": "../../projectairsim/src/projectairsim/schema/robot_config_schema.jsonc",
+
+  "physics-type": "unreal-physics",
+
+  // UE5 Blueprint or C++ class path for the unreal vehicle.
+  // The class MUST implement IProjectAirSimVehicle to receive parameter signals.
+  // If omitted, the system will search the world for any actor implementing the interface.
+  // Examples:
+  //   "/ProjectAirSim/VehicleTemplate/Blueprints/SportsCar/SportsCar_Pawn.SportsCar_Pawn_C"  (Plugin Blueprint)
+  //   "/Game/MyFolder/MyVehicle.MyVehicle_C"               (Project Blueprint)
+  //   "/Script/MyModule.AMyVehicleActor"                   (C++ class)
+  "unreal-vehicle-class": "/ProjectAirSim/VehicleAdv/SUV/SuvCarPawn.SuvCarPawn_C",
+
+  // Sensors attach to the robot root and follow the unreal vehicle's pose.
+  // The parent-link field can be omitted since there are no links — sensors
+  // will automatically attach to the root component.
+  "sensors": [
+    {
+      "id": "Chase",
+      "type": "camera",
+      "enabled": true,
+      "capture-interval": 0.03,
+      "capture-settings": [
+        {
+          "image-type": 0,
+          "width": 640,
+          "height": 480,
+          "fov-degrees": 90,
+          "capture-enabled": true,
+          "streaming-enabled": true,
+          "pixels-as-float": false,
+          "compress": false,
+          "target-gamma": 2.5
+        }
+      ],
+      "origin": {
+        "xyz": "-10.0 1.5 -3.0",
+        "rpy-deg": "0 -15 0"
+      }
+    },
+    {
+      "id": "Chase2",
+      "type": "camera",
+      "enabled": true,
+      "capture-interval": 0.03,
+      "capture-settings": [
+        {
+          "image-type": 0,
+          "width": 640,
+          "height": 480,
+          "fov-degrees": 90,
+          "capture-enabled": true,
+          "streaming-enabled": true,
+          "pixels-as-float": false,
+          "compress": false,
+          "target-gamma": 2.5
+        }
+      ],
+      "origin": {
+        "xyz": "-3.0 0 -3.0",
+        "rpy-deg": "0 -15 0"
+      }
+    },
+    {
+      "id": "IMU1",
+      "type": "imu",
+      "enabled": true,
+      "accelerometer": {
+        "velocity-random-walk": 0.0,
+        "tau": 800,
+        "bias-stability": 0.0,
+        "turn-on-bias": "0 0 0"
+      },
+      "gyroscope": {
+        "angle-random-walk": 0.0,
+        "tau": 500,
+        "bias-stability": 0.0,
+        "turn-on-bias": "0 0 0"
+      }
+    },
+    {
+      "id": "lidar1",
+      "type": "lidar",
+      "enabled": true,
+      "number-of-channels": 16,
+      "range": 100,
+      "points-per-second": 100000,
+      "horizontal-rotation-frequency": 10,
+      "horizontal-fov-start-deg": 0.0,
+      "horizontal-fov-end-deg": 360.0,
+      "vertical-fov-upper-deg": 0.0,
+      "vertical-fov-lower-deg": -30.0,
+      "draw-debug-points": false,
+      "origin": {
+        "xyz": "0.8 0 -1.5",
+        "rpy-deg": "0 0 0"
+      }
+    },
+    {
+      "id": "DistanceSensor",
+      "type": "distance-sensor",
+      "enabled": true,
+      "max-distance": 50.0,
+      "min-distance": 0.5,
+      "draw-debug-points": true,
+      "origin": {
+        "xyz": "1.5 0 -1.0",
+        "rpy-deg": "0 0 0"
+      }
+    },
+    {
+      "id": "GPS",
+      "type": "gps",
+      "enabled": true,
+      "eph-time-constant": 0.9,
+      "epv-time-constant": 0.9,
+      "eph-initial": 100,
+      "epv-initial": 100,
+      "eph-final": 0.1,
+      "epv-final": 0.1,
+      "eph-min_3d": 3.0,
+      "eph-min_2d": 4.0
+    },
+    {
+      "id": "Barometer",
+      "type": "barometer",
+      "enabled": true,
+      "qnh": 1013.250,
+      "pressure-factor-sigma": 0.001825,
+      "pressure-factor-tau": 3600,
+      "uncorrelated-noise-sigma": 2.7,
+      "update-latency": 0,
+      "update-frequency": 50,
+      "startup-delay": 0
+    },
+    {
+      "id": "Magnetometer",
+      "type": "magnetometer",
+      "enabled": true,
+      "scale-factor": 1,
+      "noise-sigma": "0.005 0.005 0.005",
+      "noise-bias": "0.0 0.0 0.0"
+    }
+  ]
+}

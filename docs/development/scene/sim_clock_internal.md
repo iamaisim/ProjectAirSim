@@ -78,14 +78,16 @@ This is useful, for example, when running in a **non-physics "computer vision" m
 
 #### #5 - Drive the clock from a host runtime (engine-driven)
 
-Use `engine-driven` when a host runtime is responsible for invoking scene ticks and supplying elapsed time (plugin/sim-libs perspective). On **Unreal** integrations, that host is named **unreal-driven-clock** (`AUnrealScene::Tick` feeding frame delta into the engine-driven clock).
+Use `engine-driven` when a host runtime is responsible for invoking scene ticks and supplying elapsed time (plugin/sim-libs perspective). On **Unreal** integrations, that host is named **unreal-driven-clock**. The default path feeds frame delta into the engine-driven clock. If `clock.engine-substepping` is enabled, `AUnrealScene::Tick` consumes captured Chaos substeps and advances the complete scene once by each substep's actual duration, including when no Unreal Physics robot is present. `clock.step-ns` is always used as Chaos' maximum substep duration, and Project AirSim configures Unreal's maximum of 16 substeps per frame. Other clock types disable Chaos substepping and do not register substep samplers. See the [scene configuration options](../../config_scene.md#unreal-engine-clock-options).
 
 This keeps Project AirSim usable with Unreal, other engines, or standalone orchestrators.
 
 ```json
 "clock": {
   "type": "engine-driven",
-  "step-ns": 3000000
+  "step-ns": 3000000,
+  "engine-fixed-fps": 50.0,
+  "engine-substepping": true
 }
 ```
 

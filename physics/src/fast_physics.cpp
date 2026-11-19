@@ -101,7 +101,6 @@ void FastPhysicsBody::InitializeFastPhysicsBody() {
   }
 }
 
-// TODO Rename this to "SetActuationOutputs"?
 void FastPhysicsBody::CalculateExternalWrench() {
   // 1. Process external wrenches from actuators (like rotors)
 
@@ -255,7 +254,7 @@ FastPhysicsBody::InitializeLiftDragLinks(const std::vector<Link>& links) {
 
 void FastPhysicsBody::ReadRobotData() {
   kinematics_ = sim_robot_.GetKinematics();
-  collision_info_ = sim_robot_.GetCollisionInfo();
+  collision_info_ = sim_robot_.GetCollisionInfoSnapshot();
   ext_force_ = sim_robot_.GetExternalForce();
   const auto& cur_env = sim_robot_.GetEnvironment();
   const auto& cur_env_info = cur_env.env_info;

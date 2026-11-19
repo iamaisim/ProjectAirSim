@@ -5,6 +5,7 @@
 
 #pragma once
 #include <ProjectAirSimMessage/response_message.hpp>
+#include <atomic>
 #include <condition_variable>
 #include <mutex>
 
@@ -34,7 +35,11 @@ template <typename TAncestor>
 class TAsyncResultProviderBase : public TRefCounted<TAncestor> {
  public:
   TAsyncResultProviderBase(void)
-      : cv_done_(), fis_done_(false), mutex_(), status_(Status::InProgress) {}
+      : cv_done_(),
+        fis_canceled_(false),
+        fis_done_(false),
+        mutex_(),
+        status_(Status::InProgress) {}
 
   // Returns whether the task has been requested to cancel the operation
   bool FIsCanceled(void) const { return (fis_canceled_); }
@@ -62,8 +67,9 @@ class TAsyncResultProviderBase : public TRefCounted<TAncestor> {
  protected:
   std::condition_variable
       cv_done_;        // Conditional variable to set when task completes
-  bool fis_canceled_;  // If true, the task is requested to cancel the operation
-  bool fis_done_;      // If true, the task is complete
+  std::atomic_bool
+      fis_canceled_;  // If true, the task is requested to cancel the operation
+  std::atomic_bool fis_done_;  // If true, the task is complete
   std::mutex mutex_;   // Access guard to this object
   Status status_;      // The task return status
 };                     // class TAsyncResultProviderBase

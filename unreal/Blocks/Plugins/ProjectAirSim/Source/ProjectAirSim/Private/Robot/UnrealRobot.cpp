@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI CONSULTING CORP
 //
 // MIT License. All rights reserved.
@@ -7,22 +7,44 @@
 #include "UnrealRobot.h"
 
 #include <algorithm>
+#include <array>
+#include <cmath>
+#include <deque>
 #include <iterator>
+#include <limits>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "Camera/CameraComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Misc/EngineVersionComparison.h"
+#if UE_VERSION_OLDER_THAN(5, 7, 0)
+#include "Chaos/Framework/PhysicsProxyBase.h"
+#include "Chaos/PhysicsObjectInterface.h"
+#include "PhysicsProxy/SingleParticlePhysicsProxy.h"
+#else
+#include "Chaos/PhysicsObjectInternalInterface.h"
+#endif
+#include "Chaos/SimCallbackObject.h"
+#include "ChaosWheeledVehicleMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/TextureRenderTarget2D.h"
+#include "EngineUtils.h"
 #include "GameFramework/GameUserSettings.h"
+#include "GameFramework/Pawn.h"
+#include "IProjectAirSimVehicle.h"
 #include "Misc/ScopeLock.h"
+#include "PBDRigidsSolver.h"
+#include "Physics/Experimental/PhysScene_Chaos.h"
 #include "ProjectAirSim.h"
 #include "Runtime/Engine/Classes/Engine/StaticMesh.h"
 #include "Sensors/UnrealSensorFactory.h"
 #include "UnrealHelpers.h"
 #include "UnrealLogger.h"
 #include "UnrealScene.h"
+#include "WheeledVehiclePawn.h"
+#include "core_sim/actuators/unreal_vehicle.hpp"
 #include "core_sim/clock.hpp"
 #include "core_sim/math_utils.hpp"
 #include "core_sim/physics_common_types.hpp"
@@ -30,18 +52,367 @@
 
 namespace projectairsim = microsoft::projectairsim;
 
+UProjectAirSimDefaultFrontVehicleWheel::
+    UProjectAirSimDefaultFrontVehicleWheel() {
+  bAffectedByEngine = true;
+  bAffectedBySteering = true;
+  AxleType = EAxleType::Front;
+}
+
+UProjectAirSimDefaultRearVehicleWheel::
+    UProjectAirSimDefaultRearVehicleWheel() {
+  // A tagged rear axle is powered by Chaos for AWD/RWD. Do not initially
+  // count it as driven for FWD vehicles whose custom front wheels have an
+  // undefined axle tag: Chaos computes their torque split before overriding
+  // the rear wheels' engine flags.
+  bAffectedByEngine = false;
+  bAffectedBySteering = false;
+  AxleType = EAxleType::Rear;
+}
+
+#if UE_VERSION_OLDER_THAN(5, 7, 0)
+using FProjectAirSimPhysicsObjectHandle = Chaos::FPhysicsObjectHandle;
+constexpr Chaos::ESimCallbackOptions kProjectAirSimVehicleCallbackOptions =
+    Chaos::ESimCallbackOptions::Presimulate;
+#else
+using FProjectAirSimPhysicsObjectHandle = Chaos::FConstPhysicsObjectHandle;
+constexpr Chaos::ESimCallbackOptions kProjectAirSimVehicleCallbackOptions =
+    Chaos::ESimCallbackOptions::Presimulate |
+    Chaos::ESimCallbackOptions::PostSolve;
+#endif
+
+struct FProjectAirSimVehicleRawPhysicsState {
+  float DeltaSeconds = 0.0f;
+  FVector Position = FVector::ZeroVector;
+  FQuat Rotation = FQuat::Identity;
+  FVector LinearVelocity = FVector::ZeroVector;
+  FVector AngularVelocity = FVector::ZeroVector;
+};
+
+struct FProjectAirSimVehicleSubstepInput : public Chaos::FSimCallbackInput {
+  FProjectAirSimPhysicsObjectHandle PhysicsObject = nullptr;
+
+  void Reset() { PhysicsObject = nullptr; }
+};
+
+struct FProjectAirSimVehicleSubstepOutput : public Chaos::FSimCallbackOutput {
+  TArray<FProjectAirSimVehicleRawPhysicsState> States;
+
+  void Reset() { States.Reset(); }
+};
+
+class FProjectAirSimVehicleSubstepCallback
+    : public Chaos::TSimCallbackObject<FProjectAirSimVehicleSubstepInput,
+                                       FProjectAirSimVehicleSubstepOutput,
+                                       kProjectAirSimVehicleCallbackOptions> {
+ protected:
+  void OnPreSimulate_Internal() override {
+    if (const auto* Input = GetConsumerInput_Internal();
+        Input != nullptr && Input->PhysicsObject != nullptr) {
+      PhysicsObject = Input->PhysicsObject;
+    }
+
+#if UE_VERSION_OLDER_THAN(5, 7, 0)
+    // UE 5.2 has no per-solve callback. Capture the most recently completed
+    // state once per solver tick, which is the finest public callback exposed
+    // by that engine version.
+    CapturePhysicsState_Internal();
+#endif
+  }
+
+#if !UE_VERSION_OLDER_THAN(5, 7, 0)
+  void OnPostSolve_Internal() override { CapturePhysicsState_Internal(); }
+#endif
+
+ private:
+  void CapturePhysicsState_Internal() {
+    if (PhysicsObject == nullptr) return;
+
+#if UE_VERSION_OLDER_THAN(5, 7, 0)
+    IPhysicsProxyBase* PhysicsProxy =
+        Chaos::FPhysicsObjectInterface::GetProxy({&PhysicsObject, 1});
+    if (PhysicsProxy == nullptr ||
+        PhysicsProxy->GetType() != EPhysicsProxyType::SingleParticleProxy) {
+      return;
+    }
+
+    Chaos::FRigidBodyHandle_Internal* Handle =
+        static_cast<Chaos::FSingleParticlePhysicsProxy*>(PhysicsProxy)
+            ->GetPhysicsThreadAPI();
+    if (Handle == nullptr) return;
+#else
+    Chaos::FReadPhysicsObjectInterface_Internal Interface =
+        Chaos::FPhysicsObjectInternalInterface::GetRead();
+    Chaos::FPBDRigidParticleHandle* Handle =
+        Interface.GetRigidParticle(PhysicsObject);
+    if (Handle == nullptr) return;
+#endif
+
+    auto& Output = GetProducerOutputData_Internal();
+    auto& State = Output.States.Emplace_GetRef();
+    State.DeltaSeconds = GetDeltaTime_Internal();
+#if UE_VERSION_OLDER_THAN(5, 7, 0)
+    State.Position = Handle->X();
+    State.Rotation = Handle->R();
+    State.LinearVelocity = Handle->V();
+    State.AngularVelocity = Handle->W();
+#else
+    State.Position = Handle->GetP();
+    State.Rotation = Handle->GetQ();
+    State.LinearVelocity = Handle->GetV();
+    State.AngularVelocity = Handle->GetW();
+#endif
+  }
+
+  FProjectAirSimPhysicsObjectHandle PhysicsObject = nullptr;
+};
+
+class FProjectAirSimVehicleSubstepSampler {
+ public:
+  struct FSample {
+    projectairsim::Kinematics Kinematics;
+    TimeNano DeltaNanos = 0;
+  };
+
+  ~FProjectAirSimVehicleSubstepSampler() { Stop(); }
+
+  bool Start(UPrimitiveComponent* Component) {
+    if (Callback != nullptr) return true;
+    if (Component == nullptr || Component->GetWorld() == nullptr) return false;
+
+    FPhysScene_Chaos* PhysicsScene = Component->GetWorld()->GetPhysicsScene();
+    if (PhysicsScene == nullptr) return false;
+
+    Solver = PhysicsScene->GetSolver();
+    PhysicsObject = Component->GetPhysicsObjectByName(NAME_None);
+    if (Solver == nullptr || PhysicsObject == nullptr) {
+      Solver = nullptr;
+      PhysicsObject = nullptr;
+      return false;
+    }
+
+    Callback = Solver->CreateAndRegisterSimCallbackObject_External<
+        FProjectAirSimVehicleSubstepCallback>();
+    if (Callback == nullptr) {
+      Solver = nullptr;
+      PhysicsObject = nullptr;
+      return false;
+    }
+
+    SubmitInput();
+    return true;
+  }
+
+  void Stop() {
+    if (Callback != nullptr && Solver != nullptr) {
+      Solver->UnregisterAndFreeSimCallbackObject_External(Callback);
+    }
+    Callback = nullptr;
+    Solver = nullptr;
+    PhysicsObject = nullptr;
+    PendingSamples.clear();
+    bHasPreviousKinematics = false;
+  }
+
+  bool IsRunning() const { return Callback != nullptr; }
+
+  void SubmitInput() {
+    if (Callback == nullptr || PhysicsObject == nullptr) return;
+    if (auto* Input = Callback->GetProducerInputData_External()) {
+      Input->PhysicsObject = PhysicsObject;
+    }
+  }
+
+  void DrainOutputs() {
+    if (Callback == nullptr) return;
+
+    while (auto Output = Callback->PopFutureOutputData_External()) {
+      for (const auto& State : Output->States) {
+        const double SubstepSeconds = static_cast<double>(State.DeltaSeconds);
+        if (SubstepSeconds <= 0.0) continue;
+
+        projectairsim::Kinematics Kinematics;
+        Kinematics.pose.position =
+            projectairsim::TransformUtils::NeuToNedLinear(
+                projectairsim::TransformUtils::ToMeters(projectairsim::Vector3(
+                    State.Position.X, State.Position.Y, State.Position.Z)));
+        Kinematics.pose.orientation =
+            projectairsim::Quaternion(State.Rotation.W, State.Rotation.X,
+                                      State.Rotation.Y, State.Rotation.Z);
+        Kinematics.twist.linear = projectairsim::TransformUtils::NeuToNedLinear(
+            projectairsim::TransformUtils::ToMeters(projectairsim::Vector3(
+                State.LinearVelocity.X, State.LinearVelocity.Y,
+                State.LinearVelocity.Z)));
+        Kinematics.twist.angular =
+            projectairsim::TransformUtils::NeuToNedAngular(
+                projectairsim::Vector3(State.AngularVelocity.X,
+                                       State.AngularVelocity.Y,
+                                       State.AngularVelocity.Z));
+
+        if (bHasPreviousKinematics) {
+          Kinematics.accels.linear =
+              (Kinematics.twist.linear - PreviousKinematics.twist.linear) /
+              SubstepSeconds;
+          Kinematics.accels.angular =
+              (Kinematics.twist.angular - PreviousKinematics.twist.angular) /
+              SubstepSeconds;
+        }
+
+        PreviousKinematics = Kinematics;
+        bHasPreviousKinematics = true;
+        PendingSamples.push_back(
+            {Kinematics,
+             std::max<TimeNano>(1, static_cast<TimeNano>(
+                                       std::llround(SubstepSeconds * 1.0e9)))});
+      }
+
+      // Bound latency if the physics producer briefly outruns core_sim (for
+      // example while a scene is loading). At 333 Hz this retains roughly
+      // 0.2 seconds of the newest ordered samples.
+      while (PendingSamples.size() > 64) {
+        PendingSamples.pop_front();
+      }
+    }
+  }
+
+  bool PeekNextDelta(TimeNano& OutDeltaNanos) const {
+    if (PendingSamples.empty()) return false;
+
+    OutDeltaNanos = PendingSamples.front().DeltaNanos;
+    return true;
+  }
+
+  bool ConsumeNext(projectairsim::Kinematics& OutKinematics) {
+    if (PendingSamples.empty()) return false;
+
+    // Sim-callback output becomes visible to the game thread one outer frame
+    // later. Consume it in FIFO order and stamp it with the core_sim tick that
+    // is about to run; comparing its old frame time to the current sim time
+    // would collapse the whole batch to the last substep.
+    OutKinematics = PendingSamples.front().Kinematics;
+    PendingSamples.pop_front();
+    return true;
+  }
+
+ private:
+  Chaos::FPhysicsSolver* Solver = nullptr;
+  FProjectAirSimPhysicsObjectHandle PhysicsObject = nullptr;
+  FProjectAirSimVehicleSubstepCallback* Callback = nullptr;
+  std::deque<FSample> PendingSamples;
+  projectairsim::Kinematics PreviousKinematics;
+  bool bHasPreviousKinematics = false;
+};
+
+namespace {
+
+constexpr float kGroundClampTraceDistanceCm = 1000000.0f;
+constexpr float kGroundClampOffsetCm = 1.0f;
+
+bool TryGetGroundZAtXY(UWorld* World, AActor* IgnoredActor,
+                       const FVector& Location, float& OutGroundZ) {
+  if (World == nullptr) return false;
+
+  const FVector StartTrace(Location.X, Location.Y,
+                           Location.Z + kGroundClampTraceDistanceCm);
+  const FVector EndTrace(Location.X, Location.Y,
+                         Location.Z - kGroundClampTraceDistanceCm);
+
+  FCollisionQueryParams TraceParams;
+  TraceParams.bTraceComplex = true;
+  TraceParams.bReturnPhysicalMaterial = false;
+  if (IgnoredActor != nullptr) {
+    TraceParams.AddIgnoredActor(IgnoredActor);
+  }
+
+  FHitResult HitResult(ForceInit);
+  bool bWasHit = World->LineTraceSingleByChannel(
+      HitResult, StartTrace, EndTrace, ECC_Visibility, TraceParams,
+      FCollisionResponseParams::DefaultResponseParam);
+  if (!bWasHit) {
+    bWasHit = World->LineTraceSingleByChannel(
+        HitResult, StartTrace, EndTrace, ECC_WorldStatic, TraceParams,
+        FCollisionResponseParams::DefaultResponseParam);
+  }
+
+  if (!bWasHit || !HitResult.bBlockingHit) return false;
+
+  OutGroundZ = HitResult.ImpactPoint.Z;
+  return std::isfinite(OutGroundZ);
+}
+
+float GetMeshBoundsMinWorldZ(UStaticMeshComponent* Component,
+                             const FVector& Location,
+                             const FRotator& Rotation) {
+  if (Component == nullptr || Component->GetStaticMesh() == nullptr) {
+    return Location.Z;
+  }
+
+  FVector MinBounds;
+  FVector MaxBounds;
+  Component->GetLocalBounds(MinBounds, MaxBounds);
+
+  const FTransform TargetTransform(Rotation.Quaternion(), Location,
+                                   Component->GetComponentScale());
+  const std::array<FVector, 8> Corners = {
+      FVector(MinBounds.X, MinBounds.Y, MinBounds.Z),
+      FVector(MinBounds.X, MinBounds.Y, MaxBounds.Z),
+      FVector(MinBounds.X, MaxBounds.Y, MinBounds.Z),
+      FVector(MinBounds.X, MaxBounds.Y, MaxBounds.Z),
+      FVector(MaxBounds.X, MinBounds.Y, MinBounds.Z),
+      FVector(MaxBounds.X, MinBounds.Y, MaxBounds.Z),
+      FVector(MaxBounds.X, MaxBounds.Y, MinBounds.Z),
+      FVector(MaxBounds.X, MaxBounds.Y, MaxBounds.Z),
+  };
+
+  float MinWorldZ = std::numeric_limits<float>::max();
+  for (const FVector& Corner : Corners) {
+    const float CornerWorldZ =
+        static_cast<float>(TargetTransform.TransformPosition(Corner).Z);
+    MinWorldZ = std::min(MinWorldZ, CornerWorldZ);
+  }
+
+  return MinWorldZ;
+}
+
+FVector ClampRootMeshToGround(UUnrealRobotLink* RootLink,
+                              const FVector& Location,
+                              const FRotator& Rotation) {
+  float GroundZ = 0.0f;
+  if (RootLink == nullptr ||
+      !TryGetGroundZAtXY(RootLink->GetWorld(), RootLink->GetOwner(), Location,
+                         GroundZ)) {
+    return Location;
+  }
+
+  const float MinWorldZ = GetMeshBoundsMinWorldZ(RootLink, Location, Rotation);
+  const float MinAllowedZ = GroundZ + kGroundClampOffsetCm;
+  if (MinWorldZ >= MinAllowedZ) {
+    return Location;
+  }
+
+  FVector ClampedLocation = Location;
+  ClampedLocation.Z += MinAllowedZ - MinWorldZ;
+  return ClampedLocation;
+}
+
+}  // namespace
+
 AUnrealRobot::AUnrealRobot(const FObjectInitializer& ObjectInitialize)
     : AActor(ObjectInitialize) {
   PrimaryActorTick.bCanEverTick = true;
   // Tick group is set in Initialize() based on the robot's physics type
 }
 
+AUnrealRobot::~AUnrealRobot() { delete ProjectAirSimVehicleSubstepSampler; }
+
 void AUnrealRobot::Initialize(const projectairsim::Robot& InSimRobot,
                               projectairsim::UnrealPhysicsBody* InPhysBody,
-                              AUnrealScene* InUnrealScene) {
+                              AUnrealScene* InUnrealScene,
+                              bool bCaptureUnrealPhysicsSubsteps) {
   // Store ptrs to other corresponding components for this robot
   UnrealScene = InUnrealScene;
   SimPhysicsBody = InPhysBody;
+  bCaptureProjectAirSimVehicleSubsteps = bCaptureUnrealPhysicsSubsteps;
   this->SimRobot = InSimRobot;  // This makes a copy from the robot ref. It does
                                 // get another shared_ptr for the same address
                                 // of the robot's impl/ActorImpl, but any data
@@ -51,12 +422,19 @@ void AUnrealRobot::Initialize(const projectairsim::Robot& InSimRobot,
   // Detect which links are roots based on their joint attachments
   auto RootLinks = GetRootLinks(InSimRobot.GetLinks(), InSimRobot.GetJoints());
 
-  bool bWithUnrealPhysics = (InSimRobot.GetPhysicsType() ==
-                             projectairsim::PhysicsType::kUnrealPhysics);
+  bool bIsProjectAirSimVehicle = (InSimRobot.GetPhysicsType() ==
+                                  projectairsim::PhysicsType::kUnrealPhysics) &&
+                                 (!InSimRobot.GetUnrealVehicleClass().empty() ||
+                                  !InSimRobot.GetWheeledVehicleClass().empty());
+  bIsWheeledVehicle = !InSimRobot.GetWheeledVehicleClass().empty();
 
-  if (bWithUnrealPhysics) {
-    // For Unreal-calculated physics, do the updates after Unreal has completed
-    // the physics tick calculations.
+  bool bWithUnrealPhysics = (InSimRobot.GetPhysicsType() ==
+                             projectairsim::PhysicsType::kUnrealPhysics) &&
+                            !bIsProjectAirSimVehicle;
+
+  if (bWithUnrealPhysics || bIsProjectAirSimVehicle) {
+    // For Unreal-calculated or ProjectAirSim vehicle physics, do the updates
+    // after Unreal has completed the physics tick calculations.
     PrimaryActorTick.TickGroup = TG_PostPhysics;
   } else {
     // For -calculated physics, do the updates during Unreal's world
@@ -68,6 +446,14 @@ void AUnrealRobot::Initialize(const projectairsim::Robot& InSimRobot,
   InitializeId(InSimRobot.GetID());
   InitializeLinks(InSimRobot.GetLinks(), RootLinks, bWithUnrealPhysics);
   InitializeJoints(InSimRobot.GetJoints());
+
+  if (bIsProjectAirSimVehicle) {
+    // ProjectAirSim vehicle physics: initialize the root component and
+    // find/spawn the vehicle BEFORE sensors so sensors attach to the correct
+    // root.
+    InitializeProjectAirSimVehicle();
+  }
+
   InitializeSensors(InSimRobot.GetSensors());
 
   StreamingCameraActiveIdx = 0;
@@ -362,6 +748,813 @@ std::set<std::string> AUnrealRobot::GetRootLinks(
   return Roots;
 }
 
+void AUnrealRobot::InitializeProjectAirSimVehicle() {
+  // Create a minimal invisible root component for sensor attachment
+  auto* SceneRoot =
+      NewObject<USceneComponent>(this, TEXT("ProjectAirSimVehicleRoot"));
+  SceneRoot->SetMobility(EComponentMobility::Movable);
+  SceneRoot->RegisterComponent();
+  RootComponent = SceneRoot;
+  RobotRootLink = nullptr;  // No physics link for ProjectAirSim vehicle
+
+  // WheeledVehicle exposes a stable robot-level client contract. Register it
+  // before loading or spawning the Unreal class so a bad asset path does not
+  // make the RPC disappear from the service registry. UnrealVehicle remains
+  // conditional on the spawned actor implementing IProjectAirSimVehicle.
+  if (bIsWheeledVehicle && !bWheeledVehicleControlServicesRegistered) {
+    auto set_throttle = projectairsim::ServiceMethod("SetThrottle", {"value"});
+    SimRobot.RegisterServiceMethod(
+        set_throttle,
+        set_throttle.CreateMethodHandler(&AUnrealRobot::SetThrottle, *this));
+    auto set_steering = projectairsim::ServiceMethod("SetSteering", {"value"});
+    SimRobot.RegisterServiceMethod(
+        set_steering,
+        set_steering.CreateMethodHandler(&AUnrealRobot::SetSteering, *this));
+    auto set_brakes = projectairsim::ServiceMethod("SetBrakes", {"value"});
+    SimRobot.RegisterServiceMethod(
+        set_brakes,
+        set_brakes.CreateMethodHandler(&AUnrealRobot::SetBrakes, *this));
+    bWheeledVehicleControlServicesRegistered = true;
+    UnrealLogger::Log(
+        projectairsim::LogLevel::kTrace,
+        TEXT("[%hs] Registered WheeledVehicle SetThrottle, SetSteering and "
+             "SetBrakes services."),
+        SimRobot.GetID().c_str());
+  }
+
+  UWorld* World = GetWorld();
+  if (World == nullptr) return;
+
+  // Compute the spawn transform from the robot's initial kinematics (NED_m).
+  // Convert NED_m → NEU_cm for Unreal world coordinates.
+  const auto& InitKin = SimRobot.GetKinematics();
+  const FVector SpawnLoc =
+      UnrealHelpers::ToFVector(projectairsim::TransformUtils::NedToNeuLinear(
+          projectairsim::TransformUtils::ToCentimeters(InitKin.pose.position)));
+  const FRotator SpawnRot = UnrealHelpers::ToFRotator(InitKin.pose.orientation);
+  FTransform SpawnTransform(SpawnRot, SpawnLoc);
+
+  FString RobotName = FString(SimRobot.GetID().c_str());
+  std::string ProjectAirSimVehicleClassPath =
+      bIsWheeledVehicle ? SimRobot.GetWheeledVehicleClass()
+                        : SimRobot.GetUnrealVehicleClass();
+
+  if (!ProjectAirSimVehicleClassPath.empty()) {
+    // Spawn or find by class path from config (e.g. Blueprint class path)
+    FString ClassPath = FString(ProjectAirSimVehicleClassPath.c_str());
+    UClass* ActorClass = LoadClass<AActor>(nullptr, *ClassPath);
+    if (ActorClass != nullptr) {
+      if (bIsWheeledVehicle &&
+          !ActorClass->IsChildOf(AWheeledVehiclePawn::StaticClass())) {
+        const std::string Message =
+            "wheeled-vehicle-class must derive from AWheeledVehiclePawn: " +
+            ProjectAirSimVehicleClassPath;
+        UnrealLogger::Log(projectairsim::LogLevel::kError, TEXT("[%s] %hs"),
+                          *RobotName, Message.c_str());
+        return;
+      }
+
+      // Each configured robot owns a distinct vehicle actor. Reusing the first
+      // actor of this class makes two robots with the same Blueprint control
+      // the same car and ignores the second robot's spawn transform.
+      FActorSpawnParameters SpawnParams;
+      SpawnParams.SpawnCollisionHandlingOverride =
+          ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+      ProjectAirSimVehicleActor =
+          World->SpawnActor<AActor>(ActorClass, SpawnTransform, SpawnParams);
+      if (ProjectAirSimVehicleActor != nullptr) {
+        UnrealLogger::Log(projectairsim::LogLevel::kTrace,
+                          TEXT("[%s] Spawned ProjectAirSim vehicle of class %s "
+                               "at (%.1f, %.1f, %.1f)"),
+                          *RobotName, *ClassPath, SpawnLoc.X, SpawnLoc.Y,
+                          SpawnLoc.Z);
+      } else {
+        UnrealLogger::Log(
+            projectairsim::LogLevel::kError,
+            TEXT("[%s] Failed to spawn ProjectAirSim vehicle of class %s"),
+            *RobotName, *ClassPath);
+      }
+      // The generic UnrealVehicle backend forwards indexed values through its
+      // Blueprint interface. The native WheeledVehicle backend bypasses that
+      // interface and applies its fixed controls directly to Chaos.
+      if (ProjectAirSimVehicleActor != nullptr) {
+        if (!bIsWheeledVehicle) {
+          bProjectAirSimVehicleHasInterface =
+              ProjectAirSimVehicleActor->GetClass()->ImplementsInterface(
+                  UProjectAirSimVehicle::StaticClass());
+        }
+        if (!bIsWheeledVehicle && !bProjectAirSimVehicleHasInterface) {
+          UnrealLogger::Log(
+              projectairsim::LogLevel::kWarning,
+              TEXT("[%s] ProjectAirSim vehicle %s does not implement "
+                   "IProjectAirSimVehicle. Parameter forwarding is disabled; "
+                   "kinematics still use Chaos or standard UE state."),
+              *RobotName, *ProjectAirSimVehicleActor->GetName());
+        } else if (!bIsWheeledVehicle &&
+                   !bProjectAirSimVehicleParameterServiceRegistered) {
+          auto set_parameter =
+              projectairsim::ServiceMethod("SetParameter", {"index", "value"});
+          auto set_parameter_handler = set_parameter.CreateMethodHandler(
+              &AUnrealRobot::SetParameter, *this);
+          SimRobot.RegisterServiceMethod(set_parameter, set_parameter_handler);
+          bProjectAirSimVehicleParameterServiceRegistered = true;
+        }
+      }
+    } else {
+      UnrealLogger::Log(
+          projectairsim::LogLevel::kError,
+          TEXT("[%s] Could not load ProjectAirSim vehicle class: %s"),
+          *RobotName, *ClassPath);
+    }
+  } else {
+    UnrealLogger::Log(
+        projectairsim::LogLevel::kError,
+        TEXT("[%s] Missing required 'unreal-vehicle-class' in robot config. "
+             "Automatic actor discovery is disabled."),
+        *RobotName);
+  }
+
+  if (ProjectAirSimVehicleActor == nullptr) {
+    UnrealLogger::Log(projectairsim::LogLevel::kWarning,
+                      TEXT("[%s] No ProjectAirSim vehicle found or spawned. "
+                           "ProjectAirSim vehicle physics will not function."),
+                      *RobotName);
+  } else if (APawn* VehiclePawn = Cast<APawn>(ProjectAirSimVehicleActor);
+             VehiclePawn != nullptr &&
+             VehiclePawn->GetController() == nullptr) {
+    // Chaos vehicle input can be cleared when a spawned Pawn has no controller.
+    // Match the behavior expected by placed vehicle Blueprints and ensure the
+    // movement component can consume SetThrottle/Brake/SteeringInput values.
+    VehiclePawn->SpawnDefaultController();
+    UnrealLogger::Log(
+        VehiclePawn->GetController() != nullptr
+            ? projectairsim::LogLevel::kTrace
+            : projectairsim::LogLevel::kWarning,
+        TEXT("[%s] Unreal vehicle pawn default controller: %s"), *RobotName,
+        VehiclePawn->GetController() != nullptr ? TEXT("spawned")
+                                                : TEXT("unavailable"));
+  }
+
+  if (ProjectAirSimVehicleActor != nullptr) {
+    ProjectAirSimVehicleMovement =
+        ProjectAirSimVehicleActor
+            ->FindComponentByClass<UChaosWheeledVehicleMovementComponent>();
+    if (ProjectAirSimVehicleMovement != nullptr) {
+      // Project AirSim supplies inputs directly rather than through a player
+      // controller. Chaos otherwise ignores those inputs for an unpossessed or
+      // non-local pawn and consumes its zeroed replicated state instead.
+      ProjectAirSimVehicleMovement->SetRequiresControllerForInputs(false);
+      // Project AirSim exposes brake as an independent control. Chaos's arcade
+      // mode otherwise interprets a held brake at low speed as reverse input.
+      ProjectAirSimVehicleMovement->bReverseAsBrake = false;
+      ProjectAirSimVehicleMovement->bThrottleAsBrake = false;
+
+      const TArray<FChaosWheelSetup>& WheelSetups =
+          ProjectAirSimVehicleMovement->WheelSetups;
+      USkeletalMeshComponent* VehicleMesh =
+          ProjectAirSimVehicleActor
+              ->FindComponentByClass<USkeletalMeshComponent>();
+      TArray<float> WheelForwardOffsets;
+      WheelForwardOffsets.Init(0.0f, WheelSetups.Num());
+      float MinForwardOffset = TNumericLimits<float>::Max();
+      float MaxForwardOffset = TNumericLimits<float>::Lowest();
+      int32 LocatedWheelCount = 0;
+      if (VehicleMesh != nullptr) {
+        for (int32 WheelIndex = 0; WheelIndex < WheelSetups.Num();
+             ++WheelIndex) {
+          const FName BoneName = WheelSetups[WheelIndex].BoneName;
+          if (VehicleMesh->GetBoneIndex(BoneName) != INDEX_NONE) {
+            const float ForwardOffset = VehicleMesh
+                                            ->GetBoneLocation(
+                                                BoneName,
+                                                EBoneSpaces::ComponentSpace)
+                                            .X;
+            WheelForwardOffsets[WheelIndex] = ForwardOffset;
+            MinForwardOffset = FMath::Min(MinForwardOffset, ForwardOffset);
+            MaxForwardOffset = FMath::Max(MaxForwardOffset, ForwardOffset);
+            ++LocatedWheelCount;
+          }
+        }
+      }
+      const bool bCanClassifyByPosition =
+          LocatedWheelCount == WheelSetups.Num() &&
+          !FMath::IsNearlyEqual(MinForwardOffset, MaxForwardOffset);
+      const float AxleMidpoint =
+          (MinForwardOffset + MaxForwardOffset) * 0.5f;
+
+      int32 DefaultWheelReplacementCount = 0;
+      for (int32 WheelIndex = 0; WheelIndex < WheelSetups.Num();
+           ++WheelIndex) {
+        FChaosWheelSetup& WheelSetup =
+            ProjectAirSimVehicleMovement->WheelSetups[WheelIndex];
+        if (WheelSetup.WheelClass == UChaosVehicleWheel::StaticClass()) {
+          // Chaos vehicle convention is X-forward. If bone locations are not
+          // available, retain the conventional setup ordering of front axle
+          // entries first and rear axle entries second.
+          const bool bIsFrontWheel =
+              bCanClassifyByPosition
+                  ? WheelForwardOffsets[WheelIndex] > AxleMidpoint
+                  : WheelIndex < (WheelSetups.Num() + 1) / 2;
+          WheelSetup.WheelClass =
+              bIsFrontWheel
+                  ? UProjectAirSimDefaultFrontVehicleWheel::StaticClass()
+                  : UProjectAirSimDefaultRearVehicleWheel::StaticClass();
+          ++DefaultWheelReplacementCount;
+          UnrealLogger::Log(
+              projectairsim::LogLevel::kTrace,
+              TEXT("[%s] Default wheel slot %d (%s) classified as %s."),
+              *RobotName, WheelIndex, *WheelSetup.BoneName.ToString(),
+              bIsFrontWheel ? TEXT("front/steering") : TEXT("rear/fixed"));
+        }
+      }
+      if (DefaultWheelReplacementCount > 0) {
+        // The component was already registered as part of spawning the Pawn,
+        // so rebuild its Chaos vehicle after correcting the inert defaults.
+        ProjectAirSimVehicleMovement->RecreatePhysicsState();
+        UnrealLogger::Log(
+            projectairsim::LogLevel::kWarning,
+            TEXT("[%s] Replaced %d inert ChaosVehicleWheel base class "
+                 "slot(s) with axle-aware Project AirSim defaults."),
+            *RobotName, DefaultWheelReplacementCount);
+      }
+    }
+    UnrealLogger::Log(
+        ProjectAirSimVehicleMovement != nullptr
+            ? projectairsim::LogLevel::kTrace
+            : projectairsim::LogLevel::kWarning,
+        TEXT("[%s] Chaos wheeled vehicle movement component: %s"), *RobotName,
+        ProjectAirSimVehicleMovement != nullptr ? TEXT("found")
+                                                : TEXT("not found"));
+    if (bIsWheeledVehicle && ProjectAirSimVehicleMovement == nullptr) {
+      UnrealLogger::Log(
+          projectairsim::LogLevel::kWarning,
+          TEXT("[%s] Native wheeled vehicle controls are disabled because "
+               "the Chaos movement component is unavailable."),
+          *RobotName);
+    }
+  }
+
+  const auto ResetProjectAirSimVehiclePose =
+      [this, &RobotName, &SpawnLoc,
+       &SpawnRot](UPrimitiveComponent* PhysicsComponent) {
+        PrevExtPosition = SpawnLoc;
+        PrevExtQuat = SpawnRot.Quaternion();
+        bHasPrevExtState = false;
+
+        if (ProjectAirSimVehicleActor == nullptr) return;
+
+        // Always teleport using the config's initial position (source of
+        // truth).
+        ProjectAirSimVehicleActor->SetActorLocationAndRotation(
+            SpawnLoc, SpawnRot, false, nullptr, ETeleportType::TeleportPhysics);
+
+        if (PhysicsComponent != nullptr) {
+          PhysicsComponent->SetWorldLocationAndRotation(
+              SpawnLoc, SpawnRot, false, nullptr,
+              ETeleportType::TeleportPhysics);
+
+          if (PhysicsComponent->IsSimulatingPhysics()) {
+            PhysicsComponent->SetPhysicsLinearVelocity(FVector::ZeroVector);
+            PhysicsComponent->SetPhysicsAngularVelocityInRadians(
+                FVector::ZeroVector);
+            PhysicsComponent->SetAllPhysicsPosition(SpawnLoc);
+            PhysicsComponent->SetAllPhysicsRotation(SpawnRot.Quaternion());
+          }
+        }
+
+        UnrealLogger::Log(projectairsim::LogLevel::kTrace,
+                          TEXT("[%s] Reset ProjectAirSim vehicle '%s' to "
+                               "initial pose (%.1f, %.1f, %.1f)"),
+                          *RobotName, *ProjectAirSimVehicleActor->GetName(),
+                          SpawnLoc.X, SpawnLoc.Y, SpawnLoc.Z);
+      };
+
+  // Position this actor at the ProjectAirSim vehicle's location so sensors
+  // start at the right place.  We sync every tick in TickProjectAirSimVehicle()
+  // because UE attachment does not propagate to/from physics-simulated actors.
+  if (ProjectAirSimVehicleActor != nullptr) {
+    // Find the first UPrimitiveComponent on the ProjectAirSim vehicle.
+    // At init time physics may not be active yet, so we accept ANY
+    // UPrimitiveComponent (preferring one with a body instance).
+    // We will re-check during tick if needed.
+    TInlineComponentArray<UPrimitiveComponent*> PrimComps;
+    ProjectAirSimVehicleActor->GetComponents<UPrimitiveComponent>(PrimComps);
+
+    UnrealLogger::Log(
+        projectairsim::LogLevel::kWarning,
+        TEXT("[%s] ProjectAirSim vehicle has %d primitive components"),
+        *RobotName, PrimComps.Num());
+
+    for (UPrimitiveComponent* PC : PrimComps) {
+      if (PC != nullptr) {
+        UnrealLogger::Log(
+            projectairsim::LogLevel::kWarning,
+            TEXT("[%s]   Component: %s  Class: %s  SimPhysics: %s"), *RobotName,
+            *PC->GetName(), *PC->GetClass()->GetName(),
+            PC->IsSimulatingPhysics() ? TEXT("YES") : TEXT("NO"));
+        // Take the first one we find (prefer one already simulating)
+        if (ProjectAirSimVehicleComponent == nullptr ||
+            PC->IsSimulatingPhysics()) {
+          ProjectAirSimVehicleComponent = PC;
+          if (PC->IsSimulatingPhysics()) break;
+        }
+      }
+    }
+
+    if (ProjectAirSimVehicleComponent != nullptr) {
+      UnrealLogger::Log(projectairsim::LogLevel::kWarning,
+                        TEXT("[%s] Using physics component: %s"), *RobotName,
+                        *ProjectAirSimVehicleComponent->GetName());
+    } else {
+      UnrealLogger::Log(
+          projectairsim::LogLevel::kError,
+          TEXT("[%s] No UPrimitiveComponent found on ProjectAirSim vehicle!"),
+          *RobotName);
+    }
+
+    ResetProjectAirSimVehiclePose(ProjectAirSimVehicleComponent);
+
+    // Initial position sync
+    FVector ExtLoc;
+    FRotator ExtRot;
+    if (ProjectAirSimVehicleComponent != nullptr) {
+      ExtLoc = ProjectAirSimVehicleComponent->GetComponentLocation();
+      ExtRot = ProjectAirSimVehicleComponent->GetComponentRotation();
+    } else {
+      ExtLoc = ProjectAirSimVehicleActor->GetActorLocation();
+      ExtRot = ProjectAirSimVehicleActor->GetActorRotation();
+    }
+    this->SetActorLocationAndRotation(ExtLoc, ExtRot, false, nullptr,
+                                      ETeleportType::TeleportPhysics);
+  }
+}
+
+bool AUnrealRobot::SetParameter(int32 Index, float Value) {
+  if (bIsWheeledVehicle || Index < 0) return false;
+
+  FScopeLock ScopeLock(&UpdateMutex);
+  ProjectAirSimVehicleParameters.Add(Index, Value);
+  return true;
+}
+
+bool AUnrealRobot::QueueWheeledVehicleControl(int32 Index, float Value) {
+  if (!bIsWheeledVehicle || !FMath::IsFinite(Value)) return false;
+  Value = Index == 2 ? FMath::Clamp(Value, 0.0f, 1.0f)
+                     : FMath::Clamp(Value, -1.0f, 1.0f);
+  FScopeLock ScopeLock(&UpdateMutex);
+  ProjectAirSimVehicleParameters.Add(Index, Value);
+  return true;
+}
+
+bool AUnrealRobot::SetThrottle(float Value) {
+  return QueueWheeledVehicleControl(0, Value);
+}
+
+bool AUnrealRobot::SetSteering(float Value) {
+  return QueueWheeledVehicleControl(1, Value);
+}
+
+bool AUnrealRobot::SetBrakes(float Value) {
+  return QueueWheeledVehicleControl(2, Value);
+}
+
+void AUnrealRobot::ApplyThrottle(float Value) {
+  if (ProjectAirSimVehicleMovement != nullptr) {
+    ProjectAirSimVehicleMovement->SetThrottleInput(Value);
+  }
+}
+
+void AUnrealRobot::ApplySteering(float Value) {
+  if (ProjectAirSimVehicleMovement != nullptr) {
+    ProjectAirSimVehicleMovement->SetSteeringInput(Value);
+  }
+}
+
+void AUnrealRobot::ApplyBrake(float Value) {
+  if (ProjectAirSimVehicleMovement != nullptr) {
+    ProjectAirSimVehicleMovement->SetBrakeInput(Value);
+  }
+}
+
+void AUnrealRobot::EnsureProjectAirSimVehicleSubstepSampler() {
+  if (!bCaptureProjectAirSimVehicleSubsteps ||
+      ProjectAirSimVehicleComponent == nullptr ||
+      !ProjectAirSimVehicleComponent->IsSimulatingPhysics()) {
+    return;
+  }
+
+  if (!ProjectAirSimVehicleSubstepSampler) {
+    ProjectAirSimVehicleSubstepSampler =
+        new FProjectAirSimVehicleSubstepSampler();
+  }
+
+  if (!ProjectAirSimVehicleSubstepSampler->IsRunning()) {
+    const bool bStarted = ProjectAirSimVehicleSubstepSampler->Start(
+        ProjectAirSimVehicleComponent);
+    if (bStarted) {
+      bProjectAirSimVehicleSubstepSamplerStartFailureLogged = false;
+      UnrealLogger::Log(
+          projectairsim::LogLevel::kTrace,
+          TEXT("[%S] Unreal vehicle physics-substep sampler started."),
+          SimRobot.GetID().c_str());
+    } else if (!bProjectAirSimVehicleSubstepSamplerStartFailureLogged) {
+      bProjectAirSimVehicleSubstepSamplerStartFailureLogged = true;
+      UnrealLogger::Log(
+          projectairsim::LogLevel::kWarning,
+          TEXT("[%S] Unreal vehicle physics-substep sampler could not start."),
+          SimRobot.GetID().c_str());
+    }
+  }
+}
+
+void AUnrealRobot::DrainProjectAirSimVehicleSubstepSamples() {
+  if (!ProjectAirSimVehicleSubstepSampler) return;
+
+  ProjectAirSimVehicleSubstepSampler->DrainOutputs();
+  ProjectAirSimVehicleSubstepSampler->SubmitInput();
+}
+
+bool AUnrealRobot::ApplyProjectAirSimVehicleSubstepKinematics(
+    TimeNano TargetTimestamp) {
+  if (!ProjectAirSimVehicleSubstepSampler) return false;
+
+  ProjectAirSimVehicleSubstepSampler->DrainOutputs();
+
+  projectairsim::Kinematics Kinematics;
+  if (!ProjectAirSimVehicleSubstepSampler->ConsumeNext(Kinematics)) {
+    return false;
+  }
+
+  UnrealPoseUpdatedTimeStamp = TargetTimestamp;
+  SimRobot.UpdateKinematics(Kinematics, TargetTimestamp);
+  return true;
+}
+
+bool AUnrealRobot::PeekProjectAirSimVehicleSubstepDelta(
+    TimeNano& OutDeltaNanos) {
+  if (!ProjectAirSimVehicleSubstepSampler) return false;
+
+  ProjectAirSimVehicleSubstepSampler->DrainOutputs();
+  return ProjectAirSimVehicleSubstepSampler->PeekNextDelta(OutDeltaNanos);
+}
+
+void AUnrealRobot::TickProjectAirSimVehicle(float DeltaTime) {
+  if (ProjectAirSimVehicleActor == nullptr) return;
+
+  // Forward the indexed value through the single Unreal vehicle parameter
+  // contract. The target Blueprint defines the meaning of each index.
+  const auto DispatchParameterSignal = [this](int32 Index, float Value) {
+    IProjectAirSimVehicle::Execute_SetParameterSignal(ProjectAirSimVehicleActor,
+                                                      Index, Value);
+  };
+
+  const auto ApplyFallbackVehicleForces = [this](float Throttle, float Brake,
+                                                 float Steering) {
+    if (ProjectAirSimVehicleComponent == nullptr ||
+        !ProjectAirSimVehicleComponent->IsSimulatingPhysics()) {
+      return;
+    }
+
+    if (!FMath::IsNearlyZero(Throttle)) {
+      ProjectAirSimVehicleComponent->AddForce(
+          ProjectAirSimVehicleComponent->GetForwardVector() * Throttle * 600.f,
+          NAME_None, /*bAcceleration=*/true);
+    }
+    if (!FMath::IsNearlyZero(Brake)) {
+      const FVector Velocity =
+          ProjectAirSimVehicleComponent->GetPhysicsLinearVelocity();
+      const FVector PlanarVelocity(Velocity.X, Velocity.Y, 0.f);
+      if (!PlanarVelocity.IsNearlyZero()) {
+        ProjectAirSimVehicleComponent->AddForce(
+            -PlanarVelocity.GetSafeNormal() * Brake * 900.f, NAME_None,
+            /*bAcceleration=*/true);
+      }
+    }
+    if (!FMath::IsNearlyZero(Steering)) {
+      ProjectAirSimVehicleComponent->AddTorqueInRadians(
+          FVector(0.f, 0.f, Steering * FMath::DegreesToRadians(180.f)),
+          NAME_None, /*bAcceleration=*/true);
+    }
+  };
+
+  // Apply the standard vehicle behavior for the separate SimpleDrive workflow.
+  const auto ApplyStandardVehicleForces =
+      [this, &ApplyFallbackVehicleForces](float Throttle, float Brake,
+                                         float Steering) {
+        // Feed Chaos when mechanical simulation is enabled. Otherwise use the
+        // direct-force fallback, but never apply both propulsion paths.
+        if (ProjectAirSimVehicleMovement != nullptr) {
+          ProjectAirSimVehicleMovement->SetThrottleInput(Throttle);
+          ProjectAirSimVehicleMovement->SetBrakeInput(Brake);
+          ProjectAirSimVehicleMovement->SetSteeringInput(Steering);
+
+          if (ProjectAirSimVehicleMovement->bMechanicalSimEnabled) {
+            return;
+          }
+        }
+
+        ApplyFallbackVehicleForces(Throttle, Brake, Steering);
+      };
+
+  // Lazy re-check: if we found a component at init but it wasn't simulating
+  // physics yet, check again now that the game is running.
+  if (ProjectAirSimVehicleComponent != nullptr &&
+      !ProjectAirSimVehicleComponent->IsSimulatingPhysics()) {
+    // Search again for a simulating component
+    TInlineComponentArray<UPrimitiveComponent*> PrimComps;
+    ProjectAirSimVehicleActor->GetComponents<UPrimitiveComponent>(PrimComps);
+    for (UPrimitiveComponent* PC : PrimComps) {
+      if (PC != nullptr && PC->IsSimulatingPhysics()) {
+        ProjectAirSimVehicleComponent = PC;
+        break;
+      }
+    }
+  }
+
+  EnsureProjectAirSimVehicleSubstepSampler();
+  DrainProjectAirSimVehicleSubstepSamples();
+
+  // Forward indexed parameter values to the ProjectAirSim vehicle.
+  if (bProjectAirSimVehicleHasInterface) {
+    TMap<int32, float> Parameters;
+    {
+      FScopeLock ScopeLock(&UpdateMutex);
+      Parameters = ProjectAirSimVehicleParameters;
+    }
+
+    // Controller-backed Unreal vehicle actuators are the source of the
+    // standard throttle/brake/steering values for SimpleDrive. Merge them
+    // before applying Chaos or fallback forces; previously they were only
+    // dispatched to the Blueprint below, while ApplyStandardVehicleForces()
+    // read the (usually empty) externally-set parameter map and therefore
+    // applied zero throttle.
+    for (auto& ActuatorRef : SimRobot.GetActuators()) {
+      auto& Actuator = ActuatorRef.get();
+      if (!Actuator.IsEnabled() ||
+          Actuator.GetType() != projectairsim::ActuatorType::kUnrealVehicle) {
+        continue;
+      }
+
+      const auto& UnrealVehicleActuator =
+          static_cast<const projectairsim::UnrealVehicleActuator&>(Actuator);
+      Parameters.Add(UnrealVehicleActuator.GetParameterIndex(),
+                     UnrealVehicleActuator.GetControlSignal());
+    }
+
+    for (const auto& Parameter : Parameters) {
+      DispatchParameterSignal(Parameter.Key, Parameter.Value);
+    }
+
+    if (ProjectAirSimVehicleMovement != nullptr) {
+      const bool bMechanicalSimEnabled =
+          ProjectAirSimVehicleMovement->bMechanicalSimEnabled;
+      if (!bUnrealVehicleActuationModeLogged ||
+          bMechanicalSimEnabled != bLastUnrealVehicleMechanicalSimEnabled) {
+        if (bMechanicalSimEnabled) {
+          UnrealLogger::Log(
+              projectairsim::LogLevel::kWarning,
+              TEXT("[%hs] UnrealVehicle actuation mode: Chaos mechanical "
+                   "drivetrain (direct-force fallback disabled)."),
+              SimRobot.GetID().c_str());
+        } else {
+          UnrealLogger::Log(
+              projectairsim::LogLevel::kWarning,
+              TEXT("[%hs] UnrealVehicle actuation mode: Chaos mechanical "
+                   "simulation disabled; direct-force fallback active."),
+              SimRobot.GetID().c_str());
+        }
+        bUnrealVehicleActuationModeLogged = true;
+        bLastUnrealVehicleMechanicalSimEnabled = bMechanicalSimEnabled;
+      }
+    } else if (!bUnrealVehicleActuationModeLogged) {
+      UnrealLogger::Log(
+          projectairsim::LogLevel::kWarning,
+          TEXT("[%hs] UnrealVehicle actuation mode: Blueprint parameter "
+               "interface plus direct-force fallback; no Chaos movement "
+               "component found."),
+          SimRobot.GetID().c_str());
+      bUnrealVehicleActuationModeLogged = true;
+    }
+
+    // Apply the standard indexed vehicle controls: throttle=0, brake=1,
+    // steering=2. The vehicle actor receives every indexed value above; these
+    // standard channels must also reach Chaos or the force-based fallback
+    // when the actor does not consume SetActuatorSignal itself.
+    ApplyStandardVehicleForces(Parameters.FindRef(0), Parameters.FindRef(1),
+                               Parameters.FindRef(2));
+
+    static int UnrealVehicleDriveDebugCounter = 0;
+    if (ProjectAirSimVehicleMovement != nullptr &&
+        ++UnrealVehicleDriveDebugCounter % 60 == 0) {
+      UnrealLogger::Log(
+          projectairsim::LogLevel::kWarning,
+          TEXT("[%hs] UnrealVehicle Chaos state: requested=(T=%.2f B=%.2f "
+               "S=%.2f) raw=(T=%.2f B=%.2f S=%.2f) gear=%d/%d "
+               "rpm=%.1f speed=%.1f cm/s wheels=%d"),
+          SimRobot.GetID().c_str(), Parameters.FindRef(0),
+          Parameters.FindRef(1), Parameters.FindRef(2),
+          ProjectAirSimVehicleMovement->GetThrottleInput(),
+          ProjectAirSimVehicleMovement->GetBrakeInput(),
+          ProjectAirSimVehicleMovement->GetSteeringInput(),
+          ProjectAirSimVehicleMovement->GetCurrentGear(),
+          ProjectAirSimVehicleMovement->GetTargetGear(),
+          ProjectAirSimVehicleMovement->GetEngineRotationSpeed(),
+          ProjectAirSimVehicleMovement->GetForwardSpeed(),
+          ProjectAirSimVehicleMovement->GetNumWheels());
+    }
+
+  } else if (bIsWheeledVehicle) {
+    TMap<int32, float> Parameters;
+    {
+      FScopeLock ScopeLock(&UpdateMutex);
+      Parameters = ProjectAirSimVehicleParameters;
+    }
+
+    float Throttle = Parameters.FindRef(0);
+    float Steering = Parameters.FindRef(1);
+    float Brake = Parameters.FindRef(2);
+
+    // SimpleDrive's native output order is [throttle, steering, brake]. Map
+    // those channels at the Unreal vehicle boundary so wheeled vehicles do
+    // not need unreal-vehicle bridge actuators in their JSON configuration.
+    if (SimRobot.GetControllerType() == "simple-drive-api") {
+      const std::vector<float> Controls = SimRobot.GetControllerOutput();
+      if (Controls.size() >= 3) {
+        Throttle = Controls[0];
+        Steering = Controls[1];
+        Brake = Controls[2];
+      }
+
+      if (!bWheeledVehicleSimpleDriveLogged) {
+        UnrealLogger::Log(
+            projectairsim::LogLevel::kTrace,
+            TEXT("[%hs] WheeledVehicle zero-wiring SimpleDrive mapping active "
+                 "([throttle, steering, brake] -> Chaos inputs)."),
+            SimRobot.GetID().c_str());
+        bWheeledVehicleSimpleDriveLogged = true;
+      }
+    }
+
+    ApplyThrottle(Throttle);
+    ApplySteering(Steering);
+    ApplyBrake(Brake);
+    if (ProjectAirSimVehicleMovement != nullptr) {
+      const bool bMechanicalSimEnabled =
+          ProjectAirSimVehicleMovement->bMechanicalSimEnabled;
+      if (!bWheeledVehicleActuationModeLogged ||
+          bMechanicalSimEnabled !=
+              bLastWheeledVehicleMechanicalSimEnabled) {
+        if (bMechanicalSimEnabled) {
+          UnrealLogger::Log(
+              projectairsim::LogLevel::kTrace,
+              TEXT("[%hs] WheeledVehicle actuation mode: Chaos mechanical "
+                   "drivetrain (direct-force fallback disabled)."),
+              SimRobot.GetID().c_str());
+        } else {
+          UnrealLogger::Log(
+              projectairsim::LogLevel::kWarning,
+              TEXT("[%hs] WheeledVehicle actuation mode: direct-force "
+                   "fallback (Chaos mechanical simulation disabled)."),
+              SimRobot.GetID().c_str());
+        }
+        bWheeledVehicleActuationModeLogged = true;
+        bLastWheeledVehicleMechanicalSimEnabled = bMechanicalSimEnabled;
+      }
+
+      if (!bMechanicalSimEnabled) {
+        ApplyFallbackVehicleForces(Throttle, Brake, Steering);
+      }
+    }
+  }
+
+  // Read kinematics from the ProjectAirSim vehicle.
+  // Use the physics component's transform (not GetActorLocation) because in
+  // many Blueprints the root is a static DefaultSceneRoot while the mesh
+  // that simulates physics is a child component that moves independently.
+  bHasUnrealPoseUpdated = true;
+
+  TimeNano DeltaTimeThisTick = UnrealHelpers::DeltaTimeToNanos(DeltaTime);
+  TimeNano LastSimtime = projectairsim::SimClock::Get()->NowSimNanos();
+  UnrealPoseUpdatedTimeStamp = LastSimtime + DeltaTimeThisTick;
+
+  projectairsim::Kinematics NewKin;
+
+  FVector ActorPos;
+  FQuat ActorQuat;
+  if (ProjectAirSimVehicleComponent != nullptr &&
+      ProjectAirSimVehicleComponent->IsSimulatingPhysics()) {
+    // Prefer the physics component directly — the most reliable source when
+    // the actor root is a non-physics DefaultSceneRoot (common in Blueprints).
+    ActorPos = ProjectAirSimVehicleComponent->GetComponentLocation();
+    ActorQuat = ProjectAirSimVehicleComponent->GetComponentQuat();
+  } else if (ProjectAirSimVehicleComponent != nullptr) {
+    ActorPos = ProjectAirSimVehicleComponent->GetComponentLocation();
+    ActorQuat = ProjectAirSimVehicleComponent->GetComponentQuat();
+  } else {
+    ActorPos = ProjectAirSimVehicleActor->GetActorLocation();
+    ActorQuat = ProjectAirSimVehicleActor->GetActorQuat();
+  }
+
+  // NEU_cm -> NEU_m -> NED_m
+  NewKin.pose.position = projectairsim::TransformUtils::NeuToNedLinear(
+      projectairsim::TransformUtils::ToMeters(
+          projectairsim::Vector3(ActorPos.X, ActorPos.Y, ActorPos.Z)));
+
+  NewKin.pose.orientation = projectairsim::Quaternion(ActorQuat.W, ActorQuat.X,
+                                                      ActorQuat.Y, ActorQuat.Z);
+
+  FVector VelLin = FVector::ZeroVector;
+  FVector VelAng = FVector::ZeroVector;
+
+  // Read physics velocity directly from the selected component. Actors without
+  // a simulating rigid body use finite differences of their Unreal transform.
+  bool bGotVelocity = false;
+
+  if (ProjectAirSimVehicleComponent != nullptr &&
+      ProjectAirSimVehicleComponent->IsSimulatingPhysics()) {
+    // Read directly from the physics engine.
+    VelLin = ProjectAirSimVehicleComponent->GetPhysicsLinearVelocity();  // cm/s
+    VelAng =
+        ProjectAirSimVehicleComponent->GetPhysicsAngularVelocityInRadians();
+    bGotVelocity = true;
+  }
+
+  if (!bGotVelocity) {
+    // Fallback: finite differences for kinematic / Blueprint-driven actors.
+    if (bHasPrevExtState && DeltaTime > 0.0f) {
+      VelLin = (ActorPos - PrevExtPosition) / DeltaTime;  // cm/s
+
+      // Angular velocity from quaternion finite difference
+      FQuat DeltaQuat = ActorQuat * PrevExtQuat.Inverse();
+      DeltaQuat.Normalize();
+      FVector Axis;
+      float AngleRad;
+      DeltaQuat.ToAxisAndAngle(Axis, AngleRad);
+      VelAng = Axis * (AngleRad / DeltaTime);
+
+    } else {
+      VelLin = FVector::ZeroVector;
+      VelAng = FVector::ZeroVector;
+    }
+  }
+
+  // Store current state for next-tick finite differences
+  PrevExtPosition = ActorPos;
+  PrevExtQuat = ActorQuat;
+  bHasPrevExtState = true;
+
+  // Debug: log raw values to diagnose which branch was taken
+  static int VelDebugCounter = 0;
+  if (++VelDebugCounter % 60 == 0) {
+    bool bSimPhys = ProjectAirSimVehicleComponent != nullptr &&
+                    ProjectAirSimVehicleComponent->IsSimulatingPhysics();
+    UnrealLogger::Log(
+        projectairsim::LogLevel::kWarning,
+        TEXT("[ExtActorVel] HasInterface=%d  PhysComp=%s  SimPhys=%d  "
+             "Pos=(%.1f,%.1f,%.1f)  Yaw=%.1f  "
+             "VelLin=(%.1f,%.1f,%.1f)  dt=%.4f"),
+        bProjectAirSimVehicleHasInterface ? 1 : 0,
+        ProjectAirSimVehicleComponent
+            ? *ProjectAirSimVehicleComponent->GetName()
+            : TEXT("NULL"),
+        bSimPhys ? 1 : 0, ActorPos.X, ActorPos.Y, ActorPos.Z,
+        ActorQuat.Rotator().Yaw, VelLin.X, VelLin.Y, VelLin.Z, DeltaTime);
+  }
+
+  // NEU_cm/s -> NEU_m/s -> NED_m/s
+  NewKin.twist.linear = projectairsim::TransformUtils::NeuToNedLinear(
+      projectairsim::TransformUtils::ToMeters(
+          projectairsim::Vector3(VelLin.X, VelLin.Y, VelLin.Z)));
+
+  // NEU -> NED
+  NewKin.twist.angular = projectairsim::TransformUtils::NeuToNedAngular(
+      projectairsim::Vector3(VelAng.X, VelAng.Y, VelAng.Z));
+
+  // Unreal does not expose a stable acceleration state equivalent to the
+  // rigid body's pose and velocity, so derive acceleration from velocity.
+  if (DeltaTime > 0.0f) {
+    auto DeltaVelLin = NewKin.twist.linear - RobotKinematics.twist.linear;
+    auto DeltaVelAng = NewKin.twist.angular - RobotKinematics.twist.angular;
+    NewKin.accels.linear = DeltaVelLin / DeltaTime;
+    NewKin.accels.angular = DeltaVelAng / DeltaTime;
+  }
+
+  // Physics-backed Unreal vehicles publish the samples captured after every
+  // Chaos solve from AUnrealScene immediately before each core_sim sensor
+  // update. Kinematic/Blueprint vehicles keep the once-per-frame fallback.
+  if (!ProjectAirSimVehicleSubstepSampler ||
+      !ProjectAirSimVehicleSubstepSampler->IsRunning()) {
+    SetRobotKinematics(NewKin, UnrealPoseUpdatedTimeStamp);
+    SimRobot.UpdateKinematics(NewKin, UnrealPoseUpdatedTimeStamp);
+  }
+
+  // Move this entire actor (and all attached sensor components) to follow
+  // the ProjectAirSim vehicle.  Standard UE attachment does not work when the
+  // target actor is physics-simulated, so we teleport every tick.
+  this->SetActorLocationAndRotation(ActorPos, ActorQuat, false, nullptr,
+                                    ETeleportType::TeleportPhysics);
+}
+
 void AUnrealRobot::InitializeSensors(
     const std::vector<std::reference_wrapper<projectairsim::Sensor>>&
         InSensors) {
@@ -384,6 +1577,31 @@ void AUnrealRobot::InitializeSensors(
             }
           }
           if (Parent == nullptr) Parent = GetRootComponent();
+
+          // External-actor robots may have no links/root yet at this point.
+          // Ensure sensor creation always has a valid UObject outer.
+          if (Parent == nullptr) {
+            USceneComponent* AutoRoot = NewObject<USceneComponent>(
+                this, TEXT("ProjectAirSimVehicleSensorRoot"));
+            if (AutoRoot != nullptr) {
+              AutoRoot->RegisterComponent();
+              SetRootComponent(AutoRoot);
+              Parent = AutoRoot;
+              UnrealLogger::Log(
+                  projectairsim::LogLevel::kWarning,
+                  TEXT("[%s] Root component was null during sensor init; "
+                       "created ProjectAirSimVehicleSensorRoot."),
+                  *GetName());
+            }
+          }
+
+          if (Parent == nullptr) {
+            UnrealLogger::Log(projectairsim::LogLevel::kError,
+                              TEXT("[%s] Failed to create sensor '%hs': null "
+                                   "parent component."),
+                              *GetName(), CurSensor.get().GetId().c_str());
+            return;
+          }
 
           std::pair<std::string, UUnrealSensor*> Pair =
               UnrealSensorFactory::CreateSensor(CurSensor.get(), Parent,
@@ -416,10 +1634,14 @@ void AUnrealRobot::MoveRobotToUnrealPose(bool bUseCollisionSweep) {
   bHasKinematicsUpdated = false;  // done processing kinematics, clear flag
 
   // Use local copy of target pose to do actual robot pose update
-  const FVector TgtLocNEU =
+  FVector TgtLocNEU =
       UnrealHelpers::ToFVector(projectairsim::TransformUtils::NedToNeuLinear(
           projectairsim::TransformUtils::ToCentimeters(TgtPose.position)));
   const FRotator TgtRot = UnrealHelpers::ToFRotator(TgtPose.orientation);
+
+  if (SimRobot.GetPhysicsType() == projectairsim::PhysicsType::kJSBSimPhysics) {
+    TgtLocNEU = ClampRootMeshToGround(RobotRootLink, TgtLocNEU, TgtRot);
+  }
 
   // Move UE position
   RobotRootLink->SetWorldLocationAndRotation(TgtLocNEU, TgtRot,
@@ -496,7 +1718,6 @@ void AUnrealRobot::SetActuatedTransforms(
 }
 
 void AUnrealRobot::SetExternalWrench(projectairsim::Wrench InWrench) {
-  // Apply rigid body wrench from physics body to root link's origin
   // NED_m -> NED_cm -> NEU_cm
   projectairsim::Vector3 ForceNEU =
       projectairsim::TransformUtils::NedToNeuLinear(
@@ -519,6 +1740,29 @@ void AUnrealRobot::SetExternalWrench(projectairsim::Wrench InWrench) {
   // ApplyActuatedTransforms(), but this might not work for robot's with Unreal
   // Physics active. Leaving it for now, as Unreal Physics is no longer
   // supported and may be deprecated.
+}
+
+void AUnrealRobot::UpdateCachedTerrainElevation() {
+  if (SimRobot.GetPhysicsType() != projectairsim::PhysicsType::kJSBSimPhysics) {
+    return;
+  }
+
+  if (SimRobot.GetJSBSimGroundSettings().mode ==
+      projectairsim::JSBSimGroundMode::kConstant) {
+    return;
+  }
+
+  const auto terrain_cb = SimRobot.GetTerrainElevationCallback();
+  if (terrain_cb == nullptr) {
+    return;
+  }
+
+  const auto& position = SimRobot.GetKinematics().pose.position;
+  const auto terrain_asl_m = terrain_cb(static_cast<double>(position.x()),
+                                        static_cast<double>(position.y()));
+  if (std::isfinite(terrain_asl_m)) {
+    SimRobot.SetCachedTerrainElevationASL(terrain_asl_m);
+  }
 }
 
 void AUnrealRobot::BeginPlay() {
@@ -569,6 +1813,8 @@ void AUnrealRobot::BeginPlay() {
              TimeNano DeltaSimtime) {
         this->SetActuatedTransforms(InActuatedTransforms, DeltaSimtime);
       });
+
+  UpdateCachedTerrainElevation();
 }
 
 void AUnrealRobot::Tick(float DeltaTime) {
@@ -576,9 +1822,21 @@ void AUnrealRobot::Tick(float DeltaTime) {
   // In case of a tick coming through while it should be paused, just return
   if (UGameplayStatics::IsGamePaused(this)) return;
 
+  UpdateCachedTerrainElevation();
+
   // Main conditions by physics type
   if (SimRobot.GetPhysicsType() == projectairsim::PhysicsType::kUnrealPhysics &&
-      SimPhysicsBody != nullptr) {
+      (!SimRobot.GetUnrealVehicleClass().empty() ||
+       !SimRobot.GetWheeledVehicleClass().empty())) {
+    //-------------------------------------------------------------------------
+    // ProjectAirSimVehicle
+
+    // Read kinematics from the ProjectAirSim vehicle and forward actuator
+    // signals
+    TickProjectAirSimVehicle(DeltaTime);
+  } else if (SimRobot.GetPhysicsType() ==
+                 projectairsim::PhysicsType::kUnrealPhysics &&
+             SimPhysicsBody != nullptr) {
     //-------------------------------------------------------------------------
     // UnrealPhysics
 
@@ -661,6 +1919,20 @@ void AUnrealRobot::Tick(float DeltaTime) {
 
   ApplyActuatedTransforms();
 
+  // Non-physics drones are moved directly with SetPose and therefore have no
+  // actuator output to animate their propeller links. Spin the standard
+  // quadrotor Prop_* meshes visually while preserving their fixed offsets.
+  if (SimRobot.GetPhysicsType() == projectairsim::PhysicsType::kNonPhysics) {
+    constexpr float PropellerDegreesPerSecond = 2160.0f;
+    for (const auto& [LinkId, Link] : RobotLinks) {
+      if (Link == nullptr || LinkId.rfind("Prop_", 0) != 0) continue;
+      const bool bClockwise = LinkId == "Prop_FR" || LinkId == "Prop_RL";
+      const float Direction = bClockwise ? -1.0f : 1.0f;
+      Link->AddLocalRotation(FRotator(
+          0.0f, Direction * PropellerDegreesPerSecond * DeltaTime, 0.0f));
+    }
+  }
+
   // For all physics types, set a flag and pose timestamp on the sensors to
   // synchronize their updates with the robot's pose
   if (bHasUnrealPoseUpdated) {
@@ -696,5 +1968,18 @@ void AUnrealRobot::CalcCamera(float DeltaTime, FMinimalViewInfo& OutResult) {
 }
 
 void AUnrealRobot::EndPlay(const EEndPlayReason::Type EndPlayReason) {
+  delete ProjectAirSimVehicleSubstepSampler;
+  ProjectAirSimVehicleSubstepSampler = nullptr;
+
+  // Destroy the ProjectAirSim vehicle actor so it doesn't persist across scene
+  // reloads. This covers both actors that were found in the world and those
+  // that were spawned by InitializeProjectAirSimVehicle().
+  if (ProjectAirSimVehicleActor != nullptr &&
+      IsValid(ProjectAirSimVehicleActor)) {
+    ProjectAirSimVehicleActor->Destroy();
+    ProjectAirSimVehicleActor = nullptr;
+  }
+  ProjectAirSimVehicleComponent = nullptr;
+
   Super::EndPlay(EndPlayReason);
 }

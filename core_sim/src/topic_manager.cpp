@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation. 
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI CONSULTING CORP
 
 // MIT License. All rights reserved.
@@ -7,11 +7,15 @@
 
 #include <array>
 #include <atomic>
+#include <cstddef>
+#include <cstring>
 #include <functional>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <shared_mutex>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <thread>
 
@@ -29,9 +33,103 @@
 namespace microsoft {
 namespace projectairsim {
 
-// forward declarations
+namespace detail {
 
-enum class FrameType : int { kSubscribe = 0, kUnsubscribe = 1, kMessage = 2 };
+namespace {
+
+template <typename Writer>
+void PackTopicFrameToWriter(Writer& writer, FrameType type,
+                            const std::string& topic, const std::string& body) {
+  msgpack::packer<Writer> packer(writer);
+  packer.pack_array(3);
+  packer.pack(type);
+  packer.pack(topic);
+  packer.pack(body);
+}
+
+class CountingWriter {
+ public:
+  void write(const char*, size_t length) { size_ += length; }
+
+  size_t size() const { return size_; }
+
+ private:
+  size_t size_ = 0;
+};
+
+class FixedMessageWriter {
+ public:
+  FixedMessageWriter(char* data, size_t length)
+      : begin_(data), current_(data), end_(data + length) {}
+
+  void write(const char* data, size_t length) {
+    if (length > static_cast<size_t>(end_ - current_)) {
+      throw std::length_error("topic frame message writer overflow");
+    }
+    std::memcpy(current_, data, length);
+    current_ += length;
+  }
+
+  size_t bytes_written() const {
+    return static_cast<size_t>(current_ - begin_);
+  }
+
+ private:
+  char* begin_;
+  char* current_;
+  char* end_;
+};
+
+}  // namespace
+
+void PackTopicFrame(msgpack::sbuffer& buffer, FrameType type,
+                    const std::string& topic, const std::string& body) {
+  PackTopicFrameToWriter(buffer, type, topic, body);
+}
+
+size_t GetPackedTopicFrameSize(FrameType type, const std::string& topic,
+                               const std::string& body) {
+  CountingWriter writer;
+  PackTopicFrameToWriter(writer, type, topic, body);
+  return writer.size();
+}
+
+int AllocPackedTopicFrameMessage(nng_msg** message, FrameType type,
+                                 const std::string& topic,
+                                 const std::string& body) {
+  if (message == nullptr) {
+    return NNG_EINVAL;
+  }
+
+  *message = nullptr;
+
+  const size_t frame_size = GetPackedTopicFrameSize(type, topic, body);
+  nng_msg* allocated_message = nullptr;
+  int rv = nng_msg_alloc(&allocated_message, frame_size);
+  if (rv != 0) {
+    return rv;
+  }
+
+  try {
+    FixedMessageWriter writer(
+        reinterpret_cast<char*>(nng_msg_body(allocated_message)), frame_size);
+    PackTopicFrameToWriter(writer, type, topic, body);
+    if (writer.bytes_written() != frame_size) {
+      nng_msg_free(allocated_message);
+      return NNG_EINTERNAL;
+    }
+  } catch (...) {
+    nng_msg_free(allocated_message);
+    throw;
+  }
+
+  *message = allocated_message;
+  return 0;
+}
+
+}  // namespace detail
+
+// forward declarations
 
 class TopicManager::Impl {
  public:
@@ -84,7 +182,8 @@ class TopicManager::Impl {
     std::function<void(const Topic&, const Message&)> callback;
     std::function<void(const Topic&, bool is_subscribed)> callback_subscribed;
 
-    TopicBlock(const Topic &topic, std::function<void(const Topic&, bool is_subscribed)>
+    TopicBlock(const Topic& topic,
+               std::function<void(const Topic&, bool is_subscribed)>
                    callback_subscribed_in = nullptr)
         : topic(topic), callback_subscribed(callback_subscribed_in) {}
   };
@@ -113,7 +212,7 @@ class TopicManager::Impl {
   void Unsubscribe(const Topic& topic);
   bool Unsubscribe(const std::string& topic_path);
   void UnsubscribeAll();
-  void Send(const Topic& topic, const Message& message);
+  void Send(const std::shared_ptr<TopicBlock>& block, const Message& message);
   void Send(const std::shared_ptr<TopicBlock>& block);
   void Recv(const Topic& topic, const Message& message);
 
@@ -125,21 +224,31 @@ class TopicManager::Impl {
   std::string local_address_;
   Logger log_;
   mutable std::shared_timed_mutex manager_lock_;
+  // Table mutations hold manager_lock_ first, then this short-lived lock.
+  // Publish may be called by a callback already holding manager_lock_.
+  std::mutex registration_lock_;
+  // Serialize complete Start/Stop transitions without blocking topic callbacks.
+  std::mutex lifecycle_lock_;
   std::string name_;
   int port_;
   char* recv_buffer_;
   size_t recv_buffer_size_;
-  Dispatcher recv_dispatcher_;
   std::thread recv_thread_;
-  Dispatcher send_dispatcher_;
   nng_socket topic_socket_;
   std::atomic<bool> state_;
+  std::atomic<int> active_pipe_count_;
   std::map<std::string, std::shared_ptr<TopicBlock>> topic_table_;
   std::function<void(const std::string&, const MessageType&,
                      const std::string&)>
       topic_published_callback_;
   // TODO Configure a set of topic paths to have the topic callback enabled for
   bool enable_topic_published_callback_;
+
+  // Members are destroyed in reverse declaration order. Join the dispatchers
+  // before releasing the topic table, callbacks, or other state they access.
+  // Stop receiving work before stopping the sender it can enqueue work on.
+  Dispatcher send_dispatcher_;
+  Dispatcher recv_dispatcher_;
 };
 
 // class TopicManager
@@ -213,14 +322,15 @@ TopicManager::Impl::Impl(const Logger& logger,
       port_(default_port),
       recv_buffer_(nullptr),
       recv_buffer_size_(0),
-      recv_dispatcher_("recv_dispatcher", logger),
       recv_thread_(),
-      send_dispatcher_("send_dispatcher", logger),
       topic_socket_(NNG_SOCKET_INITIALIZER),
       state_(false),
+      active_pipe_count_(0),
       topic_table_(),
       topic_published_callback_(nullptr),
-      enable_topic_published_callback_(false) {}
+      enable_topic_published_callback_(false),
+      send_dispatcher_("send_dispatcher", logger),
+      recv_dispatcher_("recv_dispatcher", logger) {}
 
 void TopicManager::Impl::Load(const json& config_json) {
   local_address_ = JsonUtils::GetString(config_json, Constant::Config::ip,
@@ -230,7 +340,37 @@ void TopicManager::Impl::Load(const json& config_json) {
 }
 
 void TopicManager::Impl::HandleNNGPipeEvent(nng_pipe pipe, nng_pipe_ev ev) {
+  if (ev == NNG_PIPE_EV_ADD_POST) {
+    const int active_pipe_count =
+        active_pipe_count_.fetch_add(1, std::memory_order_acq_rel) + 1;
+    log_.LogVerbose(name_, "Pub-sub client connected; active topic pipes: %d",
+                    active_pipe_count);
+    return;
+  }
+
   if (ev == NNG_PIPE_EV_REM_POST) {
+    int active_pipe_count = active_pipe_count_.load(std::memory_order_acquire);
+    if (active_pipe_count <= 0) {
+      log_.LogVerbose(
+          name_,
+          "Ignoring pub-sub disconnect event with no active topic pipes");
+      return;
+    }
+
+    while (active_pipe_count > 0 &&
+           !active_pipe_count_.compare_exchange_weak(
+               active_pipe_count, active_pipe_count - 1,
+               std::memory_order_acq_rel)) {
+    }
+
+    --active_pipe_count;
+
+    log_.LogVerbose(name_,
+                    "Pub-sub client disconnected; active topic pipes: %d",
+                    active_pipe_count);
+
+    if (active_pipe_count > 0) return;
+
     // Client disconnected--reset client authorization
     log_.LogVerbose(
         name_, "Pub-sub client disconnected--resetting client authorization",
@@ -245,7 +385,9 @@ void TopicManager::Impl::HandleNNGPipeEvent(nng_pipe pipe, nng_pipe_ev ev) {
 }
 
 void TopicManager::Impl::Start() {
+  std::lock_guard<std::mutex> lifecycle_lock(lifecycle_lock_);
   std::unique_lock<std::shared_timed_mutex> exclusive_lock(manager_lock_);
+  if (state_.load()) return;
 
   int rv = nng_pair0_open(&topic_socket_);
   if (rv != 0) {
@@ -268,12 +410,36 @@ void TopicManager::Impl::Start() {
     throw Error("Error setting send timeout on server socket.");
   }
 
+  // Recv timeout so RecvLoop blocks instead of polling with NNG_FLAG_NONBLOCK.
+  // 100ms is short enough for responsive shutdown (state_ check) while
+  // eliminating the 1ms poll wakeup overhead.
+  const int recv_timeout = 100;
+  rv = nng_socket_set_ms(topic_socket_, NNG_OPT_RECVTIMEO, recv_timeout);
+  if (rv != 0) {
+    auto errno_str = nng_strerror(rv);
+    log_.LogError(Constant::Component::topic_manager,
+                  "nng_socket_set_ms failed with '%s'.", errno_str);
+    throw Error("Error setting recv timeout on server socket.");
+  }
+
   // Previously with Nanomsg the send buffer size NN_SNDBUF was set to 4 MB,
   // but NNG's send buffer size parameter NNG_OPT_SENDBUF is in number of
   // messages rather than bytes, so instead of choosing some arbitrary number
   // of messages, just leave it unset to use the default value.
 
-  // Register callback for client disconnects
+  // Register callback for client connects/disconnects. NNG can report
+  // transient pipe removals while another topic pipe is still active, so only
+  // clear subscriptions when the last active pipe disconnects.
+  rv = nng_pipe_notify(topic_socket_, NNG_PIPE_EV_ADD_POST,
+                       &TopicManager::Impl::HandleNNGPipeEventProxy, this);
+  if (rv != 0) {
+    auto errno_str = nng_strerror(rv);
+    log_.LogError(name_, "nng_pipe_notify failed with '%s'.", errno_str);
+    throw Error(
+        "Error installing event listener on topic socket for serving "
+        "requests.");
+  }
+
   rv = nng_pipe_notify(topic_socket_, NNG_PIPE_EV_REM_POST,
                        &TopicManager::Impl::HandleNNGPipeEventProxy, this);
   if (rv != 0) {
@@ -290,6 +456,7 @@ void TopicManager::Impl::Start() {
   std::stringstream binding_str;
   binding_str << "tcp://" << local_address_ << ":" << port_;
 
+  active_pipe_count_.store(0, std::memory_order_release);
   rv = nng_listen(topic_socket_, binding_str.str().c_str(),
                   NULL /* no need to save pointer to the created listener */,
                   0 /*no special flags*/);
@@ -310,12 +477,20 @@ void TopicManager::Impl::Start() {
 }
 
 void TopicManager::Impl::Stop() {
+  std::lock_guard<std::mutex> lifecycle_lock(lifecycle_lock_);
   std::unique_lock<std::shared_timed_mutex> exclusive_lock(manager_lock_);
+  if (!state_.load()) return;
 
   send_dispatcher_.stop();
   recv_dispatcher_.stop();
 
   state_ = false;
+
+  // RecvLoop and the NNG disconnect callback both acquire manager_lock_.
+  // Waiting for either while holding it would prevent shutdown from finishing.
+  // lifecycle_lock_ keeps another Start/Stop from changing the socket or thread
+  // until this complete shutdown has finished.
+  exclusive_lock.unlock();
 
   if (recv_thread_.joinable()) {
     try {
@@ -335,7 +510,9 @@ void TopicManager::Impl::Stop() {
     log_.LogError(name_, "nng_close failed with '%s'.", errno_str);
   }
 
+  exclusive_lock.lock();
   topic_socket_ = NNG_SOCKET_INITIALIZER;
+  active_pipe_count_.store(0, std::memory_order_release);
 
   enable_topic_published_callback_ = false;
   topic_published_callback_ = nullptr;
@@ -356,7 +533,10 @@ void TopicManager::Impl::RegisterTopic(
 
   auto block = std::make_shared<TopicBlock>(topic, callback_subscribed);
 
-  topic_table_.insert(std::make_pair(topic_path, block));
+  {
+    std::lock_guard<std::mutex> lock(registration_lock_);
+    topic_table_.insert(std::make_pair(topic_path, block));
+  }
 
   log_.LogVerbose(name_, "Registered topic %s", topic.GetPath().c_str());
 }
@@ -384,9 +564,21 @@ void TopicManager::Impl::SubscribeTopic(
 
 void TopicManager::Impl::PublishTopic(const Topic& topic,
                                       const Message& message) {
-  if (client_authorization_.IsAuthorized())
-    send_dispatcher_.dispatch(
-        [this, topic, message]() { Send(topic, message); });
+  if (!client_authorization_.IsAuthorized()) return;
+  std::shared_ptr<TopicBlock> block;
+  {
+    std::lock_guard<std::mutex> lock(registration_lock_);
+    auto iter = topic_table_.find(topic.GetPath());
+    if (iter != topic_table_.end()) block = iter->second;
+  }
+  if (!block) {
+    log_.LogError(name_, "Cannot send message to unregistered topic '%s'",
+                  topic.GetPath().c_str());
+    return;
+  }
+  // Capture this registration, so queued messages cannot leak into a new scene
+  // that registers the same path after teardown.
+  send_dispatcher_.dispatch([this, block, message]() { Send(block, message); });
 }
 
 bool TopicManager::Impl::ContainsTopic(const std::string& topic_path) const {
@@ -411,7 +603,10 @@ void TopicManager::Impl::UnregisterTopic(const Topic& topic) {
   block->is_subscribed = false;
   block->callback = nullptr;
 
-  topic_table_.erase(iter->first);
+  {
+    std::lock_guard<std::mutex> lock(registration_lock_);
+    topic_table_.erase(iter->first);
+  }
 
   log_.LogVerbose(name_, "Unregistered topic %s", topic.GetPath().c_str());
 }
@@ -419,13 +614,11 @@ void TopicManager::Impl::UnregisterTopic(const Topic& topic) {
 void TopicManager::Impl::RecvLoop() {
   while (state_.load()) {
     int rv = nng_recv(topic_socket_, &recv_buffer_, &recv_buffer_size_,
-                      NNG_FLAG_ALLOC | NNG_FLAG_NONBLOCK);
+                      NNG_FLAG_ALLOC);
 
     if (rv != 0) {
-      if (rv == NNG_EAGAIN) {
-        // No data is ready yet, spin to retry
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        continue;
+      if (rv == NNG_ETIMEDOUT) {
+        continue;  // recv timeout — re-check state_ and retry
       } else {
         auto errno_str = nng_strerror(rv);
         log_.LogWarning(name_, "nng_recv failed with '%s'.", errno_str);
@@ -471,18 +664,15 @@ void TopicManager::Impl::RecvLoop() {
   }
 }
 
-void TopicManager::Impl::Send(const Topic& topic, const Message& message) {
+void TopicManager::Impl::Send(const std::shared_ptr<TopicBlock>& block,
+                              const Message& message) {
   std::shared_lock<std::shared_timed_mutex> shared_lock(manager_lock_);
-
+  const auto& topic = block->topic;
   auto topic_path = topic.GetPath();
   auto iter = topic_table_.find(topic_path);
-  if (iter == topic_table_.end()) {
-    log_.LogError(name_, "Cannot send message to unregistered topic '%s'",
-                  topic_path.c_str());
-    return;
-  }
-
-  auto block = iter->second;
+  // A valid publication may still be queued when its owner unregisters. Drop
+  // it instead of logging an error or delivering it to a later registration.
+  if (iter == topic_table_.end() || iter->second != block) return;
 
   // Cache the value to serve the latest value when client subscribes to the
   // topic.
@@ -493,7 +683,7 @@ void TopicManager::Impl::Send(const Topic& topic, const Message& message) {
   // Also pass message to external callback (e.g. UnrealSimTopicData actor)
   if (topic_published_callback_ && enable_topic_published_callback_) {
     topic_published_callback_(topic_path, topic.GetMessageType(),
-                              message.Serialize());
+                              block->last_value);
   }
 }
 
@@ -529,12 +719,14 @@ bool TopicManager::Impl::Unsubscribe(const std::string& topic_path) {
   std::shared_lock<std::shared_timed_mutex> shared_lock(manager_lock_);
   auto iter = topic_table_.find(topic_path);
   if (iter == topic_table_.end()) {
-    log_.LogError(name_, "Client cannot unsubscribe from unregistered topic '%s'",
+    log_.LogError(name_,
+                  "Client cannot unsubscribe from unregistered topic '%s'",
                   topic_path.c_str());
     return false;
   }
 
-  log_.LogTrace(name_, "Client unsubscribing from topic %s", topic_path.c_str());
+  log_.LogTrace(name_, "Client unsubscribing from topic %s",
+                topic_path.c_str());
 
   {
     auto block = iter->second;
@@ -543,7 +735,8 @@ bool TopicManager::Impl::Unsubscribe(const std::string& topic_path) {
     block->is_subscribed = false;
 
     // Notify callbacks of change in subscription
-    if (callback_subscribed != nullptr) callback_subscribed(block->topic, false);
+    if (callback_subscribed != nullptr)
+      callback_subscribed(block->topic, false);
   }
 
   return true;
@@ -579,20 +772,29 @@ void TopicManager::Impl::Send(const std::shared_ptr<TopicBlock>& block) {
   }
 
   if (block->is_subscribed) {
-    Frame frame;
-    frame.type = FrameType::kMessage;
-    frame.topic = topic_path;
-    frame.body = block->last_value;
+    nng_msg* send_message = nullptr;
+    const int alloc_rv = detail::AllocPackedTopicFrameMessage(
+        &send_message, FrameType::kMessage, topic_path, block->last_value);
+    if (alloc_rv != 0) {
+      auto errno_str = nng_strerror(alloc_rv);
+      log_.LogWarning(
+          name_,
+          "nng_msg_alloc for topic '%s' failed while packing frame: '%s'.",
+          topic_path.c_str(), errno_str);
+      return;
+    }
 
-    msgpack::sbuffer sbuf;
-    msgpack::pack(sbuf, frame);
-
-    int rv = nng_send(topic_socket_, sbuf.data(), sbuf.size(), 0);
+    int rv = nng_sendmsg(topic_socket_, send_message, 0);
+    if (rv == 0) {
+      send_message = nullptr;
+    }
 
     if (rv != 0) {
+      nng_msg_free(send_message);
       auto errno_str = nng_strerror(rv);
-      log_.LogWarning(name_, "nng_send for topic '%s' failed with error '%s'.",
-                      frame.topic.c_str(), errno_str);
+      log_.LogWarning(name_,
+                      "nng_sendmsg for topic '%s' failed with error '%s'.",
+                      topic_path.c_str(), errno_str);
       return;
     }
   }
@@ -626,6 +828,7 @@ void TopicManager::Impl::Recv(const Topic& topic, const Message& message) {
 }
 
 void TopicManager::Impl::CreateTopicList() {
+  std::unique_lock<std::shared_timed_mutex> exclusive_lock(manager_lock_);
   std::vector<TopicInfo> topic_infos;
 
   // In case the Topic List topic hasn't been created yet, add in a placeholder
@@ -635,7 +838,10 @@ void TopicManager::Impl::CreateTopicList() {
                          MessageType::kTopicList);
   auto block = std::make_shared<TopicBlock>(topic_list_topic);
 
-  topic_table_[topic_list_topic.GetPath()] = block;  // insert or overwrite
+  {
+    std::lock_guard<std::mutex> lock(registration_lock_);
+    topic_table_[topic_list_topic.GetPath()] = block;  // insert or overwrite
+  }
 
   // Create list of topic info data for the Topic List topic
   std::transform(
@@ -698,6 +904,9 @@ void TopicManager::Impl::CreateTopicList() {
           case MessageType::kDistanceSensor:
             topic_info.message_type = "distance-sensor";
             break;
+          case MessageType::kClock:
+            topic_info.message_type = "clock";
+            break;
           default:
             break;
         }
@@ -731,5 +940,3 @@ const bool TopicManager::Impl::IsTopicPublishedCallbackEnabled() const {
 
 }  // namespace projectairsim
 }  // namespace microsoft
-
-MSGPACK_ADD_ENUM(microsoft::projectairsim::FrameType);

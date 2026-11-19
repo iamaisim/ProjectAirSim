@@ -66,7 +66,7 @@ try:
         #responses.update(drone.GetImages("back_center", [ImageType.DISPARITY_NORMALIZED, ImageType.SURFACE_NORMALS]))
 
         for idx, response in enumerate(responses.values()):
-            if response["encoding"] == "16UC1":
+            if response["encoding"] in ("16UC1", "16FC1"):
                 filename = os.path.join(tmp_dir, str(x) + "_" + str(idx) + ".pfm")
             else:
                 filename = os.path.join(tmp_dir, str(x) + "_" + str(idx) + ".png")

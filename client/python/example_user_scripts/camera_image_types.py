@@ -67,7 +67,7 @@ async def main():
 
         for index, image in enumerate(images.values()):
             img_np = unpack_image(image)
-            if image["encoding"] == "16UC1":
+            if image["encoding"] in ("16UC1", "16FC1"):
                 file_save_path = os.path.join(save_path, str(index) + ".pfm")
             else:
                 file_save_path = os.path.join(save_path, str(index) + ".png")

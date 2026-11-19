@@ -49,6 +49,7 @@ class ProjectAirSimClient:
         projectairsim_log().info(f"Connecting to simulation server at {self.address}")
         # Socket for comm via ProjectAirSim topics
         self.socket_topics = pynng.Pair0(
+            recv_timeout=100,  # Bounded block so the receive thread can stop cleanly
             send_timeout=1000,  # Timeout after 1 second
         )
         # Socket for comm via ProjectAirSim services
@@ -78,9 +79,29 @@ class ProjectAirSimClient:
             )
         projectairsim_log().info("Connection opened.")
         self.state = True
-        self.recv_topic_thread = threading.Thread(target=self.__recv_topic)
-        self.recv_topic_thread.start()
-        projectairsim_log().info("Started the pub-sub topic receiving thread.")
+
+    def connect_services(self):
+        """Connect to request/reply services without opening the topic socket.
+
+        Use this when another process, such as the ROS bridge, owns the native
+        single-consumer topic connection but this client still needs control APIs.
+        """
+        projectairsim_log().info(
+            f"Connecting to simulation services at {self.address}"
+        )
+        self.socket_services = pynng.Req0(
+            recv_timeout=300000,
+            send_timeout=1000,
+            resend_time=-1,
+        )
+        self.request_id = self.request_id_generator()
+        service_address = f"tcp://{self.address}:{self.port_services}"
+        if "win" in platform:
+            self.socket_services.dial(service_address.encode(), block=True)
+        if "linux" in platform:
+            self.socket_services.dial(address=service_address, block=True)
+        self.state = True
+        projectairsim_log().info("Service connection opened.")
 
     def get_topic_info(self):
         """This is used by World to get the list of topic info on reload scene."""
@@ -95,15 +116,15 @@ class ProjectAirSimClient:
         while self.topic_info_updated is False:
             time.sleep(0.01)  # wait until subscription message is received
             if time.time() > timeout:
-                # TODO raise pynng.exceptions.Timeout exception?
                 utils.projectairsim_log().warning(
                     "Timeout waiting to get topic info, disconnecting client."
                 )
                 self.disconnect()
-                break
+                raise RuntimeError(
+                    "Timeout waiting to get topic info from sim server."
+                )
 
-        if self.topic_info_updated:
-            projectairsim_log().info("Successfully received topic info list.")
+        projectairsim_log().info("Successfully received topic info list.")
 
     def get_subscriptions_summary(self):
         return self.subs.copy()
@@ -125,6 +146,12 @@ class ProjectAirSimClient:
             topic (str): the name of the topic
             callback (callable): function to call when data is received
         """
+        # Lazily start the recv thread on first subscribe call
+        if self.recv_topic_thread is None:
+            self.socket_topics.recv_timeout = 100  # ms — bounded block for clean shutdown
+            self.recv_topic_thread = threading.Thread(target=self.__recv_topic)
+            self.recv_topic_thread.start()
+
         if topic in self.subs:
             self.subs[topic]["callbacks"].append(callback)
             self.subs[topic]["reliability"] = reliability
@@ -243,8 +270,7 @@ class ProjectAirSimClient:
         self.socket_services.send(request_packed)
         try:
             response = self.socket_services.recv_msg()
-            output = self.postprocess_response(response)
-            return output
+            return self.postprocess_response(response)
         except pynng.exceptions.Timeout:
             utils.projectairsim_log().error(
                 f"Timed out receiving response for request: {request_data}."
@@ -381,14 +407,14 @@ class ProjectAirSimClient:
 
     async def postprocess_response_async_with_callback(
         self, response, callback: callable
-    ) -> None:
+    ) -> Any:
         """Helper function that for asynchronously postprocessing a response"""
         if inspect.isawaitable(response):
             response = await response
         result = self.postprocess_response(response)
-        # Return or validate result here
         if callback is not None:
             callback(result)
+        return result
 
     def disconnect(self):
         """Disconnects from the server"""
@@ -398,9 +424,12 @@ class ProjectAirSimClient:
             self.recv_topic_thread.join()
         # Unsubscribe after stopping the receive loop that processes the
         # incoming subscription messages.
-        self.unsubscribe_all()
-        self.socket_topics.close()
-        self.socket_services.close()
+        if self.socket_topics is not None and self.socket_services is not None:
+            self.unsubscribe_all()
+        if self.socket_topics is not None:
+            self.socket_topics.close()
+        if self.socket_services is not None:
+            self.socket_services.close()
         projectairsim_log().info("Disconnected.")
 
     def __get_authorization_token_public_key(self) -> str:
@@ -479,9 +508,10 @@ class ProjectAirSimClient:
 
     def __recv_topic_frame(self):
         try:
-            # Check if new data is ready to be received with non-blocking recv() call
-            frame_packed = self.socket_topics.recv(block=False)
-        except pynng.exceptions.TryAgain:
+            # Blocking recv with timeout (set on socket in subscribe()).
+            # Returns None on timeout so the loop can check self.state.
+            frame_packed = self.socket_topics.recv()
+        except (pynng.exceptions.TryAgain, pynng.exceptions.Timeout):
             return
 
         # If data was ready to be received, process and return it.
@@ -489,8 +519,7 @@ class ProjectAirSimClient:
         # need to unpack with raw=True to handle the binary values. Also, from msgpack
         # 1.0 the default buffer size limit was increased to 100 MB so no need to
         # set the limit explicitly anymore.)
-        frame = msgpack.unpackb(frame_packed, raw=True)
-        return frame
+        return msgpack.unpackb(frame_packed, raw=True)
 
     def __recv_topic(self):
         while self.state:

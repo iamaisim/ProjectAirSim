@@ -4,7 +4,7 @@ The lidar sensor is currently implemented as an ideal sensor that projects simul
 
 ## Lidar detections
 
-Each beam intersecting with an object's mesh generates a lidar return with a 3D position relative to the sensor. The intensity of the return (which is affected many factors including atmospheric conditions, reflective properties of the object, and orientation of the object) is currently not simulated.
+Each beam intersecting with an object's mesh generates a lidar return with a 3D position relative to the sensor. The mesh-trace lidar types do not simulate physical return intensity. The GPU cylindrical type can provide render-derived intensity values.
 
 # Lidar sensor settings
 
@@ -18,7 +18,7 @@ Each beam intersecting with an object's mesh generates a lidar return with a 3D 
     "type": "lidar",
     "enabled": true,
     "parent-link": "LidarMountPoint",
-    "lidar-type": "generic-cylindrical",
+    "lidar-type": "generic_cylindrical",
     "number-of-channels": 16,
     "range" : 100,
     "points-per-second": 100000,
@@ -55,8 +55,8 @@ Each beam intersecting with an object's mesh generates a lidar return with a 3D 
 | `horizontal-fov-start-deg` | float | Horizontal field of view starting angle. See below for details. (0.0 to 360.0 degrees) |
 | `horizontal-fov-end-deg` | float | Horizontal field of view ending angle. See below for details. (0.0 to 360.0 degrees) |
 | `vertical-rotation-frequency` | float | Vertical scan rate (revolutions per second.) |
-| `vertical-fov-start-deg` | float | Vertical field of view starting angle. See below for details. (-90.0 to +90.0 degrees) |
-| `vertical-fov-end-deg` | float | Vertical field of view ending angle. See below for details. (-90.0 to +90.0 degrees) |
+| `vertical-fov-lower-deg` | float | Lower elevation of the vertical field of view. See below for details. (-90.0 to +90.0 degrees) |
+| `vertical-fov-upper-deg` | float | Upper elevation of the vertical field of view. See below for details. (-90.0 to +90.0 degrees) |
 | `radial-scaling` | float | Scan position scaling factor in radial direction. See below for details. |
 | `disable-self-hits` | bool | If true, lidar traces will pass through the sensor's owner robot to prevent self hits. Defaults to false if not specified. |
 | `draw-debug-points` | bool | If true, markers will be rendered at the beam hit points on the detected objects. This is not supported in Unreal's Shipping configuration. Defaults to false if not specified. |
@@ -77,7 +77,7 @@ The `horizontal-fov-*-deg` settings specify the start and ending horizontal angl
 
 The `vertical-fov-*-deg` settings specify the start and ending vertical angles of the sweep area where +90&deg; is straight up and -90&deg; is straight down relative to the sensor.
 
-A particular lidar type may ignore one or both the horizontal and vertical FOV settings.  See the [lidar type](#lidar_type) section below for details.
+A particular lidar type may ignore one or both the horizontal and vertical FOV settings.  See the [lidar type](#lidar-types) section below for details.
 
 ## Lidar types
 
@@ -87,6 +87,7 @@ The possible `lidar-type` values and their descriptions are:
 | Value | Description |
 | ----- | ----------- |
 | `generic_cylindrical` | The sensor scans a cylindrical volume. |
+| `gpu_cylindrical` | The sensor uses rendered depth and a GPU compute shader in Unreal to generate a cylindrical scan. |
 | `depth_lidar` | The sensor generates a cylindrical lidar-style scan by sampling explicit beams from a rendered depth image. |
 | `generic_rosette` | The sensor beams scan a conical volume with a hypotrochoid curve. |
 | `livox_mid70` | The sensor simulates a Livox Mid-70 lidar sensor.
@@ -96,6 +97,45 @@ The possible `lidar-type` values and their descriptions are:
 The `generic_cylindrical` lidar type is similar to the Velodyne Puck lidar sensor (https://velodynelidar.com/products/puck).  It has multiple laser beams (specified by `number-of-channels`) which sweep out shallow horizontal cones.  The laser beams are equally spaced vertically to cover the vertical FOV.  The beams sweep horizontally 360&deg;, but data is returned only when the beams are within the horizontal FOV range.
 
 The `vertical-rotation-frequency` and `radial-scaling` settings are ignored.
+
+### GPU cylindrical lidar type
+
+Set `"type": "lidar"` and `"lidar-type": "gpu_cylindrical"` on the sensor.
+Unreal uses four depth captures and a GPU compute shader to generate the
+point cloud. The scan supports a full 360° horizontal sweep. Project AirSim
+Runtime does not provide this sensor.
+
+#### Try it in Unreal
+
+1. Start a matching [pre-built Blocks environment](../development/use_prebuilt.md)
+   or run Blocks [from source](../development/use_source.md). Keep rendering
+   enabled.
+2. Follow the [Python client setup](../client_setup.md) and install the
+   `lidar` extra for the point cloud viewer.
+3. From the repository root, run the
+   [GPU LiDAR example](../../client/python/example_user_scripts/lidar_basic_gpu.py).
+
+   ```bash
+   python client/python/example_user_scripts/lidar_basic_gpu.py
+   ```
+
+The script loads `scene_lidar_drone_gpu.jsonc` and opens a point cloud window
+colored by intensity. Look for a visible cloud and positive `n=` point
+counts in the client log once the sensor sees geometry in range.
+
+#### Vertical field of view
+
+`vertical-fov-lower-deg` and `vertical-fov-upper-deg` set the elevations of
+the scan channels. Start with the example's nominal range of −15° to +15°.
+The four capture cameras have fixed geometry and are centered at zero
+elevation. Changing the vertical bounds changes the beam directions, while
+the cameras keep the same orientation and coverage.
+
+The shader discards beams that project outside the capture image. Wider or
+offset ranges can therefore lose outer channels or show gaps at some
+azimuths. A narrow range far from zero can also fall outside the captures.
+If the scan needs a wider or strongly offset vertical range, use
+`generic_cylindrical`, which traces against collision geometry in Unreal.
 
 ### Generic rosette lidar type
 The `generic_rosette` lidar type has multiple laser beams (specified by `number-of-channels`) which sweep out a conical volume in a "rosette" pattern based on a hypotrochoid roulette curve: a "rolling circle" travels on the inside of the perimeter of a larger "fixed circle" while the "tracing point" attached at a fixed radius on the rolling circle traces out the curve.  For easier configuration, `generic_rosette` allows the angular rate of the "rolling circle" to be specified directly through `vertical-rotation-frequency` rather than through ratios of the "rolling" and "fixed" circles.  `vertical-rotation-frequency` can be negative which generates a epitrochoid curve instead (where the rolling circle travels on the outside of the fixed circle.)  `horizontal-rotation-frequency` specifies the angular rate at which the rolling circle travels around the fixed circle.

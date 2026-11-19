@@ -6,6 +6,14 @@ Since Project AirSim uses Unreal Engine for rendering, the system specifications
 
 ## Installing system prerequisites
 
+### macOS scope
+
+Apple Silicon source builds of SimLibs and the headless Runtime are available,
+with SimLibs Release tests on macOS 15 ARM64. This build does not require Unreal
+or a rendering GPU. Runtime integration, Intel Macs, and Unreal/Blocks on Mac
+are not currently validated. See [macOS setup](development/dev_setup_macos.md)
+for prerequisites and the exact support scope.
+
 ### Windows prerequisites
 
 Unreal binaries/projects require some system prerequisites such as DirectX End-user Runtime and Visual C++ libraries.

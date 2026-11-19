@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation.  
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI CONSULTING CORP
 //
 // MIT License. All rights reserved.
@@ -27,16 +27,16 @@
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
 #include "UObject/ConstructorHelpers.h"
 #include "UnrealCameraRenderRequest.h"
-#include "UnrealHelpers.h"
 #include "UnrealCompatibility.h"
+#include "UnrealHelpers.h"
 #include "UnrealLogger.h"
 #include "UnrealScene.h"
+#include "UnrealTransforms.h"
 #include "core_sim/clock.hpp"
 #include "core_sim/math_utils.hpp"
 #include "core_sim/message/image_message.hpp"
 #include "core_sim/sensors/camera.hpp"
 #include "core_sim/transforms/transform_utils.hpp"
-#include "UnrealTransforms.h"
 
 namespace projectairsim = microsoft::projectairsim;
 
@@ -152,21 +152,21 @@ void UUnrealCamera::LoadCameraMaterials() {
 
 void HideDebugDrawComponent(USceneCaptureComponent2D* CaptureComponent,
                             UWorld* UnrealWorld) {
-  #if UE_IS_5_7
-    CaptureComponent->HideComponent(Cast<UPrimitiveComponent>(
-        UnrealWorld->GetLineBatcher(UWorld::ELineBatcherType::World)));
-    CaptureComponent->HideComponent(Cast<UPrimitiveComponent>(
-        UnrealWorld->GetLineBatcher(UWorld::ELineBatcherType::WorldPersistent)));
-    CaptureComponent->HideComponent(Cast<UPrimitiveComponent>(
-        UnrealWorld->GetLineBatcher(UWorld::ELineBatcherType::Foreground)));
-  #elif UE_IS_5_2
-    CaptureComponent->HideComponent(
-        Cast<UPrimitiveComponent>(UnrealWorld->LineBatcher));
-    CaptureComponent->HideComponent(
-        Cast<UPrimitiveComponent>(UnrealWorld->PersistentLineBatcher));
-    CaptureComponent->HideComponent(
-        Cast<UPrimitiveComponent>(UnrealWorld->ForegroundLineBatcher));
-  #endif
+#if UE_IS_5_7_OR_5_8
+  CaptureComponent->HideComponent(Cast<UPrimitiveComponent>(
+      UnrealWorld->GetLineBatcher(UWorld::ELineBatcherType::World)));
+  CaptureComponent->HideComponent(Cast<UPrimitiveComponent>(
+      UnrealWorld->GetLineBatcher(UWorld::ELineBatcherType::WorldPersistent)));
+  CaptureComponent->HideComponent(Cast<UPrimitiveComponent>(
+      UnrealWorld->GetLineBatcher(UWorld::ELineBatcherType::Foreground)));
+#elif UE_IS_5_2
+  CaptureComponent->HideComponent(
+      Cast<UPrimitiveComponent>(UnrealWorld->LineBatcher));
+  CaptureComponent->HideComponent(
+      Cast<UPrimitiveComponent>(UnrealWorld->PersistentLineBatcher));
+  CaptureComponent->HideComponent(
+      Cast<UPrimitiveComponent>(UnrealWorld->ForegroundLineBatcher));
+#endif
 }
 
 #if UE_SUPPORTS_LUMEN_SCENE_CAPTURES
@@ -842,9 +842,9 @@ void UUnrealCamera::TickComponent(
                                  projectairsim::ImageType>(ImageTypeInt),
                              bEnable);
 
-        // When the capture component is just activated, CaptureSceneDeferred()
-        // doesn't seem to capture an image until the next tick so we'll
-        // manually capture the scene now
+        // When the capture component is just activated,
+        // CaptureSceneDeferred() doesn't seem to capture an image until the
+        // next tick so we'll manually capture the scene now
         if (bEnable) {
           Capture = GetCaptureComponent(
               static_cast<projectairsim::ImageType>(ImageTypeInt), false);
@@ -868,7 +868,8 @@ void UUnrealCamera::TickComponent(
       // processing is done asynchronously
       SimCamera.AddRequestToCaptureQueue(CapturedTime);
 
-      // Save the current sim time and pose to go with this rendered image data
+      // Save the current sim time and pose to go with this rendered image
+      // data
       projectairsim::Transform CapturedCameraTransform =
           UnrealTransform::GetPoseNed(this);
       CapturedCameraTransform.timestamp_ = PoseUpdatedTimeStamp;
@@ -881,8 +882,8 @@ void UUnrealCamera::TickComponent(
       }
 
       // Lambda capture a copy of CapturedCameraTransform to pass to callback.
-      // When this render command completes, UUnrealCamera::OnRendered() will be
-      // triggered to process and publish the image data
+      // When this render command completes, UUnrealCamera::OnRendered() will
+      // be triggered to process and publish the image data
       ENQUEUE_RENDER_COMMAND(SceneDrawCompletion)
       ([this, CapturedCameraTransform, Annotations = std::move(Annotations)](
            FRHICommandListImmediate& RHICmdList) {
@@ -1033,8 +1034,8 @@ void UUnrealCamera::OnRendered(
           auto bPixelsAsFloatRequired =
               ImageRequest.bPixelsAsFloat || bIsDepthImage;
 
-          UnrealCameraRenderRequest::ReadPixels(Texture, bPixelsAsFloatRequired,
-                                                &ImageResult);
+          UnrealCameraRenderRequest::ReadPixels(
+              Texture, bPixelsAsFloatRequired, &ImageResult);
 
 #if TEST_DEBUG_IMAGE_INTEGRITY
           // If testing for image pixel integrity through the capture pipeline
@@ -1064,9 +1065,9 @@ void UUnrealCamera::OnRendered(
   // shared_ptr to the sensor impl to use for publishing the image
   // message.
   (new FAutoDeleteAsyncTask<FImagePackingAsyncTask>(
-          std::move(CaptureResults), CapturedCameraTransform, SimCamera,
-          std::move(Annotations)))
-          ->StartBackgroundTask();
+       std::move(CaptureResults), CapturedCameraTransform, SimCamera,
+       std::move(Annotations)))
+      ->StartBackgroundTask();
 
   // Reset flag to allow next frame capture to start
   bCapturePending = false;

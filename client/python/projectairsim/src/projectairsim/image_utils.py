@@ -189,6 +189,15 @@ class ImageDisplay:
             return
         img_np = unpack_image(image_msg)
 
+        # OpenCV HighGUI cannot display CV_16F images. Keep unpack_image's
+        # half-precision metric depth data unchanged for callers and convert
+        # only the visualization copy to a finite, normalized float32 image.
+        if img_np.dtype == np.float16:
+            img_np = np.nan_to_num(
+                img_np.astype(np.float32), nan=0.0, posinf=100.0, neginf=0.0
+            )
+            img_np = np.clip(img_np / 100.0, 0.0, 1.0)
+
         if self.display_bbox:
             for annotation in image_msg["annotations"]:
                 bbox_center = annotation["bbox2d"]["center"]

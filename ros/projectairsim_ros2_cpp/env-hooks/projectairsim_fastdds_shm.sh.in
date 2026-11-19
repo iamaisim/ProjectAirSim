@@ -1,0 +1,28 @@
+# Default local Project AirSim ROS 2 participants to the installed Fast DDS
+# 256 MiB shared-memory profile. Explicit user selections always take priority.
+
+if [ -z "${RMW_IMPLEMENTATION:-}" ]; then
+  export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+fi
+
+if [ "${RMW_IMPLEMENTATION}" = "rmw_fastrtps_cpp" ]; then
+  # This hook can be evaluated after another prefix's local setup file has
+  # changed AMENT_CURRENT_PREFIX. Embed this package's configured install
+  # prefix so the default always names the profile installed with this package.
+  _projectairsim_fastdds_profile="@CMAKE_INSTALL_PREFIX@/share/projectairsim_ros2_cpp/config/fastdds_shm_256m.xml"
+
+  if [ -n "${FASTDDS_DEFAULT_PROFILES_FILE:-}" ]; then
+    _projectairsim_fastdds_profile="${FASTDDS_DEFAULT_PROFILES_FILE}"
+  elif [ -n "${FASTRTPS_DEFAULT_PROFILES_FILE:-}" ]; then
+    _projectairsim_fastdds_profile="${FASTRTPS_DEFAULT_PROFILES_FILE}"
+  fi
+
+  if [ -z "${FASTDDS_DEFAULT_PROFILES_FILE:-}" ]; then
+    export FASTDDS_DEFAULT_PROFILES_FILE="${_projectairsim_fastdds_profile}"
+  fi
+  if [ -z "${FASTRTPS_DEFAULT_PROFILES_FILE:-}" ]; then
+    export FASTRTPS_DEFAULT_PROFILES_FILE="${_projectairsim_fastdds_profile}"
+  fi
+
+  unset _projectairsim_fastdds_profile
+fi

@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation. 
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI CONSULTING CORP
 
 // MIT License. All rights reserved.
@@ -19,7 +19,9 @@
 #include "core_sim/error.hpp"
 #include "core_sim/file_utils.hpp"
 #include "core_sim/geodetic_converter.hpp"
+#include "core_sim/message/clock_message.hpp"
 #include "core_sim/service_method.hpp"
+#include "core_sim/topic.hpp"
 #include "core_sim/viewport_camera.hpp"
 #include "json.hpp"
 #include "message/common_utils.hpp"
@@ -78,8 +80,8 @@ class Scene::Impl : public ComponentWithTopicsAndServiceMethods {
  public:
   Impl(const Logger& logger, const TopicManager& topic_manager,
        const std::string& parent_topic_path,
-       const ServiceManager& service_manager,
-       const StateManager& state_manager);
+       const ServiceManager& service_manager, const StateManager& state_manager,
+       const std::string& working_simulation_path);
 
   void LoadSceneWithJSON(ConfigJson config_json);
 
@@ -169,6 +171,16 @@ class Scene::Impl : public ComponentWithTopicsAndServiceMethods {
   TimeNano ContinueForSingleStep(bool wait_until_complete = false);
   std::vector<std::string> SimGetActors();
 
+  bool ImportNEDTrajectory(
+      const std::string& traj_name, const std::vector<float>& time,
+      const std::vector<float>& pose_x, const std::vector<float>& pose_y,
+      const std::vector<float>& pose_z, const std::vector<float>& pose_roll,
+      const std::vector<float>& pose_pitch, const std::vector<float>& pose_yaw,
+      const std::vector<float>& vel_x_lin, const std::vector<float>& vel_y_lin,
+      const std::vector<float>& vel_z_lin);
+  // Pull API: advance sim and return bundled state + events
+  json Step(TimeNano dt_ns);
+
   bool SetWindVelocity(float v_x, float v_y, float v_z);
   Vector3 GetWindVelocity();
   void UpdateWindVelocity();
@@ -183,6 +195,8 @@ class Scene::Impl : public ComponentWithTopicsAndServiceMethods {
   void UnregisterAllServiceMethods();
 
   bool SceneTick();
+
+  void CreateTopics();
 
   void EnableViewportCamera(bool enable);
 
@@ -208,6 +222,8 @@ class Scene::Impl : public ComponentWithTopicsAndServiceMethods {
   std::function<void()> physics_stop_callback_;
   ScheduledExecutor executor_;
   TimeNano sim_time_;
+  Topic clock_topic_;
+  bool clock_topic_registered_ = false;
   ClockSettings clock_settings_;
   SegmentationSettings segmentation_settings_;
   HomeGeoPoint home_geo_point_;
@@ -220,6 +236,7 @@ class Scene::Impl : public ComponentWithTopicsAndServiceMethods {
   int tiles_lod_min_;
   TransformTree transform_tree_;
   std::vector<std::shared_ptr<Trajectory>> trajectories_;
+  const std::string& working_simulation_path_;
   std::shared_ptr<ViewportCamera> viewport_camera_;
   std::shared_ptr<GeodeticConverter> geodetic_converter_;
 };
@@ -232,9 +249,11 @@ Scene::Scene() : pimpl_(std::shared_ptr<Impl>(nullptr)) {}
 Scene::Scene(const Logger& logger, const TopicManager& topic_manager,
              const std::string& parent_topic_path,
              const ServiceManager& service_manager,
-             const StateManager& state_manager)
+             const StateManager& state_manager,
+             const std::string& working_simulation_path)
     : pimpl_(std::make_shared<Impl>(logger, topic_manager, parent_topic_path,
-                                    service_manager, state_manager)) {}
+                                    service_manager, state_manager,
+                                    working_simulation_path)) {}
 
 void Scene::LoadWithJSON(ConfigJson config_json) {
   pimpl_->LoadSceneWithJSON(config_json);
@@ -324,6 +343,11 @@ const ClockSettings& Scene::GetClockSettings() const {
 
 bool Scene::ExternalTick() { return pimpl_->SceneTick(); }
 
+bool Scene::ExternalTick(TimeNano step_nanos) {
+  SimClock::Get()->SetNextStep(step_nanos);
+  return pimpl_->SceneTick();
+}
+
 const SegmentationSettings& Scene::GetSegmentationSettings() const {
   return pimpl_->GetSegmentationSettings();
 }
@@ -410,10 +434,12 @@ void Scene::Stop() {
 Scene::Impl::Impl(const Logger& logger, const TopicManager& topic_manager,
                   const std::string& parent_topic_path,
                   const ServiceManager& service_manager,
-                  const StateManager& state_manager)
+                  const StateManager& state_manager,
+                  const std::string& working_simulation_path)
     : ComponentWithTopicsAndServiceMethods(Constant::Component::scene, logger,
                                            topic_manager, parent_topic_path,
                                            service_manager, state_manager),
+      working_simulation_path_(working_simulation_path),
       loader_(*this),
       geodetic_converter_(std::make_shared<GeodeticConverter>()) {}
 
@@ -603,16 +629,23 @@ void Scene::Impl::StopSceneTick() {
   // Stop StateManager before scene tick to break NNG receive loops
   state_manager_.Stop();
 
-  std::function<void()> stop_physics_func = nullptr;
-  stop_physics_func = physics_stop_callback_;
-  if (stop_physics_func != nullptr) {
-    stop_physics_func();
-  }
-
   if (clock_settings_.type != ClockType::kEngineDriven &&
       clock_settings_.type != ClockType::kExternalClock) {
     executor_.Stop();
   }
+}
+
+void Scene::Impl::CreateTopics() {
+  constexpr TimeNano kNanosPerSecond = 1000000000LL;
+  const int frequency =
+      clock_settings_.scene_tick_period > 0
+          ? static_cast<int>(kNanosPerSecond /
+                             clock_settings_.scene_tick_period)
+          : 0;
+  clock_topic_ = Topic("clock", topic_path_, TopicType::kPublished, frequency,
+                       MessageType::kClock);
+  topic_manager_.RegisterTopic(clock_topic_);
+  clock_topic_registered_ = true;
 }
 
 void Scene::Impl::OnBeginUpdate() {
@@ -632,6 +665,16 @@ void Scene::Impl::OnBeginUpdate() {
 }
 
 void Scene::Impl::OnEndUpdate() {
+  for (auto& actor : actors_) {
+    if (actor->GetType() == ActorType::kRobot) {
+      auto* controller = static_cast<Robot&>(*actor).GetController();
+      if (controller != nullptr) controller->CancelLastTask();
+    }
+  }
+
+  // Unblock physics before robot shutdown takes locks needed by the tick.
+  if (physics_stop_callback_ != nullptr) physics_stop_callback_();
+
   for (auto& actor : actors_) {
     if (actor->GetType() == ActorType::kRobot) {
       auto& robot = static_cast<Robot&>(*actor);
@@ -786,6 +829,54 @@ TimeNano Scene::Impl::ContinueForSingleStep(bool wait_until_complete) {
   return SimClock::Get()->NowSimNanos();
 }
 
+json Scene::Impl::Step(TimeNano dt_ns) {
+  if (clock_settings_.type != ClockType::kSteppable) {
+    logger_.LogError(name_, "This clock type doesn't support Step.");
+    throw Error("This clock type doesn't support Step.");
+  }
+
+  // Advance sim time and wait for completion
+  SimClock::Get()->ContinueForSimTime(dt_ns);
+  while (!IsSimPaused()) {
+    std::this_thread::yield();
+  }
+
+  TimeNano current_sim_time = SimClock::Get()->NowSimNanos();
+
+  // Build response with per-drone state and events
+  json robots = json::object();
+  for (auto& actor : actors_) {
+    if (actor->GetType() == ActorType::kRobot) {
+      auto& robot = static_cast<Robot&>(*actor);
+      const auto& kin = robot.GetKinematics();
+
+      json state = json{{"position",
+                         {{"x", kin.pose.position.x()},
+                          {"y", kin.pose.position.y()},
+                          {"z", kin.pose.position.z()}}},
+                        {"orientation",
+                         {{"w", kin.pose.orientation.w()},
+                          {"x", kin.pose.orientation.x()},
+                          {"y", kin.pose.orientation.y()},
+                          {"z", kin.pose.orientation.z()}}},
+                        {"linear_velocity",
+                         {{"x", kin.twist.linear.x()},
+                          {"y", kin.twist.linear.y()},
+                          {"z", kin.twist.linear.z()}}},
+                        {"angular_velocity",
+                         {{"x", kin.twist.angular.x()},
+                          {"y", kin.twist.angular.y()},
+                          {"z", kin.twist.angular.z()}}}};
+
+      json events = robot.DrainStepEvents();
+
+      robots[robot.GetID()] = json{{"state", state}, {"events", events}};
+    }
+  }
+
+  return json{{"sim_time_ns", current_sim_time}, {"robots", robots}};
+}
+
 std::vector<std::string> Scene::Impl::SimGetActors() {
   std::vector<std::string> actor_ids = {};
   for (const auto& actor : actors_) {
@@ -793,6 +884,26 @@ std::vector<std::string> Scene::Impl::SimGetActors() {
     actor_ids.push_back(actor_id);
   }
   return actor_ids;
+}
+
+bool Scene::Impl::ImportNEDTrajectory(
+    const std::string& traj_name, const std::vector<float>& time,
+    const std::vector<float>& pose_x, const std::vector<float>& pose_y,
+    const std::vector<float>& pose_z, const std::vector<float>& pose_roll,
+    const std::vector<float>& pose_pitch, const std::vector<float>& pose_yaw,
+    const std::vector<float>& vel_x_lin, const std::vector<float>& vel_y_lin,
+    const std::vector<float>& vel_z_lin) {
+  if (GetTrajectoryPtrByName(traj_name) == nullptr) {
+    AddNEDTrajectory(traj_name, time, pose_x, pose_y, pose_z, pose_roll,
+                     pose_pitch, pose_yaw, vel_x_lin, vel_y_lin, vel_z_lin);
+    return true;
+  }
+
+  logger_.LogWarning(name_,
+                     "'%s' was not imported. A duplicate trajectory name "
+                     "already exists.",
+                     traj_name.c_str());
+  return false;
 }
 
 bool Scene::Impl::SetWindVelocity(float v_x, float v_y, float v_z) {
@@ -875,6 +986,15 @@ void Scene::Impl::RegisterServiceMethods() {
       sim_get_actors.CreateMethodHandler(&Scene::Impl::SimGetActors, *this);
   RegisterServiceMethod(sim_get_actors, sim_get_actors_handler);
 
+  auto import_ned_trajectory = ServiceMethod(
+      "ImportNEDTrajectory",
+      {"traj_name", "time", "pose_x", "pose_y", "pose_z", "pose_roll",
+       "pose_pitch", "pose_yaw", "vel_x_lin", "vel_y_lin", "vel_z_lin"});
+  auto import_ned_trajectory_handler =
+      import_ned_trajectory.CreateMethodHandler(
+          &Scene::Impl::ImportNEDTrajectory, *this);
+  RegisterServiceMethod(import_ned_trajectory, import_ned_trajectory_handler);
+
   auto set_wind_vel = ServiceMethod("SetWindVelocity", {"v_x", "v_y", "v_z"});
   auto set_wind_vel_handler =
       set_wind_vel.CreateMethodHandler(&Scene::Impl::SetWindVelocity, *this);
@@ -884,6 +1004,11 @@ void Scene::Impl::RegisterServiceMethods() {
   auto get_wind_vel_handler =
       get_wind_vel.CreateMethodHandler(&Scene::Impl::GetWindVelocity, *this);
   RegisterServiceMethod(get_wind_vel, get_wind_vel_handler);
+
+  // Pull API: Step advances sim and returns bundled state + events
+  auto step = ServiceMethod("Step", {"dt_ns"});
+  auto step_handler = step.CreateMethodHandler(&Scene::Impl::Step, *this);
+  RegisterServiceMethod(step, step_handler);
 }
 
 void Scene::Impl::UnregisterAllServiceMethods() {
@@ -907,6 +1032,12 @@ bool Scene::Impl::SceneTick() {
   TimeNano new_sim_time = SimClock::Get()->NowSimNanos();
   TimeNano sim_dt_nanos = new_sim_time - sim_time_;
   sim_time_ = new_sim_time;
+
+  // Publish the authoritative simulator clock from the same tick that stamps
+  // sensor samples. Clients must not poll GetSimTime to drive ROS /clock: a
+  // blocked service request would otherwise stop time for every use_sim_time
+  // node even though the simulation itself is still running.
+  topic_manager_.PublishTopic(clock_topic_, ClockMessage(sim_time_));
 
   if (clock_settings_.type == ClockType::kSteppable &&
       state_manager_.IsDistributed() && state_manager_.IsClockSource()) {
@@ -1008,7 +1139,6 @@ bool Scene::Impl::SceneTick() {
       }
 
       // 5. Set wrenches on physics bodies
-      // TODO Rename this to "SetActuationOutputs"
       // After the actuator outputs are updated, set their wrenches on the
       // physics bodies to be applied at the next physics step.
       std::function<void()> set_wrenches_physics_func = nullptr;
@@ -1091,6 +1221,8 @@ void Scene::Loader::LoadSceneWithJSON(const json& json) {
     SimClock::Get(std::make_shared<SteppableClock>());
   }
 
+  impl_.CreateTopics();
+
   // Load segmentation settings for initializing scene object segmentation IDs
   LoadSegmentationSettings(json);
 
@@ -1118,6 +1250,11 @@ void Scene::Loader::LoadSceneWithJSON(const json& json) {
 }
 
 void Scene::Loader::UnloadScene() {
+  if (impl_.clock_topic_registered_) {
+    impl_.topic_manager_.UnregisterTopic(impl_.clock_topic_);
+    impl_.clock_topic_ = Topic();
+    impl_.clock_topic_registered_ = false;
+  }
   impl_.topic_manager_.SetTopicPublishedCallbackEnabled(false);
   impl_.topic_manager_.SetCallbackTopicPublished(nullptr);
 
@@ -1171,7 +1308,6 @@ void Scene::Loader::LoadEnvActorsWithJSON(const json& json) {
                              "[%s] 'environment-actors' missing or empty.",
                              impl_.id_.c_str());
   }
-
   std::transform(env_actors_json.begin(), env_actors_json.end(),
                  std::back_inserter(impl_.env_actors_),
                  [this](auto& json) { return LoadEnvActorWithJSON(json); });
@@ -1186,6 +1322,8 @@ void Scene::Loader::LoadEnvActorsWithJSON(const json& json) {
 void Scene::Loader::LoadClockSettings(const json& json) {
   impl_.logger_.LogVerbose(impl_.name_, "[%s] Loading 'clock' settings.",
                            impl_.id_.c_str());
+
+  impl_.clock_settings_ = ClockSettings();
 
   auto clock_json = JsonUtils::GetJsonObject(json, Constant::Config::clock);
   if (JsonUtils::IsEmpty(clock_json)) {
@@ -1229,6 +1367,25 @@ void Scene::Loader::LoadClockSettings(const json& json) {
 
     impl_.clock_settings_.pause_on_start =
         JsonUtils::GetInteger(clock_json, Constant::Config::pause_on_start, 0);
+
+    impl_.clock_settings_.engine_substepping = JsonUtils::GetBoolean(
+        clock_json, Constant::Config::engine_substepping, false);
+    if (impl_.clock_settings_.engine_substepping &&
+        impl_.clock_settings_.step <= 0) {
+      throw Error(
+          "'clock.step-ns' must be positive when "
+          "'clock.engine-substepping' is enabled.");
+    }
+
+    if (JsonUtils::HasKey(clock_json, Constant::Config::engine_fixed_fps)) {
+      impl_.clock_settings_.engine_fixed_fps = JsonUtils::GetNumber<float>(
+          clock_json, Constant::Config::engine_fixed_fps,
+          impl_.clock_settings_.engine_fixed_fps);
+      if (impl_.clock_settings_.engine_fixed_fps <= 0.0f) {
+        throw Error("'clock.engine-fixed-fps' must be positive.");
+      }
+      impl_.clock_settings_.engine_fixed_fps_enabled = true;
+    }
   } catch (...) {
     throw;
   }
@@ -1373,22 +1530,53 @@ void Scene::Loader::LoadGISSettings(const json& json) {
                            impl_.id_.c_str());
 }
 
-std::unique_ptr<Actor> Scene::Loader::LoadActorWithJSON(const json& json) {
-  auto id = GetActorID(json);
-  auto type = GetActorType(json, id);
-  auto origin = GetActorOrigin(json, id);
+std::unique_ptr<Actor> Scene::Loader::LoadActorWithJSON(const json& jsonIn) {
+  auto id = GetActorID(jsonIn);
+  auto type = GetActorType(jsonIn, id);
+  auto origin = GetActorOrigin(jsonIn, id);
   // Read ref JSON data and write it as a string
-  auto robot_config =
-      JsonUtils::GetJsonObject(json, Constant::Config::robot_config);
+  json robot_config;
+
+  try {
+    robot_config = JsonUtils::GetArray(jsonIn, Constant::Config::robot_config);
+    impl_.logger_.LogVerbose(
+        impl_.name_,
+        "[%s][%s] Loading 'Enviroment Actor'. is_array [%d], is_object [%d]",
+        impl_.id_.c_str(), id.c_str(), robot_config.is_array(),
+        robot_config.is_object());
+    //
+    //  If env_actor_config is an array, update the first object using all the
+    //  other objects, and then set env_actor_config to the final object
+    //
+    if (robot_config.is_array()) {
+      auto final_config = robot_config[0];
+      for (int i = 1; i < robot_config.size(); i++) {
+        final_config.update(robot_config[i]);
+      }
+      robot_config = final_config;
+      impl_.logger_.LogVerbose(
+          impl_.name_,
+          "[%s][%s] Merged 'Robot Actor'. is_array [%d], is_object [%d]",
+          impl_.id_.c_str(), id.c_str(), robot_config.is_array(),
+          robot_config.is_object());
+      std::string test_output = robot_config.dump();
+      impl_.logger_.LogVerbose(
+          impl_.name_, "[%s][%s] Merged 'Robot Actor'. contents [%s]",
+          impl_.id_.c_str(), id.c_str(), test_output.c_str());
+    }
+  } catch (...) {
+    robot_config =
+        JsonUtils::GetJsonObject(jsonIn, Constant::Config::robot_config);
+  }
 
   auto physics_connection_json =
-      JsonUtils::GetJsonObject(json, Constant::Config::physics_connection);
+      JsonUtils::GetJsonObject(jsonIn, Constant::Config::physics_connection);
 
   auto control_connection_json =
-      JsonUtils::GetJsonObject(json, Constant::Config::control_connection);
+      JsonUtils::GetJsonObject(jsonIn, Constant::Config::control_connection);
 
   bool start_landed_flag =
-      JsonUtils::GetBoolean(json, Constant::Config::start_landed, false);
+      JsonUtils::GetBoolean(jsonIn, Constant::Config::start_landed, false);
 
   impl_.logger_.LogVerbose(impl_.name_, "[%s][%s] Loading 'actor'.",
                            impl_.id_.c_str(), id.c_str());
@@ -1397,7 +1585,8 @@ std::unique_ptr<Actor> Scene::Loader::LoadActorWithJSON(const json& json) {
     auto robot =
         new Robot(id, origin, impl_.logger_, impl_.topic_manager_,
                   impl_.topic_path_ + "/robots", impl_.service_manager_,
-                  impl_.state_manager_, impl_.home_geo_point_);
+                  impl_.state_manager_, impl_.home_geo_point_,
+                  impl_.working_simulation_path_);
     robot->Load(robot_config);
     robot->SetPhysicsConnectionSettings(physics_connection_json.dump());
     robot->SetControlConnectionSettings(control_connection_json.dump());
@@ -1430,6 +1619,39 @@ std::unique_ptr<Actor> Scene::Loader::LoadEnvActorWithJSON(const json& json) {
 
   impl_.logger_.LogVerbose(impl_.name_, "[%s][%s] Loading 'Enviroment Actor'.",
                            impl_.id_.c_str(), id.c_str());
+
+  try {
+    env_actor_config =
+        JsonUtils::GetArray(json, Constant::Config::env_actor_config);
+    impl_.logger_.LogVerbose(
+        impl_.name_,
+        "[%s][%s] Loading 'Enviroment Actor'. is_array [%d], is_object [%d]",
+        impl_.id_.c_str(), id.c_str(), env_actor_config.is_array(),
+        env_actor_config.is_object());
+    //
+    //  If env_actor_config is an array, update the first object using all the
+    //  other objects, and then set env_actor_config to the final object
+    //
+    if (env_actor_config.is_array()) {
+      auto final_config = env_actor_config[0];
+      for (int i = 1; i < env_actor_config.size(); i++) {
+        final_config.update(env_actor_config[i]);
+      }
+      env_actor_config = final_config;
+      impl_.logger_.LogVerbose(
+          impl_.name_,
+          "[%s][%s] Merged 'Enviroment Actor'. is_array [%d], is_object [%d]",
+          impl_.id_.c_str(), id.c_str(), env_actor_config.is_array(),
+          env_actor_config.is_object());
+      std::string test_output = env_actor_config.dump();
+      impl_.logger_.LogVerbose(
+          impl_.name_, "[%s][%s] Merged 'Enviroment Actor'. contents [%s]",
+          impl_.id_.c_str(), id.c_str(), test_output.c_str());
+    }
+  } catch (...) {
+    env_actor_config =
+        JsonUtils::GetJsonObject(json, Constant::Config::env_actor_config);
+  }
 
   if (type == Constant::Config::env_actor) {
     auto env_actor =

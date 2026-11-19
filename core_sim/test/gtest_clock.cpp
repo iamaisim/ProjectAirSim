@@ -418,6 +418,41 @@ TEST(SimClock, SteppableIsPaused) {
   EXPECT_FALSE(is_paused);
 }
 
+TEST(SimClock, EngineDrivenAcceptsVariableHostSteps) {
+  const TimeNano fixed_step = 3'000'000;
+  const TimeNano start = 1'000;
+  auto simclock = projectairsim::SimClock::Get(
+      std::make_shared<projectairsim::EngineDrivenClock>(fixed_step, start));
+  auto* engine_clock =
+      static_cast<projectairsim::EngineDrivenClock*>(simclock);
+  projectairsim::Scene scene;
+
+  engine_clock->SetNextStep(2'750'000);
+  scene.SimClockStep();
+  EXPECT_EQ(simclock->NowSimNanos(), start + 2'750'000);
+  EXPECT_FALSE(engine_clock->HasPendingStep());
+
+  engine_clock->SetNextStep(3'125'000);
+  scene.SimClockStep();
+  EXPECT_EQ(simclock->NowSimNanos(), start + 5'875'000);
+}
+
+TEST(SimClock, EngineDrivenRetainsFixedAccumulatorBehavior) {
+  const TimeNano fixed_step = 3'000'000;
+  auto simclock = projectairsim::SimClock::Get(
+      std::make_shared<projectairsim::EngineDrivenClock>(fixed_step, 0));
+  auto* engine_clock =
+      static_cast<projectairsim::EngineDrivenClock*>(simclock);
+  projectairsim::Scene scene;
+
+  engine_clock->AccumulateStep(static_cast<TimeNano>(7'000'000));
+  ASSERT_TRUE(engine_clock->HasPendingStep());
+  scene.SimClockStep();
+  scene.SimClockStep();
+  EXPECT_EQ(simclock->NowSimNanos(), 6'000'000);
+  EXPECT_FALSE(engine_clock->HasPendingStep());
+}
+
 // -----------------------------------------------------------------------------
 // ScheduledExecutor tests
 

@@ -18,8 +18,9 @@
 #include "core_sim/actuators/gimbal.hpp"
 #include "core_sim/actuators/lift_drag_control_surface.hpp"
 #include "core_sim/actuators/rotor.hpp"
-#include "core_sim/actuators/wheel.hpp"
 #include "core_sim/actuators/tilt.hpp"
+#include "core_sim/actuators/unreal_vehicle.hpp"
+#include "core_sim/actuators/wheel.hpp"
 #include "core_sim/error.hpp"
 #include "json.hpp"
 
@@ -43,7 +44,8 @@ class ActuatorImpl : public ComponentWithTopicsAndServiceMethods {
         type_(type),
         enabled_(enabled),
         parent_link_(parent_link),
-        child_link_(child_link) {}
+        child_link_(child_link),
+        signal_indices_({-1, -1, -1}) {}
 
   const bool IsEnabled() const { return enabled_; }
 
@@ -52,6 +54,18 @@ class ActuatorImpl : public ComponentWithTopicsAndServiceMethods {
   const std::string& GetParentLink() const { return parent_link_; }
 
   const std::string& GetChildLink() const { return child_link_; }
+
+  size_t GetSignalCount() const {
+    return type_ == ActuatorType::kWheel ? 3 : 1;
+  }
+
+  int GetSignalIndex(size_t signal_offset) const {
+    return signal_indices_.at(signal_offset);
+  }
+
+  void SetSignalIndex(int signal_index, size_t signal_offset) {
+    signal_indices_.at(signal_offset) = signal_index;
+  }
 
   bool UpdateFaultInjectionEnabledState(bool enabled) {
     is_fault_injected_ = enabled;
@@ -137,8 +151,13 @@ class ActuatorImpl : public ComponentWithTopicsAndServiceMethods {
                                service_manager, state_manager);
       gimbal->Load(json);
       return std::unique_ptr<Actuator>(gimbal);
-    } 
-    else if (type == Constant::Config::wheel) {
+    } else if (type == Constant::Config::unreal_vehicle) {
+      auto unreal_vehicle = new UnrealVehicleActuator(
+          id, enabled, parent_link, child_link, actor_logger, topic_manager,
+          parent_topic_path, service_manager, state_manager);
+      unreal_vehicle->Load(json);
+      return std::unique_ptr<Actuator>(unreal_vehicle);
+    } else if (type == Constant::Config::wheel) {
       auto wheel = new Wheel(id, enabled, parent_link, child_link,
                                actor_logger, topic_manager, parent_topic_path,
                                service_manager, state_manager);
@@ -160,7 +179,10 @@ class ActuatorImpl : public ComponentWithTopicsAndServiceMethods {
                                    const std::string& actor_id) {
     actor_logger.LogVerbose(actor_name, "[%s] Loading 'actuator.name'.",
                             actor_id.c_str());
-    auto id = JsonUtils::GetIdentifier(json, Constant::Config::name);
+    // Actuator IDs are also controller lookup keys. JSBSim-backed actuators may
+    // intentionally use property paths such as "fcs/elevator-cmd-norm" here, so
+    // this must remain a string instead of the stricter identifier format.
+    auto id = JsonUtils::GetString(json, Constant::Config::name);
     actor_logger.LogVerbose(actor_name, "[%s][%s] 'actuator.name' loaded.",
                             actor_id.c_str(), id.c_str());
 
@@ -255,6 +277,7 @@ class ActuatorImpl : public ComponentWithTopicsAndServiceMethods {
   bool enabled_;
   std::string parent_link_;
   std::string child_link_;
+  std::array<int, Actuator::kMaxControlSignalCount> signal_indices_;
 };
 
 }  // namespace projectairsim

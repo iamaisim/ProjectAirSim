@@ -5,6 +5,9 @@
 
 #include "core_sim/actor/robot.hpp"
 #include "core_sim/actuators/actuator.hpp"
+#include "core_sim/actuators/lift_drag_control_surface.hpp"
+#include "core_sim/actuators/tilt.hpp"
+#include "core_sim/actuators/wheel.hpp"
 #include "core_sim/config_json.hpp"
 #include "core_sim/logger.hpp"
 #include "core_sim/service_manager.hpp"
@@ -24,8 +27,8 @@ class Scene {  // : public ::testing::Test {
                               const std::string& message) {};
     Logger logger(logger_callback);
     Transform origin = {{0, 0, 0}, {1, 0, 0, 0}};
-    return Robot("TestRobotID", origin, logger, TopicManager(logger), "",
-                 ServiceManager(logger), StateManager(logger));
+    return Robot(id, origin, logger, TopicManager(logger), "",
+                 ServiceManager(logger), StateManager(logger), "");
   }
 
   static void LoadRobot(Robot& robot, ConfigJson config_json) {
@@ -50,6 +53,49 @@ class Scene {  // : public ::testing::Test {
         })"_json;
     return config;
   }
+};
+
+class FakeController : public IController {
+ public:
+  void BeginUpdate() override {}
+  void EndUpdate() override {}
+  void Reset() override {}
+  void SetKinematics(const Kinematics* kinematics) override {}
+  void Update() override {}
+
+  int GetControlSignalIndex(const std::string& actuator_id) override {
+    return GetControlSignalIndex(actuator_id, 0);
+  }
+
+  int GetControlSignalIndex(const std::string& actuator_id,
+                            size_t signal_offset) override {
+    ++index_lookup_count;
+    last_actuator_id = actuator_id;
+    return 7 + static_cast<int>(signal_offset);
+  }
+
+  void GetControlSignalSnapshot(std::vector<float>& control_signals) override {
+    control_signals = {0.0f};
+  }
+
+  std::vector<float> GetControlSignals(int signal_index) override {
+    return {static_cast<float>(signal_index)};
+  }
+
+  std::vector<float> GetControlSignals(
+      const std::string& actuator_id) override {
+    return GetControlSignals(GetControlSignalIndex(actuator_id));
+  }
+
+  const GimbalState& GetGimbalSignal(const std::string& gimbal_id) override {
+    return gimbal_state_;
+  }
+
+  int index_lookup_count = 0;
+  std::string last_actuator_id;
+
+ private:
+  GimbalState gimbal_state_;
 };
 
 }  // namespace projectairsim
@@ -99,6 +145,42 @@ TEST(Actuator, LoadsOneActuator) {
   auto& actuators = robot.GetActuators();
   // Assert: check result from `EXPECT_EQ(actuators.size(), 1);`.
   EXPECT_EQ(actuators.size(), 1);
+}
+
+TEST(Actuator, CachesControllerSignalIndex) {
+  auto config_json = projectairsim::Scene::get_actuator_config();
+  auto robot = projectairsim::Scene::MakeRobot("TestRobot");
+  projectairsim::Scene::LoadRobot(robot, config_json);
+  auto controller = std::make_unique<projectairsim::FakeController>();
+  auto* controller_ptr = controller.get();
+
+  robot.SetController(std::move(controller));
+
+  auto& actuator = robot.GetActuators().at(0).get();
+  EXPECT_EQ(actuator.GetSignalIndex(), 7);
+  EXPECT_EQ(controller_ptr->index_lookup_count, 1);
+  EXPECT_EQ(controller_ptr->last_actuator_id, actuator.GetId());
+  EXPECT_EQ(controller_ptr->GetControlSignals(actuator.GetSignalIndex()).at(0),
+            7.0f);
+  EXPECT_EQ(controller_ptr->index_lookup_count, 1);
+}
+
+TEST(Actuator, CachesAllWheelSignalIndices) {
+  auto config_json = projectairsim::Scene::get_actuator_config();
+  config_json["actuators"][0]["type"] = "wheel";
+  auto robot = projectairsim::Scene::MakeRobot("TestRobot");
+  projectairsim::Scene::LoadRobot(robot, config_json);
+  auto controller = std::make_unique<projectairsim::FakeController>();
+  auto* controller_ptr = controller.get();
+
+  robot.SetController(std::move(controller));
+
+  auto& actuator = robot.GetActuators().at(0).get();
+  EXPECT_EQ(actuator.GetSignalCount(), 3);
+  EXPECT_EQ(actuator.GetSignalIndex(0), 7);
+  EXPECT_EQ(actuator.GetSignalIndex(1), 8);
+  EXPECT_EQ(actuator.GetSignalIndex(2), 9);
+  EXPECT_EQ(controller_ptr->index_lookup_count, 3);
 }
 
 TEST(Actuator, LoadsTwoActuatorsSameID) {
@@ -161,4 +243,151 @@ TEST(Actuator, LoadsTwoActuatorsDifferentID) {
   auto& actuators = robot.GetActuators();
   // Assert: check result from `EXPECT_EQ(actuators.size(), 2);`.
   EXPECT_EQ(actuators.size(), 2);
+}
+
+TEST(Actuator, LoadsJSBSimPropertyPathActuatorID) {
+  json config_json = R"({
+        "links": [ { "name": "Frame" } ],
+        "actuators": [
+          {
+            "name": "fcs/elevator-cmd-norm",
+            "type": "lift-drag-control-surface",
+            "enabled": true,
+            "parent-link": "Frame",
+            "child-link": "Elevator"
+          }
+        ]
+    })"_json;
+
+  auto robot = projectairsim::Scene::MakeRobot("TestRobot");
+  projectairsim::Scene::LoadRobot(robot, config_json);
+  auto& actuators = robot.GetActuators();
+  ASSERT_EQ(actuators.size(), 1);
+  EXPECT_EQ(actuators[0].get().GetId(), "fcs/elevator-cmd-norm");
+}
+
+TEST(Actuator, LoadsTiltJSBSimSettings) {
+  json config_json = R"({
+        "links": [ { "name": "Frame" } ],
+        "actuators": [
+          {
+            "name": "Prop_FL_actuator",
+            "type": "rotor",
+            "enabled": true,
+            "parent-link": "Frame",
+            "child-link": "Prop_FL",
+            "rotor-settings": {
+              "turning-direction": "clock-wise",
+              "normal-vector": "0.0 0.0 -1.0",
+              "coeff-of-thrust": 0.109919,
+              "coeff-of-torque": 0.040164,
+              "max-rpm": 6396.667,
+              "propeller-diameter": 0.2286,
+              "smoothing-tc": 0.005
+            }
+          },
+          {
+            "name": "Prop_FL_tilt_actuator",
+            "type": "tilt",
+            "enabled": true,
+            "parent-link": "Frame",
+            "child-link": "Shroud_FL",
+            "tilt-settings": {
+              "target": "Prop_FL_actuator",
+              "angle-min": 0.0,
+              "angle-max": 1.57,
+              "axis": "0.0 -1.0 0.0",
+              "smoothing-tc": 0.5,
+              "jsbsim-cmd": "fcs/tilt-cmd-norm[0]",
+              "jsbsim-state": "fcs/tilt-pos-norm[0]"
+            }
+          }
+        ]
+    })"_json;
+
+  auto robot = projectairsim::Scene::MakeRobot("TestRobot");
+  projectairsim::Scene::LoadRobot(robot, config_json);
+  auto& actuators = robot.GetActuators();
+  ASSERT_EQ(actuators.size(), 2);
+
+  auto* tilt = static_cast<projectairsim::Tilt*>(&actuators[1].get());
+  EXPECT_EQ(tilt->GetSettings().jsbsim_cmd, "fcs/tilt-cmd-norm[0]");
+  EXPECT_EQ(tilt->GetSettings().jsbsim_state, "fcs/tilt-pos-norm[0]");
+}
+
+TEST(Actuator, LoadsLiftDragControlSurfaceJSBSimSettings) {
+  json config_json = R"({
+        "links": [ { "name": "Frame" } ],
+        "actuators": [
+          {
+            "name": "Elevator_actuator",
+            "type": "lift-drag-control-surface",
+            "enabled": true,
+            "parent-link": "Frame",
+            "child-link": "Elevator",
+            "lift-drag-control-surface-settings": {
+              "rotation-rate": 0.524,
+              "smoothing-tc": 0.005,
+              "jsbsim-cmd": "fcs/elevator-cmd-norm",
+              "jsbsim-state": "fcs/elevator-pos-rad"
+            }
+          }
+        ]
+    })"_json;
+
+  auto robot = projectairsim::Scene::MakeRobot("TestRobot");
+  projectairsim::Scene::LoadRobot(robot, config_json);
+  auto& actuators = robot.GetActuators();
+  ASSERT_EQ(actuators.size(), 1);
+
+      auto* surface = static_cast<projectairsim::LiftDragControlSurface*>(
+        &actuators[0].get());
+  EXPECT_EQ(surface->GetSettings().jsbsim_cmd, "fcs/elevator-cmd-norm");
+  EXPECT_EQ(surface->GetSettings().jsbsim_state, "fcs/elevator-pos-rad");
+}
+
+TEST(Actuator, LoadsWheelJSBSimSettings) {
+  json config_json = R"({
+        "links": [ { "name": "Frame" } ],
+        "actuators": [
+          {
+            "name": "Wheel_FL_actuator",
+            "type": "wheel",
+            "enabled": true,
+            "parent-link": "Frame",
+            "child-link": "Front_Left",
+            "wheel-settings": {
+              "normal-vector": "0.0 -1.0 0.0",
+              "wheel-type": 1.0,
+              "coeff-of-friction": 1.0,
+              "coeff-of-wheel-torque": 0.040164,
+              "engine": true,
+              "steering": true,
+              "brake": true,
+              "smoothing-tc": 0.0,
+              "jsbsim-cmd-engine": "fcs/throttle-cmd-norm[0]",
+              "jsbsim-cmd-steering": "fcs/steering-cmd-norm",
+              "jsbsim-cmd-brake": "fcs/brake-cmd-norm"
+            }
+          }
+        ]
+    })"_json;
+
+  auto robot = projectairsim::Scene::MakeRobot("TestRobot");
+  projectairsim::Scene::LoadRobot(robot, config_json);
+  auto& actuators = robot.GetActuators();
+  ASSERT_EQ(actuators.size(), 1);
+
+  auto* wheel = static_cast<projectairsim::Wheel*>(&actuators[0].get());
+  EXPECT_FLOAT_EQ(wheel->GetWheelSettings().wheel_type, 1.0f);
+  EXPECT_FLOAT_EQ(wheel->GetWheelSettings().coeff_of_torque, 0.040164f);
+  EXPECT_TRUE(wheel->GetWheelSettings().engine_connected_);
+  EXPECT_TRUE(wheel->GetWheelSettings().steering_connected_);
+  EXPECT_TRUE(wheel->GetWheelSettings().brake_connected_);
+  EXPECT_EQ(wheel->GetWheelSettings().jsbsim_cmd_engine,
+            "fcs/throttle-cmd-norm[0]");
+  EXPECT_EQ(wheel->GetWheelSettings().jsbsim_cmd_steering,
+            "fcs/steering-cmd-norm");
+  EXPECT_EQ(wheel->GetWheelSettings().jsbsim_cmd_brake,
+            "fcs/brake-cmd-norm");
 }

@@ -52,6 +52,28 @@ class IController : public IRuntimeComponent {
   // TODO: Should this be in the base IRuntimeComponent?
   virtual void Update() = 0;
 
+  // Cancels the active command task, if any. A task returns only when it is
+  // cancelled, times out, or simulation time advances, and time can stop
+  // advancing during shutdown. Scene shutdown therefore cancels every robot's
+  // task before stopping physics or ending any robot update.
+  virtual bool CancelLastTask() { return true; }
+
+  virtual int GetControlSignalIndex(const std::string& actuator_id) = 0;
+
+  virtual int GetControlSignalIndex(const std::string& actuator_id,
+                                    size_t signal_offset) {
+    return signal_offset == 0 ? GetControlSignalIndex(actuator_id) : -1;
+  }
+
+  // Fill the caller-owned reusable buffer with one consistent set of channels.
+  // Implementations synchronize controller state once and retain buffer capacity.
+  virtual void GetControlSignalSnapshot(
+      std::vector<float>& control_signals) = 0;
+
+  // Compatibility accessors; robot actuator dispatch uses cached indices instead.
+  // The integer overload returns exactly one scalar for a valid channel index.
+  virtual std::vector<float> GetControlSignals(int signal_index) = 0;
+
   virtual std::vector<float> GetControlSignals(const std::string& actuator_id) = 0;
 
   virtual const GimbalState& GetGimbalSignal(const std::string& gimbal_id) = 0;

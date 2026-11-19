@@ -109,6 +109,22 @@ Project AirSim is a simulation platform for drones, robots, and other autonomous
 - **Clang Version**: Hardcoded to clang-13 but can use clang-18 with symbolic links
 - **Python Dependencies**: open3d version constraints may conflict with newer Python versions
 - **Unreal Engine**: Full functionality requires UE5 installation and UE_ROOT environment variable
+- **JSBSim Version**: Fixed at v1.1.12 for compatibility. Do not modify JSBSIM_FIXED_TAG without approval.
+
+## Third-Party Dependencies
+
+### JSBSim Integration
+
+**JSBSim headers are staged during build, not included in source control.**
+
+- **Version**: Fixed at `v1.1.12` (enforced by CMake configuration check)
+- **Headers**: Automatically staged to `build/linux64/{Debug|Release}/thirdparty/jsbsim/include/` during build
+- **Libraries**: Copied to `core_sim/jsbsim/lib/{Debug|Release}/` for runtime use
+- **Models**: Aircraft, engine, systems, and scripts copied to `core_sim/jsbsim/models/`
+
+**Do not manually copy JSBSim headers.** The build system handles header staging automatically via the `jsbsim-repo` ExternalProject post-install step.
+
+**Version enforcement**: CMakeLists.txt includes a configure-time check that fails the build if `JSBSIM_FIXED_TAG` is modified from `v1.1.12`. This ensures all builds use the same tested JSBSim version.
 
 ## Build Targets and Timing
 

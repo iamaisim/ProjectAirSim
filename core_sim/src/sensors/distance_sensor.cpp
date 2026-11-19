@@ -187,8 +187,10 @@ void DistanceSensor::Impl::PublishDistanceSensorMsg(
     const DistanceSensorMessage& distance_sensor_msg) {
   std::lock_guard<std::mutex> lock(update_lock_);
   lastMessage = distance_sensor_msg;
-  topic_manager_.PublishTopic(distance_sensor_topic,
-                              (Message&)distance_sensor_msg);
+  if (IsUpdating()) {
+    topic_manager_.PublishTopic(distance_sensor_topic,
+                                (Message&)distance_sensor_msg);
+  }
 }
 
 void DistanceSensor::Impl::OnEndUpdate() {

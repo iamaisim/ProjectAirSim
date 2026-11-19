@@ -12,6 +12,8 @@ import time
 from projectairsim import Drone, ProjectAirSimClient, World
 from projectairsim.utils import projectairsim_log
 
+pytestmark = pytest.mark.px4
+
 
 @pytest.fixture(scope="class")
 def robo_fixture():

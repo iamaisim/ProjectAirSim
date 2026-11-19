@@ -17,6 +17,7 @@ The main C++ client components are:
 | `client/cpp/ProjectAirSimMessageLib/` | Message serialization helpers used by the client. |
 | `client/cpp/NNGI/` | NNG-based transport wrapper. |
 | `client/cpp/example_user_apps/HelloDrone/` | Minimal example application. |
+| `client/cpp/example_user_apps/HelloWheeledVehicle/` | Native wheeled-vehicle control example. |
 | `client/cpp/example_user_apps/CppClientScenarios/` | Scenario-oriented example application. |
 | `client/cpp/example_user_apps/UserScenarioTemplate/` | Starting point for custom C++ user scenarios. |
 | `client/cpp/scripts/` | Linux helper scripts for building and running scenario examples. |
@@ -46,8 +47,10 @@ To build the C++ client, install:
 
 - CMake 3.20 or newer
 - A C++17 compiler
-- Ninja on Linux, when using the repository `build.sh` targets
-- Visual Studio 2022 C++ build tools on Windows, when using `build.cmd`
+- Ninja when using the repository build wrapper. It is installed by
+  `setup_linux_dev_tools.sh` on Linux and must be available on `PATH` on Windows.
+- The MSVC C++ toolchain from Visual Studio 2022 Build Tools on Windows. The
+  Visual Studio IDE is not required.
 
 The Linux CMake build fetches third-party dependencies such as NNG,
 `nlohmann-json`, and msgpack on first configure. Eigen3 is used from the system
@@ -58,15 +61,11 @@ when available, or fetched automatically.
 From the repository root, build the C++ client with:
 
 ```bash
-./build.sh cpp_client_debug
-./build.sh cpp_client_release
-```
+./build_cpp_client.sh debug
+./build_cpp_client.sh release
 
-The C++ client is also built as part of the simulation library targets:
-
-```bash
-./build.sh simlibs_debug
-./build.sh simlibs_release
+# Build and run the mocked unit tests (no simulator required)
+./build_cpp_client.sh debug --tests
 ```
 
 Build outputs are placed under:
@@ -88,6 +87,7 @@ Example executables are generated in the same directory, including:
 
 ```text
 hello_drone
+hello_wheeled_vehicle
 cpp_client_scenarios
 user_scenario_template
 ```
@@ -104,27 +104,20 @@ cmake --build client/cpp/build_linux/Debug -j$(nproc)
 From a Windows command prompt, use the repository build wrapper:
 
 ```bat
-build.cmd cpp_client_debug
-build.cmd cpp_client_release
+build_cpp_client.cmd debug
+build_cpp_client.cmd release
+build_cpp_client.cmd debug --tests
 ```
 
-The Windows Visual Studio projects place C++ client library artifacts under:
+Build artifacts are placed under:
 
 ```text
-client\cpp\libraries\x64\Debug\
-client\cpp\libraries\x64\Release\
+client\cpp\build_windows\Debug\
+client\cpp\build_windows\Release\
 ```
 
-The `HelloDrone` example executable is placed under:
-
-```text
-client\cpp\example_user_apps\HelloDrone\x64\Debug\
-client\cpp\example_user_apps\HelloDrone\x64\Release\
-```
-
-When running `hello_drone.exe`, make sure the corresponding
-`client\cpp\libraries\x64\<Configuration>\` directory is on `PATH`, or copy the
-required DLLs next to the executable.
+The client links statically; no client DLL directory needs to be added to
+`PATH` for `hello_drone.exe`.
 
 ## Running HelloDrone
 
@@ -146,7 +139,7 @@ On Linux:
 On Windows:
 
 ```bat
-client\cpp\example_user_apps\HelloDrone\x64\Debug\hello_drone.exe ^
+client\cpp\build_windows\Debug\hello_drone.exe ^
   --simhost 127.0.0.1 ^
   --simconfig client\python\example_user_scripts\sim_config
 ```
@@ -157,6 +150,31 @@ configuration files. The repository includes ready-to-run examples in:
 ```text
 client/python/example_user_scripts/sim_config/
 ```
+
+## Running HelloWheeledVehicle
+
+With the Unreal simulator running, build and run the native wheeled-vehicle
+example from the repository root:
+
+```bash
+cmake --build client/cpp/build_linux/Debug --target hello_wheeled_vehicle -j$(nproc)
+./client/cpp/build_linux/Debug/hello_wheeled_vehicle
+```
+
+The example loads `scene_wheeled_vehicle.jsonc` and controls the configured
+`AWheeledVehiclePawn` through `WheeledVehicle::SetThrottle`, `SetSteering`,
+and `SetBrakes`. Each method returns a `Status` and writes whether the control
+was accepted to its boolean output argument. `WheeledVehicle` does not expose
+`SetParameter`.
+
+The example reports failure if it cannot confirm at least 1 m of horizontal
+motion; successful RPC responses alone do not count as successful driving.
+
+`world->Initialize(client)` without a scene file attaches by discovering the
+scene topic root and robot names from the existing topics. It does not reload
+the scene or request its configuration. `GetConfiguration()` remains empty
+when attaching this way; it is populated only when World loads a configuration
+file. Reinitialize World to discover an externally loaded scene.
 
 ## Creating a C++ application
 

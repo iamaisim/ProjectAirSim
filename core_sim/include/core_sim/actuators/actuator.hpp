@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation. 
+// Copyright (C) Microsoft Corporation.
 // Copyright (C) 2025 IAMAI CONSULTING CORP
 
 // MIT License. All rights reserved.
@@ -6,6 +6,7 @@
 #ifndef CORE_SIM_INCLUDE_CORE_SIM_ACTUATORS_ACTUATOR_HPP_
 #define CORE_SIM_INCLUDE_CORE_SIM_ACTUATORS_ACTUATOR_HPP_
 
+#include <array>
 #include <memory>
 #include <string>
 #include <vector>
@@ -23,23 +24,30 @@ enum class ActuatorType {
   kLiftDragControlSurface = 1,
   kTilt = 2,
   kGimbal = 3,
-  kWheel = 4
+  kWheel = 4,
+  kUnrealVehicle = 5
 };
 
 // Abstract base class
 class Actuator {
  public:
+  static constexpr size_t kMaxControlSignalCount = 3;
+  using ControlSignals = std::array<float, kMaxControlSignalCount>;
+
   virtual ~Actuator() {}
 
   bool IsLoaded() const;
 
   const std::string& GetId() const;
+  size_t GetSignalCount() const;
+  int GetSignalIndex(size_t signal_offset = 0) const;
+  void SetSignalIndex(int signal_index, size_t signal_offset = 0);
   ActuatorType GetType() const;
   bool IsEnabled() const;
   const std::string& GetParentLink() const;
   const std::string& GetChildLink() const;
-  virtual void UpdateActuatorOutput(std::vector<float> && control_signals,
-                            const TimeNano sim_dt_nanos) = 0;
+  virtual void UpdateActuatorOutput(const ControlSignals& control_signals,
+                                    const TimeNano sim_dt_nanos) = 0;
 
   bool UpdateFaultInjectionEnabledState(bool enabled);
 

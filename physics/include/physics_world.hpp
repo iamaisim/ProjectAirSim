@@ -16,6 +16,7 @@
 #include "fast_physics.hpp"
 #include "matlab_physics.hpp"
 #include "unreal_physics.hpp"
+#include "jsbsim_physics.hpp"
 
 namespace microsoft {
 namespace projectairsim {
@@ -25,7 +26,7 @@ namespace projectairsim {
 // is decided that could work for all physics types, this could be changed to
 // use standard base-class inheritance instead of variants.
 using ModelVariant =
-    std::variant<FastPhysicsModel, UnrealPhysicsModel, MatlabPhysicsModel>;
+    std::variant<FastPhysicsModel, UnrealPhysicsModel, MatlabPhysicsModel, JSBSimPhysicsModel>;
 
 class PhysicsWorld {
  public:

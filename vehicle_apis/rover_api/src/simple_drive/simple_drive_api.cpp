@@ -5,6 +5,8 @@
 
 #include "simple_drive/simple_drive_api.hpp"
 
+#include <algorithm>
+
 #include "json.hpp"
 #include "simple_drive/ackermann_controller.hpp"
 #include "simple_drive/utils.hpp"
@@ -113,32 +115,54 @@ void SimpleDriveApi::Update(void) {
     pisimple_drive_controller_->Update();
 }
 
+int SimpleDriveApi::GetControlSignalIndex(const std::string& actuator_id) {
+  return GetControlSignalIndex(actuator_id, 0);
+}
+
+int SimpleDriveApi::GetControlSignalIndex(const std::string& actuator_id,
+                                          size_t signal_offset) {
+  // Simple-drive provides the same throttle/steering/brake channels to every
+  // wheel. The offset selects the scalar channel within that shared output.
+  return signal_offset < 3 ? static_cast<int>(signal_offset) : -1;
+}
+
+void SimpleDriveApi::GetControlSignalSnapshot(
+    std::vector<float>& control_signals) {
+  constexpr size_t kControlSignalCount = 3;
+  control_signals.assign(kControlSignalCount, 0.0f);
+  if ((vehicle_state_ != VehicleStateType::kArmed) ||
+      (pisimple_drive_controller_ == nullptr)) {
+    return;
+  }
+
+  const auto& controller_output = pisimple_drive_controller_->GetOutput();
+  const auto copy_count =
+      std::min(control_signals.size(), controller_output.size());
+  std::copy_n(controller_output.begin(), copy_count, control_signals.begin());
+}
+
+std::vector<float> SimpleDriveApi::GetControlSignals(int signal_index) {
+  if (signal_index < 0 || signal_index >= 3 ||
+      vehicle_state_ != VehicleStateType::kArmed ||
+      pisimple_drive_controller_ == nullptr) {
+    return std::vector<float>(1, 0.0f);
+  }
+
+  const auto& controller_output = pisimple_drive_controller_->GetOutput();
+  if (signal_index >= static_cast<int>(controller_output.size())) {
+    return std::vector<float>(1, 0.0f);
+  }
+
+  return std::vector<float>(1, controller_output[signal_index]);
+}
+
 std::vector<float> SimpleDriveApi::GetControlSignals(
     const std::string& actuator_id) {
-  // auto actuator_map_itr = actuator_id_to_output_idx_map_.find(actuator_id);
-
-  if ((vehicle_state_ != VehicleStateType::kArmed) ||
-      (pisimple_drive_controller_ == nullptr))
-    return std::vector<float>{0, 0, 0};
-  else {
-    static int kNumValueReturn =
-        3;  // Number of values to return: throttle, steering, and brake
-
-    std::vector<float> vecrRet;
-
-    auto& vecr = pisimple_drive_controller_->GetOutput();
-    auto cr = vecr.size();
-
-    if (cr == kNumValueReturn)
-      return (vecr);
-    else if (cr < kNumValueReturn) {
-      vecrRet = vecr;
-      vecrRet.resize(kNumValueReturn);
-    } else
-      vecrRet.assign(vecr.begin(), vecr.begin() + kNumValueReturn);
-
-    return vecrRet;
-  }
+  // Preserve the legacy three-channel accessor; scalar consumers use the
+  // integer overload, and robot updates fill their persistent snapshot directly.
+  std::vector<float> control_signals;
+  GetControlSignalSnapshot(control_signals);
+  return control_signals;
 }
 
 const projectairsim::IController::GimbalState& SimpleDriveApi::GetGimbalSignal(
@@ -227,6 +251,10 @@ bool SimpleDriveApi::Disarm(void) {
 bool SimpleDriveApi::CanArm(void) const { return true; }
 
 Kinematics SimpleDriveApi::GetKinematicsEstimated(void) const {
+  if (pvehicle_state_estimator_ == nullptr) {
+    return Kinematics::Zero();
+  }
+
   return Utils::ToKinematicsState3r(
       pvehicle_state_estimator_->GetKinematicsEstimated());
 }
@@ -327,6 +355,48 @@ bool SimpleDriveApi::MoveByHeading(float heading, float speed, float duration,
   if (yaw_rate >= 0) pparams_->angle_rate_pid.max_limit.Z() = yaw_max_limit_sav;
 
   return f_result;
+}
+
+bool SimpleDriveApi::MoveOnPath(std::vector<std::vector<float>> path,
+                                float velocity, float timeout_sec,
+                                float yaw_rate_max, float lookahead,
+                                float adaptive_lookahead,
+                                int64_t command_start_time_nanos) {
+  if (!api_control_enabled_) {
+    GetLogger().LogError(GetControllerName(),
+                         "Vehicle cannot be commanded via API because API has "
+                         "not been given control");
+    return false;
+  }
+
+  if (vehicle_state_ != VehicleStateType::kArmed &&
+      vehicle_state_ != VehicleStateType::kActive) {
+    GetLogger().LogError(GetControllerName(),
+                         "Vehicle cannot MoveOnPath because it is not armed");
+    return false;
+  }
+
+  if (path.empty()) {
+    return true;
+  }
+
+  for (const auto& point : path) {
+    if (point.size() < 2) {
+      GetLogger().LogError(GetControllerName(),
+                           "MoveOnPath terminated because a path point has "
+                           "fewer than 2 coordinates");
+      return false;
+    }
+
+    // Ground vehicles use NED x/y only; ignore z if present.
+    if (!MoveToPosition(point[0], point[1], velocity, timeout_sec, yaw_rate_max,
+                        lookahead, adaptive_lookahead,
+                        command_start_time_nanos)) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 }  // namespace simple_drive

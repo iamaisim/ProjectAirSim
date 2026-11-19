@@ -66,7 +66,7 @@ async def main():
 
         responses = [v for d in (responses1, responses2) for v in d.values()]
         for idx, response in enumerate(responses):
-            if response["encoding"] == "16UC1":
+            if response["encoding"] in ("16UC1", "16FC1"):
                 filename = os.path.join(tmp_dir, str(idx) + ".pfm")
             else:
                 filename = os.path.join(tmp_dir, str(idx) + ".png")

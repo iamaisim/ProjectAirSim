@@ -1,0 +1,37 @@
+// Copyright (C) IAMAI CONSULTING CORP
+//
+// MIT License. All rights reserved.
+
+{
+  "$schema": "../../../../projectairsim/src/projectairsim/schema/scene_config_schema.jsonc",
+  "id": "SceneC310JSBSim",
+  "actors": [
+    {
+      "type": "robot",
+      "name": "c310",
+      "origin": {
+        "xyz": "3 -200 -1.015",
+        "rpy": "0 0 0.0"
+      },
+      "start-landed": true,
+      "robot-config": "robot_c310_jsbsim.jsonc"
+    }
+  ],
+  "clock": {
+    "type": "steppable",
+    "step-ns": 3000000,
+    "real-time-update-rate": 3000000,
+    "pause-on-start": false
+  },
+  "home-geo-point": {
+    "latitude": 29.4296741,
+    "longitude": -95.16384722,
+    "altitude": 7.5
+  },
+  "segmentation": {
+    "initialize-ids": true,
+    "ignore-existing": false,
+    "use-owner-name": true
+  },
+  "scene-type": "UnrealNative"
+}

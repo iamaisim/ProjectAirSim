@@ -33,6 +33,7 @@ The C++ client provides the same simulation control capabilities as the Python c
 | `Client.h` | `Client` — connects to the simulation server |
 | `World.h` | `World` — loads scenes, controls physics step |
 | `Drone.h` | `Drone` — takeoff, move, land, arm/disarm |
+| `WheeledVehicle.h` | `WheeledVehicle` — native throttle, steering, and brake control |
 | `AsyncResult.h` | `AsyncResult` — non-blocking operation handles |
 | `Status.h` | `Status` enum and `GetStatusString()` |
 | `Types.h` | `LandedState`, `ReadyState`, vectors, poses |
@@ -47,45 +48,49 @@ All public types live in the `microsoft::projectairsim::client` namespace (alias
 ### Prerequisites
 
 - CMake ≥ 3.20
-- C++17 compiler (GCC ≥ 10 or Clang ≥ 13)
+- C++17 compiler (GCC ≥ 10, Clang ≥ 13, or MSVC from Visual Studio 2022 Build Tools)
+- Ninja (installed by `setup_linux_dev_tools.sh` on Linux; must be available on `PATH` on Windows)
 - Internet access on first build (FetchContent downloads NNG, nlohmann-json, msgpack, optionally Eigen3)
 
 System Eigen3 is used if available (`sudo apt install libeigen3-dev`), otherwise it is fetched automatically.
 
-### Via `build.sh` (recommended)
+### Repository build wrapper (recommended)
 
-The C++ client is built automatically as part of the simulation library build steps:
+Build the C++ client independently of the simulation libraries:
 
 ```bash
-# Debug build (sim libs + C++ client)
-./build.sh simlibs_debug
+# Debug build (default)
+./build_cpp_client.sh debug
 
-# Release build (sim libs + C++ client)
-./build.sh simlibs_release
+# Release build
+./build_cpp_client.sh release
 
-# C++ client only (skips sim libs)
-./build.sh cpp_client_debug
-./build.sh cpp_client_release
+# Build and run mocked unit tests (does not require a simulator)
+./build_cpp_client.sh debug --tests
 ```
 
 Binaries are placed in:
 - `client/cpp/build_linux/Debug/hello_drone`
+- `client/cpp/build_linux/Debug/hello_wheeled_vehicle`
 - `client/cpp/build_linux/Release/hello_drone`
+- `client/cpp/build_linux/Release/hello_wheeled_vehicle`
 
-### Via `build.cmd` on Windows
+### On Windows
 
-Windows builds reuse the existing `ProjectAirsimClientLib` and `HelloDrone` solution artifacts:
+The Windows wrapper uses an initialized MSVC environment when one is already
+available. Otherwise, it initializes MSVC from Visual Studio 2022 Build Tools
+and then builds the standalone CMake project. The Visual Studio IDE is not
+required.
 
 ```bat
-build.cmd cpp_client_debug
-build.cmd cpp_client_release
+build_cpp_client.cmd debug
+build_cpp_client.cmd release
+build_cpp_client.cmd debug --tests
 ```
 
-Outputs are placed in the existing project locations:
-- `client/cpp/libraries/x64/Debug`
-- `client/cpp/libraries/x64/Release`
-- `client/cpp/example_user_apps/HelloDrone/x64/Debug`
-- `client/cpp/example_user_apps/HelloDrone/x64/Release`
+Outputs are placed in:
+- `client/cpp/build_windows/Debug`
+- `client/cpp/build_windows/Release`
 
 ### Manual CMake build
 
@@ -104,9 +109,6 @@ cmake --build build_linux/Release -j$(nproc)
 ### Cleaning
 
 ```bash
-# Via build.sh (also cleans sim libs)
-./build.sh clean
-
 # Manual
 rm -rf client/cpp/build_linux
 ```
@@ -186,7 +188,7 @@ add_executable(my_app main.cpp)
 target_link_libraries(my_app PRIVATE ProjectAirsimClient pthread)
 ```
 
-> **Tip**: The simplest approach is to add your source files directly to `client/cpp/CMakeLists.txt` alongside `hello_drone` and rebuild via `build.sh cpp_client_debug`.
+> **Tip**: The simplest approach is to add your source files directly to `client/cpp/CMakeLists.txt` alongside `hello_drone` and rebuild via `./build_cpp_client.sh debug`.
 
 ### 2. Minimal app skeleton
 

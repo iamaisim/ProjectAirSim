@@ -57,7 +57,7 @@ try:
         responses.update(drone.get_images(camera_id="front_left", image_type_ids=[ImageType.SCENE]))
 
         for i, response in enumerate(responses.values()):
-            if response["encoding"] == "16UC1":
+            if response["encoding"] in ("16UC1", "16FC1"):
                 projectairsim_log().info("Type %s, size %d, pos %s" % (response["encoding"], len(response["data"]), pprint.pformat([response["pos_x"],response["pos_y"],response["pos_z"]])))
                 filename = os.path.normpath(os.path.join(tmp_dir, str(x) + "_" + str(i) + '.pfm'))
             else:

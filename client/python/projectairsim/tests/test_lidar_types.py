@@ -3,14 +3,14 @@ Copyright (C) 2025 IAMAI CONSULTING CORP -- MIT License.
 Pytest suite that validates LiDAR object detection for every available
 LiDAR type in ProjectAirSim.
 
-Each test case loads a scene, flies Drone1 to the target waypoint, and
+Each test case attaches to the shared regression scene, flies Drone1 to the target waypoint, and
 asserts that every known object (OrangeBall and Cone_5) was detected at
 least once by at least one sensor in that scene.
 
 Run:
-    pytest test_lidar_all_types.py -v
-    pytest test_lidar_all_types.py -v --plot    # enable 3-D viewer
-    pytest test_lidar_all_types.py -v -k gpu    # single variant
+    pytest test_lidar_types.py -v
+    pytest test_lidar_types.py -v --plot    # enable 3-D viewer
+    pytest test_lidar_types.py -v -k gpu    # single variant
 """
 from __future__ import annotations
 import asyncio, threading
@@ -21,7 +21,8 @@ import numpy as np
 import pytest
 from scipy.spatial.transform import Rotation
 
-from projectairsim import Drone, ProjectAirSimClient, World
+from projectairsim import Drone, ProjectAirSimClient
+from regression_support import RegressionWorld as World
 from projectairsim.utils import projectairsim_log
 
 # ---------------------------------------------------------------------------
@@ -46,27 +47,27 @@ FLIGHT_WAYPOINT = (45.30, -4.40, -16.40, 5.0)
 LIDAR_SCENARIOS = [
     pytest.param(
         "scene_test_lidar_drone_gpu.jsonc",
-        [("lidar1", "GPU-Cylindrical")],
+        [("LidarGPU", "GPU-Cylindrical")],
         id="gpu",
     ),
     pytest.param(
         "scene_test_lidar_drone.jsonc",
-        [("lidar1", "CPU-Cylindrical")],
+        [("LidarCPU", "CPU-Cylindrical")],
         id="cpu",
     ),
     pytest.param(
         "scene_test_lidar_depth.jsonc",
-        [("lidar1", "Depth")],
+        [("LidarDepth", "Depth")],
         id="depth",
     ),
     pytest.param(
         "scene_test_lidar_avia.jsonc",
-        [("lidar1", "Livox-Avia")],
+        [("LidarAvia", "Livox-Avia")],
         id="avia",
     ),
     pytest.param(
         "scene_test_lidar_mid70.jsonc",
-        [("lidar1", "Livox-Mid70")],
+        [("LidarMid70", "Livox-Mid70")],
         id="mid70",
     ),
 ]
@@ -366,3 +367,5 @@ def test_lidar_detects_objects(scene, sensors, request):
         pytest.fail(
             f"[{scene}] Not detected by any sensor: {undetected}\n  {per_sensor}"
         )
+
+pytestmark = pytest.mark.unreal

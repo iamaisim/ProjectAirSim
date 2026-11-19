@@ -1,5 +1,5 @@
 {
-    "$schema": "../src/aiblocks/datacollection/configs/schemas/datacollector_config_schema.jsonc",
+    "$schema": "./schemas/datacollector_config_schema.jsonc",
     "env-spec": {
         "assets": { // Configure assets that can be spawned in the sim
             "AirTaxi": {

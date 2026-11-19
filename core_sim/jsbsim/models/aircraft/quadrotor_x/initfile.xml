@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<initialize name="reset00" version="2">
+  <position frame="ECEF">
+    <altitudeAGL unit="FT"> 29.5 </altitudeAGL>
+    <latitude type="geodetic" unit="DEG"> 47.641468 </latitude>
+    <longitude unit="DEG"> -122.140165 </longitude>
+  </position>
+
+  <orientation unit="DEG" frame="LOCAL">
+    <phi> 0.0 </phi>
+    <theta> 0.0 </theta>
+    <psi> 0.0 </psi>
+  </orientation>
+
+  <velocity unit="FT/SEC" frame="LOCAL">
+    <x> 0.0 </x>
+    <y> 0.0 </y>
+    <z> 0.0 </z>
+  </velocity>
+
+  <attitude_rate unit="DEG/SEC" frame="LOCAL">
+    <x> 0.0 </x>
+    <y> 0.0 </y>
+    <z> 0.0 </z>
+  </attitude_rate>
+
+  <elevation unit="FT"> 400.0 </elevation>
+</initialize>

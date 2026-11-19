@@ -55,6 +55,7 @@ set(PROJECTAIRSIM_ROS2_CPP_INTERFACES
   "srv/Reset.srv"
   "srv/SetObjectMaterial.srv"
   "srv/SetObjectTexture.srv"
+  "srv/SetParameter.srv"
   "srv/SetSegmentationIDByName.srv"
   "srv/SwapObjectTexture.srv"
   "srv/Takeoff.srv"
@@ -90,7 +91,6 @@ target_include_directories(projectairsim_ros2_cpp_node
   PRIVATE
     include
 )
-
 target_link_libraries(projectairsim_ros2_cpp_node
   ProjectAirsimClient
 )
@@ -119,6 +119,10 @@ install(TARGETS projectairsim_ros2_cpp_node
 
 install(DIRECTORY include/
   DESTINATION include
+)
+
+install(DIRECTORY config/
+  DESTINATION share/${PROJECT_NAME}/config
 )
 
 if(BUILD_TESTING)
@@ -158,6 +162,12 @@ if(BUILD_TESTING)
     target_link_libraries(ros2_generated_interfaces_regression_test
       "${cpp_typesupport_target}"
     )
+  endif()
+
+  ament_add_gtest(vehicle_parameter_mapping_test test/vehicle_parameter_mapping_test.cpp)
+  if(TARGET vehicle_parameter_mapping_test)
+    target_include_directories(vehicle_parameter_mapping_test PRIVATE include)
+    target_link_libraries(vehicle_parameter_mapping_test ProjectAirsimClient)
   endif()
 
   ament_add_gtest(ros2_conversion_utils_test

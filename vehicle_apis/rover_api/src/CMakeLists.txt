@@ -56,7 +56,7 @@ target_link_libraries(
     ${TARGET_NAME}
     PRIVATE
         core_sim
-        lvmon
+        $<$<BOOL:${PROJECTAIRSIM_ENABLE_LVMON}>:lvmon>
 )
 
 add_custom_command(TARGET ${TARGET_NAME}

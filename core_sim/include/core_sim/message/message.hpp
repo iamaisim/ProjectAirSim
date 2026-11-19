@@ -46,6 +46,7 @@ enum class MessageType {
   kPose = 28,
   kIntList = 29,
   kFloat = 30,
+  kClock = 31,
 };
 
 class Message {

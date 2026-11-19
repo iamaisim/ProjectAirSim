@@ -1,0 +1,42 @@
+name: Config schema validation
+'on':
+  workflow_call: {}
+permissions:
+  contents: read
+jobs:
+  config-validation:
+    name: Config schema validation
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+        cache: pip
+        cache-dependency-path: client/python/projectairsim/pyproject.toml
+    - name: Install validation dependencies
+      working-directory: client/python/projectairsim
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -e .
+    - name: Test config validator offline
+      run: python -m unittest discover -s tools/ci -p test_validate_configs.py -v
+    - name: Collect changed config files
+      shell: bash
+      run: |
+        set -euo pipefail
+        git diff --name-only --diff-filter=AMR \
+          "${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}" \
+          -- '*.json' '*.jsonc' > changed-configs.txt
+        cat changed-configs.txt
+    - name: Validate configs
+      shell: bash
+      run: |
+        set -euo pipefail
+        mapfile -t changed_configs < changed-configs.txt
+        python tools/ci/validate_configs.py "${changed_configs[@]}"
+    if: github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'run-ci'

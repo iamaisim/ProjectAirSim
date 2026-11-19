@@ -56,7 +56,7 @@ The scene is loaded from the JSONC file that is specified when the `World` objec
 | `origin`: `xyz` | string of 3 floats | Spawning origin position "X Y Z" coordinates with units of SI **meters** in the **NED** frame (up = negative z). **Note:** "0 0 0" is at the global UE origin, not relative to `PlayerStart`. |
 | `origin`: `geo-point` | string of 3 floats | Alternative to `xyz`. Spawning origin position at "lat lon alt" coordinates. |
 | `origin`: `rpy` | string of 3 floats | Spawning origin orientation "Roll Pitch Yaw" angles with units of SI **radians** with right-hand rotation around the NED frame X Y Z axes. |
-| `robot-config` | string | Filename for JSONC config file for this actor's **[Robot Configuration Settings](config_robot.md)**. |
+| `robot-config` | string or array of strings | **Filename or array of filenames** for JSONC config file(s) for this actor's **[Robot Configuration Settings](config_robot.md)**. When multiple files are provided as an array, they are loaded in order and merged together, enabling modular configuration composition. Example: `["robot_base.jsonc", "sensors_package.jsonc"]` |
 | `start-landed` | bool | (Optional) Start from a manually-set landed state at the spawned origin (without needing to drop onto a mesh with collision). For FastPhysics, a landed state means that the position is locked until a net vertical force up exceeds the weight of the body (to counter gravity forces) such as from rotors during takeoff, or there is already an upward velocity. Defaults to false if omitted. |
 
 
@@ -67,7 +67,9 @@ The scene is loaded from the JSONC file that is specified when the `World` objec
   "type": "steppable",
   "step-ns": 3000000,
   "real-time-update-rate": 3000000,
-  "pause-on-start": false
+  "pause-on-start": false,
+  "engine-fixed-fps": 50.0,
+  "engine-substepping": true
 }
 ```
 
@@ -77,6 +79,8 @@ The scene is loaded from the JSONC file that is specified when the `World` objec
 | `step-ns` | integer | Step size in **nanosec** for `steppable`, `engine-driven`, and `external-clock` clocks. Defaults to 20000000 (20 ms) if omitted. |
 | `real-time-update-rate` | integer | Real-time execution period in **nanosec** between each simulation loop and clock update for scheduled clocks. Defaults to 3000000 (3 ms) if omitted. |
 | `pause-on-start` | bool | Flag to start with simulation paused for `steppable` clock. Defaults to false if omitted. |
+| `engine-fixed-fps` | positive float | (Optional, Unreal only) Runs Unreal at the specified fixed outer-frame rate. If omitted, the existing clock-dependent frame-rate behavior is preserved. |
+| `engine-substepping` | bool | (Optional, Unreal only) Enables Chaos physics substepping. Defaults to `false`. When enabled, `step-ns` is always used as the maximum physics-substep duration and Unreal's maximum of 16 substeps per frame is used. |
 
 There are 4 supported simulation clock types:
 
@@ -124,15 +128,17 @@ Real-time clock is a **variable-step clock** with sim time step = real-time step
 ``` json
 "clock": {
   "type": "engine-driven",
-  "step-ns": 3000000
+  "step-ns": 3000000,
+  "engine-fixed-fps": 50.0,
+  "engine-substepping": true
 }
 ```
 
-From the **simulation libraries / plugin** perspective, this is the **engine-driven** clock: a **fixed-step clock driven by a host loop outside core_sim’s scheduled executor**. The host contributes elapsed time (via `AccumulateStep`); the simulation consumes it in deterministic steps of `step-ns`.
+From the **simulation libraries / plugin** perspective, this is the **engine-driven** clock: a clock driven by a host loop outside core_sim’s scheduled executor. Normally the host contributes elapsed time (via `AccumulateStep`), and the simulation consumes it in deterministic steps of `step-ns`.
 
 This mode is useful when Project AirSim is embedded inside another runtime (another game engine, a custom orchestrator, etc.) that decides when scene ticks should run.
 
-**Unreal Engine (`UnrealNative` scenes):** the host loop that feeds elapsed time is the **unreal-clock** path: each Unreal engine tick supplies frame delta time into the engine-driven clock, then fixed `step-ns` scene steps are drained. So **engine-driven** (plugin/sim naming) is named there as **unreal-driven-clock** (Unreal-side naming).
+**Unreal Engine (`UnrealNative` scenes):** the host loop is the **unreal-clock** path. Without physics-substep clocking, each Unreal frame contributes its delta time and fixed `step-ns` scene steps are drained. When `engine-substepping` is enabled, each captured Chaos substep instead runs one complete scene tick using that substep's actual elapsed duration. The scene-level substep sampler works even when the scene contains no Unreal Vehicle or other Unreal Physics robot.
 
 **Note:** `engine-driven` does not use `real-time-update-rate` to schedule scene ticks internally, and pause/resume via the SimClock client APIs is not supported for this clock type (the host loop owns pacing).
 
@@ -148,6 +154,44 @@ This mode is useful when Project AirSim is embedded inside another runtime (anot
 `external-clock` currently behaves the same as `engine-driven`: it is a fixed-step host-driven clock intended to be the future entry point for driving simlibs from an external app or system.
 
 Use this type when you want to reserve the clock for an external controller while keeping the same runtime behavior as `engine-driven` today.
+
+### Unreal Engine clock options
+
+``` json
+"clock": {
+  "type": "engine-driven",
+  "step-ns": 3000000,
+  "engine-fixed-fps": 50.0,
+  "engine-substepping": true
+}
+```
+
+| Parameter | Value | Description |
+| --------- | ----- | ----------- |
+| `engine-fixed-fps` | positive float | Fixes the outer Unreal frame rate. Omit it to preserve the prior behavior. It does not prevent Chaos from executing multiple physics substeps inside one frame. |
+| `engine-substepping` | bool | Enables Chaos physics substepping for the whole Unreal physics scene when `type` is `engine-driven`. It is ignored for all other clock types. It defaults to `false`, because additional physics solves can reduce performance even for non-vehicle Unreal bodies. |
+
+When `engine-substepping` is enabled on an `engine-driven` clock, `step-ns` is converted to seconds
+and assigned to Chaos `MaxSubstepDeltaTime`. This is an upper bound, not a
+guaranteed exact interval: Chaos may choose a slightly smaller substep so that
+an outer frame divides evenly. For example, a fixed 50 FPS frame is 20 ms; with
+`step-ns=3000000`, Chaos divides it into seven substeps of approximately 2.857
+ms rather than leaving a shorter remainder.
+
+Project AirSim always sets `MaxSubsteps` to 16, the maximum accepted by Unreal
+Engine 5.7. If a frame would require more than 16 substeps, Chaos cannot honor
+the requested `step-ns` upper bound for that frame.
+
+The engine-driven scene clock consumes these actual substeps even when no
+Unreal Physics actor is present. Each substep is propagated through the full
+scene tick, including controllers, Fast Physics, actuators, sensors, and topic
+timestamps. This can improve temporal resolution for those systems, but also
+increases their update count and CPU cost. Leave substepping disabled when that
+additional resolution is not required.
+
+For `steppable`, `real-time`, and `external-clock`, Project AirSim disables
+Chaos substepping and does not register either the scene-level or Unreal
+Vehicle substep sampler. Their existing clock scheduling remains unchanged.
 
 ## Home GeoPoint settings
 

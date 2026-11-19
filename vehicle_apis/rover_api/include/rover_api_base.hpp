@@ -53,6 +53,11 @@ class RoverApiBase : public IController, public IRoverApi {
                              float yaw_rate, float timeout_sec,
                              int64_t command_start_time_nanos) = 0;
 
+  virtual bool MoveOnPath(std::vector<std::vector<float>> path, float velocity,
+                          float timeout_sec, float yaw_rate_max, float lookahead,
+                          float adaptive_lookahead,
+                          int64_t command_start_time_nanos) = 0;
+
  protected:
   typedef std::function<bool()> WaitFunction;
 
@@ -67,7 +72,7 @@ class RoverApiBase : public IController, public IRoverApi {
   virtual void RegisterServiceMethods(void);
 
  protected:
-  bool CancelLastTask(void);
+  bool CancelLastTask(void) override;
     Logger GetLogger(void) const { return sim_robot_.GetLogger(); }
   virtual Vector3 GetPosition() const {
     return GetKinematicsEstimated().pose.position;

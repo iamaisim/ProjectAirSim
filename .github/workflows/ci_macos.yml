@@ -1,0 +1,32 @@
+name: macOS Debug validation after Windows
+'on':
+  workflow_call: {}
+permissions:
+  contents: read
+jobs:
+  macos-tests:
+    name: macOS Debug validation after Windows
+    runs-on: macos-15
+    timeout-minutes: 180
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up macOS development tools
+      shell: bash
+      run: |
+        chmod +x ./setup_macos_dev_tools.sh
+        ./setup_macos_dev_tools.sh
+    - name: Show toolchain versions
+      shell: bash
+      run: |
+        uname -a
+        clang --version
+        cmake --version
+        ninja --version
+        "$(brew --prefix openssl@3)/bin/openssl" version
+        brew list --versions zlib
+    - name: Build SimLibs
+      shell: bash
+      run: |
+        chmod +x ./build.sh
+        ./build.sh simlibs_debug CMAKE_EXTRA_ARGS=-DBUILD_TESTING=OFF
+    if: github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'run-ci' && contains(github.event.pull_request.labels.*.name, 'macOS')

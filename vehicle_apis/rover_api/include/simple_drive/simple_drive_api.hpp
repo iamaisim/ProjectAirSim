@@ -60,6 +60,10 @@ class SimpleDriveApi : public AckermannApiBase {
                      float duration, float heading_margin,
                      float yaw_rate, float timeout_sec,
                      int64_t command_start_time_nanos) override;
+  bool MoveOnPath(std::vector<std::vector<float>> path, float velocity,
+                  float timeout_sec, float yaw_rate_max, float lookahead,
+                  float adaptive_lookahead,
+                  int64_t command_start_time_nanos) override;
 
   //---------------------------------------------------------------------------
   // IController Method Overrides
@@ -69,6 +73,11 @@ class SimpleDriveApi : public AckermannApiBase {
   void Reset(void) override;
   void SetKinematics(const Kinematics* kinematics) override;
   void Update(void) override;
+  int GetControlSignalIndex(const std::string& actuator_id) override;
+  int GetControlSignalIndex(const std::string& actuator_id,
+                            size_t signal_offset) override;
+  void GetControlSignalSnapshot(std::vector<float>& control_signals) override;
+  std::vector<float> GetControlSignals(int signal_index) override;
   std::vector<float> GetControlSignals(const std::string& actuator_id) override;
   const IController::GimbalState& GetGimbalSignal(
       const std::string& gimbal_id) override;

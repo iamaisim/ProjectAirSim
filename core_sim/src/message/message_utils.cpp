@@ -6,6 +6,7 @@
 #include "message_utils.hpp"
 
 #include "core_sim/error.hpp"
+#include "core_sim/message/clock_message.hpp"
 #include "core_sim/message/flight_control_rc_input_message.hpp"
 #include "core_sim/message/flight_control_setpoint_message.hpp"
 #include "core_sim/message/int8_message.hpp"
@@ -20,6 +21,11 @@ namespace projectairsim {
 
 Message MessageUtils::ToMessage(const Topic& topic, const std::string& buffer) {
   switch (topic.GetMessageType()) {
+    case MessageType::kClock: {
+      ClockMessage message;
+      message.Deserialize(buffer);
+      return message;
+    }
     case MessageType::kInt8: {
       Int8Message message;
       message.Deserialize(buffer);

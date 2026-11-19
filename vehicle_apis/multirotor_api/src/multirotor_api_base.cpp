@@ -806,22 +806,22 @@ bool MultirotorApiBase::MoveOnPathInternal(
   vehicle_apis::FunctionCaller function_caller(GetCommandPeriod(), timeout_sec,
                                  GetCancelToken(), command_start_time_nanos);
 
-  // initialize next path position
-  if (SetNextPathPosition(path3d, path_segs, cur_path_loc,
-                          lookahead + lookahead_error, next_path_loc) > 0) {
-    return true;  // Already at or past end of path
-  }
+  // The lookahead may already reach the endpoint while the vehicle is still
+  // far away. Only the measured position determines completion.
+  SetNextPathPosition(path3d, path_segs, cur_path_loc,
+                      lookahead + lookahead_error, next_path_loc);
 
   float overshoot = 0;
   float goal_dist = 0;
-  constexpr float kGoalDistTolerance = 0.01;  // meters
-
-  // until we are at the end of the path (last seg is always zero size)
-  while (
-      !function_caller.IsTimeout() &&
-      (next_path_loc.seg_index < path_segs.size() - 1 ||
-       goal_dist > kGoalDistTolerance)) {  // current position is approximately
-                                           // at the last end point
+  while (!function_caller.IsTimeout() && !GetCancelToken().IsCancelled()) {
+    if (next_path_loc.seg_index == path_segs.size() - 1 &&
+        (GetPosition() - path3d.back()).norm() <= GetDistanceAccuracy()) {
+      // Stop the last velocity command before reporting success.
+      MoveToPathPosition(path3d.back(), 0.0f, drivetrain, yaw_is_rate, yaw,
+                         path3d.back().z());
+      function_caller.Complete();
+      break;
+    }
 
     float seg_velocity = path_segs.at(next_path_loc.seg_index).seg_velocity;
     float path_length_remaining =
@@ -913,8 +913,7 @@ bool MultirotorApiBase::MoveOnPathInternal(
     } else {
       lookahead_error_increasing = 0;
       goal_dist = 0;
-      lookahead_error = 0;  // this is not really required because we will exit
-      function_caller.Complete();
+      lookahead_error = 0;
     }
 
     // log("PF: cur=%s, goal_dist=%f, cur_path_loc=%s,

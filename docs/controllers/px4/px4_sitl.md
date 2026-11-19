@@ -101,7 +101,7 @@ Proceed to [The first flight session](#the-first-flight-session), below.
                     "parameters": {
                         "NAV_RCL_ACT": 0,
                         "NAV_DLL_ACT": 0,
-                        "COM_OBL_ACT": 1,
+                        "COM_OBL_RC_ACT": 1,
                         "LPE_LAT": 47.641468,
                         "LPE_LON": -122.140165
                     }
@@ -158,13 +158,13 @@ param show LPE_LON
 This setting is specified in the `parameters` section of the sample robot configuration, `robot_quadrotor_fastphysics.jsonc`:
 
 ```json
-    "COM_OBL_ACT": 1
+    "COM_OBL_RC_ACT": 1
 ```
 
 This tells the drone to automatically hover after each offboard control command finishes (the default setting is to land).  Hovering makes for a smoother transition between multiple offboard commands.  You can check this setting by running the following PX4 console command:
 
 ```shell
-param show COM_OBL_ACT
+param show COM_OBL_RC_ACT
 ```
 
 ## Check the home position

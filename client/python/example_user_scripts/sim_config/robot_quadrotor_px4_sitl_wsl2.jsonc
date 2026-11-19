@@ -201,21 +201,17 @@
     "id": "PX4_Controller",
     "type": "px4-api",
     "px4-settings": {
-      "lock-step" : true,
+      "lock-step": true,
       "use-serial": false,
       "use-tcp": true,
       "tcp-port": 4560,
+      "local-host-ip": "172.18.144.1",
       "control-ip-address": "remote",
-      "local-host-ip": "www.xxx.yyy.zzz", // Configure PX4 to use your WSL2 IPv4 addres
-      // "control-ip-address": "remote",
-      "control-port-remote": 14580,
-      "control-port-local": 14580,
-      "qgc-host-ip": "",
-      "qgc-port": 14550,
+      "control-port": 14540,
       "parameters": {
         "NAV_RCL_ACT": 0,
         "NAV_DLL_ACT": 0,
-        "COM_OBL_ACT": 1,
+        "COM_OBL_RC_ACT": 1,
         "LPE_LAT": 47.641468,
         "LPE_LON": -122.140165
       },

@@ -28,8 +28,9 @@ class VehicleStateEstimator : public vehicle_apis::IStateEstimator {
   }
 
   vehicle_apis::Axis3r GetAngles() const override {
+    const auto& kinematics = GetKinematics();
     vehicle_apis::Axis3r angles;
-    Vector3 rpy = TransformUtils::ToRPY(kinematics_->pose.orientation);
+    Vector3 rpy = TransformUtils::ToRPY(kinematics.pose.orientation);
     angles.Roll() = rpy[0];
     angles.Pitch() = rpy[1];
     angles.Yaw() = rpy[2];
@@ -41,7 +42,7 @@ class VehicleStateEstimator : public vehicle_apis::IStateEstimator {
   }
 
   vehicle_apis::Axis3r GetAngularVelocity() const override {
-    const auto& angular = kinematics_->twist.angular;
+    const auto& angular = GetKinematics().twist.angular;
 
     vehicle_apis::Axis3r conv;
     conv.X() = angular.x();
@@ -52,22 +53,24 @@ class VehicleStateEstimator : public vehicle_apis::IStateEstimator {
   }
 
   vehicle_apis::Axis3r GetPosition() const override {
-    return Utils::ToAxis3r(kinematics_->pose.position);
+    return Utils::ToAxis3r(GetKinematics().pose.position);
   }
 
   vehicle_apis::Axis3r TransformVectorToBodyFrame(
       const vehicle_apis::Axis3r& world_frame_val) const override {
+    const auto& kinematics = GetKinematics();
     const Vector3& vec = Utils::ToVector3(world_frame_val);
     const Vector3& trans = PhysicsUtils::TransformVectorToBodyFrame(
-        vec, kinematics_->pose.orientation);
+        vec, kinematics.pose.orientation);
     return Utils::ToAxis3r(trans);
   }
 
   vehicle_apis::Axis3r TransformVectorToBodyFromHorizontalPlaneFrame(
       const vehicle_apis::Axis3r& horizontal_plane_frame_val) const override {
+    const auto& kinematics = GetKinematics();
     const Vector3& vec =
         Utils::ToVector3(horizontal_plane_frame_val);
-    auto orientation = kinematics_->pose.orientation;
+    auto orientation = kinematics.pose.orientation;
     // quaternion to roll pitch yaw
     Vector3 rpy = TransformUtils::ToRPY(orientation);
     // set yaw to zero to correct for current roll and pitch only
@@ -102,29 +105,39 @@ class VehicleStateEstimator : public vehicle_apis::IStateEstimator {
   // }
 
   vehicle_apis::Axis3r GetLinearVelocity() const override {
-    return Utils::ToAxis3r(kinematics_->twist.linear);
+    return Utils::ToAxis3r(GetKinematics().twist.linear);
   }
 
   vehicle_apis::Axis4r GetOrientation() const override {
-    return Utils::ToAxis4r(kinematics_->pose.orientation);
+    return Utils::ToAxis4r(GetKinematics().pose.orientation);
   }
 
   vehicle_apis::KinematicsState GetKinematicsEstimated() const override {
+    const auto& kinematics = GetKinematics();
     vehicle_apis::KinematicsState state;
-    state.position = GetPosition();
-    state.orientation = GetOrientation();
-    state.linear_velocity = GetLinearVelocity();
-    state.angular_velocity = GetAngularVelocity();
+    state.position = Utils::ToAxis3r(kinematics.pose.position);
+    state.orientation = Utils::ToAxis4r(kinematics.pose.orientation);
+    state.linear_velocity = Utils::ToAxis3r(kinematics.twist.linear);
+    state.angular_velocity = Utils::ToAxis3r(kinematics.twist.angular);
     state.linear_acceleration =
-        Utils::ToAxis3r(kinematics_->accels.linear);
+        Utils::ToAxis3r(kinematics.accels.linear);
     state.angular_acceleration =
-        Utils::ToAxis3r(kinematics_->accels.angular);
+        Utils::ToAxis3r(kinematics.accels.angular);
 
     return state;
   }
 
  private:
-  const Kinematics* kinematics_;
+  const Kinematics& GetKinematics() const {
+    return kinematics_ == nullptr ? ZeroKinematics() : *kinematics_;
+  }
+
+  static const Kinematics& ZeroKinematics() {
+    static const Kinematics zero_kinematics = Kinematics::Zero();
+    return zero_kinematics;
+  }
+
+  const Kinematics* kinematics_ = nullptr;
 };  // class VehicleEstimator
 
 }  // namespace simple_drive

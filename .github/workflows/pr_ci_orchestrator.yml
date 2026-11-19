@@ -1,0 +1,106 @@
+name: ProjectAirSim PR CI Orchestrator
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.label.name }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  changes:
+    name: Detect changed components
+    if: github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'run-ci'
+    uses: ./.github/workflows/ci_changes.yml
+  config-validation:
+    name: Config schema validation
+    needs: changes
+    if: '!cancelled() && needs.changes.result == ''success'' && needs.changes.outputs.configs == ''true'''
+    uses: ./.github/workflows/ci_configs.yml
+  python-compatibility:
+    name: Python compatibility
+    needs:
+    - changes
+    - config-validation
+    if: |-
+      !cancelled() && needs.changes.result == 'success' &&
+      needs.changes.outputs.python == 'true' &&
+      (needs.config-validation.result == 'success' || needs.config-validation.result == 'skipped')
+    uses: ./.github/workflows/ci_python.yml
+  python-cheap:
+    name: Cheap Python unit checks
+    needs:
+    - changes
+    - config-validation
+    - python-compatibility
+    if: |-
+      !cancelled() && needs.changes.result == 'success' &&
+      needs.changes.outputs.python == 'true' &&
+      (needs.config-validation.result == 'success' || needs.config-validation.result == 'skipped')
+    uses: ./.github/workflows/ci_python_result.yml
+    with:
+      python_compatibility_result: ${{ needs.python-compatibility.result }}
+  linux-build:
+    name: Linux SimLibs before integration
+    needs:
+    - changes
+    - config-validation
+    - python-cheap
+    if: |-
+      !cancelled() && needs.changes.result == 'success' &&
+      (needs.changes.outputs.windows == 'true' || needs.changes.outputs.macos == 'true' || needs.changes.outputs.linux == 'true' || contains(github.event.pull_request.labels.*.name, 'run-regressions')) &&
+      (needs.config-validation.result == 'success' || needs.config-validation.result == 'skipped') &&
+      (needs.python-cheap.result == 'success' || needs.python-cheap.result == 'skipped')
+    uses: ./.github/workflows/ci_linux_build.yml
+  linux-ci:
+    name: Linux integration in Blocks Editor
+    if: '!cancelled() && github.event.label.name == ''run-ci'' && contains(github.event.pull_request.labels.*.name, ''run-regressions'') && needs.linux-build.result == ''success'' && (needs.config-validation.result == ''success'' || needs.config-validation.result == ''skipped'') && (needs.python-cheap.result == ''success'' || needs.python-cheap.result == ''skipped'')'
+    uses: ./.github/workflows/pr_linux_ci.yml
+    needs:
+    - linux-build
+    - config-validation
+    - python-cheap
+  windows-cheap:
+    name: Windows SimLibs and C++ build targets
+    needs:
+    - changes
+    - config-validation
+    - linux-build
+    - linux-ci
+    if: '!cancelled() && needs.linux-build.result == ''success'' && (needs.linux-ci.result == ''success'' || needs.linux-ci.result == ''skipped'') && contains(github.event.pull_request.labels.*.name, ''windows'')'
+    uses: ./.github/workflows/ci_windows.yml
+  macos-tests:
+    name: macOS Debug validation after Windows
+    needs:
+    - changes
+    - config-validation
+    - windows-cheap
+    - linux-build
+    - linux-ci
+    if: '!cancelled() && needs.linux-build.result == ''success'' && (needs.linux-ci.result == ''success'' || needs.linux-ci.result == ''skipped'') && contains(github.event.pull_request.labels.*.name, ''macOS'') && (needs.windows-cheap.result == ''success'' || needs.windows-cheap.result == ''skipped'')'
+    uses: ./.github/workflows/ci_macos.yml
+  comment-layered-ci-results:
+    name: Comment Layered CI results
+    needs:
+    - changes
+    - config-validation
+    - python-cheap
+    - windows-cheap
+    - macos-tests
+    - linux-build
+    - linux-ci
+    if: ${{ !cancelled() && github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'run-ci' }}
+    uses: ./.github/workflows/ci_results.yml
+    with:
+      config_validation_result: ${{ needs.config-validation.result }}
+      python_cheap_result: ${{ needs.python-cheap.result }}
+      windows_cheap_result: ${{ needs.windows-cheap.result }}
+      changes_result: ${{ needs.changes.result }}
+      macos_tests_result: ${{ needs.macos-tests.result }}
+      linux_build_result: ${{ needs.linux-build.result }}
+      linux_ci_result: ${{ needs.linux-ci.result }}
+'on':
+  pull_request:
+    branches:
+    - main
+    - main_public
+    types:
+    - labeled

@@ -45,6 +45,7 @@ TEST(Ros2BridgeSurfaceRegression, InterfacesAreDeclaredAndRegistered) {
       "srv/GetSegmentationIDMap.srv",
       "srv/SetObjectMaterial.srv",
       "srv/SetObjectTexture.srv",
+      "srv/SetParameter.srv",
       "srv/SetSegmentationIDByName.srv",
       "srv/SwapObjectTexture.srv",
   };
@@ -54,6 +55,11 @@ TEST(Ros2BridgeSurfaceRegression, InterfacesAreDeclaredAndRegistered) {
         << "Missing " << interface;
     ExpectContains(cmake, "\"" + interface + "\"");
   }
+
+  EXPECT_TRUE(std::filesystem::is_regular_file(package_root / "config" /
+                                               "fastdds_shm_256m.xml"));
+  ExpectContains(cmake, "install(DIRECTORY config/");
+  ExpectContains(cmake, "DESTINATION share/${PROJECT_NAME}/config");
 }
 
 TEST(Ros2BridgeSurfaceRegression, BridgeSourceKeepsConversionSurface) {
@@ -70,6 +76,10 @@ TEST(Ros2BridgeSurfaceRegression, BridgeSourceKeepsConversionSurface) {
       "EndsWith(topic, \"_camera_info\")",
       "CreateCameraInfoPublisher(topic)",
       "CameraInfoRosTopic(image_ros_topic)",
+      "declare_parameter<int>(\"image_qos_depth\", 5)",
+      "image_qos.keep_last(static_cast<std::size_t>(image_qos_depth_))",
+      "PopulateImagePayloadFromMsgpack(payload, ros_msg.get(), &metadata)",
+      "publisher->publish(std::move(ros_msg))",
       "AdoptLoadedSceneIfAvailable()",
       "world_->Initialize(client_)",
       "if (!is_primary_client)",
@@ -83,6 +93,11 @@ TEST(Ros2BridgeSurfaceRegression, BridgeSourceKeepsConversionSurface) {
       "\"SetObjectTextureFromFile\"",
       "\"SetObjectTextureFromPackagedAsset\"",
       "\"SwapObjectTexture\"",
+      "projectairsim_ros2_cpp::EffectiveVehicleName(",
+      "projectairsim_ros2_cpp::SetVehicleParameter(",
+      "robot_types_.Clear()",
+      "RequestJsonObject(method, params, result, error)",
+      "prefix + \"/set_parameter\"",
   };
 
   for (const auto& token : expected_tokens) {
@@ -107,11 +122,11 @@ TEST(Ros2BridgeSurfaceRegression, BridgeSourceKeepsConversionSurface) {
   };
 
   for (const auto& service : expected_service_names) {
-    const auto service_suffix = service.substr(std::string("/projectairsim").size());
+    const auto service_suffix =
+        service.substr(std::string("/projectairsim").size());
     const auto direct = source.find(service) != std::string::npos;
-    const auto rooted =
-        source.find("service_root_ + \"" + service_suffix + "\"") !=
-        std::string::npos;
+    const auto rooted = source.find("service_root_ + \"" + service_suffix +
+                                    "\"") != std::string::npos;
     EXPECT_TRUE(direct || rooted) << "Missing service " << service;
   }
 }

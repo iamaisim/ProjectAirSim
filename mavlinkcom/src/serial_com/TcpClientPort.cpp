@@ -141,6 +141,13 @@ class TcpClientPort::TcpSocketImpl {
   void accept(const std::string& localHost, int localPort) {
     accept_sock = socket(AF_INET, SOCK_STREAM, 0);
 
+    // Allow the listening port to be re-bound immediately on a reconnect /
+    // scene reload instead of failing while the previous socket lingers in
+    // TIME_WAIT.
+    int reuse = 1;
+    ::setsockopt(accept_sock, SOL_SOCKET, SO_REUSEADDR,
+                 reinterpret_cast<char*>(&reuse), sizeof(reuse));
+
     resolveAddress(localHost, localPort, localaddr);
 
     // bind socket to local address.
@@ -302,6 +309,9 @@ class TcpClientPort::TcpSocketImpl {
       closesocket(sock);
 #else
       int fd = static_cast<int>(sock);
+      // Linux: ::close() alone does not wake another thread blocked on this
+      // socket; shutdown() does.
+      ::shutdown(fd, SHUT_RDWR);
       ::close(fd);
 #endif
       sock = INVALID_SOCKET;
@@ -312,6 +322,8 @@ class TcpClientPort::TcpSocketImpl {
       closesocket(accept_sock);
 #else
       int fd = static_cast<int>(accept_sock);
+      // Linux: interrupt a thread blocked in ::accept() before closing.
+      ::shutdown(fd, SHUT_RDWR);
       ::close(fd);
 #endif
       accept_sock = INVALID_SOCKET;

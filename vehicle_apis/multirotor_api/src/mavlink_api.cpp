@@ -43,6 +43,7 @@ void MavLinkApi::LoadSettings(const Robot& robot) {
   const json& actuator_order_json =
       mavlink_api_settings_json.value("actuator-order", "[ ]"_json);
 
+  control_output_scales_.fill(1.0f);
   try {
     int output_idx = 0;
     // Might be prudent to verify if these are actually actuators even if we
@@ -51,7 +52,11 @@ void MavLinkApi::LoadSettings(const Robot& robot) {
     // of index issues if there are more than expected.
     for (auto& actuator_json : actuator_order_json) {
       std::string id = actuator_json.value("id", "");
-      actuator_id_to_output_idx_map_.insert({id, output_idx});
+      float scale = actuator_json.value("scale", 1.0f);
+      const auto inserted = actuator_id_to_output_idx_map_.insert({id, output_idx});
+      if (inserted.second && output_idx < kControlOutputsCount) {
+        control_output_scales_[output_idx] = scale;
+      }
       output_idx++;
     }
   } catch (...) {
@@ -116,6 +121,16 @@ void MavLinkApi::LoadSettings(const Robot& robot) {
       mavlink_api_settings_json.value(
           "timeout-lock-step-hil-actuator-control-ms",
           connection_info_.timeout_lock_step_hil_actuator_control_ms);
+
+  const double hil_gps_update_rate_hz =
+      mavlink_api_settings_json.value("hil-gps-update-rate-hz", 0.0);
+  if (hil_gps_update_rate_hz < 0.0) {
+    throw std::invalid_argument("hil-gps-update-rate-hz cannot be negative");
+  }
+  hil_gps_period_us_ =
+      hil_gps_update_rate_hz > 0.0
+          ? static_cast<uint64_t>(1.0e6 / hil_gps_update_rate_hz)
+          : 0;
 
   // mavlink vehicle identifiers
   connection_info_.sim_sysid =
@@ -213,6 +228,9 @@ void MavLinkApi::BeginUpdate() {
 void MavLinkApi::EndUpdate() {
   MultirotorApiBase::EndUpdate();
 
+  // Mark teardown so the scene-tick thread's Update() stops sending and won't
+  // try to auto-reconnect while we close the connection out from under it.
+  stopping_ = true;
   CloseAllConnections();
   if (this->connect_thread_.joinable()) {
     this->connect_thread_.join();
@@ -248,47 +266,55 @@ void MavLinkApi::Update() {
   try {
     MultirotorApiBase::Update();
 
-    // TODO: if (sensors_ == nullptr || !connected_ || connection_ == nullptr ||
-    if (imu_sensor_ == nullptr || !connected_ || connection_ == nullptr ||
-        !connection_->isOpen() || !got_first_heartbeat_) {
-      // GetLogger().LogTrace(GetControllerName(),
-      //                     "Update: Not ready to send sensor data.");
-      return;
-    }
+    {
+      // Hold connection_mutex_ across the send path so Disconnect() cannot null
+      // connection_/hil_node_ while this thread is sending. Release before the
+      // lockstep wait below so teardown is not blocked on PX4 actuator replies.
+      std::lock_guard<std::mutex> lock(connection_mutex_);
 
-    auto now = SimClock::Get()->NowSimMicros();
-    if (lock_step_active_) {
-      if ((last_update_time_ != 0) &&
-          ((now - last_update_time_) >=
-           (connection_info_.timeout_lock_step_update_ms * 1000))) {
-        // if we haven't received an actuator control message within the
-        // timeout then something is terribly wrong, reset lockstep mode
-        lock_step_active_ = false;
-        AddStatusMessage(
-            "MavLinkApi::Update(): too long between calls--resetting lock step "
-            "mode");
+      // TODO: if (sensors_ == nullptr || !connected_ || connection_ == nullptr ||
+      if (stopping_ || imu_sensor_ == nullptr || !connected_ ||
+          connection_ == nullptr || !connection_->isOpen() ||
+          !got_first_heartbeat_) {
+        // GetLogger().LogTrace(GetControllerName(),
+        //                     "Update: Not ready to send sensor data.");
+        return;
       }
-    }
 
-    last_update_time_ = now;
+      auto now = SimClock::Get()->NowSimMicros();
+      if (lock_step_active_) {
+        if ((last_update_time_ != 0) &&
+            ((now - last_update_time_) >=
+             (connection_info_.timeout_lock_step_update_ms * 1000))) {
+          // if we haven't received an actuator control message within the
+          // timeout then something is terribly wrong, reset lockstep mode
+          lock_step_active_ = false;
+          AddStatusMessage(
+              "MavLinkApi::Update(): too long between calls--resetting lock step "
+              "mode");
+        }
+      }
 
-    AdvanceSimTime();
+      last_update_time_ = now;
 
-    // send sensor updates
-    SendSensorData();
+      AdvanceSimTime();
 
-    // SendSystemTime() was ported from v1 but the reason for doing it is not
-    // clear. For SITL, PX4 uses the timestamp from the HIL_SENSOR messages we
-    // send to set its clock and lockstep seems to still work even if we don't
-    // do SendSystemTime(). Not sure what this system time message affects.
-    SendSystemTime();
+      // send sensor updates
+      SendSensorData();
 
-    // Send according to a preset frequency?
-    // Or every sim tick?
-    if (((SimClock::Get()->NowSimMicros() - last_gimbal_time_) >
-         gimbalStatusUpdateTimePeriod) &&
-        setup_gimbal_ && enable_gimbal_) {
-      SendGimbalState();
+      // SendSystemTime() was ported from v1 but the reason for doing it is not
+      // clear. For SITL, PX4 uses the timestamp from the HIL_SENSOR messages we
+      // send to set its clock and lockstep seems to still work even if we don't
+      // do SendSystemTime(). Not sure what this system time message affects.
+      SendSystemTime();
+
+      // Send according to a preset frequency?
+      // Or every sim tick?
+      if (((SimClock::Get()->NowSimMicros() - last_gimbal_time_) >
+           gimbalStatusUpdateTimePeriod) &&
+          setup_gimbal_ && enable_gimbal_) {
+        SendGimbalState();
+      }
     }
 
     // wait for px4 to respond with actuator message
@@ -300,7 +326,8 @@ void MavLinkApi::Update() {
               std::chrono::milliseconds(
                   connection_info_.timeout_lock_step_hil_actuator_control_ms),
               [this] {
-                return (received_actuator_controls_ || !connected_);
+                return (received_actuator_controls_ || !connected_ ||
+                        stopping_);
               })) {
         if ((SimClock::Get()->NowSimMicros() - last_actuator_time_) >=
             (connection_info_.timeout_lock_step_actuator_ms * 1000)) {
@@ -321,14 +348,18 @@ void MavLinkApi::Update() {
   } catch (std::exception& e) {
     AddStatusMessage("Exception sending messages to vehicle");
     AddStatusMessage(e.what());
-    Disconnect();
-    Connect();  // re-start a new connection so PX4 can be restarted and AirSim
-                // will happily continue on.
+    if (!stopping_) {
+      Disconnect();
+      Connect();  // re-start a new connection so PX4 can be restarted and AirSim
+                  // will happily continue on.
+    }
   } catch (...) {
     AddStatusMessage("Unknown exception sending messages to vehicle.");
-    Disconnect();
-    Connect();  // re-start a new connection so PX4 can be restarted and AirSim
-                // will happily continue on.
+    if (!stopping_) {
+      Disconnect();
+      Connect();  // re-start a new connection so PX4 can be restarted and AirSim
+                  // will happily continue on.
+    }
   }
 
   // must be done at the end
@@ -373,23 +404,47 @@ void MavLinkApi::InitializeGimbalStatus(const Robot& robot) {
   }
 }
 
-std::vector<float> MavLinkApi::GetControlSignals(const std::string& actuator_id) {
-  if (!is_simulation_mode_) {
-    throw std::logic_error(
-        "Attempt to read motor controls while not in simulation mode");
-  }
-
+int MavLinkApi::GetControlSignalIndex(const std::string& actuator_id) {
   auto actuator_map_itr = actuator_id_to_output_idx_map_.find(actuator_id);
   if (actuator_map_itr == actuator_id_to_output_idx_map_.end()) {
     GetLogger().LogWarning(
         GetControllerName(),
         "MavLinkApi::GetControlSignal() called for invalid actuator: %s",
         actuator_id.c_str());
+    return -1;
+  }
+
+  return actuator_map_itr->second;
+}
+
+void MavLinkApi::GetControlSignalSnapshot(std::vector<float>& control_signals) {
+  if (!is_simulation_mode_) {
+    throw std::logic_error(
+        "Attempt to read motor controls while not in simulation mode");
+  }
+  std::lock_guard<std::mutex> guard(hil_controls_mutex_);
+  control_signals.resize(kControlOutputsCount);
+  for (int index = 0; index < kControlOutputsCount; ++index) {
+    control_signals[index] = control_outputs_[index] * control_output_scales_[index];
+  }
+}
+
+std::vector<float> MavLinkApi::GetControlSignals(int signal_index) {
+  if (!is_simulation_mode_) {
+    throw std::logic_error(
+        "Attempt to read motor controls while not in simulation mode");
+  }
+  if (signal_index < 0 || signal_index >= kControlOutputsCount) {
     return std::vector<float>(1, 0.f);
   }
 
   std::lock_guard<std::mutex> guard(hil_controls_mutex_);
-  return std::vector<float>(1, control_outputs_[actuator_map_itr->second]);
+  return {control_outputs_[signal_index] * control_output_scales_[signal_index]};
+}
+
+std::vector<float> MavLinkApi::GetControlSignals(
+    const std::string& actuator_id) {
+  return GetControlSignals(GetControlSignalIndex(actuator_id));
 }
 
 const IController::GimbalState& MavLinkApi::GetGimbalSignal(
@@ -1035,16 +1090,29 @@ void MavLinkApi::Disconnect() {
   AddStatusMessage("Disconnecting mavlink vehicle");
   connected_ = false;
   connected_vehicle_ = false;
+
+  // Wake any thread parked in the lockstep wait so teardown returns promptly.
+  {
+    std::lock_guard<std::mutex> ul(mutex_received_actuator_controls_);
+    cv_received_actuator_controls_.notify_all();
+  }
+
+  // Serialize against Update()'s send path so we never null these while the
+  // tick thread is mid-send.
+  std::lock_guard<std::mutex> lock(connection_mutex_);
+
   if (connection_ != nullptr) {
     if (is_hil_mode_set_ && mav_vehicle_ != nullptr) {
       SetNormalMode();
     }
 
     connection_->close();
+    connection_ = nullptr;
   }
 
   if (hil_node_ != nullptr) {
     hil_node_->close();
+    hil_node_ = nullptr;
   }
 
   if (mav_vehicle_ != nullptr) {
@@ -1107,6 +1175,7 @@ void MavLinkApi::ResetState() {
   thrust_controller_ = PidController(); // TODO: Review: To introduce an aditional PID loop to comunicate with PX4 doesn´t seem correct.
   std::fill(std::begin(control_outputs_), std::end(control_outputs_), 0.0f);
   was_reset_ = false;
+  stopping_ = false;  // fresh (re)connect: clear any prior teardown flag
   received_actuator_controls_ = false;
   lock_step_active_ = false;
   lock_step_enabled_ = connection_info_.lock_step;
@@ -1237,22 +1306,32 @@ void MavLinkApi::CreateMavEthernetConnection(
         connection_info.tcp_port, connection_info_.local_host_ip.c_str());
     AddStatusMessage(msg);
     try {
-      connection_ = std::make_shared<mavlinkcom::MavLinkConnection>();
+      auto connection = std::make_shared<mavlinkcom::MavLinkConnection>();
 
       // Attach handler for simulator channel
       GetLogger().LogTrace(
           GetControllerName(),
           "createMavEthernetConnection: Subscribing processMavMessages for "
           "messages on hil_node_ connection");
-      connection_->subscribe(
-          [=](std::shared_ptr<mavlinkcom::MavLinkConnection> connection,
+      connection->subscribe(
+          [=](std::shared_ptr<mavlinkcom::MavLinkConnection> conn,
               const mavlinkcom::MavLinkMessage& msg) {
-            // unused(connection);
+            // unused(conn);
             ProcessMavMessages(msg);
           });
 
-      // Start listening for connections from PX4 on the simulator channel
-      remoteIpAddr = connection_->acceptTcp(
+      {
+        // Publish the connection under the lock so a concurrent Disconnect()
+        // can close it to interrupt the blocking acceptTcp() below.
+        std::lock_guard<std::mutex> lock(connection_mutex_);
+        if (stopping_) return;
+        connection_ = connection;
+      }
+
+      // Start listening for connections from PX4 on the simulator channel.
+      // Blocks; use the local copy so we never touch the member while
+      // Disconnect() may be nulling it.
+      remoteIpAddr = connection->acceptTcp(
           "hil", connection_info_.local_host_ip, connection_info.tcp_port);
     } catch (std::exception& e) {
       AddStatusMessage(
@@ -1269,17 +1348,26 @@ void MavLinkApi::CreateMavEthernetConnection(
       throw std::invalid_argument("UdpPort setting has an invalid value.");
     }
 
-    connection_ = mavlinkcom::MavLinkConnection::connectRemoteUdp(
+    auto connection = mavlinkcom::MavLinkConnection::connectRemoteUdp(
         "hil", connection_info_.local_host_ip, connection_info.udp_address,
         connection_info.udp_port);
+    std::lock_guard<std::mutex> lock(connection_mutex_);
+    if (stopping_) return;
+    connection_ = connection;
   } else {
     throw std::invalid_argument(
         "Please provide valid connection info for your drone.");
   }
 
-  hil_node_ = std::make_shared<mavlinkcom::MavLinkNode>(
-      connection_info_.sim_sysid, connection_info_.sim_compid);
-  hil_node_->connect(connection_);
+  {
+    // The connect above may have raced a Disconnect() from Scene::Stop. Re-check
+    // under the lock and finish hil_node setup atomically.
+    std::lock_guard<std::mutex> lock(connection_mutex_);
+    if (stopping_ || connection_ == nullptr) return;
+    hil_node_ = std::make_shared<mavlinkcom::MavLinkNode>(
+        connection_info_.sim_sysid, connection_info_.sim_compid);
+    hil_node_->connect(connection_);
+  }
 
   if (connection_info.use_tcp) {
     AddStatusMessage(std::string("Connected to SITL over TCP."));
@@ -2026,9 +2114,11 @@ void MavLinkApi::SendSensorData() {
     // when sending the HIL_SENSOR message triggers the next lock step loop
     const GpsMessage& gps_output = gps_sensor_->getOutput();
     auto gps_data = gps_output.getData();
-    auto gps_time = static_cast<uint64_t>(gps_data["time_utc_millis"]);
+    const auto gps_time = static_cast<uint64_t>(GetSimTimeMicros());
     // TODO: if (gps_output is valid)
-    if (gps_time > last_gps_time_) {
+    if (gps_time < last_gps_time_) last_gps_time_ = 0;
+    if (last_gps_time_ == 0 || hil_gps_period_us_ == 0 ||
+        gps_time - last_gps_time_ >= hil_gps_period_us_) {
       last_gps_time_ = gps_time;
 
       auto vel = gps_data["velocity"];

@@ -23,7 +23,7 @@ add_library(
     sim_unity_wrapper.cpp
 )
 
-if(NOT WIN32)
+if(UNIX AND NOT APPLE)
     set(DEP_OPENSSL openssl-external)
 endif()
 add_dependencies(
@@ -42,6 +42,8 @@ target_link_directories(${TARGET_NAME} PRIVATE ${NNG_LIB_DIR} ${OPENSSL_LIB_DIR}
 target_compile_definitions(${TARGET_NAME} PRIVATE NNG_STATIC_LIB=ON)
 target_link_directories(${TARGET_NAME} PRIVATE ${ONNX_LIB_DIR})
 
+# Set up JSBSim for linking
+target_link_directories(${TARGET_NAME} PRIVATE ${JSBSIM_PHYSICS_DIR}/lib)
 
 target_include_directories(
     ${TARGET_NAME}
@@ -71,7 +73,7 @@ if(WIN32)
             ws2_32  # req by nng on Win
             mswsock  # req by nng on Win
             advapi32  # req by nng on Win
-            lvmon
+            $<$<BOOL:${PROJECTAIRSIM_ENABLE_LVMON}>:lvmon>
     )
 else()
     target_link_libraries(

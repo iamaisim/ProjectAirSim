@@ -26,11 +26,9 @@ default:
 	@echo " all_no_test = Build + Package everything"
 	@echo " clean = Clean sim libs + Blocks build files"
 	@echo
-	@echo " simlibs_debug = Build sim libs + C++ client for Debug"
-	@echo " simlibs_release = Build sim libs + C++ client for Release"
-	@echo " cpp_client_debug = Build C++ client only for Debug"
-	@echo " cpp_client_release = Build C++ client only for Release"
-	@echo " package_cpp_client = Build Release C++ client and create versioned package"
+	@echo " --unity = Include experimental Unity native artifacts (default: off)"
+	@echo " simlibs_debug = Build sim libs for Debug"
+	@echo " simlibs_release = Build sim libs for Release"
 	@echo " test_simlibs_debug = Test sim libs for Debug"
 	@echo " test_simlibs_release = Test sim libs for Release"
 	@echo
@@ -59,74 +57,98 @@ all_no_test: simlibs_debug simlibs_release package_simlibs package_plugin packag
 #
 # ---------------------------------------------------------------------------------------------------------------------
 
-CMAKE_BUILD_DIR = build/linux64
-CMAKE_CMD = cmake -G "Ninja"
+ifneq ($(strip $(UE_ROOT)),)
+# CMake does not permit changing compilers in an existing build tree. Keep one
+# tree per resolved Unreal checkout so switching UE_ROOT cannot combine an old
+# Clang executable with headers and a sysroot from another engine version.
+UE_TOOLCHAIN_ID := $(notdir $(realpath $(UE_ROOT)))
+CMAKE_BUILD_DIR = build/linux64/$(UE_TOOLCHAIN_ID)
+else
+CMAKE_BUILD_DIR = build/linux64/system
+endif
+PAS_BUILD_UNITY ?= OFF
+CMAKE_CMD = cmake -DPROJECTAIRSIM_BUILD_UNITY=$(PAS_BUILD_UNITY) -G "Ninja" -S "$(CURDIR)"
 
 CMAKE_DBG_BUILD_CMD = cmake --build $(CMAKE_BUILD_DIR)/Debug
 CMAKE_REL_BUILD_CMD = cmake --build $(CMAKE_BUILD_DIR)/Release
 
-CPP_CLIENT_DIR = client/cpp
-CPP_CLIENT_DBG_BUILD_DIR = $(CPP_CLIENT_DIR)/build_linux/Debug
-CPP_CLIENT_REL_BUILD_DIR = $(CPP_CLIENT_DIR)/build_linux/Release
-CPP_CLIENT_CMAKE_CMD = cmake -G "Ninja"
-CPP_CLIENT_DBG_BUILD_CMD = cmake --build $(CPP_CLIENT_DBG_BUILD_DIR) -j$(shell nproc)
-CPP_CLIENT_REL_BUILD_CMD = cmake --build $(CPP_CLIENT_REL_BUILD_DIR) -j$(shell nproc)
-CPP_CLIENT_PACKAGE_CMD = cmake --build $(CPP_CLIENT_REL_BUILD_DIR) --target package
+.PHONY: prepare_suv_assets
+prepare_suv_assets:
+	@if [ -z "$(strip $(UE_ROOT))" ]; then \
+		echo "UE_ROOT is empty; skipping SUV asset installation."; \
+	else \
+		echo "UE_ROOT is set; installing SUV assets..."; \
+		$(CURDIR)/tools/assets/install_suv_assets.sh --ensure; \
+	fi
 
 .PHONY: config_simlibs_debug
 config_simlibs_debug:
 	@echo "======================================================================="
 	@echo "Configuring the ProjectAirSimLibs project for Linux64-Debug..."
-	mkdir -p $(CMAKE_BUILD_DIR)/Debug $(REDIRECT_OUTPUT)
-	cd $(CMAKE_BUILD_DIR)/Debug && $(CMAKE_CMD) -DCMAKE_BUILD_TYPE=Debug ../../..
-
-.PHONY: config_cpp_client_debug
-config_cpp_client_debug:
-	@echo "======================================================================="
-	@echo "Configuring the C++ client project for Linux64-Debug..."
-	mkdir -p $(CPP_CLIENT_DBG_BUILD_DIR) $(REDIRECT_OUTPUT)
-	cd $(CPP_CLIENT_DBG_BUILD_DIR) && $(CPP_CLIENT_CMAKE_CMD) -DCMAKE_BUILD_TYPE=Debug $(CURDIR)/$(CPP_CLIENT_DIR)
-
-.PHONY: cpp_client_debug
-cpp_client_debug: config_cpp_client_debug
-	@echo "======================================================================="
-	@echo "Building the C++ client project for Linux64-Debug..."
-	$(CPP_CLIENT_DBG_BUILD_CMD)
-
-.PHONY: config_cpp_client_release
-config_cpp_client_release:
-	@echo "======================================================================="
-	@echo "Configuring the C++ client project for Linux64-Release..."
-	mkdir -p $(CPP_CLIENT_REL_BUILD_DIR) $(REDIRECT_OUTPUT)
-	cd $(CPP_CLIENT_REL_BUILD_DIR) && $(CPP_CLIENT_CMAKE_CMD) -DCMAKE_BUILD_TYPE=Release $(CURDIR)/$(CPP_CLIENT_DIR)
-
-.PHONY: cpp_client_release
-cpp_client_release: config_cpp_client_release
-	@echo "======================================================================="
-	@echo "Building the C++ client project for Linux64-Release..."
-	$(CPP_CLIENT_REL_BUILD_CMD)
-
-.PHONY: package_cpp_client
-package_cpp_client: cpp_client_release
-	@echo "======================================================================="
-	@echo "Packaging the C++ client for Linux64-Release..."
-	$(CPP_CLIENT_PACKAGE_CMD)
+	$(CMAKE_CMD) -B "$(CURDIR)/$(CMAKE_BUILD_DIR)/Debug" -DCMAKE_BUILD_TYPE=Debug
 
 .PHONY: simlibs_debug
-simlibs_debug: config_simlibs_debug cpp_client_debug
+simlibs_debug: prepare_suv_assets config_simlibs_debug
 	@echo "======================================================================="
 	@echo "Building the ProjectAirSimLibs project for Linux64-Debug..."
 	$(CMAKE_DBG_BUILD_CMD)
+
+.PHONY: config_simlibs_debug_asan
+config_simlibs_debug_asan:
+	@echo "======================================================================="
+	@echo "Configuring the ProjectAirSimLibs project for Linux64-Debug with ASan..."
+	$(CMAKE_CMD) -B "$(CURDIR)/$(CMAKE_BUILD_DIR)/Debug_asan" -DCMAKE_BUILD_TYPE=Debug \
+		-DCMAKE_C_FLAGS="$(ASAN_FLAGS)" \
+		-DCMAKE_CXX_FLAGS="$(ASAN_FLAGS)" \
+		-DCMAKE_EXE_LINKER_FLAGS="$(ASAN_FLAGS)" \
+		-DCMAKE_SHARED_LINKER_FLAGS="$(ASAN_FLAGS)"
+
+.PHONY: simlibs_debug_asan
+simlibs_debug_asan: prepare_suv_assets config_simlibs_debug_asan
+	@echo "======================================================================="
+	@echo "Building the ProjectAirSimLibs project for Linux64-Debug with ASan..."
+	cmake --build $(CMAKE_BUILD_DIR)/Debug_asan
+
+.PHONY: config_simlibs_debug_ubsan
+config_simlibs_debug_ubsan:
+	@echo "======================================================================="
+	@echo "Configuring the ProjectAirSimLibs project for Linux64-Debug with UBSan..."
+	$(CMAKE_CMD) -B "$(CURDIR)/$(CMAKE_BUILD_DIR)/Debug_ubsan" -DCMAKE_BUILD_TYPE=Debug \
+		-DCMAKE_C_FLAGS="$(UBSAN_FLAGS)" \
+		-DCMAKE_CXX_FLAGS="$(UBSAN_FLAGS)" \
+		-DCMAKE_EXE_LINKER_FLAGS="$(UBSAN_FLAGS)" \
+		-DCMAKE_SHARED_LINKER_FLAGS="$(UBSAN_FLAGS)"
+
+.PHONY: simlibs_debug_ubsan
+simlibs_debug_ubsan: prepare_suv_assets config_simlibs_debug_ubsan
+	@echo "======================================================================="
+	@echo "Building the ProjectAirSimLibs project for Linux64-Debug with UBSan..."
+	cmake --build $(CMAKE_BUILD_DIR)/Debug_ubsan
+
+.PHONY: config_simlibs_debug_tsan
+config_simlibs_debug_tsan:
+	@echo "======================================================================="
+	@echo "Configuring the ProjectAirSimLibs project for Linux64-Debug with TSan..."
+	$(CMAKE_CMD) -B "$(CURDIR)/$(CMAKE_BUILD_DIR)/Debug_tsan" -DCMAKE_BUILD_TYPE=Debug \
+		-DCMAKE_C_FLAGS="$(TSAN_FLAGS)" \
+		-DCMAKE_CXX_FLAGS="$(TSAN_FLAGS)" \
+		-DCMAKE_EXE_LINKER_FLAGS="$(TSAN_FLAGS)" \
+		-DCMAKE_SHARED_LINKER_FLAGS="$(TSAN_FLAGS)"
+
+.PHONY: simlibs_debug_tsan
+simlibs_debug_tsan: prepare_suv_assets config_simlibs_debug_tsan
+	@echo "======================================================================="
+	@echo "Building the ProjectAirSimLibs project for Linux64-Debug with TSan..."
+	cmake --build $(CMAKE_BUILD_DIR)/Debug_tsan
 
 .PHONY: config_simlibs_release
 config_simlibs_release:
 	@echo "======================================================================="
 	@echo "Configuring the ProjectAirSimLibs project for Linux64-Release..."
-	mkdir -p $(CMAKE_BUILD_DIR)/Release $(REDIRECT_OUTPUT)
-	cd $(CMAKE_BUILD_DIR)/Release && $(CMAKE_CMD) -DCMAKE_BUILD_TYPE=Release ../../..
+	$(CMAKE_CMD) -B "$(CURDIR)/$(CMAKE_BUILD_DIR)/Release" -DCMAKE_BUILD_TYPE=Release
 
 .PHONY: simlibs_release
-simlibs_release: config_simlibs_release cpp_client_release
+simlibs_release: prepare_suv_assets config_simlibs_release
 	@echo "======================================================================="
 	@echo "Building the ProjectAirSimLibs project for Linux64-Release..."
 	$(CMAKE_REL_BUILD_CMD)
@@ -145,7 +167,6 @@ clean:
 	@echo "======================================================================="
 	@echo "Cleaning build files..."
 	rm -fr $(CMAKE_BUILD_DIR) $(REDIRECT_OUTPUT)
-	rm -fr $(CPP_CLIENT_DIR)/build_linux $(REDIRECT_OUTPUT)
 	rm -fr physics/matlab_sfunc/_deps $(REDIRECT_OUTPUT)
 	rm -fr physics/matlab_sfunc/message $(REDIRECT_OUTPUT)
 	rm -fr packages/projectairsim_simlibs $(REDIRECT_OUTPUT)

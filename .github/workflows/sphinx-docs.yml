@@ -1,39 +1,49 @@
 name: Build and Deploy Sphinx Docs
 
+# Publish documentation changes from main; allow an explicit rebuild.
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches:
+      - main
     paths:
-      - ".github/workflows/sphinx-docs.yml"
-      - "README.md"
-      - "docs/**"
-      - "client/python/projectairsim/docs/**"
-      - "client/python/projectairsim/src/**"
-  pull_request:
-    branches: [main]
-    paths:
-      - ".github/workflows/sphinx-docs.yml"
-      - "README.md"
-      - "docs/**"
-      - "client/python/projectairsim/docs/**"
-      - "client/python/projectairsim/src/**"
+      - .github/workflows/sphinx-docs.yml
+      - README.md
+      - docs/**
+      - client/python/projectairsim/docs/**
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sphinx-docs-publish
+  cancel-in-progress: false
 
 jobs:
   build-docs:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Strip "docs/" prefixes from README
-        run: sed -i 's|docs/||g' README.md
+      - name: Rewrite root README links for the docs build
+        run: |
+          # README links need to be relative to docs/ when MyST includes the
+          # file, while image paths remain relative to the repository root.
+          sed -i 's|](docs/images/|](__README_IMAGE_ROOT__/|g' README.md
+          sed -i 's|docs/||g' README.md
+          sed -i 's|](__README_IMAGE_ROOT__/|](docs/images/|g' README.md
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+          cache: pip
+          cache-dependency-path: |
+            docs/requirements.txt
+            client/python/projectairsim/docs/requirements.txt
 
       - name: Install dependencies for main docs
         working-directory: ./docs
@@ -57,16 +67,28 @@ jobs:
           rm -rf build
           make html
 
+      - name: Copy README showcase images into main docs
+        run: |
+          mkdir -p docs/build/html/images/autonomy
+          cp \
+            docs/images/adjustable_weather.gif \
+            docs/images/airtaxi_in_dynamic_city.jpg \
+            docs/images/vehicle_caravan.gif \
+            docs/images/simulate_your_swarm.gif \
+            docs/images/wind_turbine_inspection.gif \
+            docs/build/html/images/
+          cp \
+            docs/images/autonomy/takeoff-landing-app-cam-view.gif \
+            docs/build/html/images/autonomy/
+
       - name: Copy Python client docs into main docs
         run: |
           mkdir -p docs/build/html/client_api
           cp -r client/python/projectairsim/docs/build/html/* docs/build/html/client_api/
 
       - name: Deploy to gh_page branch
-        if: github.event_name == 'push'
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/build/html
           publish_branch: gh_page
-          force_orphan: true

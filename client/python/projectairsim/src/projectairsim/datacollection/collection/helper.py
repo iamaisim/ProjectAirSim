@@ -294,11 +294,23 @@ def get_seg_id_object_map(world: World):
 
 def set_weather(world: World, weather_value: int, weather_intensity):
     try:
-        world.reset_weather_effects()
-        world.enable_weather_visual_effects()
-        world.set_weather_visual_effects_param(
+        reset_status = world.reset_weather_effects()
+        enable_status = world.enable_weather_visual_effects()
+        set_status = world.set_weather_visual_effects_param(
             param=weather_value, value=weather_intensity
         )
+        if not reset_status or not enable_status or not set_status:
+            projectairsim_log().info(
+                "Error changing weather - reset_status=%s, enable_status=%s, "
+                "set_status=%s, weather_value=%s, weather_intensity=%s",
+                reset_status,
+                enable_status,
+                set_status,
+                weather_value,
+                weather_intensity,
+            )
+            return False, world
+
         projectairsim_log().info(f"Sleeping for 3 seconds")
         time.sleep(3)  # wait for weather to change
     except Exception as e:

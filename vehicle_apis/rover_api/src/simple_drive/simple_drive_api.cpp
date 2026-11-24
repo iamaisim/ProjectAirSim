@@ -7,6 +7,7 @@
 
 #include <algorithm>
 
+#include "core_sim/math_utils.hpp"
 #include "json.hpp"
 #include "simple_drive/ackermann_controller.hpp"
 #include "simple_drive/utils.hpp"
@@ -340,7 +341,10 @@ bool SimpleDriveApi::MoveByHeading(float heading, float speed, float duration,
                  [&]() {
                    auto angles = GetAngles();
                    auto heading_cur = angles.z();
-                   auto dh = heading_cur - heading;
+                   // Difference on the circle, so +-180 degrees (due south)
+                   // is reachable from both sides
+                   auto dh =
+                       MathUtils::NormalizeAngle<float>(heading_cur - heading);
 
                    return (std::abs(dh) <= heading_margin);
                  },

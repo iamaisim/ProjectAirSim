@@ -17,7 +17,7 @@ from typing import Dict
 from projectairsim import Drone, ProjectAirSimClient
 from regression_support import RegressionWorld as World
 from projectairsim.image_utils import segmentation_id_to_color, segmentation_color_to_id
-from projectairsim.utils import geo_to_ned_coordinates
+from projectairsim.utils import geo_to_ned_coordinates, quaternion_to_rpy
 from projectairsim.types import (
     Pose,
     Vector3,
@@ -460,6 +460,66 @@ def test_rotate_yaw_async(client):
         armed = drone.arm()
         assert armed is True
         asyncio.run(rotate_to_yaw_async(drone))
+        disarmed = drone.disarm()
+        assert disarmed is True
+        api_control_disabled = drone.disable_api_control()
+        assert api_control_disabled is True
+    except NNGException as err:
+        raise Exception(str(err))
+
+
+def get_yaw(drone):
+    q = drone.get_ground_truth_pose()["rotation"]
+    return quaternion_to_rpy(q["w"], q["x"], q["y"], q["z"])[2]
+
+
+def heading_error(yaw, target):
+    """Signed difference yaw - target on the circle, in [-pi, pi]"""
+    return math.remainder(yaw - target, 2.0 * math.pi)
+
+
+async def rotate_to_due_south_from_either_side_async(drone, world):
+    take_off = await drone.takeoff_async()
+    await take_off
+
+    # Due south is both +pi and -pi. Face south, then ask for the other
+    # spelling of south. The drone is already within the margin, so the
+    # command must finish at once instead of turning across +-180 degrees.
+    margin = math.radians(5.0)
+    rotate = await drone.rotate_to_yaw_async(
+        yaw=-math.pi, timeout_sec=30.0, margin=margin
+    )
+    assert await rotate is True
+    yaw_before = get_yaw(drone)
+    assert abs(heading_error(yaw_before, math.pi)) <= margin
+
+    other_south = math.pi if yaw_before < 0 else -math.pi
+    start_ns = world.get_sim_time()
+    rotate = await drone.rotate_to_yaw_async(
+        yaw=other_south, timeout_sec=30.0, margin=margin
+    )
+    assert await rotate is True
+    elapsed_sec = (world.get_sim_time() - start_ns) / 1e9
+    yaw_after = get_yaw(drone)
+
+    assert abs(heading_error(yaw_after, other_south)) <= margin
+    assert elapsed_sec < 0.5, (
+        f"RotateToYaw({math.degrees(other_south):.0f} deg) took {elapsed_sec:.2f} s"
+        f" of sim time from {math.degrees(yaw_before):.1f} deg"
+    )
+
+
+@pytest.mark.runtime
+def test_rotate_to_yaw_due_south_from_either_side(client):
+    try:
+        world = World(client, "scene_test_drone.jsonc", 1)
+        drone = Drone(client, world, "Drone1")
+
+        api_control_enabled = drone.enable_api_control()
+        assert api_control_enabled is True
+        armed = drone.arm()
+        assert armed is True
+        asyncio.run(rotate_to_due_south_from_either_side_async(drone, world))
         disarmed = drone.disarm()
         assert disarmed is True
         api_control_disabled = drone.disable_api_control()

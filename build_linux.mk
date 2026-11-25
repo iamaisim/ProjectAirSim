@@ -67,7 +67,13 @@ else
 CMAKE_BUILD_DIR = build/linux64/system
 endif
 PAS_BUILD_UNITY ?= OFF
-CMAKE_CMD = cmake -DPROJECTAIRSIM_BUILD_UNITY=$(PAS_BUILD_UNITY) -G "Ninja" -S "$(CURDIR)"
+PROJECTAIRSIM_ENABLE_ONNX_RUNTIME ?= FALSE
+# Skip stale optional libraries when producing a fresh package with ONNX disabled.
+ONNX_PACKAGE_EXCLUDES =
+ifeq ($(filter TRUE ON YES Y 1 true on yes y True On Yes,$(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME)),)
+ONNX_PACKAGE_EXCLUDES = --exclude 'onnxruntime*' --exclude 'libonnxruntime*' --exclude 'libz.so*'
+endif
+CMAKE_CMD = cmake -DPROJECTAIRSIM_ENABLE_ONNX_RUNTIME=$(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME) -DPROJECTAIRSIM_BUILD_UNITY=$(PAS_BUILD_UNITY) -G "Ninja" -S "$(CURDIR)"
 
 CMAKE_DBG_BUILD_CMD = cmake --build $(CMAKE_BUILD_DIR)/Debug
 CMAKE_REL_BUILD_CMD = cmake --build $(CMAKE_BUILD_DIR)/Release
@@ -158,7 +164,7 @@ package_simlibs: simlibs_debug simlibs_release
 	@echo "======================================================================="
 	@echo "Packaging sim libs for use in custom projects..."
 	mkdir -p $(CURDIR)/packages/projectairsim_simlibs/
-	rsync -a $(CURDIR)/unreal/Blocks/Plugins/ProjectAirSim/SimLibs/ \
+	rsync -a $(ONNX_PACKAGE_EXCLUDES) $(CURDIR)/unreal/Blocks/Plugins/ProjectAirSim/SimLibs/ \
 		$(CURDIR)/packages/projectairsim_simlibs/
 	@echo "Packaging completed to: $(CURDIR)/packages/projectairsim_simlibs"
 
@@ -317,6 +323,6 @@ package_plugin: blocks_debuggame blocks_development blocks_shipping
 	@echo "======================================================================="
 	@echo "Packaging UE plugin for use in custom environments..."
 	mkdir -p $(CURDIR)/packages/projectairsim_ue_plugin/
-	rsync -a --exclude 'Binaries' --exclude 'Intermediate' $(CURDIR)/unreal/Blocks/Plugins/ \
+	rsync -a $(ONNX_PACKAGE_EXCLUDES) --exclude 'Binaries' --exclude 'Intermediate' $(CURDIR)/unreal/Blocks/Plugins/ \
 		$(CURDIR)/packages/projectairsim_ue_plugin/Plugins/
 	@echo "Packaging completed to: $(CURDIR)/packages/projectairsim_ue_plugin"

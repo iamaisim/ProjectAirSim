@@ -18,9 +18,11 @@
 #include "core_sim/math_utils.hpp"
 #include "core_sim/sensors/sensor.hpp"
 #include "json.hpp"
+#if PROJECTAIRSIM_ENABLE_ONNX_RUNTIME
 #include "onnxruntime_cxx_api.h"
+#endif
 #include "sensor_impl.hpp"
-#ifdef USE_TENSORRT
+#if PROJECTAIRSIM_ENABLE_ONNX_RUNTIME && defined(USE_TENSORRT)
 #include "tensorrt_provider_factory.h"
 #endif
 
@@ -79,7 +81,9 @@ class Camera::Impl : public SensorImpl {
 
   bool DrawFrustum(const int image_type, const bool to_enable);
 
+#if PROJECTAIRSIM_ENABLE_ONNX_RUNTIME
   std::vector<uint8_t> RunOnnxModelOnImages(ImageMessage imgMsg);
+#endif
 
   bool SetPose(const Transform& new_pose, bool wait_for_pose_update);
 
@@ -140,7 +144,9 @@ class Camera::Impl : public SensorImpl {
 
  private:
   void OnSubscribed(const Topic& topic, bool is_subscribed);
+#if PROJECTAIRSIM_ENABLE_ONNX_RUNTIME
   void OnSubscribed_Onnx(const Topic& topic, bool is_subscribed);
+#endif
 
  private:
   friend class Camera::Loader;
@@ -220,6 +226,7 @@ class Camera::Impl : public SensorImpl {
     Camera::Impl* pcamera_impl_;  // Pointer to owner of image_entries_ array
   };                              // class ImageGenerationOverride
 
+#if PROJECTAIRSIM_ENABLE_ONNX_RUNTIME
   // Onnx runtime objects
   struct Onnx {
     std::unique_ptr<Ort::AllocatorWithDefaultOptions> allocator = nullptr;
@@ -230,6 +237,7 @@ class Camera::Impl : public SensorImpl {
     ImageEntry post_process_image_entry;  // Topic entry for publishing
                                           // Onnx-generated image
   };                                      // struct Onnx
+#endif
 
  private:
   Camera::Loader loader;  // Config loader
@@ -237,7 +245,9 @@ class Camera::Impl : public SensorImpl {
   CameraSettings camera_settings;  // Camera settings loaded from config
 
   ImageEntries image_entries_;  // Image type entries
+#if PROJECTAIRSIM_ENABLE_ONNX_RUNTIME
   Onnx onnx_;                   // Onnx-related data
+#endif
 
   std::queue<TimeNano> capture_queue;  // Queue of image capture times
   std::map<ImageType, ImageMessage>
@@ -407,6 +417,7 @@ void Camera::Impl::Initialize(const Kinematics& kinematics,
                               const Environment& environment) {
   //! Ground-truth kinematics and environment info insn't used
   //! by the camera impl
+#if PROJECTAIRSIM_ENABLE_ONNX_RUNTIME
   if (camera_settings.post_process_model_settings.enabled) {
     onnx_.env = Ort::Env(ORT_LOGGING_LEVEL_WARNING, "onnx");
     onnx_.session_options = Ort::SessionOptions();
@@ -414,6 +425,7 @@ void Camera::Impl::Initialize(const Kinematics& kinematics,
         OrtAllocatorType::OrtArenaAllocator, OrtMemType::OrtMemTypeDefault);
     onnx_.allocator = std::make_unique<Ort::AllocatorWithDefaultOptions>();
   }
+#endif
 }
 
 void Camera::Impl::Update(const TimeNano sim_time,
@@ -465,9 +477,11 @@ void Camera::Impl::CreateTopics() {
       Topic("surface_normals_camera_info", topic_path_, TopicType::kPublished,
             60, MessageType::kCameraInfo));
 
+#if PROJECTAIRSIM_ENABLE_ONNX_RUNTIME
   onnx_.post_process_image_entry.image_topic =
       Topic("post_process_onnx_image", topic_path_, TopicType::kPublished, 60,
             MessageType::kImage);
+#endif
 }
 
 const CameraSettings& Camera::Impl::GetCameraSetting() const {
@@ -567,6 +581,7 @@ bool Camera::Impl::HasSubscribers(int iimage_type) const {
           (image_entry.cimage_force_generate > 0));
 }
 
+#if PROJECTAIRSIM_ENABLE_ONNX_RUNTIME
 std::vector<uint8_t> Camera::Impl::RunOnnxModelOnImages(ImageMessage imgMsg) {
   auto& encoding = imgMsg.GetEncoding();
   auto& input_img_data = imgMsg.GetPixelVector();
@@ -703,6 +718,7 @@ std::vector<uint8_t> Camera::Impl::RunOnnxModelOnImages(ImageMessage imgMsg) {
   // Exception was caught during onnx processing, return the unmodified image.
   return input_img_data;
 }
+#endif
 
 bool Camera::Impl::LookAtObject(const std::string& object_name,
                                 bool wait_for_pose_update) {
@@ -766,9 +782,11 @@ void Camera::Impl::OnSubscribed(const Topic& topic, bool is_subscribed) {
   }
 }
 
+#if PROJECTAIRSIM_ENABLE_ONNX_RUNTIME
 void Camera::Impl::OnSubscribed_Onnx(const Topic& topic, bool is_subscribed) {
   onnx_.post_process_image_entry.fimage_is_subscribed = is_subscribed;
 }
+#endif
 
 // Sets the pose update
 bool Camera::Impl::SetPose(const Transform& new_pose,
@@ -952,10 +970,12 @@ void Camera::Impl::OnBeginUpdate() {
           });
     }
   }
+#if PROJECTAIRSIM_ENABLE_ONNX_RUNTIME
   topic_manager_.RegisterTopic(onnx_.post_process_image_entry.image_topic,
                                [this](const Topic& topic, bool is_subscribed) {
                                  OnSubscribed_Onnx(topic, is_subscribed);
                                });
+#endif
 
   // Publish info topics for each camera type
   for (int ImageTypeCounter = 0;
@@ -1064,6 +1084,7 @@ void Camera::Impl::PublishImages(std::map<ImageType, ImageMessage>&& images) {
 
         if (image_entry.fimage_is_subscribed)
           topic_manager_.PublishTopic(image_entry.image_topic, image_msg);
+#if PROJECTAIRSIM_ENABLE_ONNX_RUNTIME
         if (camera_settings.post_process_model_settings.enabled &&
             onnx_.post_process_image_entry.fimage_is_subscribed &&
             (image_msg.GetEncoding() == "BGR")) {
@@ -1078,6 +1099,7 @@ void Camera::Impl::PublishImages(std::map<ImageType, ImageMessage>&& images) {
           topic_manager_.PublishTopic(
               onnx_.post_process_image_entry.image_topic, pp_img_msg);
         }
+#endif
       } else {
         ImageEntry* pimage_entry;
         Topic* ptopic;
@@ -1220,11 +1242,13 @@ void Camera::Impl::OnEndUpdate() {
     }
   }
 
+#if PROJECTAIRSIM_ENABLE_ONNX_RUNTIME
   if (onnx_.post_process_image_entry.image_topic.IsEmpty() &&
       topic_manager_.ContainsTopic(
           onnx_.post_process_image_entry.image_topic.GetPath())) {
     topic_manager_.UnregisterTopic(onnx_.post_process_image_entry.image_topic);
   }
+#endif
 }
 
 // class camera::loader
@@ -1583,6 +1607,12 @@ void Camera::Loader::LoadOnnxModelSettings(const json& json) {
   } else {
     impl.camera_settings.post_process_model_settings.enabled =
         JsonUtils::GetBoolean(onnx_json, Constant::Config::enabled, false);
+#if !PROJECTAIRSIM_ENABLE_ONNX_RUNTIME
+    if (impl.camera_settings.post_process_model_settings.enabled) {
+      throw Error("ONNX camera post-processing is disabled in this build. "
+                  "Rebuild with PROJECTAIRSIM_ENABLE_ONNX_RUNTIME=TRUE.");
+    }
+#endif
     impl.camera_settings.post_process_model_settings.filepath =
         JsonUtils::GetString(onnx_json, Constant::Config::model_filepath, "");
     if (!impl.camera_settings.post_process_model_settings.enabled ||

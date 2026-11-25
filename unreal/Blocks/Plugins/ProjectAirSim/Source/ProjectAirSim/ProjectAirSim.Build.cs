@@ -35,6 +35,20 @@ public class ProjectAirSim : ModuleRules
                             ? "Debug"
                             : "Release";
 
+        string onnxFeatureFile = Path.Combine(PluginDirectory, "SimLibs", "core_sim", buildType, "onnx-runtime-enabled.txt");
+        ExternalDependencies.Add(onnxFeatureFile);
+        if (!File.Exists(onnxFeatureFile))
+            throw new BuildException("Missing SimLibs ONNX feature metadata. Rebuild matching SimLibs before building Unreal.");
+        string onnxFeature = File.ReadAllText(onnxFeatureFile).Trim();
+        if (onnxFeature != "TRUE" && onnxFeature != "FALSE")
+            throw new BuildException("Invalid SimLibs ONNX feature metadata: " + onnxFeatureFile);
+        bool enableOnnxRuntime = onnxFeature == "TRUE";
+        if (enableOnnxRuntime)
+        {
+            PrivateIncludePaths.Add(Path.Combine(PluginDirectory, "SimLibs", "shared_libs", "onnxruntime", "include"));
+
+        }
+
         // JSBSim loads its XML model data directly from disk, so it must remain
         // outside the pak and keep the same layout relative to the plugin root.
         // Stage both trees produced by copy_jsbsim_models: the top-level tree can
@@ -74,8 +88,7 @@ public class ProjectAirSim : ModuleRules
                     PluginDirectory + "/SimLibs/eigen/include",
                     PluginDirectory + "/SimLibs/assimp/include",
                     PluginDirectory + "/SimLibs/json/include",
-                    PluginDirectory + "/SimLibs/nng/include",
-                    PluginDirectory + "/SimLibs/shared_libs/onnxruntime/include"
+                    PluginDirectory + "/SimLibs/nng/include"
                     // ... add other private include paths required here ...
                 };
 
@@ -103,8 +116,7 @@ public class ProjectAirSim : ModuleRules
                     PluginDirectory + "/SimLibs/eigen/include",
                     PluginDirectory + "/SimLibs/assimp/include",
                     PluginDirectory + "/SimLibs/json/include",
-                    PluginDirectory + "/SimLibs/nng/include",
-                    PluginDirectory + "/SimLibs/shared_libs/onnxruntime/include"
+                    PluginDirectory + "/SimLibs/nng/include"
                     // ... add other private include paths required here ...
                 };
 
@@ -180,7 +192,6 @@ public class ProjectAirSim : ModuleRules
                     PluginDirectory + "/SimLibs/nng/" + buildType + "/nng.lib",
                     PluginDirectory + "/SimLibs/assimp/" + buildType + "/assimp-mt.lib",
                     PluginDirectory + "/SimLibs/assimp/" + buildType + "/zlibstatic.lib",
-                    PluginDirectory + "/SimLibs/shared_libs/onnxruntime.lib",
                 };
 
             if (buildType == "Debug")
@@ -198,11 +209,14 @@ public class ProjectAirSim : ModuleRules
                 }
             );
 
-            var onnx_files = Directory.GetFiles(PluginDirectory + "/SimLibs/shared_libs/", "*.dll");
-            foreach (var file in onnx_files)
+            if (enableOnnxRuntime)
             {
-                var fileName = Path.GetFileName(file);
-                RuntimeDependencies.Add("$(BinaryOutputDir)/" + fileName, PluginDirectory + "/SimLibs/shared_libs/" + fileName);
+                var onnx_files = Directory.GetFiles(PluginDirectory + "/SimLibs/shared_libs/", "*.dll");
+                foreach (var file in onnx_files)
+                {
+                    var fileName = Path.GetFileName(file);
+                    RuntimeDependencies.Add("$(BinaryOutputDir)/" + fileName, PluginDirectory + "/SimLibs/shared_libs/" + fileName);
+                }
             }
 
             // JSBSim dll
@@ -222,22 +236,24 @@ public class ProjectAirSim : ModuleRules
                     PluginDirectory + "/SimLibs/nng/" + buildType + "/libnng.a",
                     PluginDirectory + "/SimLibs/assimp/" + buildType + "/libassimp.a",
                     PluginDirectory + "/SimLibs/assimp/" + buildType + "/libzlibstatic.a",
-                    PluginDirectory + "/SimLibs/shared_libs/libonnxruntime.so",
                 };
 
             if (buildType == "Debug")
                 liststrLibraries.Add(PluginDirectory + "/SimLibs/lvmon/" + buildType + "/liblvmon.a");
 
-            var onnx_files = Directory.GetFiles(PluginDirectory + "/SimLibs/shared_libs");
-            foreach (var file in onnx_files)
+            if (enableOnnxRuntime)
             {
-                var fileName = Path.GetFileName(file);
-                // UBA can alias a symlink and its target while parallel copy actions
-                // are running. Copy from the real file, keeping every runtime name
-                // (including the versioned SONAME) in the output directory.
-                var fileInfo = new FileInfo(file);
-                var sourceFile = fileInfo.ResolveLinkTarget(returnFinalTarget: true)?.FullName ?? file;
-                RuntimeDependencies.Add("$(BinaryOutputDir)/" + fileName, sourceFile);
+                var onnx_files = Directory.GetFiles(PluginDirectory + "/SimLibs/shared_libs");
+                foreach (var file in onnx_files)
+                {
+                    var fileName = Path.GetFileName(file);
+                    // UBA can alias a symlink and its target while parallel copy actions
+                    // are running. Copy from the real file, keeping every runtime name
+                    // (including the versioned SONAME) in the output directory.
+                    var fileInfo = new FileInfo(file);
+                    var sourceFile = fileInfo.ResolveLinkTarget(returnFinalTarget: true)?.FullName ?? file;
+                    RuntimeDependencies.Add("$(BinaryOutputDir)/" + fileName, sourceFile);
+                }
             }
 
             // JSBSim so
@@ -254,5 +270,12 @@ public class ProjectAirSim : ModuleRules
             );
 
         }
+        if (enableOnnxRuntime)
+        {
+            string onnxLibrary = Target.Platform == UnrealTargetPlatform.Win64 ? "onnxruntime.lib" :
+                Target.Platform == UnrealTargetPlatform.Mac ? "libonnxruntime.dylib" : "libonnxruntime.so";
+            PublicAdditionalLibraries.Add(Path.Combine(PluginDirectory, "SimLibs", "shared_libs", onnxLibrary));
+        }
+
     }
 }

@@ -12,7 +12,17 @@ def main():
     option = re.search(r'^option\(PROJECTAIRSIM_BUILD_UNITY .*\)$', source, re.M).group()
     gates = re.findall(r'(?m)^([ \t]*)if\(PROJECTAIRSIM_BUILD_UNITY\)\n(.*?)^\1endif\(\)', source, re.S)
     assert len(gates) == 3, "Review coverage when adding/removing Unity gates"
-    blocks = "\n".join(f"if(PROJECTAIRSIM_BUILD_UNITY)\n{body}endif()" for _, body in gates)
+    onnx_block = source.split('# BEGIN OPTIONAL ONNX RUNTIME\n')[1].split('# END OPTIONAL ONNX RUNTIME')[0]
+    assert onnx_block.startswith('if(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME)\n')
+    assert onnx_block.rstrip().endswith('endif()')
+    for _, body in gates:
+        if "ONNX_LIB_DIR" in body or "zlib-external" in body:
+            assert body in onnx_block, "Unity ONNX staging escaped the ONNX gate"
+    blocks = "\n".join(
+        ("if(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME)\n" if "ONNX_LIB_DIR" in body or "zlib-external" in body else "")
+        + f"if(PROJECTAIRSIM_BUILD_UNITY)\n{body}endif()"
+        + ("\nendif()" if "ONNX_LIB_DIR" in body or "zlib-external" in body else "")
+        for _, body in gates)
     with tempfile.TemporaryDirectory(prefix="pas-unity-gates-") as directory:
         root = Path(directory)
         for name in ("unity", "onnx", "zlib"):
@@ -20,7 +30,7 @@ def main():
         (root / "onnx/libonnxruntime.so").write_text("fixture")
         (root / "zlib/libz.so").write_text("fixture")
         (root / "unity/CMakeLists.txt").write_text(
-            'add_custom_target(sim_unity_wrapper ALL COMMAND ${CMAKE_COMMAND} -E touch "${UNITY_WRAPPER_DLL_DIR}/wrapper-built")\n')
+            'add_custom_target(sim_unity_wrapper ALL COMMAND ${CMAKE_COMMAND} -E make_directory "${UNITY_WRAPPER_DLL_DIR}" COMMAND ${CMAKE_COMMAND} -E touch "${UNITY_WRAPPER_DLL_DIR}/wrapper-built")\n')
         (root / "CMakeLists.txt").write_text('''cmake_minimum_required(VERSION 3.15)
 project(UnityGateContract NONE)
 include(ExternalProject)
@@ -40,6 +50,9 @@ add_custom_target(shared_simlibs ALL COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_
         assert (build / "shared-built").exists()
         assert not plugins.exists(), "Default build touched Unity staging"
         run("-S", str(root), "-B", str(build), "-DPROJECTAIRSIM_BUILD_UNITY=ON")
+        run("--build", str(build))
+        assert {p.name for p in plugins.iterdir()} == {"wrapper-built"}
+        run("-S", str(root), "-B", str(build), "-DPROJECTAIRSIM_ENABLE_ONNX_RUNTIME=TRUE")
         run("--build", str(build))
         assert {p.name for p in plugins.iterdir()} == {"libonnxruntime.so", "libz.so", "wrapper-built"}
         before = {p.name: p.stat().st_mtime_ns for p in plugins.iterdir()}

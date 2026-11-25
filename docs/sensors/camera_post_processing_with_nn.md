@@ -3,6 +3,13 @@ We are adding support to execute different Neural Networks models natively on th
 Right now, this is aimed at running a pretrained a model to extract information like object recognition, semantic segmentation etc...
 
 ## Pre-Requisites
+
+Build SimLibs with `PROJECTAIRSIM_ENABLE_ONNX_RUNTIME=TRUE` and rebuild the
+matching Unreal target before enabling `post-process-model-settings` in a camera.
+Native ONNX support defaults to `FALSE` on Windows, Linux, and macOS; requesting
+it in a scene when compiled out produces a configuration error. See the
+[build instructions](../development/use_source.md#optional-onnx-runtime).
+
 Currently, we support execution on the following inferencing runtimes.
 1. CUDA (See CUDA requirements for details.)
 2. Plain CPU

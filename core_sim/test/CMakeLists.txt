@@ -101,7 +101,6 @@ target_include_directories(
         ${NNG_INCLUDE_DIR}
         ${MSGPACK_INCLUDE_DIR}
         ${EIGEN_INCLUDE_DIR}
-        ${ONNX_INCLUDE_DIR}
         ${CORE_SIM_SOURCE_DIR}/include/
         ${CORE_SIM_SOURCE_DIR}/src/  # for private headers
 )
@@ -149,9 +148,13 @@ else()
 endif()
 
 
-target_include_directories(${TARGET_NAME} PRIVATE "${ONNXRUNTIME_ROOTDIR}/include")
-target_link_directories(${TARGET_NAME} PRIVATE "${ONNX_LIB_DIR}")
-target_link_libraries(${TARGET_NAME} PRIVATE onnxruntime jsbsim)
+target_compile_definitions(${TARGET_NAME} PRIVATE
+    PROJECTAIRSIM_ENABLE_ONNX_RUNTIME=$<BOOL:${PROJECTAIRSIM_ENABLE_ONNX_RUNTIME}>)
+if(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME)
+    target_include_directories(${TARGET_NAME} PRIVATE "${ONNXRUNTIME_ROOTDIR}/include")
+    target_link_directories(${TARGET_NAME} PRIVATE "${ONNX_LIB_DIR}")
+    target_link_libraries(${TARGET_NAME} PRIVATE onnxruntime)
+endif()
 
 # Include CMake's GoogleTest module to use gtest_discover_tests() helper
 include(GoogleTest)

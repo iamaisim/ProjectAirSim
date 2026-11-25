@@ -44,7 +44,13 @@ OPENSSL_ROOT_DIR ?= $(shell brew --prefix openssl@3)
 ZLIB_HOME ?= $(shell brew --prefix zlib)
 CMAKE_EXTRA_ARGS ?=
 PAS_BUILD_UNITY ?= OFF
-CMAKE_CMD = cmake -DPROJECTAIRSIM_BUILD_UNITY=$(PAS_BUILD_UNITY) $(CMAKE_EXTRA_ARGS) -G "Ninja" \
+PROJECTAIRSIM_ENABLE_ONNX_RUNTIME ?= FALSE
+# Skip stale optional libraries when producing a fresh package with ONNX disabled.
+ONNX_PACKAGE_EXCLUDES =
+ifeq ($(filter TRUE ON YES Y 1 true on yes y True On Yes,$(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME)),)
+ONNX_PACKAGE_EXCLUDES = --exclude 'onnxruntime*' --exclude 'libonnxruntime*' --exclude 'libz.so*'
+endif
+CMAKE_CMD = cmake -DPROJECTAIRSIM_BUILD_UNITY=$(PAS_BUILD_UNITY) $(CMAKE_EXTRA_ARGS) -DPROJECTAIRSIM_ENABLE_ONNX_RUNTIME=$(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME) -G "Ninja" \
 	-DOPENSSL_ROOT_DIR="$(OPENSSL_ROOT_DIR)" \
 	-DZLIB_HOME="$(ZLIB_HOME)"
 CMAKE_DBG_BUILD_CMD = cmake --build $(CMAKE_BUILD_DIR)/Debug
@@ -95,7 +101,7 @@ package_simlibs: simlibs_debug simlibs_release
 	@echo "======================================================================="
 	@echo "Packaging SimLibs for use in custom projects..."
 	mkdir -p $(CURDIR)/packages/projectairsim_simlibs/
-	rsync -a $(CURDIR)/unreal/Blocks/Plugins/ProjectAirSim/SimLibs/ \
+	rsync -a $(ONNX_PACKAGE_EXCLUDES) $(CURDIR)/unreal/Blocks/Plugins/ProjectAirSim/SimLibs/ \
 		$(CURDIR)/packages/projectairsim_simlibs/
 	@echo "Packaging completed to: $(CURDIR)/packages/projectairsim_simlibs"
 

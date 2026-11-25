@@ -170,3 +170,23 @@ TEST(Camera, SetsDesiredCaptureInterval) {
   // Assert: check result from `EXPECT_FLOAT_EQ(camera_settings.capture_interval, 1.23);`.
   EXPECT_FLOAT_EQ(camera_settings.capture_interval, 1.23);
 }
+
+TEST(Camera, OnnxBuildAvailability) {
+  auto camera_json = projectairsim::Robot::GetBasicCameraConfig();
+  camera_json["post-process-model-settings"] = {
+      {"enabled", true}, {"model-filepath", "test-model.onnx"}};
+  auto camera = projectairsim::Robot::MakeCamera("ID123", true, "ParentLink");
+#if PROJECTAIRSIM_ENABLE_ONNX_RUNTIME
+  EXPECT_NO_THROW(projectairsim::Robot::LoadCamera(camera, camera_json));
+#else
+  try {
+    projectairsim::Robot::LoadCamera(camera, camera_json);
+    FAIL() << "ONNX-enabled config must fail when support is compiled out";
+  } catch (const std::exception& error) {
+    EXPECT_NE(std::string(error.what()).find("PROJECTAIRSIM_ENABLE_ONNX_RUNTIME=TRUE"),
+              std::string::npos);
+  }
+#endif
+  camera_json["post-process-model-settings"]["enabled"] = false;
+  EXPECT_NO_THROW(projectairsim::Robot::LoadCamera(camera, camera_json));
+}

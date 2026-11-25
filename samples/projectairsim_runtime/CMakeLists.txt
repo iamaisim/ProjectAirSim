@@ -112,17 +112,22 @@ endif()
 # Keep the standalone runtime self-contained. Both core_sim and physics use
 # shared third-party libraries, so launching the executable directly from its
 # documented output directory must not depend on a developer shell or PATH.
-if(WIN32)
-    set(RUNTIME_ONNX_SHARED_LIB "${ONNX_LIB_DIR}/onnxruntime.dll")
-elseif(APPLE)
-    set(RUNTIME_ONNX_SHARED_LIBS "${ONNXRUNTIME_LIBRARY}")
-    if(DEFINED ONNXRUNTIME_ALIAS_LIBRARY AND NOT ONNXRUNTIME_ALIAS_LIBRARY STREQUAL "${ONNXRUNTIME_LIBRARY}")
-        list(APPEND RUNTIME_ONNX_SHARED_LIBS "${ONNXRUNTIME_ALIAS_LIBRARY}")
-    endif()
+if(APPLE)
     set_target_properties(${TARGET_NAME} PROPERTIES BUILD_RPATH "@loader_path")
-else()
-    set(RUNTIME_ONNX_SHARED_LIB "${ONNXRUNTIME_LIBRARY}")
+elseif(UNIX)
     set_target_properties(${TARGET_NAME} PROPERTIES BUILD_RPATH "$ORIGIN")
+endif()
+if(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME)
+    if(WIN32)
+        set(RUNTIME_ONNX_SHARED_LIB "${ONNX_LIB_DIR}/onnxruntime.dll")
+    elseif(APPLE)
+        set(RUNTIME_ONNX_SHARED_LIBS "${ONNXRUNTIME_LIBRARY}")
+        if(DEFINED ONNXRUNTIME_ALIAS_LIBRARY AND NOT ONNXRUNTIME_ALIAS_LIBRARY STREQUAL "${ONNXRUNTIME_LIBRARY}")
+            list(APPEND RUNTIME_ONNX_SHARED_LIBS "${ONNXRUNTIME_ALIAS_LIBRARY}")
+        endif()
+    else()
+        set(RUNTIME_ONNX_SHARED_LIB "${ONNXRUNTIME_LIBRARY}")
+    endif()
 endif()
 
 add_custom_command(
@@ -134,8 +139,18 @@ add_custom_command(
     COMMENT "Copying Project AirSim Runtime shared-library dependencies"
 )
 
-if(APPLE)
-    foreach(RUNTIME_ONNX_SHARED_LIB IN LISTS RUNTIME_ONNX_SHARED_LIBS)
+if(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME)
+    if(APPLE)
+        foreach(RUNTIME_ONNX_SHARED_LIB IN LISTS RUNTIME_ONNX_SHARED_LIBS)
+            add_custom_command(
+                TARGET ${TARGET_NAME}
+                POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                        "${RUNTIME_ONNX_SHARED_LIB}"
+                        "$<TARGET_FILE_DIR:${TARGET_NAME}>"
+            )
+        endforeach()
+    else()
         add_custom_command(
             TARGET ${TARGET_NAME}
             POST_BUILD
@@ -143,13 +158,5 @@ if(APPLE)
                     "${RUNTIME_ONNX_SHARED_LIB}"
                     "$<TARGET_FILE_DIR:${TARGET_NAME}>"
         )
-    endforeach()
-else()
-    add_custom_command(
-        TARGET ${TARGET_NAME}
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${RUNTIME_ONNX_SHARED_LIB}"
-                "$<TARGET_FILE_DIR:${TARGET_NAME}>"
-    )
+    endif()
 endif()

@@ -68,7 +68,18 @@ CMAKE_EXTRA_ARGS =
 !ifndef PAS_BUILD_UNITY
 PAS_BUILD_UNITY = OFF
 !endif
-CMAKE_CMD = cmake -DPROJECTAIRSIM_BUILD_UNITY=$(PAS_BUILD_UNITY) $(CMAKE_EXTRA_ARGS) -G "Ninja" \
+!ifndef PROJECTAIRSIM_ENABLE_ONNX_RUNTIME
+PROJECTAIRSIM_ENABLE_ONNX_RUNTIME = FALSE
+!endif
+ONNX_PACKAGE_EXCLUDES =
+ONNX_PACKAGE_DIR_EXCLUDES =
+ONNX_PACKAGE_DIR_FLAGS =
+!if "$(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME)" != "TRUE" && "$(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME)" != "ON" && "$(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME)" != "YES" && "$(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME)" != "Y" && "$(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME)" != "1" && "$(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME)" != "true" && "$(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME)" != "on" && "$(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME)" != "yes" && "$(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME)" != "y" && "$(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME)" != "True" && "$(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME)" != "On" && "$(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME)" != "Yes"
+ONNX_PACKAGE_EXCLUDES = /XF onnxruntime*
+ONNX_PACKAGE_DIR_EXCLUDES = onnxruntime
+ONNX_PACKAGE_DIR_FLAGS = /XD onnxruntime
+!endif
+CMAKE_CMD = cmake -DPROJECTAIRSIM_BUILD_UNITY=$(PAS_BUILD_UNITY) $(CMAKE_EXTRA_ARGS) -DPROJECTAIRSIM_ENABLE_ONNX_RUNTIME=$(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME) -G "Ninja" \
 				  -DCMAKE_C_COMPILER=cl.exe \
 				  -DCMAKE_CXX_COMPILER=cl.exe \
 				  -S "%CD%"
@@ -120,7 +131,7 @@ package_simlibs: simlibs_debug simlibs_release
 	@echo Packaging sim libs for use in custom projects...
 	-robocopy "%CD%\unreal\Blocks\Plugins\ProjectAirSim\SimLibs" \
 		"%CD%\packages\projectairsim_simlibs" \
-		/E /NP $(REDIRECT_OUTPUT)
+		/E /NP $(ONNX_PACKAGE_EXCLUDES) $(ONNX_PACKAGE_DIR_FLAGS) $(REDIRECT_OUTPUT)
 	@echo Packaging completed to: %CD%\packages\projectairsim_simlibs
 
 .PHONY: clean
@@ -279,5 +290,5 @@ package_plugin: blocks_debuggame blocks_development blocks_shipping
 	@echo Packaging UE plugin for use in custom environments...
 	-robocopy "%CD%\unreal\Blocks\Plugins" \
 		"%CD%\packages\projectairsim_ue_plugin\Plugins" \
-		/E /NP /XD Binaries Intermediate $(REDIRECT_OUTPUT)
+		/E /NP $(ONNX_PACKAGE_EXCLUDES) /XD Binaries Intermediate $(ONNX_PACKAGE_DIR_EXCLUDES) $(REDIRECT_OUTPUT)
 	@echo Packaging completed to: %CD%\packages\projectairsim_ue_plugin

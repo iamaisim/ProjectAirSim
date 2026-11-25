@@ -112,6 +112,7 @@ set(SIMLIBS_PACKAGE_DIR ${CMAKE_SOURCE_DIR}/packages/projectairsim_simlibs)
 set(SIMLIBS_SHARED_LIB_DIR ${SIMLIBS_PACKAGE_DIR}/shared_libs)
 set(SIMLIBS_TEST_DIR ${CMAKE_BINARY_DIR}/unit_tests)
 set(UE_PLUGIN_SIMLIBS_DIR ${CMAKE_SOURCE_DIR}/unreal/Blocks/Plugins/ProjectAirSim/SimLibs)
+option(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME "Build ONNX camera post-processing support" FALSE)
 option(PROJECTAIRSIM_BUILD_UNITY "Build and stage experimental Unity host artifacts" OFF)
 set(UNITY_WRAPPER_DLL_DIR ${CMAKE_SOURCE_DIR}/unity/BlocksUnity/Assets/Plugins)
 set(MATLAB_PHYSICS_DIR ${CMAKE_SOURCE_DIR}/physics/matlab_sfunc)
@@ -142,7 +143,15 @@ elseif(UNIX)
     add_compile_options(-ferror-limit=10
         $<$<COMPILE_LANGUAGE:CXX>:-stdlib=libc++>)
     # Note: Linking -lanl (for getaddrinfo) and -pthread are required because of nng
-    add_link_options($<$<LINK_LANGUAGE:CXX>:-stdlib=libc++> $<$<LINK_LANGUAGE:CXX>:-lc++abi>)
+    add_link_options($<$<LINK_LANGUAGE:CXX>:-stdlib=libc++>)
+    # C++ runtime archives must follow their users, independently of ONNX.
+    # Link options occur before objects and cannot resolve later RTTI references.
+    if(PROJECTAIRSIM_USE_UE_TOOLCHAIN)
+        string(APPEND CMAKE_CXX_STANDARD_LIBRARIES
+            " -Wl,--start-group ${UE_LIBCXX_LIB_DIR}/libc++.a ${UE_LIBCXX_LIB_DIR}/libc++abi.a -Wl,--end-group")
+    else()
+        string(APPEND CMAKE_CXX_STANDARD_LIBRARIES " -lc++abi")
+    endif()
     add_link_options(-lanl -pthread)
 
     # set(CESIUM_CXX_FLAGS "-std=c++17 -stdlib=libc++")
@@ -781,6 +790,8 @@ elseif(UNIX)
     )
 endif()
 
+# BEGIN OPTIONAL ONNX RUNTIME
+if(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME)
 if(APPLE)
     set(onnx_url https://github.com/microsoft/onnxruntime/releases/download/v1.12.1/onnxruntime-osx-universal2-1.12.1.tgz)
     set(onnx_hash SHA256=3dbea8861d40eb8bf0d0549c7d149cda26447e4cfee7e3f475918b15bbc446d4)
@@ -961,6 +972,9 @@ elseif(UNIX)
     )
 endif()
 
+endif()
+# END OPTIONAL ONNX RUNTIME
+
 # if(WIN32)
 #     # Set up dependency: cesium-native
 #     message("Setting up [cesium-native] dependency as an external project...")
@@ -1029,15 +1043,17 @@ if(BUILD_TESTING)
     add_custom_target(simlibs_test_runtime_dependencies
         COMMAND ${CMAKE_COMMAND} -E make_directory "${SIMLIBS_TEST_DIR}"
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${UE_PLUGIN_SIMLIBS_DIR}/shared_libs"
-            "${SIMLIBS_TEST_DIR}"
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
             "${JSBSIM_CORESIM_DIR}/lib/$<IF:$<CONFIG:Release>,Release,Debug>"
             "${SIMLIBS_TEST_DIR}"
         COMMENT "Staging SimLibs test runtime dependencies"
     )
     add_dependencies(simlibs_test_runtime_dependencies jsbsim-repo)
-    if(UNIX AND NOT APPLE)
+    if(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME)
+        add_custom_command(TARGET simlibs_test_runtime_dependencies POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+                "${UE_PLUGIN_SIMLIBS_DIR}/shared_libs" "${SIMLIBS_TEST_DIR}")
+    endif()
+    if(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME AND UNIX AND NOT APPLE)
         add_dependencies(simlibs_test_runtime_dependencies zlib-external)
     endif()
 

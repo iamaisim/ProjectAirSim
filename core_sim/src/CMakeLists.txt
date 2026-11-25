@@ -114,7 +114,7 @@ if(WIN32)
 elseif(APPLE)
     add_dependencies(${TARGET_NAME} nng-external jsbsim-repo copy_jsbsim_models)
 else()
-    add_dependencies(${TARGET_NAME} nng-external jsbsim-repo copy_jsbsim_models openssl-external zlib-external)
+    add_dependencies(${TARGET_NAME} nng-external jsbsim-repo copy_jsbsim_models openssl-external)
 endif()
 
 # Set up JSBSim for linking
@@ -125,9 +125,13 @@ target_link_directories(${TARGET_NAME} PRIVATE ${NNG_LIB_DIR})
 target_compile_definitions(${TARGET_NAME} PRIVATE NNG_STATIC_LIB=ON)
 target_compile_definitions(${TARGET_NAME} PRIVATE PROJECTAIRSIM_BUILD_COMMIT_HASH="${PROJECTAIRSIM_BUILD_COMMIT_HASH}")
 
-target_include_directories(${TARGET_NAME} PRIVATE "${ONNXRUNTIME_ROOTDIR}/include")
-target_link_directories(${TARGET_NAME} PRIVATE "${ONNXRUNTIME_ROOTDIR}/lib")
-target_link_libraries(${TARGET_NAME} PRIVATE onnxruntime)
+target_compile_definitions(${TARGET_NAME} PRIVATE
+    PROJECTAIRSIM_ENABLE_ONNX_RUNTIME=$<BOOL:${PROJECTAIRSIM_ENABLE_ONNX_RUNTIME}>)
+if(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME)
+    target_include_directories(${TARGET_NAME} PRIVATE "${ONNXRUNTIME_ROOTDIR}/include")
+    target_link_directories(${TARGET_NAME} PRIVATE "${ONNXRUNTIME_ROOTDIR}/lib")
+    target_link_libraries(${TARGET_NAME} PRIVATE onnxruntime)
+endif()
 
 
 target_include_directories(
@@ -184,3 +188,14 @@ add_custom_command(TARGET ${TARGET_NAME}
     COMMAND ${CMAKE_COMMAND} -E remove -f ${UE_PLUGIN_SIMLIBS_DIR}/${TARGET_NAME}/$<IF:$<CONFIG:Release>,Release,Debug>/CTestTestfile.cmake
 
 )
+
+if(PROJECTAIRSIM_ENABLE_ONNX_RUNTIME AND UNIX AND NOT APPLE)
+    add_dependencies(${TARGET_NAME} zlib-external)
+endif()
+# Stage the feature state with the matching compiled library, not at configure time.
+file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/onnx-runtime-enabled.txt"
+    CONTENT "$<IF:$<BOOL:${PROJECTAIRSIM_ENABLE_ONNX_RUNTIME}>,TRUE,FALSE>\n")
+add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_CURRENT_BINARY_DIR}/onnx-runtime-enabled.txt"
+        "${UE_PLUGIN_SIMLIBS_DIR}/core_sim/$<IF:$<CONFIG:Release>,Release,Debug>/onnx-runtime-enabled.txt")

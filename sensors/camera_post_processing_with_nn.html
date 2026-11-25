@@ -170,6 +170,11 @@
 Right now, this is aimed at running a pretrained a model to extract information like object recognition, semantic segmentation etc…</p>
 <section id="pre-requisites">
 <h2>Pre-Requisites<a class="headerlink" href="#pre-requisites" title="Link to this heading"></a></h2>
+<p>Build SimLibs with <code class="docutils literal notranslate"><span class="pre">PROJECTAIRSIM_ENABLE_ONNX_RUNTIME=TRUE</span></code> and rebuild the
+matching Unreal target before enabling <code class="docutils literal notranslate"><span class="pre">post-process-model-settings</span></code> in a camera.
+Native ONNX support defaults to <code class="docutils literal notranslate"><span class="pre">FALSE</span></code> on Windows, Linux, and macOS; requesting
+it in a scene when compiled out produces a configuration error. See the
+<a class="reference internal" href="../development/use_source.html#optional-onnx-runtime"><span class="std std-ref">build instructions</span></a>.</p>
 <p>Currently, we support execution on the following inferencing runtimes.</p>
 <ol class="arabic simple">
 <li><p>CUDA (See CUDA requirements for details.)</p></li>

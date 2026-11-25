@@ -366,3 +366,36 @@ Copyright (C) Microsoft Corporation.
 Copyright (C) 2025 IAMAI CONSULTING CORP
 
 MIT License. All rights reserved.
+
+### Optional ONNX Runtime
+
+Native ONNX camera post-processing is excluded by default on Windows, Linux,
+and macOS. Enable it explicitly when building SimLibs:
+
+```bash
+# Linux / macOS
+./build.sh simlibs_debug PROJECTAIRSIM_ENABLE_ONNX_RUNTIME=TRUE
+```
+
+```bat
+REM Windows (Visual Studio developer command prompt)
+build.cmd simlibs_debug PROJECTAIRSIM_ENABLE_ONNX_RUNTIME=TRUE
+```
+
+Direct CMake users can pass `-DPROJECTAIRSIM_ENABLE_ONNX_RUNTIME=TRUE`.
+Use `FALSE` to disable it again; the build wrappers pass `FALSE` by default,
+including when reusing a previously enabled CMake cache. Direct CMake invocations
+retain the cached choice until explicitly changed.
+
+Rebuild each required SimLibs configuration, then its matching Unreal target
+(Debug for DebugGame, Release for Development/Shipping), and restart the simulator.
+Unreal reads `core_sim/<configuration>/onnx-runtime-enabled.txt` from the SimLibs
+package, so no second Unreal flag is needed. Older SimLibs packages without this
+metadata must be rebuilt.
+
+When disabled, ordinary cameras work normally, but a camera configuration with
+`post-process-model-settings.enabled: true` fails with a rebuild instruction.
+ONNX libraries left over from earlier builds are not linked or staged by disabled
+native targets; existing generated files are not deleted. Use a fresh output
+location when checking the contents of a delivered runtime. Python autonomy
+packages and Unreal Engine's own ONNX components are independent of this flag.

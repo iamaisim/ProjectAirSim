@@ -61,6 +61,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#developing-with-the-project-airsim-client-library">Developing with the Project AirSim client library</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#run-example-client-scripts">Run example client scripts:</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#run-pytest-end-end-tests">Run Pytest end-end tests:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optional-onnx-runtime">Optional ONNX Runtime</a></li>
 </ul>
 </li>
 </ul>
@@ -446,6 +447,34 @@ running simulator.</p>
 <p>Copyright (C) Microsoft Corporation.<br />
 Copyright (C) 2025 IAMAI CONSULTING CORP</p>
 <p>MIT License. All rights reserved.</p>
+</section>
+<section id="optional-onnx-runtime">
+<h3>Optional ONNX Runtime<a class="headerlink" href="#optional-onnx-runtime" title="Link to this heading"></a></h3>
+<p>Native ONNX camera post-processing is excluded by default on Windows, Linux,
+and macOS. Enable it explicitly when building SimLibs:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Linux / macOS</span>
+./build.sh<span class="w"> </span>simlibs_debug<span class="w"> </span><span class="nv">PROJECTAIRSIM_ENABLE_ONNX_RUNTIME</span><span class="o">=</span>TRUE
+</pre></div>
+</div>
+<div class="highlight-bat notranslate"><div class="highlight"><pre><span></span><span class="c1">REM Windows (Visual Studio developer command prompt)</span>
+build.cmd simlibs_debug PROJECTAIRSIM_ENABLE_ONNX_RUNTIME=TRUE
+</pre></div>
+</div>
+<p>Direct CMake users can pass <code class="docutils literal notranslate"><span class="pre">-DPROJECTAIRSIM_ENABLE_ONNX_RUNTIME=TRUE</span></code>.
+Use <code class="docutils literal notranslate"><span class="pre">FALSE</span></code> to disable it again; the build wrappers pass <code class="docutils literal notranslate"><span class="pre">FALSE</span></code> by default,
+including when reusing a previously enabled CMake cache. Direct CMake invocations
+retain the cached choice until explicitly changed.</p>
+<p>Rebuild each required SimLibs configuration, then its matching Unreal target
+(Debug for DebugGame, Release for Development/Shipping), and restart the simulator.
+Unreal reads <code class="docutils literal notranslate"><span class="pre">core_sim/&lt;configuration&gt;/onnx-runtime-enabled.txt</span></code> from the SimLibs
+package, so no second Unreal flag is needed. Older SimLibs packages without this
+metadata must be rebuilt.</p>
+<p>When disabled, ordinary cameras work normally, but a camera configuration with
+<code class="docutils literal notranslate"><span class="pre">post-process-model-settings.enabled:</span> <span class="pre">true</span></code> fails with a rebuild instruction.
+ONNX libraries left over from earlier builds are not linked or staged by disabled
+native targets; existing generated files are not deleted. Use a fresh output
+location when checking the contents of a delivered runtime. Python autonomy
+packages and Unreal Engine’s own ONNX components are independent of this flag.</p>
 </section>
 </section>
 </section>

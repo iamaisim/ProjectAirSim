@@ -327,7 +327,8 @@ contributions.
 - [Join the Project AirSim Discord](https://discord.gg/XprQ2w64uj)
 - Submit focused pull requests for code, tests, documentation, and examples
 
-The roadmap is managed through GitHub issues and discussions. Items labeled
+The [Project AirSim roadmap](roadmap.md) summarizes open items and proposed
+direction. The roadmap is managed through GitHub issues and discussions. Items labeled
 [`roadmap`](https://github.com/iamaisim/ProjectAirSim/labels/roadmap) describe
 planned direction, while items labeled
 [`need help`](https://github.com/iamaisim/ProjectAirSim/labels/need%20help)

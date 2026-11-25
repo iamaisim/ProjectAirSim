@@ -406,3 +406,6 @@ AGENTS.md
 !/tools/release/**
 /tools/release/**/__pycache__/
 /tools/release/**/*.pyc
+
+# Docker dev environment: host-specific paths (see .env.example)
+.env

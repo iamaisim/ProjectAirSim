@@ -439,7 +439,7 @@ ASC_DECL Status World::SpawnObjectFromFile(
       "spawnObjectFromFile",
       json{{"object_name", object_name},
            {"file_format", file_format},
-           {"byte_array", asset_bytes},
+           {"byte_array", json::binary(asset_bytes)},
            {"is_binary", is_binary},
            {"pose", json_pose},
            {"scale", scale},
@@ -481,7 +481,7 @@ ASC_DECL Status World::SpawnObjectFromFileAtGeo(
       "spawnObjectFromFileAtGeo",
       json{{"object_name", object_name},
            {"file_format", file_format},
-           {"byte_array", asset_bytes},
+           {"byte_array", json::binary(asset_bytes)},
            {"is_binary", is_binary},
            {"latitude", latitude},
            {"longitude", longitude},
@@ -1567,10 +1567,14 @@ Status World::Impl::LoadObjectsViaFileFromConfig(
 
         if (vec_float.size() < 3) vec_float.resize(3);
 
-        json_pose["translation"] =
-            mp::Vector3(vec_float[0], vec_float[1], vec_float[2]);
-        json_pose["rotation"] = rpy_quat;
         json_pose["frame_id"] = "DEFAULT_ID";
+        json_pose["translation"]["x"] = vec_float[0];
+        json_pose["translation"]["y"] = vec_float[1];
+        json_pose["translation"]["z"] = vec_float[2];
+        json_pose["rotation"]["w"] = rpy_quat[0];
+        json_pose["rotation"]["x"] = rpy_quat[1];
+        json_pose["rotation"]["y"] = rpy_quat[2];
+        json_pose["rotation"]["z"] = rpy_quat[3];
 
         SpawnObjectFromFile(name, format, vecb_asset, fis_binary, json_pose,
                             scale, fphysics_is_enabled);
@@ -1619,12 +1623,14 @@ Status World::Impl::LoadPackagedObjectsFromConfig(
 
         if (vec_float.size() < 3) vec_float.resize(3);
 
-        json_pose = {
-            {"translation",
-             mp::Vector3(vec_float[0], vec_float[1], vec_float[2])},
-            {"rotation", rpy_quat},
-            {"frame_id", "DEFAULT_ID"},
-        };
+        json_pose["frame_id"] = "DEFAULT_ID";
+        json_pose["translation"]["x"] = vec_float[0];
+        json_pose["translation"]["y"] = vec_float[1];
+        json_pose["translation"]["z"] = vec_float[2];
+        json_pose["rotation"]["w"] = rpy_quat[0];
+        json_pose["rotation"]["x"] = rpy_quat[1];
+        json_pose["rotation"]["y"] = rpy_quat[2];
+        json_pose["rotation"]["z"] = rpy_quat[3];
 
         SpawnObject(str_name, str_asset_path, json_pose, scale,
                     fphysics_is_enabled);
@@ -1970,7 +1976,7 @@ Status World::Impl::SpawnObjectFromFile(const std::string& str_name,
   json json_params = {
       {"object_name", str_name},
       {"file_format", str_file_format},
-      {"binary_array", vecb_asset},
+      {"byte_array", json::binary(vecb_asset)},
       {"is_binary", fis_binary},
       {"pose", json_pose},
       {"scale", vec_float_scale},
@@ -1998,7 +2004,7 @@ Status World::Impl::SpawnObjectFromFileAtGeo(
   Status status;
   json json_params = {
       {"object_name", str_name},    {"file_format", str_file_format},
-      {"binary_array", vecb_asset}, {"is_binary", fis_binary},
+      {"byte_array", json::binary(vecb_asset)}, {"is_binary", fis_binary},
       {"latitude", latitude},       {"longitude", longitude},
       {"altitude", altitude},       {"rotation", rotation},
       {"scale", vec_float_scale},   {"enable_physics", fenable_physics},
